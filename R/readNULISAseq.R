@@ -19,6 +19,7 @@
 readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
   # read in xml file
   xml <- xml2::read_xml(xml_file)
+  # NOTE: NEED TO ADD file_type CONDITIONAL SOMEWHERE
   ###########################
   # save Execution Details
   ###########################
@@ -35,51 +36,44 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
   RunSummary <- xml2::xml_find_first(xml, './/RunSummary')
   RunSummary <- xml2::as_list(RunSummary)
   # save target data in data frame
-  target_barcode <- unlist(lapply(RunSummary$Barcodes$BarcodeA, function(x) attributes(x)$name))
-  target_full_name <- unlist(RunSummary$Barcodes$BarcodeA)
-  # NOTE: CREATE COLUMN WITH TARGET DISPLAY NAME (REMOVE _TXXXXXX)
-  # NOTE: Currently ICs don't match this naming convention
-  # not sure how they will ultimately be formatted... 
-  target_name <- substr(target_full_name, 1, nchar(target_full_name)-8)
-  target_type <- unlist(lapply(RunSummary$Barcodes$BarcodeA, function(x) attributes(x)$Type))
-  uniprotID <- unlist(lapply(RunSummary$Barcodes$BarcodeA, function(x) attributes(x)$META_bio.protein.uniprotid))
-  targets <- data.frame(target_barcode=target_barcode,
-                        target_full_name=target_full_name,
-                        target_name=target_name,
-                        target_type=target_type,
-                        unitprotID=uniprotID)
-  # save sample data in data frame
-  plateID <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)$AUTO_PLATE))
-  sample_barcode <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)$name))
-  sampleName <- unlist(RunSummary$Barcodes$BarcodeB)
-  wellRow <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)$AUTO_WELLROW))
-  wellCol <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)$AUTO_WELLCOL))
-  # add leading zeros to wellCol
-  nZeros <- 2-nchar(wellCol)
-  wellCol <- paste0(sapply(nZeros, function(x) paste0('', rep('0', x))), wellCol)
-  # create unique sample ID
-  sampleID <- paste(plateID, 
-                    sampleName,
-                    paste0(wellRow,wellCol),
-                    sep='_')
-  # create sample type variable
-  sampleType <- rep('Sample', length(sample_barcode))
-  sampleType[grep('NegativeControl', sampleName)] <- 'NegativeControl'
-  sampleType[grep('InterPlateControl', sampleName)] <- 'InterPlateControl'
-  # get covariates
-  attribute_names <- names(attributes(RunSummary$Barcodes$BarcodeB[[1]]))
-  covariate_names <- attribute_names[2:(length(attribute_names)-3)]
-  covariates <- data.frame(matrix(nrow=length(sampleID), ncol=length(covariate_names)))
-  colnames(covariates) <- covariate_names
-  for(i in 2:(length(attribute_names)-3)){
-    covariates[,(i-1)] <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)[i]))
-    # convert all-number covariates to numeric variables
-    if (sum(is.na(suppressWarnings(as.numeric(covariates[,(i-1)]))))==0){
-      covariates[,(i-1)] <- as.numeric(covariates[,(i-1)])
-    } 
+  targetBarcode <- unlist(lapply(RunSummary$Barcodes$BarcodeA, function(x) attributes(x)$name))
+  targetName <- unlist(RunSummary$Barcodes$BarcodeA)
+  # get other target annotations
+  barcodeA_attrs <- names(attributes(RunSummary$Barcodes$BarcodeA[[1]]))
+  barcodeA_attrs <- barcodeA_attrs[barcodeA_attrs!='name']
+  if (length(barcodeA_attrs) > 0){
+    target_metadata <- data.frame(matrix(nrow=length(targetBarcode),
+                                           ncol=length(barcodeA_attrs)))
+    colnames(target_metadata) <- barcodeA_attrs
+    for (i in 1:length(barcodeA_attrs)){
+      target_metadata[,i] <- unlist(lapply(RunSummary$Barcodes$BarcodeA, function(x) attributes(x)[barcodeA_attrs[i]]))
+    }
+    targets <- data.frame(targetBarcode=targetBarcode,
+                          targetName=targetName,
+                          target_metadata)
+  } else if (length(barcodeA_attrs) == 0) {
+    targets <- data.frame(targetBarcode=targetBarcode,
+                          targetName=targetName)
   }
-  samples <- data.frame(sample_barcode, sampleID, plateID, sampleName, 
-                        sampleType, wellRow, wellCol, covariates)
+  # save sample data in data frame
+  sampleBarcode <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)$name))
+  sampleName <- unlist(RunSummary$Barcodes$BarcodeB)
+  # get other sample annotations
+  barcodeB_attrs <- names(attributes(RunSummary$Barcodes$BarcodeB[[1]]))
+  barcodeB_attrs <- barcodeB_attrs[barcodeB_attrs!='name']
+  if (length(barcodeB_attrs) > 0){
+    sample_metadata <- data.frame(matrix(nrow=length(sampleBarcode),
+                                           ncol=length(barcodeB_attrs)))
+    colnames(sample_metadata) <- barcodeB_attrs
+    for (i in 1:length(barcodeB_attrs)){
+      sample_metadata[,i] <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)[barcodeB_attrs[i]]))
+    }
+    samples <- data.frame(sampleBarcode=sampleBarcode, 
+                          sampleName=sampleName, 
+                          sample_metadata)
+  } else if (length(barcodeB_attrs) == 0) {
+    samples <- data.frame(sampleBarcode, sampleName)
+  }
   # save remaining relevant RunSummary data
   BalancerNames <- unlist(lapply(RunSummary$Balancers, attr, 'name'))
   RunSummary <- lapply(RunSummary[c('TotalReads', 
@@ -88,27 +82,6 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
                                     'Unparseable',
                                     'Balancers')], unlist)
   names(RunSummary$Balancers) <- BalancerNames
-  # save plate QC info (threshold)
-  # V (0.5): CV of number of IC reads across samples 
-  # I (0.5): CV of total read count for each IPC sample
-  # N (0.1): Fraction of NC_reads / total_cognate_reads
-  # U (0.5): Fraction of unparseable reads / total reads
-  # P (0.2): median CV of all IPC targets (on normalized data)
-  plateQC <- xml2::xml_find_first(xml, './/PlateQC')
-  QCFlags <- xml2::xml_find_all(plateQC, './/QCFlag')
-  QCFlag_names <- unlist(xml2::xml_attrs(QCFlags))
-  QCFlag_values <- xml2::xml_double(QCFlags)
-  PlateQC <- data.frame(PlateID=samples$plateID[1],
-                        V=NA, I=NA, N=NA, U=NA, P=NA)
-  for (flag in c('V', 'I', 'N', 'U', 'P')){
-    if (sum(QCFlag_names==flag) > 0){
-      PlateQC[,flag] <- QCFlag_values[QCFlag_names==flag]
-    }
-  }
-  # combine RunSummary data
-  RunSummary <- c(PlateID=samples$plateID[1], 
-                  RunSummary,
-                  PlateQC=list(PlateQC))
   
   ###########################
   # parse the Data section
@@ -121,18 +94,18 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
   # raw background
   NCBkgd_Raw <- NCBkgdMethods[1]
   bkgd_raw <- xml2::xml_double(xml2::xml_find_all(NCBkgd_Raw, './/Target'))
-  target_barcode <- xml2::xml_attr(xml2::xml_find_all(NCBkgd_Raw, './/Target'), 'name')
-  NCBkgd_Raw <- data.frame(target_barcode, bkgd_raw)
+  targetBarcode <- xml2::xml_attr(xml2::xml_find_all(NCBkgd_Raw, './/Target'), 'name')
+  NCBkgd_Raw <- data.frame(targetBarcode, bkgd_raw)
   # IC background
   NCBkgd_IC <- NCBkgdMethods[2]
   bkgd_IC <- xml2::xml_double(xml2::xml_find_all(NCBkgd_IC, './/Target'))
-  target_barcode <- xml2::xml_attr(xml2::xml_find_all(NCBkgd_IC, './/Target'), 'name')
-  NCBkgd_IC <- data.frame(target_barcode, bkgd_IC)
+  targetBarcode <- xml2::xml_attr(xml2::xml_find_all(NCBkgd_IC, './/Target'), 'name')
+  NCBkgd_IC <- data.frame(targetBarcode, bkgd_IC)
   # merge background levels with target data frame
   targets <- merge(targets, NCBkgd_Raw, all=TRUE)
   targets <- merge(targets, NCBkgd_IC, all=TRUE)
   # sort alphabetically by target full name 
-  targets <- targets[order(targets$target_full_name),]
+  targets <- targets[order(targets$targetName),]
   
   ###########################
   # target counts
@@ -145,24 +118,24 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
   # convert "signal", "bkgd" to numeric values
   SignalBkgd[, c("signal", "bkgd")] <- sapply(SignalBkgd[, c("signal", "bkgd")], as.numeric)
   # loop over sample replicates and save data
-  Data_IC <- targets[,c('target_barcode', 'target_full_name')]
-  Data_TC <- targets[,c('target_barcode', 'target_full_name')]
-  Data_raw <- targets[,c('target_barcode', 'target_full_name')]
-  aboveBkgd_IC <- targets[,c('target_barcode', 'target_full_name')]
-  aboveBkgd_TC <- targets[,c('target_barcode', 'target_full_name')]
-  aboveBkgd_raw <- targets[,c('target_barcode', 'target_full_name')]
-  sample_barcode <- c()
+  Data_IC <- targets[,c('targetBarcode', 'targetName')]
+  Data_TC <- targets[,c('targetBarcode', 'targetName')]
+  Data_raw <- targets[,c('targetBarcode', 'targetName')]
+  aboveBkgd_IC <- targets[,c('targetBarcode', 'targetName')]
+  aboveBkgd_TC <- targets[,c('targetBarcode', 'targetName')]
+  aboveBkgd_raw <- targets[,c('targetBarcode', 'targetName')]
+  sampleBarcode <- c()
   # sample QC values (threshold):
   # B (0.8): Minimum fraction of targets with reads above background
   # C (0.9): Minimum fraction cognate reads / total reads
   # I (500.0): Minimum number of IC reads in a sample 
   SampleQC <- NULL
   for(i in 1:length(SampleReplicates)){
-    sample_barcode[i] <- xml2::xml_attr(SampleReplicates[[i]], 'name')
+    sampleBarcode[i] <- xml2::xml_attr(SampleReplicates[[i]], 'name')
     QCFlags <- xml2::xml_find_all(SampleReplicates[[i]], './/QCFlag')
     QCFlag_names <- unlist(xml2::xml_attrs(QCFlags))
     QCFlag_values <- xml2::xml_double(QCFlags)
-    SampleQC_i <- data.frame(sample_barcode=xml2::xml_attr(SampleReplicates[[i]], 'name'),
+    SampleQC_i <- data.frame(sampleBarcode=xml2::xml_attr(SampleReplicates[[i]], 'name'),
                              B=NA, C=NA, I=NA)
     for (flag in c('B', 'C', 'I')){
       if (sum(QCFlag_names==flag) > 0){
@@ -173,53 +146,53 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
     methods <- xml2::xml_find_all(SampleReplicates[[i]], './/Method')
     method_names <- xml2::xml_attr(methods, 'name')
     # IC data
-    target_barcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='IC']), 'name')
-    IC_Data <- cbind(target_barcode, 
+    targetBarcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='IC']), 'name')
+    IC_Data <- cbind(targetBarcode, 
                      xml2::xml_double(xml2::xml_children(methods[method_names=='IC'])))
-    colnames(IC_Data)[2] <- sample_barcode[i]
-    IC_aboveBkgd <- cbind(target_barcode, 
+    colnames(IC_Data)[2] <- sampleBarcode[i]
+    IC_aboveBkgd <- cbind(targetBarcode, 
                           xml2::xml_attr(xml2::xml_children(methods[method_names=='IC']), 'aboveBkgd'))
-    colnames(IC_aboveBkgd)[2] <- sample_barcode[i]
+    colnames(IC_aboveBkgd)[2] <- sampleBarcode[i]
     # merge with rest of data
     Data_IC <- merge(Data_IC, IC_Data, 
-                     all.x=TRUE, by='target_barcode')
+                     all.x=TRUE, by='targetBarcode')
     aboveBkgd_IC <- merge(aboveBkgd_IC, IC_aboveBkgd,
-                          all.x=TRUE, by='target_barcode')
+                          all.x=TRUE, by='targetBarcode')
     # TC data
-    target_barcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='TC']), 'name')
-    TC_Data <- cbind(target_barcode, 
+    targetBarcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='TC']), 'name')
+    TC_Data <- cbind(targetBarcode, 
                      xml2::xml_double(xml2::xml_children(methods[method_names=='TC'])))
-    colnames(TC_Data)[2] <- sample_barcode[i]
-    TC_aboveBkgd <- cbind(target_barcode, 
+    colnames(TC_Data)[2] <- sampleBarcode[i]
+    TC_aboveBkgd <- cbind(targetBarcode, 
                           xml2::xml_attr(xml2::xml_children(methods[method_names=='TC']), 'aboveBkgd'))
-    colnames(TC_aboveBkgd)[2] <- sample_barcode[i]
+    colnames(TC_aboveBkgd)[2] <- sampleBarcode[i]
     # merge with rest of data
     Data_TC <- merge(Data_TC, TC_Data, 
-                     all.x=TRUE, by='target_barcode')
+                     all.x=TRUE, by='targetBarcode')
     aboveBkgd_TC <- merge(aboveBkgd_TC, TC_aboveBkgd,
-                          all.x=TRUE, by='target_barcode')
+                          all.x=TRUE, by='targetBarcode')
     # raw data
-    target_barcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='raw']), 'name')
-    raw_Data <- cbind(target_barcode, 
+    targetBarcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='raw']), 'name')
+    raw_Data <- cbind(targetBarcode, 
                       xml2::xml_double(xml2::xml_children(methods[method_names=='raw'])))
-    colnames(raw_Data)[2] <- sample_barcode[i]
-    raw_aboveBkgd <- cbind(target_barcode, 
+    colnames(raw_Data)[2] <- sampleBarcode[i]
+    raw_aboveBkgd <- cbind(targetBarcode, 
                            xml2::xml_attr(xml2::xml_children(methods[method_names=='raw']), 'aboveBkgd'))
-    colnames(raw_aboveBkgd)[2] <- sample_barcode[i]
+    colnames(raw_aboveBkgd)[2] <- sampleBarcode[i]
     # merge with rest of data
     Data_raw <- merge(Data_raw, raw_Data, 
-                      all.x=TRUE, by='target_barcode')
+                      all.x=TRUE, by='targetBarcode')
     aboveBkgd_raw <- merge(aboveBkgd_raw, raw_aboveBkgd,
-                           all.x=TRUE, by='target_barcode')
+                           all.x=TRUE, by='targetBarcode')
   }
   # add signal / background and QC to samples data frame
-  sample_covariates <- samples[,c('sample_barcode', covariate_names)]
+  sample_covariates <- samples[,c('sampleBarcode', covariate_names)]
   samples <- merge(samples[,1:7], SignalBkgd, 
-                   by.x='sample_barcode', by.y='name', all=TRUE)
-  colnames(SampleQC) <- c('sample_barcode',
+                   by.x='sampleBarcode', by.y='name', all=TRUE)
+  colnames(SampleQC) <- c('sampleBarcode',
                           'QCFlag_B', 'QCFlag_C', 'QCFlag_I')
-  samples <- merge(samples, SampleQC, by='sample_barcode')
-  samples <- merge(samples, sample_covariates, by='sample_barcode')
+  samples <- merge(samples, SampleQC, by='sampleBarcode')
+  samples <- merge(samples, sample_covariates, by='sampleBarcode')
   # sort samples by sample name and then sample type
   samples <- samples[order(samples$sampleName),]
   sampleTypeOrder <- c('Sample', 'InterPlateControl', 'NegativeControl')
@@ -234,12 +207,12 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
   ###########################
   SampleCombined <- xml2::xml_find_all(SampleData, './/Combined')
   # loop over samples and save data
-  DataCombined_IC <- targets[,c('target_barcode', 'target_full_name')]
-  DataCombined_TC <- targets[,c('target_barcode', 'target_full_name')]
-  DataCombined_raw <- targets[,c('target_barcode', 'target_full_name')]
-  aboveBkgdCombined_IC <- targets[,c('target_barcode', 'target_full_name')]
-  aboveBkgdCombined_TC <- targets[,c('target_barcode', 'target_full_name')]
-  aboveBkgdCombined_raw <- targets[,c('target_barcode', 'target_full_name')]
+  DataCombined_IC <- targets[,c('targetBarcode', 'targetName')]
+  DataCombined_TC <- targets[,c('targetBarcode', 'targetName')]
+  DataCombined_raw <- targets[,c('targetBarcode', 'targetName')]
+  aboveBkgdCombined_IC <- targets[,c('targetBarcode', 'targetName')]
+  aboveBkgdCombined_TC <- targets[,c('targetBarcode', 'targetName')]
+  aboveBkgdCombined_raw <- targets[,c('targetBarcode', 'targetName')]
   sampleName <- c()
   replicates <- c()
   SampleCombinedQC <- NULL
@@ -259,44 +232,44 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
     methods <- xml2::xml_find_all(SampleCombined[[i]], './/Method')
     method_names <- xml2::xml_attr(methods, 'name')
     # IC data
-    target_barcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='IC']), 'name')
-    IC_Data <- cbind(target_barcode, 
+    targetBarcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='IC']), 'name')
+    IC_Data <- cbind(targetBarcode, 
                      xml2::xml_double(xml2::xml_children(methods[method_names=='IC'])))
     colnames(IC_Data)[2] <- sampleName[i]
-    IC_aboveBkgd <- cbind(target_barcode, 
+    IC_aboveBkgd <- cbind(targetBarcode, 
                           xml2::xml_attr(xml2::xml_children(methods[method_names=='IC']), 'aboveBkgd'))
     colnames(IC_aboveBkgd)[2] <- sampleName[i]
     # merge with rest of data
     DataCombined_IC <- merge(DataCombined_IC, IC_Data, 
-                             all.x=TRUE, by='target_barcode')
+                             all.x=TRUE, by='targetBarcode')
     aboveBkgdCombined_IC <- merge(aboveBkgdCombined_IC, IC_aboveBkgd,
-                                  all.x=TRUE, by='target_barcode')
+                                  all.x=TRUE, by='targetBarcode')
     # TC data
-    target_barcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='TC']), 'name')
-    TC_Data <- cbind(target_barcode, 
+    targetBarcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='TC']), 'name')
+    TC_Data <- cbind(targetBarcode, 
                      xml2::xml_double(xml2::xml_children(methods[method_names=='TC'])))
     colnames(TC_Data)[2] <- sampleName[i]
-    TC_aboveBkgd <- cbind(target_barcode, 
+    TC_aboveBkgd <- cbind(targetBarcode, 
                           xml2::xml_attr(xml2::xml_children(methods[method_names=='TC']), 'aboveBkgd'))
     colnames(TC_aboveBkgd)[2] <- sampleName[i]
     # merge with rest of data
     DataCombined_TC <- merge(DataCombined_TC, TC_Data, 
-                             all.x=TRUE, by='target_barcode')
+                             all.x=TRUE, by='targetBarcode')
     aboveBkgdCombined_TC <- merge(aboveBkgdCombined_TC, TC_aboveBkgd,
-                                  all.x=TRUE, by='target_barcode')
+                                  all.x=TRUE, by='targetBarcode')
     # raw data
-    target_barcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='raw']), 'name')
-    raw_Data <- cbind(target_barcode, 
+    targetBarcode <- xml2::xml_attr(xml2::xml_children(methods[method_names=='raw']), 'name')
+    raw_Data <- cbind(targetBarcode, 
                       xml2::xml_double(xml2::xml_children(methods[method_names=='raw'])))
     colnames(raw_Data)[2] <- sampleName[i]
-    raw_aboveBkgd <- cbind(target_barcode, 
+    raw_aboveBkgd <- cbind(targetBarcode, 
                            xml2::xml_attr(xml2::xml_children(methods[method_names=='raw']), 'aboveBkgd'))
     colnames(raw_aboveBkgd)[2] <- sampleName[i]
     # merge with rest of data
     DataCombined_raw <- merge(DataCombined_raw, raw_Data, 
-                              all.x=TRUE, by='target_barcode')
+                              all.x=TRUE, by='targetBarcode')
     aboveBkgdCombined_raw <- merge(aboveBkgdCombined_raw, raw_aboveBkgd,
-                                   all.x=TRUE, by='target_barcode')
+                                   all.x=TRUE, by='targetBarcode')
   }
   # create a samples combined data.frame
   samples_combined <- cbind(sampleName, replicates)
@@ -326,14 +299,14 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
   # all sample replicate data
   convert_to_matrix <- function(dataFrame){
     # sort rows to match target data frame order
-    dataFrame <- dataFrame[order(dataFrame$target_full_name),]
+    dataFrame <- dataFrame[order(dataFrame$targetName),]
     # sort columns to match sample data frame order
-    sampleOrder <- match(samples$sample_barcode, colnames(dataFrame)[3:ncol(dataFrame)])
+    sampleOrder <- match(samples$sampleBarcode, colnames(dataFrame)[3:ncol(dataFrame)])
     dataFrame <- dataFrame[,c(1,2,sampleOrder+2)]
     dataMatrix <- as.matrix(dataFrame[,3:ncol(dataFrame)])
     dataMatrix <- apply(dataMatrix, 2, as.numeric)
-    rownames(dataMatrix) <- dataFrame$target_barcode
-    sampleID_order <- match(colnames(dataFrame)[3:ncol(dataFrame)], samples$sample_barcode)
+    rownames(dataMatrix) <- dataFrame$targetBarcode
+    sampleID_order <- match(colnames(dataFrame)[3:ncol(dataFrame)], samples$sampleBarcode)
     colnames(dataMatrix) <- samples$sampleID[sampleID_order]
     return(dataMatrix)
   }
@@ -346,13 +319,13 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
   # combined sample replicate data
   convert_to_matrix_combined <- function(dataFrame){
     # sort rows to match target data frame order
-    dataFrame <- dataFrame[order(dataFrame$target_full_name),]
+    dataFrame <- dataFrame[order(dataFrame$ ),]
     # sort columns to match sample data frame order
     sampleOrder <- match(samples_combined$sampleName, colnames(dataFrame)[3:ncol(dataFrame)])
     dataFrame <- dataFrame[,c(1,2,sampleOrder+2)]
     dataMatrix <- as.matrix(dataFrame[,3:ncol(dataFrame)])
     dataMatrix <- apply(dataMatrix, 2, as.numeric)
-    rownames(dataMatrix) <- dataFrame$target_barcode
+    rownames(dataMatrix) <- dataFrame$targetBarcode
     colnames(dataMatrix) <- paste(plateID[1], colnames(dataFrame)[3:ncol(dataFrame)], sep='_')
     return(dataMatrix)
   }
