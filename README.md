@@ -4,7 +4,7 @@ NULISAseq R package
 ## How to install
 
 1. Create a personal access token at 
-[https://github.com/settings/tokens](https://github.com/settings/tokens)
+[https://github.com/settings/tokens](https://github.com/settings/tokens). Check the "repo" box.
 
 2. Run the following R code, where `tokenstring` is the personal access token:
 ```
