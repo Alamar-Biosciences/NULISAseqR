@@ -5,8 +5,7 @@
 #'
 #'
 #' @docType package
-#'
-#' @author Joanne C. Beer \email{jbeer@alamarbio.com}
-#'
 #' @name NULISAseqR
+#' @author Joanne C. Beer \email{jbeer@alamarbio.com}
+#' @import xml2
 NULL
