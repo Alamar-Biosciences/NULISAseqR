@@ -4,13 +4,13 @@
 \alias{readNULISAseq}
 \title{Read NULISAseq XML}
 \usage{
-readNULISAseq(xml_file, file_type)
+readNULISAseq(xml_file, file_type = "xml_no_mismatches")
 }
 \arguments{
-\item{xml_file}{Path and name of the file.}
+\item{xml_file}{Character string. Path and name of the file.}
 
-\item{file_type}{Type of input file, as output from Galaxy. Options include
-xml_full_output, xml_no_mismatches (both from NULISAseq tool),
+\item{file_type}{Character string. Type of input file, as output from Galaxy. Options include
+xml_full_output, xml_no_mismatches (default) (both from NULISAseq tool),
 or xml_normalization (from NULISAseq Normalization tool).}
 }
 \value{
