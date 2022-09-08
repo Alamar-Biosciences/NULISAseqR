@@ -15,9 +15,12 @@
 #' row name(s) (character string) of the internal control(s) to be used 
 #' for normalization. Raw data_matrix will be divided by IC data_matrix or 
 #' by the geometric mean of IC data_matrix.
-#' @param NC Required for 'total_count' method. Vector of either 
+#' @param NC Recommended for 'total_count' method when negative control 
+#' wells are present. Vector of either 
 #' the column(s) (numeric) or the column name(s) (character string) 
-#' of the internal control(s).
+#' of the negative control(s). For total count method, NCs will be scaled such
+#' that the (total non-NC count : total NC count) ratio is the same 
+#' in both the un-normalized and the normalized data.
 #' @param TC_omit Required for 'total_count' method only.
 #' Vector of either the row indices (numeric) or the 
 #' row names (character string) of any targets that should be omitted
@@ -39,11 +42,13 @@
 #' @export
 #' 
 intraPlateNorm <- function(data_matrix, 
-                           method='single',
+                           method='IC',
                            IC=NULL,
+                           NC=NULL,
                            TC_omit=NULL,
                            scaleFactor=1){
-  if (method=='single' | method=='geom_mean'){
+  
+  if (method=='IC'){
     if (is.null(IC)){
       stop('Must specify ICs.')
     }
@@ -52,29 +57,46 @@ intraPlateNorm <- function(data_matrix,
       cat(paste0('Warning: ' , IC_missing, ' missing or zero values in internal control data. 
                  Normalized data for these samples will all be missing values.'))
     }
-  }
-  if (method=='single'){
-    # normalize using single internal control
-    if (length(IC) > 1){
-      stop('Must specify only one IC for method single.')
+    if (length(IC) == 1){
+      # normalize using single internal control
+      cat('Using single IC to normalize data.')
+      normFactor <- scaleFactor/data_matrix[IC,]
+      normCounts <- t(t(data_matrix)*normFactor)
+    } else if (length(IC) > 1){
+      # normalize using geometric mean of internal controls
+      cat('Using geometric mean of multiple ICs to normalize data.')
+      normFactor <- scaleFactor/apply(data_matrix[IC,], 2, function(x) {
+        prod(x)^(1/length(x))
+      })
+      normCounts <- t(t(data_matrix)*normFactor)
     }
-    normFactor <- scaleFactor/data_matrix[IC,]
-    normCounts <- t(t(data_matrix)*normFactor)
-  } else if (method=='geom_mean'){
-    # normalize using geometric mean of internal controls
-    normFactor <- scaleFactor/apply(data_matrix[IC,], 2, function(x) {
-      prod(x)^(1/length(x))
-    })
-    normCounts <- t(t(data_matrix)*normFactor)
   } else if (method=='total_count'){
     # rescale each row to sum to 10^6 (excluding "TC_omit" columns)
     if (!is.null(TC_omit)){
+      if (!is.numeric(TC_omit[1])){
+        TC_omit <- which(rownames(data_matrix) %in% TC_omit)
+      }
       data_matrix_TC <- data_matrix[-TC_omit,]
     } else {
       data_matrix_TC <- data_matrix
     }
     totalCounts <- colSums(data_matrix_TC, na.rm=TRUE)
-    normFactor <- scaleFactor*(10^6/totalCounts)
+    if (!is.null(NC)){
+      # calculate non-NC to NC count ratio
+      if (!is.numeric(NC[1])){
+        NC <- which(colnames(data_matrix) %in% NC)
+      }
+      NC_counts <- sum(data_matrix_TC[,NC], na.rm=TRUE)
+      non_NC_counts <- sum(data_matrix_TC[,-NC], na.rm=TRUE)
+      NC_count_ratio <- NC_counts/non_NC_counts
+      n_NC <- length(NC)
+      n_non_NC <- ncol(data_matrix) - n_NC
+      NC_scaleFactor <- rep(1, length(totalCounts))
+      NC_scaleFactor[NC] <- NC_count_ratio*(n_non_NC/n_NC)
+    } else {
+      NC_scaleFactor <- rep(1, length(totalCounts))
+    }
+    normFactor <- scaleFactor*(10^6/totalCounts)*NC_scaleFactor
     normCounts <- t(t(data_matrix)*normFactor)
   }
   # return normalized count matrix
