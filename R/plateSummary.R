@@ -202,7 +202,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
     NC_means_per_target <- format(round(NC_means_per_target, 1), nsmall=1)
     # max target counts
     NC_max <- apply(NC_data, 2, max, na.rm=TRUE)
-    NC_mean_max <- max(NC_means, na.rm=TRUE)
+    NC_mean_max <- format(round(max(NC_means, na.rm=TRUE), 1), nsmall=1)
     NC_maxs <- c('', NC_max, NC_mean_max)
     # missing n %
     NC_total_missing <- sum(is.na(NC_data)) + sum(NC_data==0, na.rm=TRUE)
