@@ -47,3 +47,21 @@ interCV <- function(norm_data,
   avgCV[!is.finite(avgCV)] <- NA
   return(list(CV=CV, avgCV=avgCV))
 }
+
+CV <- function(interPlateNormData,
+               techReps){
+  CV <- matrix(nrow=30, ncol=40)
+  colnames(CV) <- colnames(interPlateNormData)[4:43]
+  for(i in 1:30){
+    data_i <- interPlateNormData[techReps==i,4:43]
+    means_i <- colMeans(data_i)
+    sds_i <- apply(data_i, 2, sd)
+    cvs_i <- sds_i/means_i*100
+    CV[i,] <- cvs_i
+  }
+  meanCV <- colMeans(CV, na.rm=TRUE)
+  medianCV <- apply(CV, 2, median, na.rm=TRUE)
+  return(list(CV=CV,
+              meanCV=meanCV,
+              medianCV=medianCV))
+}
