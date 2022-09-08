@@ -5,10 +5,10 @@
 #' Input is the output of readNULISAseq.R Data matrix.
 #'
 #' @param data_matrix The Data matrix output from readNULISAseq.R.
-#' @param method \code{'IC'} (default) divides each target count by 
-#' the specified IC count for a given sample well; 
+#' @param method \code{'IC'} (internal control; default) divides 
+#' each target count by the specified IC count for a given sample well; 
 #' if multiple ICs are specified uses geometric mean of several ICs.
-#' \code{'total_count'} scales each sample well so data_matrix sum to 
+#' \code{'TC'} (total count)  scales each sample well so data_matrix sum to 
 #' one million (except NC wells and omitted target data_matrix).
 #' @param IC Required for 'single' and 'geom_mean' methods. 
 #' Vector of either the row(s) (numeric) or the 
@@ -21,15 +21,19 @@
 #' of the negative control(s). For total count method, NCs will be scaled such
 #' that the (total non-NC count : total NC count) ratio is the same 
 #' in both the un-normalized and the normalized data.
-#' @param TC_omit Required for 'total_count' method only.
+#' @param TC_omit Option for 'total_count' method only.
 #' Vector of either the row indices (numeric) or the 
-#' row names (character string) of any targets that should be omitted
+#' row names (character string) of any targets, if any, 
+#' that should be omitted
 #' from the total count normalization. For example, it may be desirable to
 #' omit IC data_matrix if IC data_matrix are high. 
 #' Omitted targets will be rescaled but will not be used in calculating
 #' the scaling factors.
 #' @param scaleFactor. Optional numeric value used to rescale data 
-#' after normalizing. Default is 1.
+#' after normalizing. Default is 1. This may be desirable if there are 
+#' many targets with read counts less than the IC counts, to avoid
+#' normalized quantities between 0 and 1 (which will be negative
+#' in the log scale).
 #'
 #' @return 
 #' @param normData A matrix of normalized count data (not log-transformed).
@@ -70,7 +74,7 @@ intraPlateNorm <- function(data_matrix,
       })
       normCounts <- t(t(data_matrix)*normFactor)
     }
-  } else if (method=='total_count'){
+  } else if (method=='TC'){
     # rescale each row to sum to 10^6 (excluding "TC_omit" columns)
     if (!is.null(TC_omit)){
       if (!is.numeric(TC_omit[1])){
@@ -100,5 +104,8 @@ intraPlateNorm <- function(data_matrix,
     normCounts <- t(t(data_matrix)*normFactor)
   }
   # return normalized count matrix
-  return(normCounts)
+  return(list(
+    normData=normCounts,
+    normFactor=normFactor
+    ))
 }
