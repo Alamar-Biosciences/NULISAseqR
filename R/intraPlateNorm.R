@@ -15,10 +15,11 @@
 #' row name(s) (character string) of the internal control(s) to be used 
 #' for normalization. Raw data_matrix will be divided by IC data_matrix or 
 #' by the geometric mean of IC data_matrix.
-#' @param NC Recommended for 'total_count' method when negative control 
+#' @param NC_wells Recommended for 'total_count' method when negative control 
 #' wells are present. Vector of either 
-#' the column(s) (numeric) or the column name(s) (character string) 
-#' of the negative control(s). For total count method, NCs will be scaled such
+#' the column indices (numeric) or the column names (character string) 
+#' for the negative control wells. For total count method, 
+#' NCs will be scaled such
 #' that the (total non-NC count : total NC count) ratio is the same 
 #' in both the un-normalized and the normalized data.
 #' @param TC_omit Option for 'total_count' method only.
@@ -48,7 +49,7 @@
 intraPlateNorm <- function(data_matrix, 
                            method='IC',
                            IC=NULL,
-                           NC=NULL,
+                           NC_wells=NULL,
                            TC_omit=NULL,
                            scaleFactor=1){
   
@@ -85,18 +86,18 @@ intraPlateNorm <- function(data_matrix,
       data_matrix_TC <- data_matrix
     }
     totalCounts <- colSums(data_matrix_TC, na.rm=TRUE)
-    if (!is.null(NC)){
+    if (!is.null(NC_wells)){
       # calculate non-NC to NC count ratio
-      if (!is.numeric(NC[1])){
-        NC <- which(colnames(data_matrix) %in% NC)
+      if (!is.numeric(NC_wells[1])){
+        NC_wells <- which(colnames(data_matrix) %in% NC_wells)
       }
-      NC_counts <- sum(data_matrix_TC[,NC], na.rm=TRUE)
-      non_NC_counts <- sum(data_matrix_TC[,-NC], na.rm=TRUE)
+      NC_counts <- sum(data_matrix_TC[,NC_wells], na.rm=TRUE)
+      non_NC_counts <- sum(data_matrix_TC[,-NC_wells], na.rm=TRUE)
       NC_count_ratio <- NC_counts/non_NC_counts
-      n_NC <- length(NC)
+      n_NC <- length(NC_wells)
       n_non_NC <- ncol(data_matrix) - n_NC
       NC_scaleFactor <- rep(1, length(totalCounts))
-      NC_scaleFactor[NC] <- NC_count_ratio*(n_non_NC/n_NC)
+      NC_scaleFactor[NC_wells] <- NC_count_ratio*(n_non_NC/n_NC)
     } else {
       NC_scaleFactor <- rep(1, length(totalCounts))
     }
