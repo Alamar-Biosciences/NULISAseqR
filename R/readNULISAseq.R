@@ -4,6 +4,12 @@
 #' Biosciences Galaxy NULISAseq (Beta) tool or the NULISAseq Normalization (Alpha) tool.
 #'
 #' @param xml_file Character string. Path and name of the file.
+#' @param plate_ID Character string that will be added to the beginning of
+#' column names before the sample name. This is helpful for 
+#' identifying the plate each sample came from 
+#' after interplate normalization. If no plate ID is given, the function
+#' will use the date and time in the execution details (this is 
+#' very long so it is recommended to provide a plate ID!).
 #' @param file_type Character string. Type of input file, as output from Galaxy. Options include
 #' xml_full_output, xml_no_mismatches (default) (both from NULISAseq tool),
 #' or xml_normalization (from NULISAseq Normalization tool).
@@ -16,10 +22,11 @@
 #'
 #' @export
 #'
-readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
+readNULISAseq <- function(xml_file, 
+                          plate_ID=NULL, 
+                          file_type='xml_no_mismatches'){
   # read in xml file
   xml <- xml2::read_xml(xml_file)
-  # NOTE: NEED TO ADD file_type CONDITIONAL SOMEWHERE
   
   ###########################
   # save Execution Details
@@ -122,9 +129,17 @@ readNULISAseq <- function(xml_file, file_type='xml_no_mismatches'){
   # convert Data to numeric matrix
   DataMatrix <- as.matrix(Data[,3:ncol(Data)])
   DataMatrix <- apply(DataMatrix, 2, as.numeric)
-  # and add row names
+  # add row names
   rownames(DataMatrix) <- Data$targetName
-  colnames(DataMatrix) <- samples$sampleName
+  # add column names
+  # if no plate ID given, use date and time
+  if (is.null(plate_ID)){
+    # replace space with underscore
+    plate_ID <- gsub(" ", "_", ExecutionDetails$Date, fixed = TRUE)
+    # remove day of week
+    plate_ID <- substr(plate_ID, 5, nchar(plate_ID))
+  }
+  colnames(DataMatrix) <- paste(plate_ID, samples$sampleName, sep='_')
   
   ###########################
   # return the output
