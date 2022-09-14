@@ -27,7 +27,7 @@
 #' row names (character string) of any targets, if any, 
 #' that should be omitted
 #' from the total count normalization. For example, it may be desirable to
-#' omit IC data_matrix if IC data_matrix are high. 
+#' omit IC if IC counts are high. 
 #' Omitted targets will be rescaled but will not be used in calculating
 #' the scaling factors.
 #' @param scaleFactor. Optional numeric value used to rescale data 
