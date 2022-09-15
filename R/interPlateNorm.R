@@ -57,7 +57,7 @@
 #'
 #' @export
 #' 
-interPlateNorm - function(data_list,
+interPlateNorm <- function(data_list,
                           IPC=TRUE,
                           IN=FALSE,
                           IPC_wells=NULL,
