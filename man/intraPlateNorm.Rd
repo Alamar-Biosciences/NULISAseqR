@@ -8,7 +8,7 @@ intraPlateNorm(
   data_matrix,
   method = "IC",
   IC = NULL,
-  NC = NULL,
+  NC_wells = NULL,
   TC_omit = NULL,
   scaleFactor = 1
 )
@@ -28,10 +28,11 @@ row name(s) (character string) of the internal control(s) to be used
 for normalization. Raw data_matrix will be divided by IC data_matrix or 
 by the geometric mean of IC data_matrix.}
 
-\item{NC}{Recommended for 'total_count' method when negative control 
+\item{NC_wells}{Recommended for 'total_count' method when negative control 
 wells are present. Vector of either 
-the column(s) (numeric) or the column name(s) (character string) 
-of the negative control(s). For total count method, NCs will be scaled such
+the column indices (numeric) or the column names (character string) 
+for the negative control wells. For total count method, 
+NCs will be scaled such
 that the (total non-NC count : total NC count) ratio is the same 
 in both the un-normalized and the normalized data.}
 
@@ -40,7 +41,7 @@ Vector of either the row indices (numeric) or the
 row names (character string) of any targets, if any, 
 that should be omitted
 from the total count normalization. For example, it may be desirable to
-omit IC data_matrix if IC data_matrix are high. 
+omit IC if IC counts are high. 
 Omitted targets will be rescaled but will not be used in calculating
 the scaling factors.}
 
