@@ -4,7 +4,7 @@
 #' Biosciences Galaxy NULISAseq (Beta) tool or the NULISAseq Normalization (Alpha) tool.
 #'
 #' @param xml_file Character string. Path and name of the file.
-#' @param plate_ID Character string that will be added to the beginning of
+#' @param plateID Character string that will be added to the beginning of
 #' column names before the sample name. This is helpful for 
 #' identifying the plate each sample came from 
 #' after interplate normalization. If no plate ID is given, the function
@@ -23,7 +23,7 @@
 #' @export
 #'
 readNULISAseq <- function(xml_file, 
-                          plate_ID=NULL, 
+                          plateID=NULL, 
                           file_type='xml_no_mismatches'){
   # read in xml file
   xml <- xml2::read_xml(xml_file)
@@ -133,18 +133,19 @@ readNULISAseq <- function(xml_file,
   rownames(DataMatrix) <- Data$targetName
   # add column names
   # if no plate ID given, use date and time
-  if (is.null(plate_ID)){
+  if (is.null(plateID)){
     # replace space with underscore
-    plate_ID <- gsub(" ", "_", ExecutionDetails$Date, fixed = TRUE)
+    plateID <- gsub(" ", "_", ExecutionDetails$Date, fixed = TRUE)
     # remove day of week
-    plate_ID <- substr(plate_ID, 5, nchar(plate_ID))
+    plateID <- substr(plateID, 5, nchar(plateID))
   }
-  colnames(DataMatrix) <- paste(plate_ID, samples$sampleName, sep='_')
+  colnames(DataMatrix) <- paste(plateID, samples$sampleName, sep='_')
   
   ###########################
   # return the output
   ###########################
   return(list(
+    plateID=plateID,
     ExecutionDetails=ExecutionDetails,
     RunSummary=RunSummary,
     targets=targets,
