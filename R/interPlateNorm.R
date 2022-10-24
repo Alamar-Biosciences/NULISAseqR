@@ -164,8 +164,9 @@ interPlateNorm <- function(data_list,
   for (i in 1:length(plateNs)){
     plate <- c(plate, rep(i, plateNs[i]))
   }
+  # create a merged version of the data
   
   # return output
-  return(interNormData=interNormData,
-         plate=plate)
+  return(list(interNormData=data_list,
+         plate=plate))
 }
