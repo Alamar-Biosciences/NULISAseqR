@@ -13,9 +13,7 @@
 #'
 #' @export
 #' 
-# NEEDS EDITING
-colors_ICs <- unlist(alamarColorPalette(n=1, nReps=2, interpolate=TRUE, interpolateIndex=6))
-plot_ICs <- function(countMatrix,
+sampleBoxplot <- function(data_matrix,
                      ICindex,
                      PICindex,
                      well_order,
