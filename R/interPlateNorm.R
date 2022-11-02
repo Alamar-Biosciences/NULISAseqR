@@ -46,7 +46,7 @@
 #' normalized quantities between 0 and 1 (which will be negative
 #' in the log scale).
 #'
-#' @return 
+#' @return A list.
 #' @param interNormData A matrix of normalized count data (not log-transformed).
 #' @param plate A vector of integers 1-(number of plates) 
 #' corresponding to the interNormData matrix columns
