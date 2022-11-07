@@ -2,6 +2,7 @@
 
 export(interPlateNorm)
 export(intraPlateNorm)
+export(lod)
 export(plateSummary)
 export(readNULISAseq)
 import(xml2)
