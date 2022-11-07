@@ -61,6 +61,9 @@ in the log scale).}
 corresponding to the interNormData matrix columns
 that indicates which plate samples are from.}
 }
+\value{
+A list.
+}
 \description{
 Does inter-plate normalization using one or both of the following methods:
 inter-plate control (IPC; divides each target 
