@@ -39,12 +39,12 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
   # main output
   ##############################
   # get reads
-  totalReads <- as.numeric(plate_data$RunSummary$TotalReads)
   parseable <- as.numeric(plate_data$RunSummary$Parseable)
   parseable_match <- as.numeric(plate_data$RunSummary$ParseableMatch)
   parseable_nonmatch <- parseable - parseable_match
   unparseable <- as.numeric(plate_data$RunSummary$Unparseable)
   balancers <- sum(as.numeric(plate_data$RunSummary$Balancers))
+  totalReads <- as.numeric(plate_data$RunSummary$TotalReads) + balancers
   # calculate total samples*targets and missing
   total_samples <- ncol(plate_data$Data)
   total_targets <- nrow(plate_data$Data)
