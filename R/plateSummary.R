@@ -65,6 +65,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
              unparseable, balancers, 
              total_samples, total_targets,
              samples_targets, missing_samples_targets)
+  reads <- formatC(reads, format='d', big.mark=',')
   percents <- paste0(' (', 
                      c(parseable_perc, parseable_match_perc, 
                        parseable_nonmatch_perc,
