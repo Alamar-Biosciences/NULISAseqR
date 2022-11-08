@@ -25,10 +25,13 @@
 #' 
 lod <- function(data_matrix, blanks, min_count=0){
   if (!is.numeric(blanks)){
-    blanks <- which(rownames(data_matrix) %in% blanks)
+    blanks <- which(colnames(data_matrix) %in% blanks)
   }
-  blank_mean <- rowMeans(plate[,blanks], na.rm=TRUE)
-  blank_sd <- apply(plate[,blanks], 1, sd, na.rm=TRUE)
+  # replace NA with 0
+  blank_data <- data_matrix[,blanks]
+  blank_data[is.na(blank_data)] <- 0
+  blank_mean <- rowMeans(blank_data, na.rm=TRUE)
+  blank_sd <- apply(blank_data, 1, sd, na.rm=TRUE)
   LOD <- blank_mean + 3*blank_sd
   if(min_count > 0){
     LOD[LOD < min_count] <- min_count
