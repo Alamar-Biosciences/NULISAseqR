@@ -14,7 +14,6 @@
 #'
 #' @export
 #' 
-# NEEDS EDITING
 intraCV <- function(countMatrix, samples){
   countMatrix <- countMatrix[-c(NIC, MCherry),]
   unique_samples <- unique(samples)[order(unique(samples))][c(16:21,1,7:14,2:6,15,22,28:35,23:27,36:44)]
