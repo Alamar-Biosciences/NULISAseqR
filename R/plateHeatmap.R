@@ -4,7 +4,7 @@
 #'
 #' @param data_matrix The Data matrix output from readNULISAseq.R
 #' or normalized data from normalization functions.
-#
+#' @param target The row name or row index of the target.
 #'
 #' @return Draws a plot.
 #'
