@@ -11,7 +11,7 @@
 #' or normalized data from normalization functions.
 #' @param min_count Optional count threshold to apply in addition
 #' to the LoD. Default is 0.
-#
+#'
 #'
 #' @return 
 #' @param LOD Vector of limits of detection.
