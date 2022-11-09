@@ -2,17 +2,37 @@
 #'
 #' Calculates CV% for the specified replicates across multiple plates. 
 #'
-#' @param plates A list of count data matrices. 
-#
+#' @param data_list A list of data matrices that contain data for 
+#' the sample replicates for calculating inter-plate CV.
+#' @param samples A list of vectors of length equal to 
+#' the number of columns in the corresponding data matrix which encodes
+#' the sets of sample replicates that will be used to calculate inter-plate CVs. 
+#' Can be a list of either numeric or character vectors, where matching entries 
+#' represent replicates for a given sample. 
+#' Any NAs in the sample vectors will be excluded (it may be desirable to 
+#' exclude negative controls or inter-plate controls, for example). 
+#' Unique entries of these vectors will be used to identify 
+#' unique sample replicate sets in the results output. 
+#' @param aboveLOD A list of logical TRUE/FALSE matrices output by the 
+#' NULISAseqR::lod() function. Indicates which values to include / exclude 
+#' in the CV calculation. 
+#' Default is NULL, which includes all values in CV calculation.
+#' @param exclude_targets A list of vectors of row names or row indices 
+#' representing the 
+#' targets that should be excluded from intra-plate CV calculation. For example,
+#' one might want to exclude internal controls. Default is NULL, which includes
+#' all targets in the data_matrix.
+#' @param useMean A logical TRUE / FALSE that indicates whether or not 
+#' to calculate inter-CV using the intra-plate means of replicates (TRUE), or 
+#' to use the pooled replicate data (FALSE). 
 #'
-#' @return matrix with %CV values for each target for each sample.
+#' @return matrix with inter-plate %CV values for each target for each sample.
 #'
 #' @examples
 #' 
 #'
 #' @export
-#' 
-# NEEDS EDITING
+#'
 interCV <- function(norm_data,
                          techReps,
                          techRepOrder_alpha,
