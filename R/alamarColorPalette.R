@@ -1,37 +1,36 @@
-###############################################
-# function to make color palette
-# based on Alamar colors
-###############################################
-### INPUTS
-## n: number of main colors to output (maximum 13)
-## nReps: optional, number of sub-colors to output
-### for each of the main colors
-### useful for when there are technical replicates
-### function will output n*nReps total colors
-## tint: optional, used when subcolors are created
-### "light" blends main colors with white
-### "dark" blends main colors with black
-### "lightdark" (default) blends main colors with white & black
-## interpolate: logical TRUE or FALSE (default) 
-### main colors are based on interpolation of 
-### the colors denoted by the interpolate_index 
-### argument
-## interpolateIndex: indices of colors to interpolate
-### default is 1:5
-### OUTPUTS
-## a vector or list of vectors of colors in hex format
-### EXAMPLES
-# cols <- alamarColorPalette(n=13, nReps=3)
-# plot(1:length(unlist(cols)),
-#      1:length(unlist(cols)), col=unlist(cols),
-#      pch=19, cex=4)
-# 
-# cols <- alamarColorPalette(n=10, nReps=3,
-# interpolate=TRUE, interpolateIndex=1:5)
-# plot(1:length(unlist(cols)),
-#      1:length(unlist(cols)), col=unlist(cols),
-#      pch=19, cex=4)
-###############################################
+
+#' Make color palette based on Alamar colors
+#'
+#'@param n number of main colors to output (maximum 13)
+#'@param nReps optional, number of sub-colors to output 
+#' for each of the main colors. Useful for when there are technical replicates.
+#' Function will output n*nReps total colors.
+#' @param tint optional, used when subcolors are created.
+#' "light" blends main colors with white.
+#' "dark" blends main colors with black.
+#' "lightdark" (default) blends main colors with white & black.
+#' @param interpolate logical TRUE or FALSE (default). 
+#' If TRUE, main colors are based on interpolation of 
+#' the colors denoted by the interpolate_index 
+#' argument.
+#' @param interpolateIndex indices of colors to interpolate. Default is 1:5
+#'
+#' @return A vector or list of vectors of colors in hex format
+#'
+#' @examples
+#' cols <- alamarColorPalette(n=13, nReps=3)
+#' plot(1:length(unlist(cols)),
+#' 1:length(unlist(cols)), col=unlist(cols),
+#' pch=19, cex=4)
+#' 
+#' cols <- alamarColorPalette(n=10, nReps=3,
+#' interpolate=TRUE, interpolateIndex=1:5)
+#' plot(1:length(unlist(cols)),
+#' 1:length(unlist(cols)), col=unlist(cols),
+#' pch=19, cex=4)
+#' 
+#'
+#' @export
 
 alamarColorPalette <- function(n, 
                                nReps=1, 
