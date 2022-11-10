@@ -4,16 +4,32 @@
 \alias{plateHeatmap}
 \title{Draw Plate Heatmap}
 \usage{
-plateHeatmap(data_matrix)
+plateHeatmap(
+  target_data,
+  well_order = NULL,
+  print_counts = TRUE,
+  cex = 0.7,
+  title = NULL
+)
 }
 \arguments{
-\item{data_matrix}{The Data matrix output from readNULISAseq.R
-or normalized data from normalization functions.}
+\item{target_data}{A numeric vector of length 96 that represents the 
+counts that will be shown on the heatmap.}
 
-\item{target}{The row name or row index of the target.}
+\item{well_order}{Optional. A numeric vector used to order the wells 
+from A01-A12, B01-B12, ..., H01-H12. If not provided, then 
+it is assumed that the target_data is already in this order.}
+
+\item{print_counts}{A TRUE / FALSE that specifies whether or not 
+counts will be printed in each cell of the heatmap. Default is TRUE.}
+
+\item{cex}{Character expansion factor that controls size of the 
+printed counts. Default is 0.7.}
+
+\item{title}{Optional. Plot title.}
 }
 \value{
-Draws a plot.
+Draws a heatmap.
 }
 \description{
 Makes heatmap for a specified target or total counts.
