@@ -1,6 +1,11 @@
 #' Calculate Inter-plate Coefficients of Variation
 #'
 #' Calculates CV% for the specified replicates across multiple plates. 
+#' This function only calculates inter-plate CV for 
+#' targets that are present across all plates in the data_list. Any
+#' targets that are present on only a subset of plates will be excluded.
+#' In addition, individual targets, such as internal controls, can be 
+#' explicitly excluded using the exclude_targets argument.
 #'
 #' @param data_list A list of data matrices that contain data for 
 #' the sample replicates for calculating inter-plate CV.
@@ -21,10 +26,10 @@
 #' representing the 
 #' targets that should be excluded from intra-plate CV calculation. For example,
 #' one might want to exclude internal controls. Default is NULL, which includes
-#' all targets in the data_matrix.
+#' all common targets in the data_list matrices.
 #' @param useMean A logical TRUE / FALSE that indicates whether or not 
-#' to calculate inter-CV using the intra-plate means of replicates (TRUE), or 
-#' to use the pooled replicate data (FALSE). 
+#' to calculate inter-CV using the intra-plate means of replicates (TRUE, default), 
+#' or to use the pooled replicate data (FALSE). 
 #'
 #' @return matrix with inter-plate %CV values for each target for each sample.
 #'
@@ -33,55 +38,58 @@
 #'
 #' @export
 #'
-interCV <- function(norm_data,
-                         techReps,
-                         techRepOrder_alpha,
-                         techRepOrder_kf){
-  CV <- matrix(nrow=21, ncol=49)
-  colnames(CV) <- c('sample', 'alpha_rep', 'kf_rep',
-                    colnames(norm_data[[1]])[3:48])
-  CV[,1] <- rep(1:7, each=3)
-  CV[,2] <- c(t(techRepOrder_alpha))
-  CV[,3] <- c(t(techRepOrder_kf))
-  for(i in 1:21){
-    techRep_i <- CV[i,1]
-    alpha_row <- which(techReps==techRep_i)[CV[i,2]]
-    kf_row <- which(techReps==techRep_i)[CV[i,3]]
-    data_i <- rbind(
-      norm_data[[1]][alpha_row,3:48],
-      norm_data[[2]][kf_row,3:48]
-    )
-    means_i <- colMeans(data_i)
-    sds_i <- apply(data_i, 2, sd)
-    cvs_i <- sds_i/means_i*100
-    CV[i,4:ncol(CV)] <- cvs_i
+interCV <- function(data_list, 
+                    samples,
+                    aboveLOD=NULL,
+                    exclude_targets=NULL,
+                    useMean=TRUE){
+  # replace values below LOD with NA
+  for (i in 1:length(data_list)){
+    data_list[[i]][aboveLOD[[i]]==FALSE] <- NA
   }
-  # take mean CV over combos for each techRep
-  avgCV <- matrix(nrow=7, ncol=47)
-  colnames(avgCV) <- c('techRep', colnames(norm_data[[1]])[3:48])
-  avgCV[,1] <- 1:7
-  for(i in 1:7){
-    CV_data_i <- CV[CV[,1]==i,4:ncol(CV)]
-    avgCV[i,2:ncol(avgCV)] <- colMeans(CV_data_i, na.rm=TRUE)
+  # remove excluded targets
+  for (i in 1:length(data_list)){
+    if (!is.numeric(exclude_targets[[i]])){
+      exclude_targets[[i]] <- which(rownames(data_list[[i]]) %in% exclude_targets[[i]])
+    }
+    data_list[[i]] <- data_list[[i]][-exclude_targets[[i]],]
   }
-  avgCV[!is.finite(avgCV)] <- NA
-  return(list(CV=CV, avgCV=avgCV))
-}
-
-CV <- function(interPlateNormData,
-               techReps){
-  CV <- matrix(nrow=30, ncol=40)
-  colnames(CV) <- colnames(interPlateNormData)[4:43]
-  for(i in 1:30){
-    data_i <- interPlateNormData[techReps==i,4:43]
-    means_i <- colMeans(data_i)
-    sds_i <- apply(data_i, 2, sd)
-    cvs_i <- sds_i/means_i*100
-    CV[i,] <- cvs_i
+  # get the matching subset of targets across all plates
+  target_list <- list()
+  for (i in 1:length(data_list)){
+    target_list[[i]] <- rownames(data_list[[i]])
   }
-  meanCV <- colMeans(CV, na.rm=TRUE)
-  medianCV <- apply(CV, 2, median, na.rm=TRUE)
-  return(list(CV=CV,
-              meanCV=meanCV,
-              medianCV=medianCV))
+  matching_targets <- Reduce(intersect, target_list)
+  all_targets <- unique(unlist(target_list))
+  omitted_targets <- all_targets[!(all_targets %in% matching_targets)]
+  if(length(omitted_targets) > 0){
+    warning(paste0('The following targets are missing from some plates and will be omitted from inter-plate CV results:\n', 
+                   paste(omitted_targets, collapse='\n')))
+  }
+  # remove the omitted targets
+  for (i in 1:length(data_list)){
+    data_list[[i]] <- data_list[[i]][rownames(data_list[[i]]) %in% matching_targets,]
+    # make sure rows are sorted in the same order
+    data_list[[i]] <- data_list[[i]][match(matching_targets, rownames(data_list[[i]])),]
+  }
+  # loop through the unique replicate sets to get CVs
+  unique_samples <- unique(na.exclude(unlist(samples)))
+  cv_matrix <- matrix(nrow=length(matching_targets), ncol=length(unique_samples))
+  rownames(cv_matrix) <- matching_targets
+  colnames(cv_matrix) <- unique_samples
+  for (i in 1:length(unique_samples)){
+    sample_data <- list()
+    for (j in 1:length(data_list)){
+      sample_data[[j]] <- data_list[[j]][,samples[[j]]==unique_samples[i]]
+    }
+    if (useMean==TRUE){
+      sample_data <- lapply(sample_data, rowMeans, na.rm=TRUE)
+    } 
+    sample_data <- do.call(cbind, sample_data)
+    sample_means <- rowMeans(sample_data, na.rm=TRUE)
+    sample_sds <- apply(sample_data, 1, sd, na.rm=TRUE)
+    sample_cv <- sample_sds/sample_means*100
+    cv_matrix[,i] <- sample_cv
+  }
+  return(cv_matrix)
 }
