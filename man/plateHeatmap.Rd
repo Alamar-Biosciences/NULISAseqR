@@ -9,6 +9,7 @@ plateHeatmap(
   well_order = NULL,
   print_counts = TRUE,
   cex = 0.7,
+  digits = 0,
   title = NULL
 )
 }
@@ -25,6 +26,9 @@ counts will be printed in each cell of the heatmap. Default is TRUE.}
 
 \item{cex}{Character expansion factor that controls size of the 
 printed counts. Default is 0.7.}
+
+\item{digits}{number of digits after the decimal point to print. 
+Default is 0.}
 
 \item{title}{Optional. Plot title.}
 }
