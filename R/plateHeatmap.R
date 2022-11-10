@@ -11,6 +11,8 @@
 #' counts will be printed in each cell of the heatmap. Default is TRUE.
 #' @param cex Character expansion factor that controls size of the 
 #' printed counts. Default is 0.7.
+#' @param digits number of digits after the decimal point to print. 
+#' Default is 0.
 #' @param title Optional. Plot title.
 #'
 #' @return Draws a heatmap.
@@ -24,6 +26,7 @@ plateHeatmap <- function(target_data,
                          well_order=NULL,
                          print_counts=TRUE,
                          cex=0.7,
+                         digits=0,
                          title=NULL){
   data_matrix <- t(matrix(target_data, nrow=8, ncol=12, byrow=TRUE)[8:1,])
   image(data_matrix,
@@ -37,6 +40,6 @@ plateHeatmap <- function(target_data,
       for (y in 1:ncol(data_matrix))
         text(1/(nrow(data_matrix)-1)*(x-1), 
              1/(ncol(data_matrix)-1)*(y-1), 
-             data_matrix[x,y], cex=cex)
+             round(data_matrix[x,y], digits=digits), cex=cex)
   }
 }
