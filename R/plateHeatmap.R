@@ -30,8 +30,8 @@ plateHeatmap <- function(target_data,
         xaxt='n', yaxt='n', main='', 
         col=hcl.colors(12, "YlOrRd", rev = TRUE))
   axis(2, (0:7)/7, c('H','G','F','E','D','C','B','A'), las=1)
-  axis(3, (0:11)/11, 1:12, las=1)
-  mtext(title, side=1, line=2, font=2)
+  axis(1, (0:11)/11, 1:12, las=1)
+  mtext(title, side=3, line=2, font=2)
   if (print_counts==TRUE){
     for (x in 1:nrow(data_matrix))
       for (y in 1:ncol(data_matrix))
