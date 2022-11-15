@@ -13,7 +13,7 @@
 #' to the LoD. Default is 0.
 #'
 #'
-#' @return 
+#' @return A list.
 #' @param LOD Vector of limits of detection.
 #' @param aboveLOD Logical matrix indicating whether counts are 
 #' above or below LoD for that target.
