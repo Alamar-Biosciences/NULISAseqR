@@ -21,6 +21,9 @@ to the LoD. Default is 0.}
 \item{aboveLOD}{Logical matrix indicating whether counts are 
 above or below LoD for that target.}
 }
+\value{
+A list.
+}
 \description{
 Calculates limit of detection (LoD) for each target based on the
 negative controls (blanks). LoD = mean(blanks) + 3*SD(blanks).
