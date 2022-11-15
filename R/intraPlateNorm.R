@@ -36,7 +36,7 @@
 #' normalized quantities between 0 and 1 (which will be negative
 #' in the log scale).
 #'
-#' @return 
+#' @return A list.
 #' @param normData A matrix of normalized count data (not log-transformed).
 #' @param normFactor A vector of the normalization factors used for 
 #' each sample (column) in the data matrix.
