@@ -55,7 +55,7 @@ intraCV_logScale <- function(data_matrix,
   colnames(cv_matrix) <- unique_samples
   # cv formula
   cv_formula <- function(x){
-    sigma <- sd(x, na.rm=TRUE)*log(2)
+    sigma <- apply(x, 1, function(x) sd(x, na.rm=TRUE)*log(2))
     100*sqrt(exp(sigma^2)-1)
   }
   for (i in 1:length(unique_samples)){
