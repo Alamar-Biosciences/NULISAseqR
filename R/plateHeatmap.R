@@ -28,6 +28,9 @@ plateHeatmap <- function(target_data,
                          cex=0.7,
                          digits=0,
                          title=NULL){
+  if(!is.null(well_order)){
+    target_data <- target_data[well_order]
+  }
   data_matrix <- t(matrix(target_data, nrow=8, ncol=12, byrow=TRUE)[8:1,])
   image(data_matrix,
         xaxt='n', yaxt='n', main='', 
