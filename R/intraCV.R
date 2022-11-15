@@ -50,7 +50,7 @@ intraCV <- function(data_matrix,
   rownames(cv_matrix) <- rownames(data_matrix)
   colnames(cv_matrix) <- unique_samples
   for (i in 1:length(unique_samples)){
-    sample_data <- data_matrix[, samples==unique_samples[i]]
+    sample_data <- data_matrix[,!is.na(samples) & samples==unique_samples[i]]
     sample_means <- rowMeans(sample_data, na.rm=TRUE)
     sample_sds <- apply(sample_data, 1, sd, na.rm=TRUE)
     sample_cv <- sample_sds/sample_means*100
