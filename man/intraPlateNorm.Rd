@@ -56,6 +56,9 @@ in the log scale).}
 \item{normFactor}{A vector of the normalization factors used for 
 each sample (column) in the data matrix.}
 }
+\value{
+A list.
+}
 \description{
 Does intra-plate normalization either using single internal control, 
 multiple internal controls (using geometric mean), or total data_matrix. 
