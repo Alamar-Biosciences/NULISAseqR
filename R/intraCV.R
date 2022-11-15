@@ -38,10 +38,12 @@ intraCV <- function(data_matrix,
   # replace values below LOD with NA
   data_matrix[aboveLOD==FALSE] <- NA
   # remove excluded targets
-  if (!is.numeric(exclude_targets)){
-    exclude_targets <- which(rownames(data_matrix) %in% exclude_targets)
+  if (!is.null(exclude_targets)){
+    if (!is.numeric(exclude_targets)){
+      exclude_targets <- which(rownames(data_matrix) %in% exclude_targets)
+    }
+    data_matrix <- data_matrix[-exclude_targets,]
   }
-  data_matrix <- data_matrix[-exclude_targets,]
   # loop through the unique replicate sets to get CVs
   unique_samples <- unique(na.exclude(samples))
   cv_matrix <- matrix(nrow=nrow(data_matrix), ncol=length(unique_samples))
