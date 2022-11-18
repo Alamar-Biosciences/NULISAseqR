@@ -35,10 +35,10 @@
 #'
 #' @export
 #' 
-intraCV_logScale <- function(data_matrix, 
-                    samples,
-                    aboveLOD=NULL,
-                    exclude_targets=NULL){
+intraCV_log2 <- function(data_matrix, 
+                         samples,
+                         aboveLOD=NULL,
+                         exclude_targets=NULL){
   # replace values below LOD with NA
   data_matrix[aboveLOD==FALSE] <- NA
   # remove excluded targets
