@@ -48,11 +48,13 @@ interCV <- function(data_list,
     data_list[[i]][aboveLOD[[i]]==FALSE] <- NA
   }
   # remove excluded targets
-  for (i in 1:length(data_list)){
-    if (!is.numeric(exclude_targets[[i]])){
-      exclude_targets[[i]] <- which(rownames(data_list[[i]]) %in% exclude_targets[[i]])
+  if(!is.null(exclude_targets)){
+    for (i in 1:length(data_list)){
+      if (!is.numeric(exclude_targets[[i]])){
+        exclude_targets[[i]] <- which(rownames(data_list[[i]]) %in% exclude_targets[[i]])
+      }
+      data_list[[i]] <- data_list[[i]][-exclude_targets[[i]],]
     }
-    data_list[[i]] <- data_list[[i]][-exclude_targets[[i]],]
   }
   # get the matching subset of targets across all plates
   target_list <- list()
