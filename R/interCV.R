@@ -82,7 +82,7 @@ interCV <- function(data_list,
   for (i in 1:length(unique_samples)){
     sample_data <- list()
     for (j in 1:length(data_list)){
-      sample_data[[j]] <- data_list[[j]][,samples[[j]]==unique_samples[i]]
+      sample_data[[j]] <- data_list[[j]][,samples[[j]]==unique_samples[i] & !is.na(samples[[j]])]
     }
     if (useMean==TRUE){
       sample_data <- lapply(sample_data, rowMeans, na.rm=TRUE)
