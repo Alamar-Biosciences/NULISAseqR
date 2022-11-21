@@ -1,16 +1,17 @@
 #' NULISAseq Inter-Plate Normalization
 #'
-#' Does inter-plate normalization using one or both of the following methods:
+#' Does inter-plate normalization using one of the following methods:
 #' inter-plate control (IPC; divides each target 
 #' by the median IPC count for that target), intensity normalization (IN; 
 #' sets median of each target on each plate to equal the global median). Default
-#' is to do IPC only. If both options are chosen, IPC is done first followed
-#' by IN.
+#' is to do IPC. 
 #'   
 #' Input is a list of data matrices, one for each plate. 
 #' These would typically be normData matrix from the intraPlateNorm function 
 #' or the Data matrix of readNULISAseq.R (if no intra-plate normalization is 
 #' done). Other required input depends on methods used. 
+#' 
+#' Use option dataScale = log when data is already on a log scale.
 #' 
 #' Output is a single matrix.
 #'
@@ -41,10 +42,13 @@
 #' intensity normalization step for each plate in data_list. 
 #' Will over-ride the IPC_wells and 
 #' NC_wells arguments for IN. 
-#' @param scaleFactor. Optional numeric value used to rescale all data 
+#' @param dataScale 'count' is the default and interplate 
+#' normalization is multiplicative. Use option 'log' for log-transformed
+#' data; normalization is additive on the log scale. 
+#' @param scaleFactor Optional numeric value used to rescale all data 
 #' after normalizing. Default is 1. This may be desirable to avoid
 #' normalized quantities between 0 and 1 (which will be negative
-#' in the log scale).
+#' in the log scale). Only useful for count scale data.
 #'
 #' @return A list.
 #' @param interNormData A matrix of normalized count data (not log-transformed).
@@ -58,13 +62,14 @@
 #' @export
 #' 
 interPlateNorm <- function(data_list,
-                          IPC=TRUE,
-                          IN=FALSE,
-                          IPC_wells=NULL,
-                          NC_wells=NULL,
-                          IPC_method='median',
-                          IN_samples=NULL,
-                          scaleFactor=1){
+                           IPC=TRUE,
+                           IN=FALSE,
+                           IPC_wells=NULL,
+                           NC_wells=NULL,
+                           IPC_method='median',
+                           IN_samples=NULL,
+                           dataScale='count',
+                           scaleFactor=1){
   # inter-plate control normalization
   if (IPC==TRUE){
     if(is.null(IPC_wells)){
@@ -80,17 +85,26 @@ interPlateNorm <- function(data_list,
         IPC_factors_i <- rowMeans(IPC_cols, median, na.rm=TRUE)
       } else if (IPC_method=='geom_mean'){
         IPC_factors_i <- apply(IPC_cols, 1, function(x){
-          x <- x + 1
+          # replace zeros or NA with 1s
+          x[x==0] <- 1
+          x[is.na(x)] <- 1
           prod(x, na.rm=TRUE)^(1/length(x))
         })
       }
-      # replace 0s or NAs with 1s
-      # ADD WARNING HERE SAYING WHICH TARGETS THIS WAS DONE FOR
-      IPC_factors_i[IPC_factors_i==0] <- 1
-      IPC_factors_i[is.na(IPC_factors_i)] <- 1
-      IPC_factors[[i]] <- IPC_factors_i
-      data_list_IPC[[i]] <- data_list[[i]] / IPC_factors_i
-    }
+      if (dataScale=='count'){
+        # replace 0s or NAs with 1s
+        # ADD WARNING HERE SAYING WHICH TARGETS THIS WAS DONE FOR
+        IPC_factors_i[IPC_factors_i==0] <- 1
+        IPC_factors_i[is.na(IPC_factors_i)] <- 1
+        IPC_factors[[i]] <- IPC_factors_i
+        data_list_IPC[[i]] <- data_list[[i]] / IPC_factors_i
+      } else if (dataScale=='log'){
+        # replace NAs with 0s
+        IPC_factors_i[is.na(IPC_factors_i)] <- 0
+        IPC_factors[[i]] <- IPC_factors_i
+        data_list_IPC[[i]] <- data_list[[i]] - IPC_factors_i
+      }
+    } # end loop over data list
     data_list <- data_list_IPC
   } # end IPC normalization
   
@@ -106,7 +120,7 @@ interPlateNorm <- function(data_list,
     omitted_targets <- all_targets[!(all_targets %in% matching_targets)]
     if(length(omitted_targets) > 0){
       warning(paste0('The following targets are missing from some plates and will be omitted from intensity normalization:\n', 
-                    paste(omitted_targets, collapse='\n')))
+                     paste(omitted_targets, collapse='\n')))
     }
     # remove the omitted targets
     for (i in 1:length(data_list)){
@@ -149,12 +163,20 @@ interPlateNorm <- function(data_list,
       IN_medians[,i] <- apply(data_list_IN_samples[[i]], 1, median, na.rm=TRUE)
     }
     global_medians <- apply(IN_medians, 1, median, na.rm=TRUE)
-    IN_factors <- (1/IN_medians)*global_medians
-    # IN rescale data
-    for (i in 1:length(data_list)){
-      data_list[[i]] <- data_list[[i]]*IN_factors[,i]
+    if (dataScale=='count'){
+      IN_factors <- (1/IN_medians)*global_medians
+      # IN rescale data
+      for (i in 1:length(data_list)){
+        data_list[[i]] <- data_list[[i]]*IN_factors[,i]
+      } 
+    } else if (dataScale=='log'){
+      IN_factors <- global_medians - IN_medians
+      # IN shift data
+      for (i in 1:length(data_list)){
+        data_list[[i]] <- data_list[[i]] + IN_factors[,i]
+      }
     }
-  } # end intensity normalization
+  }# end intensity normalization
   
   # apply the scale factor to the data
   data_list <- lapply(data_list, function(x) x*scaleFactor)
@@ -164,9 +186,8 @@ interPlateNorm <- function(data_list,
   for (i in 1:length(plateNs)){
     plate <- c(plate, rep(i, plateNs[i]))
   }
-  # create a merged version of the data
   
   # return output
   return(list(interNormData=data_list,
-         plate=plate))
+              plate=plate))
 }
