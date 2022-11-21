@@ -12,6 +12,7 @@ interPlateNorm(
   NC_wells = NULL,
   IPC_method = "median",
   IN_samples = NULL,
+  dataScale = "count",
   scaleFactor = 1
 )
 }
@@ -50,10 +51,14 @@ intensity normalization step for each plate in data_list.
 Will over-ride the IPC_wells and 
 NC_wells arguments for IN.}
 
-\item{scaleFactor.}{Optional numeric value used to rescale all data 
+\item{dataScale}{'count' is the default and interplate 
+normalization is multiplicative. Use option 'log' for log-transformed
+data; normalization is additive on the log scale.}
+
+\item{scaleFactor}{Optional numeric value used to rescale all data 
 after normalizing. Default is 1. This may be desirable to avoid
 normalized quantities between 0 and 1 (which will be negative
-in the log scale).}
+in the log scale). Only useful for count scale data.}
 
 \item{interNormData}{A matrix of normalized count data (not log-transformed).}
 
@@ -65,12 +70,11 @@ that indicates which plate samples are from.}
 A list.
 }
 \description{
-Does inter-plate normalization using one or both of the following methods:
+Does inter-plate normalization using one of the following methods:
 inter-plate control (IPC; divides each target 
 by the median IPC count for that target), intensity normalization (IN; 
 sets median of each target on each plate to equal the global median). Default
-is to do IPC only. If both options are chosen, IPC is done first followed
-by IN.
+is to do IPC. 
   
 Input is a list of data matrices, one for each plate. 
 These would typically be normData matrix from the intraPlateNorm function 
@@ -78,5 +82,7 @@ or the Data matrix of readNULISAseq.R (if no intra-plate normalization is
 done). Other required input depends on methods used.
 }
 \details{
+Use option dataScale = log when data is already on a log scale.
+
 Output is a single matrix.
 }
