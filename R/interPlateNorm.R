@@ -149,6 +149,7 @@ interPlateNorm <- function(data_list,
           col_index <- 1:ncol(data_list[[i]])
           IN_samples[[i]] <- col_index[!(col_index %in% IN_omit)]
         } else {
+          col_index <- 1:ncol(data_list[[i]])
           IN_samples[[i]] <- col_index
         }
       }
