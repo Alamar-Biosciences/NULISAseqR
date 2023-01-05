@@ -36,7 +36,7 @@ xmlFiles <- c(
 IC <- c('mCherry', 'NIC_1', 'NIC_3')
 IPC <- c('IPC')
 NC <- c('NC')
-Bridge <- NULL#c('Donor')
+Bridge <- c('Donor') #NULL
 heatMapRel <- TRUE
 
 ###############################################################################
@@ -58,7 +58,7 @@ wellorder <- function(samples, rowAnnotName, colAnnotName){
 # Read in files
 ###############################################################################
 knitr::opts_knit$set(root.dir=dataDir)
-xmlFiles <- paste0(dataDir, "/", xmlFiles)
+xmlFilesPath <- paste0(dataDir, "/", xmlFiles)
 xmlFilePlateNames <- rep("", times=length(xmlFiles))
 runs <- vector('list', length(xmlFiles))
 runSummarys <- vector('list', length(xmlFiles))
@@ -67,7 +67,7 @@ RunNames <- NULL
 for(i in 1:length(xmlFiles)){
   # Read each run1
   plateID <- if(xmlFilePlateNames[i] == "") paste0("plate", i) else xmlFilePlateNames[i]
-  runs[[i]] <- readNULISAseq(xmlFiles[i], plateID=plateID)
+  runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=plateID)
   xmlFilePlateNames[i] <- plateID
   ICs  <- runs[[i]]$targets$targetName[which(grepl(paste(IC, collapse="|"),  runs[[i]]$targets$targetName))]
   IPCs <- runs[[i]]$samples$sampleName[which(grepl(paste(IPC, collapse="|"), runs[[i]]$samples$sampleName))]
@@ -125,13 +125,14 @@ Bridge_wells <- list(list())
 for (i in 1:length(xmlFiles)){
   normData[[i]] <- plateNorms[[i]]$mCherry$normData
   IPCs <- runs[[i]]$samples$sampleName[which(grepl(paste(IPC, collapse="|"), runs[[i]]$samples$sampleName))]
-  Bridges <-runs[[i]]$samples$sampleName[which(grepl(paste(Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
   plateID <- if(xmlFilePlateNames[i] == "") paste0("run", i) else xmlFilePlateNames[i]
+  if(!is.null(Bridge)){
+    Bridges <-runs[[i]]$samples$sampleName[which(grepl(paste(Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
+    Bridge_wells[[i]] <- paste0(plateID,"_", Bridges)
+  }
   IPC_wells[[i]] <- paste0(plateID, "_", IPCs)
-  Bridge_wells[[i]] <-paste0(plateID,"_", Bridges)
   NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
-  NCs  <- paste0(plateID, "_", NCs) 
-  NC_wells[[i]] <- paste0(plateID, "_", NCs)
+  NC_wells[[i]]  <- paste0(plateID, "_", NCs) 
 } 
 
 # using intra-plate means
@@ -279,18 +280,22 @@ if(length(Bridge_wells[[1]])){
                          interCV_mCherry_IPC,
                          interCV_mCherry_IN,
                          interCV_mCherry_bridge)
+  colnames(interCV_results) <- c('unnorm',
+                               'mCherry',
+                               'mCherry + IPC',
+                               'mCherry + IN',
+                               'mCherry + bridge')
 }else{
   interCV_results <- cbind(interCV_unnorm,
                          interCV_mCherry,
                          interCV_mCherry_IPC,
                          interCV_mCherry_IN)
                                   
-}
-colnames(interCV_results) <- c('unnorm',
+  colnames(interCV_results) <- c('unnorm',
                                'mCherry',
                                'mCherry + IPC',
-                               'mCherry + IN',
-                               'mCherry + bridge')
+                               'mCherry + IN')
+}
 
 # create inter-plate CV table
 interCV_summary_table <- cbind(colMeans(interCV_results, na.rm=TRUE),
@@ -438,51 +443,64 @@ Only values above LOD were used to calculate %CV (no minimum count requirement).
 
 ### Inter-plate %CV table 
 ```{r}
-knitr::kable(interCV_summary_table, caption='', align='r', 
+if (length(xmlFiles) > 1){
+  knitr::kable(interCV_summary_table, caption='', align='r', 
              format.args=list(big.mark = ",", digits=5))
+}
 ```
 
 ### Inter-plate CV boxplot
 ```{r, out.width='100%', fig.asp=0.8}
-par(mfrow=c(1,2))
-par(mar=c(8,5,1,1))
-boxplot(interCV_results, las=3, ylab='inter-plate CV (%)',
-        col=alamarColorPalette(5))
-abline(h=c(0:16*5), col='grey', lty=3)
+if(length(xmlFiles) > 1){
+  par(mfrow=c(1,2))
+  par(mar=c(8,5,1,1))
+  boxplot(interCV_results, las=3, ylab='inter-plate CV (%)',
+          col=alamarColorPalette(5))
+  abline(h=c(0:16*5), col='grey', lty=3)
+}
 ```
 
 ## Sample boxplots
 ```{r, out.width='100%', fig.asp=1}
 for(i in 1:length(xmlFiles)){
-  plate_sample_type <- rep('1_sample', 96)
-  plate_sample_type[grepl(paste0(Bridges, collapse="|"), colnames(runs[[i]]$Data))] <- '2_donor'
-  plate_sample_type[grepl(paste0(IPCs, collapse="|"), colnames(runs[[i]]$Data))] <- '3_IPC'
-  plate_sample_type[grepl(paste0(NCs, collapse="|"), colnames(runs[[i]]$Data))] <- '4_NC'
+  plate_sample_type <- rep("1_sample",96)
+  if(!is.null(Bridge)){
+    plate_sample_type[grepl(paste0(Bridge_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '2_donor'
+  }
+  plate_sample_type[grepl(paste0(IPC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '3_IPC'
+  plate_sample_type[grepl(paste0(NC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '4_NC'
 
   boxplot_colors <- unlist(lapply(alamarColorPalette(n=4, tint='light', nReps=4), function(x) x[3]))
-  plate_sample_colors <- boxplot_colors[as.numeric(as.factor(plate_sample_type))[order(plate_sample_type)]]
+  ordering2 <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName) 
+  ordering <- NULL
+  types <- sort(unique(plate_sample_type))
+  for(j in 1:length(types)){
+    inds <- which(plate_sample_type[ordering2] == types[j])
+    ordering <- c(ordering, ordering2[inds])
+  }
 
+  plate_sample_colors <- boxplot_colors[as.numeric(as.factor(plate_sample_type))[ordering]]
   par(mfrow=c(2,1), mar=c(6,3,2,0))
-  boxplot(log2(runs[[i]]$Data[,order(plate_sample_type)]+0.01),
+  boxplot(log2(runs[[i]]$Data[,ordering]+0.01),
           las=1, xaxt='n',
           ylab='',
           main=paste("Plate", as.character(i), "unnormalized"),
           outcex=0.5,
           col=plate_sample_colors)
-  axis(1, at=1:96, labels=colnames(runs[[i]]$Data)[order(plate_sample_type)], cex.axis=0.4, las=3)
-  lines(log2(runs[[i]]$Data['mCherry',order(plate_sample_type)]+0.01), col='red')
+  axis(1, at=1:96, labels=colnames(runs[[i]]$Data)[ordering], cex.axis=0.4, las=3)
+  lines(log2(runs[[i]]$Data['mCherry',ordering]+0.01), col='red')
   mtext('log2(count + 0.01)', side=2, line=2)
   legend('topleft', 'mCherry', col='red', lty=1,
          cex=0.4, bty='n')
 
-  boxplot(log2(mCherry_IPC$interNormData[[1]][,order(plate_sample_type)]+0.01),
+  boxplot(log2(mCherry_IPC$interNormData[[1]][,ordering]+0.01),
           las=1, xaxt='n',
           ylab='',
           main=paste("Plate", as.character(i), "mCherry + IPC"),
           outcex=0.5,
           col=plate_sample_colors)
-  axis(1, at=1:96, labels=colnames(mCherry_IPC$interNormData[[1]])[order(plate_sample_type)], cex.axis=0.4, las=3)
-  lines(log2(mCherry_IPC$interNormData[[1]]['mCherry',order(plate_sample_type)]+0.01), col='red')
+  axis(1, at=1:96, labels=colnames(mCherry_IPC$interNormData[[1]])[ordering], cex.axis=0.4, las=3)
+  lines(log2(mCherry_IPC$interNormData[[1]]['mCherry',ordering]+0.01), col='red')
   mtext('log2(count + 0.01)', side=2, line=2)
   legend('topleft', 'mCherry', col='red', lty=1,
          cex=0.4, bty='n')
