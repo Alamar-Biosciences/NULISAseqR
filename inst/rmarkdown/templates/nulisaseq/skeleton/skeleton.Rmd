@@ -44,6 +44,7 @@ heatMapRel <- TRUE
 ###############################################################################
 rowAnnotName <- "Annot2"
 colAnnotName <- "Annot3"
+plateAnnotName <- "Annot1"
 
 wellorder <- function(samples, rowAnnotName, colAnnotName){
   cmd <- paste0("samples$", colAnnotName)
@@ -329,7 +330,22 @@ NULISAseq 200-plex inflammation panel.
 ---
 
 ## Plate layout
-![](/Users/dkuo/Projects/NULISAseqR/data/figures/CC_plate_layout.png)
+```{r, results='asis'}
+for(i in 1:length(xmlFiles)){
+  well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
+  vals <- runs[[i]]$samples[well_order,]
+  vals$sampleBarcode <- NULL
+  vals$`non-matching` <- NULL
+  vals$matching <- NULL
+  rownames(vals)<-NULL
+  if (!is.null(plateAnnotName)){
+    cmd <- paste0("vals$", plateAnnotName, "<-NULL")
+    eval(parse(text=cmd))
+  }
+  print(knitr::kable(row.names=NA, vals, caption=paste("Run", as.character(i), "Plate/Sample Layout"), align='r', format.args=list(big.mark = ",")))
+  cat("\n")
+}
+```
 
 ---
 
