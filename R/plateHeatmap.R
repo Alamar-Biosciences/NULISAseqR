@@ -27,9 +27,12 @@ plateHeatmap <- function(target_data,
                          print_counts=TRUE,
                          cex=0.7,
                          digits=0,
-                         title=NULL){
+                         title=NULL,relative=F){
   if(!is.null(well_order)){
     target_data <- target_data[well_order]
+  }
+  if (relative){
+    target_data <- (target_data - median(target_data))/median(target_data)
   }
   data_matrix <- t(matrix(target_data, nrow=8, ncol=12, byrow=TRUE)[8:1,])
   image(data_matrix,
