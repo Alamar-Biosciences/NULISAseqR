@@ -10,7 +10,8 @@ plateHeatmap(
   print_counts = TRUE,
   cex = 0.7,
   digits = 0,
-  title = NULL
+  title = NULL,
+  relative = F
 )
 }
 \arguments{
