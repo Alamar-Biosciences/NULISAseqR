@@ -12,13 +12,11 @@ library(NULISAseqR)
 library(knitr)
 ```
 
-
 ```{r, include=FALSE}
 ###############################################################################
-# User editable parameter: List of input files (XML)
+# List of input files (XML)
 ###############################################################################
 dataDir <- '/Users/dkuo/Projects/NULISAseqR/data'
-knitr::opts_knit$set(root.dir=dataDir)
 xmlFiles <- c(
   '20221226_Cleveland_plate01_nomismatch_XML.xml',
   '20221227_cleveland_plate02_nononmatch_XML.xml',
@@ -29,7 +27,7 @@ xmlFiles <- c(
   )
 
 ###############################################################################
-# User editable parameter: Strings to define IPC, NC, IC and bridge samples.
+# Strings to define IPC, NC, IC and bridge samples.
 # Note Bridge samples can be set to NULL
 ###############################################################################
 #IC <- "InternalControl"
@@ -42,8 +40,23 @@ Bridge <- NULL#c('Donor')
 heatMapRel <- TRUE
 
 ###############################################################################
+# Annotation in XML file corresponding to row and column
+###############################################################################
+rowAnnotName <- "Annot2"
+colAnnotName <- "Annot3"
+
+wellorder <- function(samples, rowAnnotName, colAnnotName){
+  cmd <- paste0("samples$", colAnnotName)
+  cols <- eval(parse(text=cmd))
+  cols <- formatC( as.numeric(cols), width=2, flag=0)
+  cmd <- paste0("samples$", rowAnnotName)
+  inds <- sort(paste0(eval(parse(text=cmd)), cols), index.return=T)
+  return(inds$ix)
+}
+###############################################################################
 # Read in files
 ###############################################################################
+knitr::opts_knit$set(root.dir=dataDir)
 xmlFiles <- paste0(dataDir, "/", xmlFiles)
 xmlFilePlateNames <- rep("", times=length(xmlFiles))
 runs <- vector('list', length(xmlFiles))
@@ -358,16 +371,9 @@ for(i in 1:length(xmlFiles)){
 
 ## Heatmaps
 ```{r, out.width='100%', fig.asp=1.2}
-well_order <- c(1,5:12,2:4,
-                13,17:24,14:16,
-                25,29:36,26:28,
-                37,41:48,38:40,
-                49,53:60,50:52,
-                61,65:72,62:64,
-                73,77:84,74:76,
-                85,89:96,86:88)
 
 for(i in 1:length(xmlFiles)){
+  well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), mar=c(4,2,2,0))
   for (j in 1:length(ICs)){
     plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste("Plate", as.character(i), ICs[j]), cex=0.5, digits=(if(heatMapRel) 3 else 0), well_order=well_order,relative=heatMapRel)
