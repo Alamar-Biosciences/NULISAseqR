@@ -1,0 +1,428 @@
+---
+title: "Study Name <br>NULISAseq 200-plex Inflammation Panel"
+output:
+  html_document:
+    toc: yes
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir='/Users/dkuo/Projects/NULISAseqR/data')
+library(NULISAseqR)
+library(knitr)
+```
+
+
+```{r, include=FALSE}
+###############################################################################
+# User editable parameter: List of input files (XML)
+###############################################################################
+xmlFiles <- c(
+  '20221226_Cleveland_plate01_nomismatch_XML.xml',
+  '20221227_cleveland_plate02_nononmatch_XML.xml',
+  '20221227_Cleveland_plate03_nononmatch_XML.xml',
+  '20221229_cleveland_plate04_nononmatch_XML.xml',
+  '20221229_cleveland_plate05_nononmatch_XML.xml',
+  '20221230_Cleveland_plate06_nononmatch_XML.xml'
+  )
+
+###############################################################################
+# User editable parameter: Strings to define IPC, NC, IC and bridge samples.
+# Note Bridge samples can be set to NULL
+###############################################################################
+#IC <- "InternalControl"
+#IPC <- "InterPlateControl"
+#NC <- "NegativeControl"
+IC <- c('mCherry', 'NIC_1', 'NIC_3')
+IPC <- c('IPC')
+NC <- c('NC')
+Bridge <- NULL#c('Donor')
+heatMapRel <- TRUE
+
+###############################################################################
+# Read in files
+###############################################################################
+xmlFilePlateNames <- rep("", times=length(xmlFiles))
+runs <- vector('list', length(xmlFiles))
+runSummarys <- vector('list', length(xmlFiles))
+read_summary <- NULL
+RunNames <- NULL
+for(i in 1:length(xmlFiles)){
+  # Read each run1
+  plateID <- if(xmlFilePlateNames[i] == "") paste0("plate", i) else xmlFilePlateNames[i]
+  runs[[i]] <- readNULISAseq(xmlFiles[i], plateID=plateID)
+  xmlFilePlateNames[i] <- plateID
+  ICs  <- runs[[i]]$targets$targetName[which(grepl(paste(IC, collapse="|"),  runs[[i]]$targets$targetName))]
+  IPCs <- runs[[i]]$samples$sampleName[which(grepl(paste(IPC, collapse="|"), runs[[i]]$samples$sampleName))]
+  NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
+  IPCs <- paste0(plateID, "_", IPCs)
+  NCs  <- paste0(plateID, "_", NCs)
+
+  # Summarize each Run
+  runSummarys[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs)
+  read_summary <- cbind(read_summary,runSummarys[[i]]$readsTable)
+  RunNames <- c(RunNames, paste("Run", i, sep=" "))
+}
+names(runs) <- xmlFilePlateNames
+names(runSummarys) <- xmlFilePlateNames
+colnames(read_summary) <- RunNames
+rownames(read_summary)[length(xmlFiles)] <- 'Total samples * targets'
+read_summary <- t(read_summary)
+```
+
+```{r, include=FALSE}
+run_lod <- vector('list',length(xmlFiles))
+for (i in 1:length(xmlFiles)){
+  # replace NAs with 0
+  runs[[i]]$Data[is.na(runs[[i]]$Data)] <- 0
+
+  # calculate LODs 
+  NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
+  NCs  <- paste0(plateID, "_", NCs)
+  run_lod[[i]] <- lod(data_matrix=runs[[i]]$Data, blanks=NCs, min_count=0)
+}
+```
+
+```{r, include=FALSE}
+# do intra-plate normalizations
+plateNorms <- vector("list", length(xmlFiles))
+for (i in 1:length(xmlFiles)){
+  plateNorms[[i]] <- vector("list", length(ICs))
+  for (j in 1:length(ICs)){
+    plateNorms[[i]][[j]] <- intraPlateNorm(data_matrix=runs[[i]]$Data,
+                               method="IC",
+                               IC=ICs[j])
+  }
+  names(plateNorms[[i]]) <- ICs
+}
+names(plateNorms) <- xmlFilePlateNames
+```
+
+```{r, include=FALSE}
+# do inter-plate normalization 
+
+normData <- list()
+IPC_wells <- list(list())
+NC_wells <- list(list())
+Bridge_wells <- list(list())
+for (i in 1:length(xmlFiles)){
+  normData[[i]] <- plateNorms[[i]]$mCherry$normData
+  IPCs <- runs[[i]]$samples$sampleName[which(grepl(paste(IPC, collapse="|"), runs[[i]]$samples$sampleName))]
+  Bridges <-runs[[i]]$samples$sampleName[which(grepl(paste(Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
+  plateID <- if(xmlFilePlateNames[i] == "") paste0("run", i) else xmlFilePlateNames[i]
+  IPC_wells[[i]] <- paste0(plateID, "_", IPCs)
+  Bridge_wells[[i]] <-paste0(plateID,"_", Bridges)
+  NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
+  NCs  <- paste0(plateID, "_", NCs) 
+  NC_wells[[i]] <- paste0(plateID, "_", NCs)
+} 
+
+# using intra-plate means
+# mCherry + IPC
+mCherry_IPC <- interPlateNorm(data_list=normData,
+                              IPC=TRUE, IN=FALSE,
+                              IPC_wells=IPC_wells,
+                              IPC_method='median')
+# using intra-plate means
+# mCherry + IN
+mCherry_IN <- interPlateNorm(data_list=normData,
+                              IPC=FALSE, IN=TRUE,
+                              IPC_wells=IPC_wells,
+                              NC_wells=NC_wells
+                            )
+```
+
+```{r, include=FALSE}
+# do inter-plate bridge sample normalization 
+# mCherry + bridge
+if(length(Bridge_wells[[1]])){
+  mCherry_bridge <- interPlateNorm(data_list=normData,
+                                 IPC=FALSE, IN=TRUE,
+                                 IN_samples=Bridge_wells
+                                  )
+}
+```
+
+```{r, include=FALSE}
+# calculate intra-plate CVs unnormalized
+# using the sample controls 
+
+intraCV_unnorm <- NULL
+intraCV_mCherry <- NULL
+for (i in 1:length(xmlFiles)){
+  sc <- rep(NA, 96)
+  sc[colnames(runs[[i]]$Data) %in% IPC_wells[[i]]]<- 'SC'
+  plate_unnorm_intraCV <- intraCV(data_matrix=runs[[i]]$Data,
+                                 samples=sc,
+                                 aboveLOD=run_lod[[i]]$aboveLOD,
+                                 exclude_targets=ICs)
+# combine plates into one matrix
+  intraCV_unnorm <- cbind(intraCV_unnorm, plate_unnorm_intraCV) 
+  plate_mCherry_intraCV <- intraCV(data_matrix=plateNorms[[i]]$mCherry$normData,
+                                  samples=sc,
+                                  aboveLOD=run_lod[[i]]$aboveLOD,
+                                  exclude_targets=ICs)
+  intraCV_mCherry <- cbind(intraCV_mCherry, plate_mCherry_intraCV)
+}
+
+colnames(intraCV_unnorm) <- RunNames
+
+# calculate intra-plate CVs mCherry
+colnames(intraCV_mCherry) <- RunNames
+
+# create intra-plate CV table
+intraCV_unnorm_summary_table <- cbind(colMeans(intraCV_unnorm, na.rm=TRUE),
+                                      apply(intraCV_unnorm, 2, sd, na.rm=TRUE),
+                                      apply(intraCV_unnorm, 2, median, na.rm=TRUE),
+                                      apply(intraCV_unnorm, 2, min, na.rm=TRUE),
+                                      apply(intraCV_unnorm, 2, max, na.rm=TRUE),
+                                      apply(intraCV_unnorm, 2, function(x){
+                                        sum(is.na(x))
+                                      }))
+
+
+rownames(intraCV_unnorm_summary_table) <- RunNames
+colnames(intraCV_unnorm_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
+
+# create intra-plate CV table
+intraCV_mCherry_summary_table <- cbind(colMeans(intraCV_mCherry, na.rm=TRUE),
+                                       apply(intraCV_mCherry, 2, sd, na.rm=TRUE),
+                                       apply(intraCV_mCherry, 2, median, na.rm=TRUE),
+                                       apply(intraCV_mCherry, 2, min, na.rm=TRUE),
+                                       apply(intraCV_mCherry, 2, max, na.rm=TRUE),
+                                       apply(intraCV_mCherry, 2, function(x){
+                                         sum(is.na(x))
+                                       }))
+
+rownames(intraCV_mCherry_summary_table) <- RunNames
+colnames(intraCV_mCherry_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
+```
+
+```{r, include=FALSE}
+# calculate inter-plate CVs 
+# using individual replicates
+
+# run-run plates 1-6
+# un-normalized data
+scs <- vector("list", length(xmlFiles))
+plateData <- vector("list", length(xmlFiles))
+aboveLOD <- vector("list", length(xmlFiles))
+exclude_targets <- vector("list", length(xmlFiles))
+plate_mCherry <- vector("list", length(xmlFiles))
+for(i in 1:length(xmlFiles)){
+  sc <- rep(NA, 96)
+  sc[colnames(runs[[i]]$Data) %in% IPC_wells[[i]]]<- 'SC'
+  scs[[i]] <- sc
+  plateData[[i]] <- runs[[i]]$Data
+  aboveLOD[[i]] <- run_lod[[i]]$aboveLOD
+  exclude_targets[[i]] <- ICs
+  plate_mCherry[[i]] <- plateNorms[[i]]$mCherry$normData
+}
+interCV_unnorm <- interCV(data_list=plateData,
+                          samples=scs,
+                          aboveLOD=aboveLOD,
+                          exclude_targets=exclude_targets,
+                          useMean=FALSE)
+
+# mCherry normalized data
+interCV_mCherry <- interCV(data_list=plate_mCherry,
+                           samples=scs,
+                           aboveLOD=aboveLOD,
+                           exclude_targets=exclude_targets,
+                           useMean=FALSE)
+
+# mCherry + IPC normalized data
+interCV_mCherry_IPC <- interCV(data_list=mCherry_IPC$interNormData,
+                               samples=scs,
+                               aboveLOD=aboveLOD,
+                               exclude_targets=exclude_targets,
+                               useMean=FALSE)
+
+# mCherry + IN normalized data
+interCV_mCherry_IN <- interCV(data_list=mCherry_IN$interNormData,
+                              samples=scs,
+                              aboveLOD=aboveLOD,
+                              exclude_targets=exclude_targets,
+                              useMean=FALSE)
+
+# mCherry + bridge sample normalized data
+if(length(Bridge_wells[[1]])){
+  interCV_mCherry_bridge <- interCV(data_list=mCherry_bridge$interNormData,
+                                  samples=scs,
+                                  aboveLOD=aboveLOD,
+                                  exclude_targets=exclude_targets,
+                                  useMean=FALSE)
+}
+
+# combine results into one matrix
+interCV_results <- NULL
+if(length(Bridge_wells[[1]])){
+  interCV_results <- cbind(interCV_unnorm,
+                         interCV_mCherry,
+                         interCV_mCherry_IPC,
+                         interCV_mCherry_IN,
+                         interCV_mCherry_bridge)
+}else{
+  interCV_results <- cbind(interCV_unnorm,
+                         interCV_mCherry,
+                         interCV_mCherry_IPC,
+                         interCV_mCherry_IN)
+                                  
+}
+colnames(interCV_results) <- c('unnorm',
+                               'mCherry',
+                               'mCherry + IPC',
+                               'mCherry + IN',
+                               'mCherry + bridge')
+
+# create inter-plate CV table
+interCV_summary_table <- cbind(colMeans(interCV_results, na.rm=TRUE),
+                               apply(interCV_results, 2, sd, na.rm=TRUE),
+                               apply(interCV_results, 2, median, na.rm=TRUE),
+                               apply(interCV_results, 2, min, na.rm=TRUE),
+                               apply(interCV_results, 2, max, na.rm=TRUE),
+                               apply(interCV_results, 2, function(x){
+                                 sum(is.na(x))
+                               }))
+if(length(Bridge_wells[[1]])){
+  rownames(interCV_summary_table) <- c('unnorm',
+                                                 'mCherry',
+                                                 'mCherry + IPC',
+                                                 'mCherry + IN',
+                                                 'mCherry + bridge')
+} else{
+  rownames(interCV_summary_table) <- c('unnorm',
+                                                 'mCherry',
+                                                 'mCherry + IPC',
+                                                 'mCherry + IN')
+}
+  colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
+```
+
+```{r, include=FALSE}
+# convert data to long format
+```
+
+
+## Analysis description
+* **Goal:** Determine effect of various CAR-T treatments on the inflammatory markers in the 
+NULISAseq 200-plex inflammation panel.
+* Sample description:
+
+
+---
+
+## Plate layout
+![](/Users/dkuo/Projects/NULISAseqR/data/figures/CC_plate_layout.png)
+
+---
+
+## Reads summary
+```{r, results='asis'}
+knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ","))
+```
+
+---
+
+## Internal control (IC) summary
+```{r, results='asis'}
+for(i in 1:length(xmlFiles)){
+  print(knitr::kable(runSummarys[[i]]$IC_table, caption=paste("Run", as.character(i), "IC summary"), align='r', format.args=list(big.mark = ",")))
+  cat("\n")
+}
+```
+
+---
+
+## Inter-plate control (IPC) summary
+```{r, results='asis'}
+for(i in 1:length(xmlFiles)){
+  print(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste("Run", as.character(i), "IPC summary"), align='r', format.args=list(big.mark = ",")))
+  cat("\n")
+}
+```
+---
+
+## Negative control (NC) summary
+```{r, results='asis'}
+for(i in 1:length(xmlFiles)){
+  print(knitr::kable(runSummarys[[i]]$NC_table, caption=paste("Run", as.character(i), "NC summaray"), align='r', format.args=list(big.mark = ",")))
+  cat("\n")
+}
+```
+
+---
+
+## Heatmaps
+```{r, out.width='100%', fig.asp=1.2}
+well_order <- c(1,5:12,2:4,
+                13,17:24,14:16,
+                25,29:36,26:28,
+                37,41:48,38:40,
+                49,53:60,50:52,
+                61,65:72,62:64,
+                73,77:84,74:76,
+                85,89:96,86:88)
+
+for(i in 1:length(xmlFiles)){
+  par(mfrow=c(ceiling((length(ICs)+1)/2),2), mar=c(4,2,2,0))
+  for (j in 1:length(ICs)){
+    plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste("Plate", as.character(i), ICs[j]), cex=0.5, digits=(if(heatMapRel) 3 else 0), well_order=well_order,relative=heatMapRel)
+  }
+  plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste('Plate', as.character(i), 'log2(total counts)'), cex=0.5, digits=3,
+               well_order=well_order, relative=heatMapRel)
+}
+```
+
+---
+
+## Intra-plate CV
+Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).
+
+### Intra-plate %CV table -- un-normalized
+```{r}
+knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', 
+             format.args=list(big.mark = ",", digits=5))
+```
+
+### Intra-plate %CV table -- mCherry-normalized
+```{r}
+knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', 
+             format.args=list(big.mark = ",", digits=5))
+```
+
+### Intra-plate CV boxplots by plate
+```{r, out.width='100%', fig.asp=0.8}
+par(mfrow=c(1,2))
+boxplot(intraCV_unnorm, las=3, ylab='intra-plate CV (%)',
+        ylim=c(0, max(c(intraCV_unnorm, intraCV_mCherry), na.rm=TRUE)),
+        main='un-normalized',
+        col=alamarColorPalette(6))
+abline(h=c(0:8*5), col='grey', lty=3)
+boxplot(intraCV_mCherry, las=3, ylab='intra-plate CV (%)',
+        ylim=c(0, max(c(intraCV_unnorm, intraCV_mCherry), na.rm=TRUE)),
+        main='mCherry-normalized',
+        col=alamarColorPalette(6))
+abline(h=c(0:8*5), col='grey', lty=3)
+```
+
+---
+
+## Inter-plate CV
+Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).
+
+### Inter-plate %CV table 
+```{r}
+knitr::kable(interCV_summary_table, caption='', align='r', 
+             format.args=list(big.mark = ",", digits=5))
+```
+
+### Inter-plate CV boxplot
+```{r, out.width='100%', fig.asp=0.8}
+par(mfrow=c(1,2))
+par(mar=c(8,5,1,1))
+boxplot(interCV_results, las=3, ylab='inter-plate CV (%)',
+        col=alamarColorPalette(5))
+abline(h=c(0:16*5), col='grey', lty=3)
+```
