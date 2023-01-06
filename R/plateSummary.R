@@ -94,12 +94,12 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
     IC_data <- plate_data$Data[ICs,, drop=F]
     IC_totals <- rowSums(IC_data, na.rm=TRUE)
     IC_percents <- format(round(IC_totals/total_plate_reads*100, 1), nsmall=1)
-    IC_total_percent <- paste0(IC_totals, ' (', IC_percents, '%)')
+    IC_total_percent <- paste0(format(IC_totals, big.mark=","), ' (', IC_percents, '%)')
     IC_missing_n <- apply(IC_data, 1, function(x) sum(is.na(x)) + sum(x==0, na.rm=TRUE))
     IC_missing_perc <- format(round(IC_missing_n/ncol(IC_data)*100, 1), nsmall=1)
-    IC_missing_n_perc <- paste0(IC_missing_n, ' (', IC_missing_perc, '%)')
-    IC_means <- format(round(rowMeans(IC_data, na.rm=TRUE), 1), nsmall=1)
-    IC_sd <- format(round(apply(IC_data, 1, sd, na.rm=TRUE), 1), nsmall=1)
+    IC_missing_n_perc <- paste0(format(IC_missing_n, big.mark=","), ' (', IC_missing_perc, '%)')
+    IC_means <- format(round(rowMeans(IC_data, na.rm=TRUE), 1), nsmall=1, big.mark=",")
+    IC_sd <- format(round(apply(IC_data, 1, sd, na.rm=TRUE), 1), nsmall=1, big.mark=",")
     IC_cv <- paste0(format(round(apply(IC_data, 1, sd, na.rm=TRUE)/rowMeans(IC_data, na.rm=TRUE)*100, 1), nsmall=1),
                     '%')
     IC_table <- cbind(IC_missing_n_perc, IC_total_percent, IC_means, IC_sd, IC_cv)
@@ -123,14 +123,14 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
     IPC_medians_total_perc <- format(round(IPC_medians_total/total_plate_reads*100, 1), nsmall=1)
     total_IPC_counts <- c(IPC_total, IPC_totals, IPC_medians_total)
     total_IPC_perc <- c(IPC_total_perc, IPC_totals_perc, IPC_medians_total_perc)
-    total_IPC_count_perc <- paste0(total_IPC_counts, ' (',
+    total_IPC_count_perc <- paste0(format(total_IPC_counts, big.mark=","), ' (',
                                    total_IPC_perc, '%)')
     # mean count per target
     IPC_total_mean <- mean(IPC_data, na.rm=TRUE)
     IPC_target_mean <- colMeans(IPC_data, na.rm=TRUE)
     IPC_medians_mean <- mean(IPC_medians, na.rm=TRUE)
     IPC_means_per_target <- c(IPC_total_mean, IPC_target_mean, IPC_medians_mean)
-    IPC_means_per_target <- format(round(IPC_means_per_target, 1), nsmall=1)
+    IPC_means_per_target <- format(round(IPC_means_per_target, 1), big.mark=",", nsmall=1)
     # missing n %
     IPC_total_missing <- sum(is.na(IPC_data)) + sum(IPC_data==0, na.rm=TRUE)
     IPC_total_missing_perc <- IPC_total_missing/(nrow(IPC_data)*ncol(IPC_data))*100
@@ -144,7 +144,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
     IPC_missing_percents <- c(IPC_total_missing_perc,
                               IPC_missing_perc,
                               IPC_medians_missing_perc)
-    IPC_missing_percents <- format(round(IPC_missing_percents, 1), nsmall=1)
+    IPC_missing_percents <- format(round(IPC_missing_percents, 1), nsmall=1, big.mark=",")
     IPC_missing <- paste0(IPC_missing_totals, ' (',
                           IPC_missing_percents, '%)')
     # calculate CV
@@ -193,7 +193,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
     NC_means_total_perc <- format(round(NC_means_total/total_plate_reads*100, 1), nsmall=1)
     total_NC_counts <- c(NC_total, NC_totals, NC_means_total)
     total_NC_perc <- c(NC_total_perc, NC_totals_perc, NC_means_total_perc)
-    total_NC_count_perc <- paste0(total_NC_counts, ' (',
+    total_NC_count_perc <- paste0(format(total_NC_counts, big.mark=","), ' (',
                                   total_NC_perc, '%)')
     # mean count per target
     NC_total_mean <- mean(NC_data, na.rm=TRUE)
@@ -203,8 +203,8 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
     NC_means_per_target <- format(round(NC_means_per_target, 1), nsmall=1)
     # max target counts
     NC_max <- apply(NC_data, 2, max, na.rm=TRUE)
-    NC_mean_max <- format(round(max(NC_means, na.rm=TRUE), 1), nsmall=1)
-    NC_maxs <- c('', NC_max, NC_mean_max)
+    NC_mean_max <- format(round(max(NC_means, na.rm=TRUE), 1), big.mark=",", nsmall=1)
+    NC_maxs <- c('', format(NC_max, big.mark=","), NC_mean_max)
     # missing n %
     NC_total_missing <- sum(is.na(NC_data)) + sum(NC_data==0, na.rm=TRUE)
     NC_total_missing_perc <- NC_total_missing/(nrow(NC_data)*ncol(NC_data))*100
@@ -219,7 +219,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
                              NC_missing_perc,
                              NC_means_missing_perc)
     NC_missing_percents <- format(round(NC_missing_percents, 1), nsmall=1)
-    NC_missing <- paste0(NC_missing_totals, ' (',
+    NC_missing <- paste0(format(NC_missing_totals, big.mark=","), ' (',
                          NC_missing_percents, '%)')
     # create table
     NC_table <- cbind(total_NC_count_perc,
