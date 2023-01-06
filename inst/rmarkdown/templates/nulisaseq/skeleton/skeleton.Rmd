@@ -356,7 +356,7 @@ for(i in 1:length(xmlFiles)){
       val[inds] <- cell_spec(val[inds], "html", background=boxplot_colors[j+1])
     }
   }
-  cat(knitr::kable(val, caption=paste("Run", as.character(i), "Plate/Sample Layout"), align="c",escape=F) %>% kable_styling(font_size=9))
+  cat(knitr::kable(val, caption=paste0("Run ", as.character(i), ": Plate/Sample Layout"), align="c",escape=F) %>% kable_styling(font_size=9))
 }
 ```
 
@@ -372,7 +372,7 @@ knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",
 ## Internal control (IC) summary
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste("Run", as.character(i), "IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
+  cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Run ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
 }
 ```
 
@@ -381,7 +381,7 @@ for(i in 1:length(xmlFiles)){
 ## Inter-plate control (IPC) summary
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste("Run", as.character(i), "IPC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
+  cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste0("Run ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
 }
 ```
 ---
@@ -389,7 +389,7 @@ for(i in 1:length(xmlFiles)){
 ## Negative control (NC) summary
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste("Run", as.character(i), "NC summaray"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
+  cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste0("Run ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
 }
 ```
 
@@ -402,9 +402,9 @@ for(i in 1:length(xmlFiles)){
   well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(0,2,2,0), pty="s")
   for (j in 1:length(ICs)){
-    plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste("Plate", as.character(i), ICs[j]), cex=0.5, digits=(if(heatMapRel) 3 else 0), well_order=well_order,relative=heatMapRel)
+    plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste0("Plate ", as.character(i),": ",  ICs[j]), cex=0.5, digits=(if(heatMapRel) 3 else 0), well_order=well_order,relative=heatMapRel)
   }
-  plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste('Plate', as.character(i), 'log2(total counts)'), cex=0.5, digits=3,
+  plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=3,
                well_order=well_order, relative=heatMapRel)
 }
 ```
@@ -488,7 +488,7 @@ for(i in 1:length(xmlFiles)){
   boxplot(log2(runs[[i]]$Data[,ordering]+0.01),
           las=1, xaxt='n',
           ylab='',
-          main=paste("Plate", as.character(i), "unnormalized"),
+          main=paste0("Plate ", as.character(i), ": unnormalized"),
           outcex=0.5,
           col=plate_sample_colors)
   axis(1, at=1:96, labels=colnames(runs[[i]]$Data)[ordering], cex.axis=0.4, las=3)
@@ -500,7 +500,7 @@ for(i in 1:length(xmlFiles)){
   boxplot(log2(mCherry_IPC$interNormData[[i]][,ordering]+0.01),
           las=1, xaxt='n',
           ylab='',
-          main=paste("Plate", as.character(i), "mCherry + IPC"),
+          main=paste0("Plate ", as.character(i), ": mCherry + IPC"),
           outcex=0.5,
           col=plate_sample_colors)
   axis(1, at=1:96, labels=colnames(mCherry_IPC$interNormData[[i]])[ordering], cex.axis=0.4, las=3)
