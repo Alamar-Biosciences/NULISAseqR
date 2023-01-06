@@ -91,7 +91,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
   # ICs
   ############
   if (!is.null(ICs)){
-    IC_data <- plate_data$Data[ICs,]
+    IC_data <- plate_data$Data[ICs,, drop=F]
     IC_totals <- rowSums(IC_data, na.rm=TRUE)
     IC_percents <- format(round(IC_totals/total_plate_reads*100, 1), nsmall=1)
     IC_total_percent <- paste0(IC_totals, ' (', IC_percents, '%)')

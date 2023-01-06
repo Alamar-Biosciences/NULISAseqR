@@ -33,7 +33,7 @@ xmlFiles <- c(
 #IC <- "InternalControl"
 #IPC <- "InterPlateControl"
 #NC <- "NegativeControl"
-IC <- c('mCherry', 'NIC_1', 'NIC_3')
+IC <- c('mCherry')
 IPC <- c('IPC')
 NC <- c('NC')
 Bridge <- c('Donor') #NULL
@@ -395,7 +395,7 @@ for(i in 1:length(xmlFiles)){
 
 for(i in 1:length(xmlFiles)){
   well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
-  par(mfrow=c(ceiling((length(ICs)+1)/2),2), mar=c(4,2,2,0))
+  par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(0,2,2,0), pty="s")
   for (j in 1:length(ICs)){
     plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste("Plate", as.character(i), ICs[j]), cex=0.5, digits=(if(heatMapRel) 3 else 0), well_order=well_order,relative=heatMapRel)
   }
@@ -493,14 +493,14 @@ for(i in 1:length(xmlFiles)){
   legend('topleft', 'mCherry', col='red', lty=1,
          cex=0.4, bty='n')
 
-  boxplot(log2(mCherry_IPC$interNormData[[1]][,ordering]+0.01),
+  boxplot(log2(mCherry_IPC$interNormData[[i]][,ordering]+0.01),
           las=1, xaxt='n',
           ylab='',
           main=paste("Plate", as.character(i), "mCherry + IPC"),
           outcex=0.5,
           col=plate_sample_colors)
-  axis(1, at=1:96, labels=colnames(mCherry_IPC$interNormData[[1]])[ordering], cex.axis=0.4, las=3)
-  lines(log2(mCherry_IPC$interNormData[[1]]['mCherry',ordering]+0.01), col='red')
+  axis(1, at=1:96, labels=colnames(mCherry_IPC$interNormData[[i]])[ordering], cex.axis=0.4, las=3)
+  lines(log2(mCherry_IPC$interNormData[[i]]['mCherry',ordering]+0.01), col='red')
   mtext('log2(count + 0.01)', side=2, line=2)
   legend('topleft', 'mCherry', col='red', lty=1,
          cex=0.4, bty='n')
