@@ -58,6 +58,7 @@ wellorder <- function(samples, rowAnnotName, colAnnotName){
 ###############################################################################
 # Read in files
 ###############################################################################
+boxplot_colors <- unlist(lapply(alamarColorPalette(n=4, tint='light', nReps=4), function(x) x[3]))
 knitr::opts_knit$set(root.dir=dataDir)
 xmlFilesPath <- paste0(dataDir, "/", xmlFiles)
 xmlFilePlateNames <- rep("", times=length(xmlFiles))
@@ -331,8 +332,7 @@ if(length(Bridge_wells[[1]])){
 
 
 ## Analysis description
-* **Goal:** Determine effect of various CAR-T treatments on the inflammatory markers in the 
-NULISAseq 200-plex inflammation panel.
+* **Goal:** NULISAseq 200-plex inflammation panel.
 * Sample description:
 
 
@@ -345,12 +345,11 @@ for(i in 1:length(xmlFiles)){
   val <- matrix(runs[[i]]$samples[well_order,]$sampleName, nrow=8, byrow=T)
   colnames(val) <- 1:12
   rownames(val) <-LETTERS[1:8]
-  well_types <- list(IPC_wells_orig[[i]], NC_wells_orig[[i]], Bridge_wells_orig[[i]])
-  colors <- c("coral", "cyan", "chartreuse")
+  well_types <- list(Bridge_wells_orig[[i]], IPC_wells_orig[[i]], NC_wells_orig[[i]])
   for (j in 1:length(well_types)){
     inds <- which(grepl(paste0(well_types[[j]], collapse="|"), val))
     if(length(inds) > 0){
-      val[inds] <- cell_spec(val[inds], "html", background=colors[j])
+      val[inds] <- cell_spec(val[inds], "html", background=boxplot_colors[j+1])
     }
   }
   cat(knitr::kable(val, caption=paste("Run", as.character(i), "Plate/Sample Layout"), align="c",escape=F) %>% kable_styling(font_size=9))
@@ -472,7 +471,6 @@ for(i in 1:length(xmlFiles)){
   plate_sample_type[grepl(paste0(IPC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '3_IPC'
   plate_sample_type[grepl(paste0(NC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '4_NC'
 
-  boxplot_colors <- unlist(lapply(alamarColorPalette(n=4, tint='light', nReps=4), function(x) x[3]))
   ordering2 <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName) 
   ordering <- NULL
   types <- sort(unique(plate_sample_type))
