@@ -9,6 +9,7 @@ date: "`r Sys.Date()`"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(NULISAseqR)
+library(kableExtra)
 library(knitr)
 ```
 
@@ -122,17 +123,20 @@ normData <- list()
 IPC_wells <- list(list())
 NC_wells <- list(list())
 Bridge_wells <- list(list())
+IPC_wells_orig <- list(list())
+NC_wells_orig <- list(list())
+Bridge_wells_orig <- list(list())
 for (i in 1:length(xmlFiles)){
   normData[[i]] <- plateNorms[[i]]$mCherry$normData
-  IPCs <- runs[[i]]$samples$sampleName[which(grepl(paste(IPC, collapse="|"), runs[[i]]$samples$sampleName))]
+  IPC_wells_orig[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(IPC, collapse="|"), runs[[i]]$samples$sampleName))]
   plateID <- if(xmlFilePlateNames[i] == "") paste0("run", i) else xmlFilePlateNames[i]
   if(!is.null(Bridge)){
-    Bridges <-runs[[i]]$samples$sampleName[which(grepl(paste(Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
-    Bridge_wells[[i]] <- paste0(plateID,"_", Bridges)
+    Bridge_wells_orig[[i]] <-runs[[i]]$samples$sampleName[which(grepl(paste(Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
+    Bridge_wells[[i]] <- paste0(plateID,"_", Bridge_wells_orig[[i]])
   }
-  IPC_wells[[i]] <- paste0(plateID, "_", IPCs)
-  NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
-  NC_wells[[i]]  <- paste0(plateID, "_", NCs) 
+  IPC_wells[[i]] <- paste0(plateID, "_", IPC_wells_orig[[i]])
+  NC_wells_orig[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
+  NC_wells[[i]]  <- paste0(plateID, "_", NC_wells_orig[[i]]) 
 } 
 
 # using intra-plate means
@@ -338,17 +342,18 @@ NULISAseq 200-plex inflammation panel.
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
   well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
-  vals <- runs[[i]]$samples[well_order,]
-  vals$sampleBarcode <- NULL
-  vals$`non-matching` <- NULL
-  vals$matching <- NULL
-  rownames(vals)<-NULL
-  if (!is.null(plateAnnotName)){
-    cmd <- paste0("vals$", plateAnnotName, "<-NULL")
-    eval(parse(text=cmd))
+  val <- matrix(runs[[i]]$samples[well_order,]$sampleName, nrow=8, byrow=T)
+  colnames(val) <- 1:12
+  rownames(val) <-LETTERS[1:8]
+  well_types <- list(IPC_wells_orig[[i]], NC_wells_orig[[i]], Bridge_wells_orig[[i]])
+  colors <- c("coral", "cyan", "chartreuse")
+  for (j in 1:length(well_types)){
+    inds <- which(grepl(paste0(well_types[[j]], collapse="|"), val))
+    if(length(inds) > 0){
+      val[inds] <- cell_spec(val[inds], "html", background=colors[j])
+    }
   }
-  print(knitr::kable(row.names=NA, vals, caption=paste("Run", as.character(i), "Plate/Sample Layout"), align='r', format.args=list(big.mark = ",")))
-  cat("\n")
+  cat(knitr::kable(val, caption=paste("Run", as.character(i), "Plate/Sample Layout"), align="c",escape=F) %>% kable_styling(font_size=9))
 }
 ```
 
@@ -356,7 +361,7 @@ for(i in 1:length(xmlFiles)){
 
 ## Reads summary
 ```{r, results='asis'}
-knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ","))
+knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",")) %>% kable_styling()
 ```
 
 ---
@@ -364,8 +369,7 @@ knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",
 ## Internal control (IC) summary
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  print(knitr::kable(runSummarys[[i]]$IC_table, caption=paste("Run", as.character(i), "IC summary"), align='r', format.args=list(big.mark = ",")))
-  cat("\n")
+  cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste("Run", as.character(i), "IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
 }
 ```
 
@@ -374,8 +378,7 @@ for(i in 1:length(xmlFiles)){
 ## Inter-plate control (IPC) summary
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  print(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste("Run", as.character(i), "IPC summary"), align='r', format.args=list(big.mark = ",")))
-  cat("\n")
+  cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste("Run", as.character(i), "IPC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
 }
 ```
 ---
@@ -383,8 +386,7 @@ for(i in 1:length(xmlFiles)){
 ## Negative control (NC) summary
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  print(knitr::kable(runSummarys[[i]]$NC_table, caption=paste("Run", as.character(i), "NC summaray"), align='r', format.args=list(big.mark = ",")))
-  cat("\n")
+  cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste("Run", as.character(i), "NC summaray"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
 }
 ```
 
@@ -412,13 +414,13 @@ Only values above LOD were used to calculate %CV (no minimum count requirement).
 ### Intra-plate %CV table -- un-normalized
 ```{r}
 knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=5))
+             format.args=list(big.mark = ",", digits=5)) %>% kable_styling()
 ```
 
 ### Intra-plate %CV table -- mCherry-normalized
 ```{r}
 knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=5))
+             format.args=list(big.mark = ",", digits=5)) %>% kable_styling()
 ```
 
 ### Intra-plate CV boxplots by plate
@@ -445,7 +447,7 @@ Only values above LOD were used to calculate %CV (no minimum count requirement).
 ```{r}
 if (length(xmlFiles) > 1){
   knitr::kable(interCV_summary_table, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=5))
+             format.args=list(big.mark = ",", digits=5)) %>% kable_styling()
 }
 ```
 
