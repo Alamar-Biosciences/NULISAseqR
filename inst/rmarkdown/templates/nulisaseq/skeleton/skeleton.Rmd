@@ -345,8 +345,12 @@ for(i in 1:length(xmlFiles)){
   val <- matrix(runs[[i]]$samples[well_order,]$sampleName, nrow=8, byrow=T)
   colnames(val) <- 1:12
   rownames(val) <-LETTERS[1:8]
-  well_types <- list(Bridge_wells_orig[[i]], IPC_wells_orig[[i]], NC_wells_orig[[i]])
+  B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else NULL
+  well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   for (j in 1:length(well_types)){
+    if (j == 1 && is.null(Bridge)){
+      next
+    }
     inds <- which(grepl(paste0(well_types[[j]], collapse="|"), val))
     if(length(inds) > 0){
       val[inds] <- cell_spec(val[inds], "html", background=boxplot_colors[j+1])
