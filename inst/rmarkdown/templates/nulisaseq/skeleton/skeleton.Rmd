@@ -11,6 +11,9 @@ knitr::opts_chunk$set(echo = FALSE)
 library(NULISAseqR)
 library(kableExtra)
 library(knitr)
+library(pheatmap)
+library(corrplot)
+library(pander)
 ```
 
 ```{r, include=FALSE}
@@ -330,6 +333,44 @@ if(length(Bridge_wells[[1]])){
 # convert data to long format
 ```
 
+```{r, include=FALSE}
+# calculate detectability
+#detect_samples <- colnames(plateNorms[[1]]$mCherry$normData)
+#detect_samples <- detect_samples[-grep('IPC', detect_samples)]
+#detect_samples <- detect_samples[-grep('NC', detect_samples)]
+#detect_samples <- detect_samples[-grep('Donor', detect_samples)]
+#plate1_detect <- detectability(aboveLOD_matrix=run_lod[[1]]$aboveLOD,
+#                               sample_subset=detect_samples,
+#                               exclude_targets=ICs)
+#detectability_summary <- cbind(format(round(mean(plate1_detect$detectability, na.rm=TRUE), 1), nsmall=1),
+#                               format(round(sd(plate1_detect$detectability, na.rm=TRUE), 1), nsmall=1),
+#                               median(plate1_detect$detectability, na.rm=TRUE),
+#                               min(plate1_detect$detectability, na.rm=TRUE),
+#                               max(plate1_detect$detectability, na.rm=TRUE),
+#                               paste0(sum(plate1_detect$detectability >= 50),
+#                                      ' (',
+#                                      format(round(sum(plate1_detect$detectability > 50)/length(plate1_detect$detectability) * 100, 1), nsmall=1),
+#                                      '%)'))
+#colnames(detectability_summary) <- c('mean',
+#                                     'sd',
+#                                     'median',
+#                                     'min',
+#                                     'max',
+#                                     'detectable targets n (%)')
+#rownames(detectability_summary) <- RunNames
+```
+
+```{r, include=FALSE}
+# sample clustering
+data_mCherry_scaled <- list(list())
+for(i in 1:length(xmlFiles)){
+  data_mCherry_scaled[[i]] <- scale(log2(plateNorms[[i]]$mCherry$normData+0.01))
+#  colnames(data_mCherry_scaled[[i]]) <- paste0(sample_info$personID, '_', 
+#                                        sample_info$sample, 
+#                                        '_',
+#                                        sample_info$sampleName)
+}
+```
 
 ## Analysis description
 * **Goal:** NULISAseq 200-plex inflammation panel.
@@ -510,3 +551,37 @@ for(i in 1:length(xmlFiles)){
          cex=0.4, bty='n')
 }
 ```
+
+### Detectability table
+```{r, results='asis'}
+#kable_styling(knitr::kable(detectability_summary, caption='', align='r', 
+#             format.args=list(big.mark = ",", digits=5)))
+```
+
+## Sample and target clustering 
+```{r, out.width='100%', fig.asp=1, results='asis'}
+paletteLength <- 50
+myColor <- colorRampPalette(c("blue", "white", "yellow"))(paletteLength)
+for(i in 1:length(xmlFiles)){
+  pandoc.header(paste("Run", i), 3)
+  myBreaks <- c(seq(min(data_mCherry_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(data_mCherry_scaled[[i]])/paletteLength, max(data_mCherry_scaled[[i]]), length.out=floor(paletteLength/2)))
+  pheatmap(t(data_mCherry_scaled[[i]]),
+         main = "", fontsize=5,
+         color=myColor,
+         breaks=myBreaks,
+         show_colnames=FALSE)
+  cat("\n")
+}
+```
+
+## Sample correlation matrix
+```{r, out.width='100%', fig.asp=1, results='asis'}
+for(i in 1:length(xmlFiles)){
+  pandoc.header(paste("Run", i), 3)
+  corrplot(cor(data_mCherry_scaled[[i]]),
+         order='hclust', 
+         tl.cex=0.4, tl.col='black',
+         is.corr=FALSE)
+  cat("\n")
+}
