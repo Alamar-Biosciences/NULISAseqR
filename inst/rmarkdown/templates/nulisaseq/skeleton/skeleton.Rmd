@@ -609,7 +609,7 @@ for(i in 1:length(xmlFiles)){
   dev.off()
   B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else ""
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
-  mycolors <- wellcolors(data_mCherry_scaled[[i]], well_types, boxplot_colors)
+  mycolors <- wellcolors(corrvals$corr, well_types, boxplot_colors)
   corrplot(corrvals$corr,
          tl.cex=0.4,
          tl.col=mycolors,
