@@ -15,7 +15,6 @@ library(pheatmap)
 library(corrplot)
 library(pander)
 library(grid)
-library(cellwrangler)
 ```
 
 ```{r, include=FALSE}
@@ -387,7 +386,7 @@ for(i in 1:length(xmlFiles)){
   well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
   val <- matrix(runs[[i]]$samples[well_order,]$sampleName, nrow=8, byrow=T)
   colnames(val) <- 1:12
-  rownames(val) <-LETTERS[1:8]
+  rownames(val) <- LETTERS[1:8]
   B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else NULL
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   for (j in 1:length(well_types)){
@@ -562,22 +561,27 @@ for(i in 1:length(xmlFiles)){
 
 ## Sample and target clustering 
 ```{r, out.width='100%', fig.asp=1, results='asis'}
-paletteLength <- 50
-myColor <- colorRampPalette(c("blue", "white", "red"))(paletteLength)
-for(i in 1:length(xmlFiles)){
-  pandoc.header(paste("Run", i), 3)
+wellcolors <- function(data, well_types, boxplot_colors ){
   mycolors <- rep("black", 96)
-  B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else NULL
-  well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   for (j in 1:length(well_types)){
-    if (j == 1 && is.null(Bridge)){
+    if (j == 1 && well_types[j] == ""){
       next
     }
-    inds <- which(grepl(paste0(well_types[[j]], collapse="|"), colnames(data_mCherry_scaled[[i]])))
+    inds <- which(grepl(paste0(well_types[[j]], collapse="|"), colnames(data)))
     if(length(inds) > 0){
       mycolors[inds] <- boxplot_colors[j+1]
     }
   }
+  return(mycolors)
+}
+
+paletteLength <- 50
+myColor <- colorRampPalette(c("blue", "white", "red"))(paletteLength)
+for(i in 1:length(xmlFiles)){
+  pandoc.header(paste("Run", i), 3)
+  B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else ""
+  well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
+  mycolors <- wellcolors(data_mCherry_scaled[[i]], well_types, boxplot_colors)
   myBreaks <- c(seq(min(data_mCherry_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
               seq(max(data_mCherry_scaled[[i]])/paletteLength, max(data_mCherry_scaled[[i]]), length.out=floor(paletteLength/2)))
   data_mCherry_scaled2 <- data.frame(t(data_mCherry_scaled[[i]]))
@@ -590,7 +594,8 @@ for(i in 1:length(xmlFiles)){
          show_colnames=FALSE, silent=T)
   cols <- data_mCherry_scaled2[order(match(rownames(data_mCherry_scaled2), e$gtable$grobs[[5]]$label)), ]$colors
   e$gtable$grobs[[5]]$gp=gpar(col=cols)
-  plot_pheatmap(e)
+  grid::grid.newpage()
+  grid::grid.draw(e$gtable)
   cat("\n")
 }
 ```
@@ -602,18 +607,9 @@ for(i in 1:length(xmlFiles)){
   pdf(file=NULL)
   corrvals <- corrplot(cor(data_mCherry_scaled[[i]]), order='hclust') 
   dev.off()
-  mycolors <- rep("black", 96)
-  B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else NULL
+  B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else ""
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
-  for (j in 1:length(well_types)){
-    if (j == 1 && is.null(Bridge)){
-      next
-    }
-    inds <- which(grepl(paste0(well_types[[j]], collapse="|"), colnames(corrvals$corr)))
-    if(length(inds) > 0){
-      mycolors[inds] <- boxplot_colors[j+1]
-    }
-  }
+  mycolors <- wellcolors(data_mCherry_scaled[[i]], well_types, boxplot_colors)
   corrplot(corrvals$corr,
          tl.cex=0.4,
          tl.col=mycolors,
