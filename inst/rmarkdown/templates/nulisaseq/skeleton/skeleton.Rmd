@@ -101,6 +101,7 @@ for (i in 1:length(xmlFiles)){
 
   # calculate LODs 
   NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
+  plateID <- if(xmlFilePlateNames[i] == "") paste0("plate", i) else xmlFilePlateNames[i]
   NCs  <- paste0(plateID, "_", NCs)
   run_lod[[i]] <- lod(data_matrix=runs[[i]]$Data, blanks=NCs, min_count=0)
 }
@@ -336,29 +337,33 @@ if(length(Bridge_wells[[1]])){
 
 ```{r, include=FALSE}
 # calculate detectability
-#detect_samples <- colnames(plateNorms[[1]]$mCherry$normData)
-#detect_samples <- detect_samples[-grep('IPC', detect_samples)]
-#detect_samples <- detect_samples[-grep('NC', detect_samples)]
-#detect_samples <- detect_samples[-grep('Donor', detect_samples)]
-#plate1_detect <- detectability(aboveLOD_matrix=run_lod[[1]]$aboveLOD,
-#                               sample_subset=detect_samples,
-#                               exclude_targets=ICs)
-#detectability_summary <- cbind(format(round(mean(plate1_detect$detectability, na.rm=TRUE), 1), nsmall=1),
-#                               format(round(sd(plate1_detect$detectability, na.rm=TRUE), 1), nsmall=1),
-#                               median(plate1_detect$detectability, na.rm=TRUE),
-#                               min(plate1_detect$detectability, na.rm=TRUE),
-#                               max(plate1_detect$detectability, na.rm=TRUE),
-#                               paste0(sum(plate1_detect$detectability >= 50),
-#                                      ' (',
-#                                      format(round(sum(plate1_detect$detectability > 50)/length(plate1_detect$detectability) * 100, 1), nsmall=1),
-#                                      '%)'))
-#colnames(detectability_summary) <- c('mean',
-#                                     'sd',
-#                                     'median',
-#                                     'min',
-#                                     'max',
-#                                     'detectable targets n (%)')
-#rownames(detectability_summary) <- RunNames
+detectability_summary <- list()
+for (i in 1:length(xmlFiles)){
+  detect_samples <- colnames(plateNorms[[i]]$mCherry$normData)
+  detect_samples <- detect_samples[-which(grepl(paste(IPC, collapse="|"), detect_samples))]
+  detect_samples <- detect_samples[-which(grepl(paste(NC, collapse="|"), detect_samples))]
+  detect_samples <- detect_samples[-which(grepl(paste(Bridge, collapse="|"), detect_samples))]
+  plate_detect <- detectability(aboveLOD_matrix=run_lod[[i]]$aboveLOD,
+                                 sample_subset=detect_samples,
+                                 exclude_targets=ICs)
+  detectability <- cbind(format(round(mean(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
+                                 format(round(sd(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
+                                 median(plate_detect$detectability, na.rm=TRUE),
+                                 min(plate_detect$detectability, na.rm=TRUE),
+                                 max(plate_detect$detectability, na.rm=TRUE),
+                                 paste0(sum(plate_detect$detectability >= 50),
+                                        ' (',
+                                        format(round(sum(plate_detect$detectability > 50)/length(plate_detect$detectability) * 100, 1), nsmall=1),
+                                        '%)'))
+  colnames(detectability) <- c('mean',
+                                     'sd',
+                                     'median',
+                                     'min',
+                                     'max',
+                                     'detectable targets n (%)')
+  detectability_summary <- rbind(detectability_summary, detectability)
+}
+rownames(detectability_summary) <- RunNames
 ```
 
 ```{r, include=FALSE}
@@ -555,8 +560,8 @@ for(i in 1:length(xmlFiles)){
 
 ### Detectability table
 ```{r, results='asis'}
-#kable_styling(knitr::kable(detectability_summary, caption='', align='r', 
-#             format.args=list(big.mark = ",", digits=5)))
+kable_styling(knitr::kable(detectability_summary, caption='', align='r', 
+             format.args=list(big.mark = ",", digits=5)))
 ```
 
 ## Sample and target clustering 
