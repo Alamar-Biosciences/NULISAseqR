@@ -391,7 +391,7 @@ for(i in 1:length(xmlFiles)){
 title: `r title_var`
 ---
 
-## Analysis Summary
+## Summary
 * **Goal:** `r goal_desc`.
 * Sample description: `r sample_desc`
 
@@ -429,7 +429,7 @@ knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",
 
 ---
 
-## Internal control (IC)
+### Internal control (IC)
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
   cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
@@ -438,7 +438,7 @@ for(i in 1:length(xmlFiles)){
 
 ---
 
-## Inter-plate control (IPC)
+### Inter-plate control (IPC)
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
   cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
@@ -446,7 +446,7 @@ for(i in 1:length(xmlFiles)){
 ```
 ---
 
-## Negative control (NC) 
+### Negative control (NC) 
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
   cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
@@ -455,7 +455,7 @@ for(i in 1:length(xmlFiles)){
 
 ---
 
-## Heatmap
+### Heatmap
 ```{r, out.width='100%', fig.asp=1.2}
 
 for(i in 1:length(xmlFiles)){
@@ -471,22 +471,23 @@ for(i in 1:length(xmlFiles)){
 
 ---
 
-## Intra-plate CV
+## Quality Control:
+### Intra-plate CV
 Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).
 
-### Intra-plate %CV table -- un-normalized
+#### Intra-plate %CV table -- un-normalized
 ```{r}
 knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', 
              format.args=list(big.mark = ",", digits=5)) %>% kable_styling()
 ```
 
-### Intra-plate %CV table -- mCherry-normalized
+#### Intra-plate %CV table -- mCherry-normalized
 ```{r}
 knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', 
              format.args=list(big.mark = ",", digits=5)) %>% kable_styling()
 ```
 
-### Intra-plate CV boxplots by plate
+#### Intra-plate CV boxplots by plate
 ```{r, out.width='100%', fig.asp=0.8}
 par(mfrow=c(1,2))
 boxplot(intraCV_unnorm, las=3, ylab='intra-plate CV (%)',
@@ -503,10 +504,10 @@ abline(h=c(0:8*5), col='grey', lty=3)
 
 ---
 
-## Inter-plate CV
+### Inter-plate CV
 Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).
 
-### Inter-plate %CV table 
+#### Inter-plate %CV table 
 ```{r}
 if (length(xmlFiles) > 1){
   knitr::kable(interCV_summary_table, caption='', align='r', 
@@ -514,7 +515,7 @@ if (length(xmlFiles) > 1){
 }
 ```
 
-### Inter-plate CV boxplot
+#### Inter-plate CV boxplot
 ```{r, out.width='100%', fig.asp=0.8}
 if(length(xmlFiles) > 1){
   par(mfrow=c(1,2))
@@ -525,7 +526,7 @@ if(length(xmlFiles) > 1){
 }
 ```
 
-## Sample boxplots
+### Sample boxplots
 ```{r, out.width='100%', fig.asp=1}
 for(i in 1:length(xmlFiles)){
   plate_sample_type <- rep("1_sample",96)
@@ -596,7 +597,7 @@ wellcolors <- function(data, well_types, boxplot_colors ){
 paletteLength <- 50
 myColor <- colorRampPalette(c("blue", "white", "red"))(paletteLength)
 for(i in 1:length(xmlFiles)){
-  pandoc.header(paste("Plate", i), 3)
+  pandoc.header(paste("Plate", i), 4)
   B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else ""
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   mycolors <- wellcolors(data_mCherry_scaled[[i]], well_types, boxplot_colors)
@@ -621,7 +622,7 @@ for(i in 1:length(xmlFiles)){
 ## Sample correlation
 ```{r, out.width='100%', fig.asp=1, results='asis'}
 for(i in 1:length(xmlFiles)){
-  pandoc.header(paste("Plate", i), 3)
+  pandoc.header(paste("Plate", i), 4)
   pdf(file=NULL)
   corrvals <- corrplot(cor(data_mCherry_scaled[[i]]), order='hclust') 
   dev.off()
