@@ -35,6 +35,9 @@ xmlFiles <- c(
 # Strings to define IPC, NC, IC and bridge samples.
 # Note Bridge samples can be set to NULL
 ###############################################################################
+sample_desc <- "This is a sample description"
+goal_desc <- " NULISAseq 200-plex inflammation panel"
+
 #IC <- "InternalControl"
 #IPC <- "InterPlateControl"
 #NC <- "NegativeControl"
@@ -51,6 +54,9 @@ rowAnnotName <- "Annot2"
 colAnnotName <- "Annot3"
 plateAnnotName <- "Annot1"
 
+###############################################################################
+# Function for colorizing wells
+###############################################################################
 wellorder <- function(samples, rowAnnotName, colAnnotName){
   cmd <- paste0("samples$", colAnnotName)
   cols <- eval(parse(text=cmd))
@@ -59,6 +65,7 @@ wellorder <- function(samples, rowAnnotName, colAnnotName){
   inds <- sort(paste0(eval(parse(text=cmd)), cols), index.return=T)
   return(inds$ix)
 }
+
 ###############################################################################
 # Read in files
 ###############################################################################
@@ -379,8 +386,8 @@ for(i in 1:length(xmlFiles)){
 ```
 
 ## Analysis description
-* **Goal:** NULISAseq 200-plex inflammation panel.
-* Sample description:
+* **Goal:** `r goal_desc`.
+* Sample description: `r sample_desc`
 
 
 ---
