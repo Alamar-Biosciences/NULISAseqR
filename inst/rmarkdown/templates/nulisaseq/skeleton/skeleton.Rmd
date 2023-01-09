@@ -76,7 +76,7 @@ xmlFilePlateNames <- rep("", times=length(xmlFiles))
 runs <- vector('list', length(xmlFiles))
 runSummarys <- vector('list', length(xmlFiles))
 read_summary <- NULL
-RunNames <- NULL
+PlateNames <- NULL
 for(i in 1:length(xmlFiles)){
   # Read each run1
   plateID <- if(xmlFilePlateNames[i] == "") paste0("plate", i) else xmlFilePlateNames[i]
@@ -88,14 +88,14 @@ for(i in 1:length(xmlFiles)){
   IPCs <- paste0(plateID, "_", IPCs)
   NCs  <- paste0(plateID, "_", NCs)
 
-  # Summarize each Run
+  # Summarize each Plate
   runSummarys[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs)
   read_summary <- cbind(read_summary,runSummarys[[i]]$readsTable)
-  RunNames <- c(RunNames, paste("Run", i, sep=" "))
+  PlateNames <- c(PlateNames, paste("Plate", i, sep=" "))
 }
 names(runs) <- xmlFilePlateNames
 names(runSummarys) <- xmlFilePlateNames
-colnames(read_summary) <- RunNames
+colnames(read_summary) <- PlateNames
 rownames(read_summary)[length(xmlFiles)] <- 'Total samples * targets'
 read_summary <- t(read_summary)
 ```
@@ -200,10 +200,10 @@ for (i in 1:length(xmlFiles)){
   intraCV_mCherry <- cbind(intraCV_mCherry, plate_mCherry_intraCV)
 }
 
-colnames(intraCV_unnorm) <- RunNames
+colnames(intraCV_unnorm) <- PlateNames
 
 # calculate intra-plate CVs mCherry
-colnames(intraCV_mCherry) <- RunNames
+colnames(intraCV_mCherry) <- PlateNames
 
 # create intra-plate CV table
 intraCV_unnorm_summary_table <- cbind(colMeans(intraCV_unnorm, na.rm=TRUE),
@@ -216,7 +216,7 @@ intraCV_unnorm_summary_table <- cbind(colMeans(intraCV_unnorm, na.rm=TRUE),
                                       }))
 
 
-rownames(intraCV_unnorm_summary_table) <- RunNames
+rownames(intraCV_unnorm_summary_table) <- PlateNames
 colnames(intraCV_unnorm_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
 
 # create intra-plate CV table
@@ -229,7 +229,7 @@ intraCV_mCherry_summary_table <- cbind(colMeans(intraCV_mCherry, na.rm=TRUE),
                                          sum(is.na(x))
                                        }))
 
-rownames(intraCV_mCherry_summary_table) <- RunNames
+rownames(intraCV_mCherry_summary_table) <- PlateNames
 colnames(intraCV_mCherry_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
 ```
 
@@ -370,7 +370,7 @@ for (i in 1:length(xmlFiles)){
                                      'detectable targets n (%)')
   detectability_summary <- rbind(detectability_summary, detectability)
 }
-rownames(detectability_summary) <- RunNames
+rownames(detectability_summary) <- PlateNames
 ```
 
 ```{r, include=FALSE}
@@ -410,7 +410,7 @@ for(i in 1:length(xmlFiles)){
       val[inds] <- cell_spec(val[inds], "html", background=boxplot_colors[j+1])
     }
   }
-  cat(knitr::kable(val, caption=paste0("Run ", as.character(i), ": Plate/Sample Layout"), align="c",escape=F) %>% kable_styling(font_size=9))
+  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c",escape=F) %>% kable_styling(font_size=9))
 }
 ```
 
@@ -426,7 +426,7 @@ knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",
 ## Internal control (IC) summary
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Run ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
+  cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
 }
 ```
 
@@ -435,7 +435,7 @@ for(i in 1:length(xmlFiles)){
 ## Inter-plate control (IPC) summary
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste0("Run ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
+  cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
 }
 ```
 ---
@@ -443,7 +443,7 @@ for(i in 1:length(xmlFiles)){
 ## Negative control (NC) summary
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste0("Run ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
+  cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
 }
 ```
 
@@ -590,7 +590,7 @@ wellcolors <- function(data, well_types, boxplot_colors ){
 paletteLength <- 50
 myColor <- colorRampPalette(c("blue", "white", "red"))(paletteLength)
 for(i in 1:length(xmlFiles)){
-  pandoc.header(paste("Run", i), 3)
+  pandoc.header(paste("Plate", i), 3)
   B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else ""
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   mycolors <- wellcolors(data_mCherry_scaled[[i]], well_types, boxplot_colors)
@@ -615,7 +615,7 @@ for(i in 1:length(xmlFiles)){
 ## Sample correlation matrix
 ```{r, out.width='100%', fig.asp=1, results='asis'}
 for(i in 1:length(xmlFiles)){
-  pandoc.header(paste("Run", i), 3)
+  pandoc.header(paste("Plate", i), 3)
   pdf(file=NULL)
   corrvals <- corrplot(cor(data_mCherry_scaled[[i]]), order='hclust') 
   dev.off()
