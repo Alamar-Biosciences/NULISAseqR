@@ -1,12 +1,11 @@
 ---
-title: "Study Name <br>NULISAseq 200-plex Inflammation Panel"
 output:
   html_document:
     toc: yes
 date: "`r Sys.Date()`"
 ---
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(NULISAseqR)
 library(kableExtra)
@@ -35,15 +34,14 @@ xmlFiles <- c(
 # Strings to define IPC, NC, IC and bridge samples.
 # Note Bridge samples can be set to NULL
 ###############################################################################
+study_name<- "Study Name"
+assayName <- "NULISAseq 200-plex Inflammation Panel"
 sample_desc <- "This is a sample description"
 goal_desc <- " NULISAseq 200-plex inflammation panel"
 
-#IC <- "InternalControl"
-#IPC <- "InterPlateControl"
-#NC <- "NegativeControl"
-IC <- c('mCherry')
-IPC <- c('IPC')
-NC <- c('NC')
+IC <- c('mCherry') #"Internal Control"
+IPC <- c('IPC') #"InterPlateControl"
+NC <- c('NC') #"NegativeControl"
 Bridge <- c('Donor') #NULL
 heatMapRel <- TRUE
 
@@ -53,10 +51,13 @@ heatMapRel <- TRUE
 rowAnnotName <- "Annot2"
 colAnnotName <- "Annot3"
 plateAnnotName <- "Annot1"
+```
 
+```{r, include=FALSE}
 ###############################################################################
 # Function for colorizing wells
 ###############################################################################
+
 wellorder <- function(samples, rowAnnotName, colAnnotName){
   cmd <- paste0("samples$", colAnnotName)
   cols <- eval(parse(text=cmd))
@@ -69,6 +70,7 @@ wellorder <- function(samples, rowAnnotName, colAnnotName){
 ###############################################################################
 # Read in files
 ###############################################################################
+title_var <- paste(study_name, assayName, sep='<br>')
 boxplot_colors <- unlist(lapply(alamarColorPalette(n=4, tint='light', nReps=4), function(x) x[3]))
 knitr::opts_knit$set(root.dir=dataDir)
 xmlFilesPath <- paste0(dataDir, "/", xmlFiles)
@@ -385,7 +387,11 @@ for(i in 1:length(xmlFiles)){
 }
 ```
 
-## Analysis description
+---
+title: `r title_var`
+---
+
+## Analysis Summary
 * **Goal:** `r goal_desc`.
 * Sample description: `r sample_desc`
 
@@ -416,14 +422,14 @@ for(i in 1:length(xmlFiles)){
 
 ---
 
-## Reads summary
+## Read summary
 ```{r, results='asis'}
 knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",")) %>% kable_styling()
 ```
 
 ---
 
-## Internal control (IC) summary
+## Internal control (IC)
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
   cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
@@ -432,7 +438,7 @@ for(i in 1:length(xmlFiles)){
 
 ---
 
-## Inter-plate control (IPC) summary
+## Inter-plate control (IPC)
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
   cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
@@ -440,7 +446,7 @@ for(i in 1:length(xmlFiles)){
 ```
 ---
 
-## Negative control (NC) summary
+## Negative control (NC) 
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
   cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
@@ -449,7 +455,7 @@ for(i in 1:length(xmlFiles)){
 
 ---
 
-## Heatmaps
+## Heatmap
 ```{r, out.width='100%', fig.asp=1.2}
 
 for(i in 1:length(xmlFiles)){
@@ -612,7 +618,7 @@ for(i in 1:length(xmlFiles)){
 }
 ```
 
-## Sample correlation matrix
+## Sample correlation
 ```{r, out.width='100%', fig.asp=1, results='asis'}
 for(i in 1:length(xmlFiles)){
   pandoc.header(paste("Plate", i), 3)
