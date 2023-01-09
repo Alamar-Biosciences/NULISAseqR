@@ -18,9 +18,13 @@ library(grid)
 
 ```{r, include=FALSE}
 ###############################################################################
-# List of input files (XML)
+# User-changeable settings / parameters for running the template
 ###############################################################################
+
+### Data directory
 dataDir <- '/Users/dkuo/Projects/NULISAseqR/data'
+
+### Input file names
 xmlFiles <- c(
   '20221226_Cleveland_plate01_nomismatch_XML.xml',
   '20221227_cleveland_plate02_nononmatch_XML.xml',
@@ -30,24 +34,24 @@ xmlFiles <- c(
   '20221230_Cleveland_plate06_nononmatch_XML.xml'
   )
 
-###############################################################################
-# Strings to define IPC, NC, IC and bridge samples.
-# Note Bridge samples can be set to NULL
-###############################################################################
+### Document Text
 study_name<- "Study Name"
 assayName <- "NULISAseq 200-plex Inflammation Panel"
 sample_desc <- "This is a sample description"
 goal_desc <- " NULISAseq 200-plex inflammation panel"
 
+### Special Targets
 IC <- c('mCherry') #"Internal Control"
+
+### Special Samples
 IPC <- c('IPC') #"InterPlateControl"
 NC <- c('NC') #"NegativeControl"
 Bridge <- c('Donor') #NULL
+
+### Heat map values are relative or absolute
 heatMapRel <- TRUE
 
-###############################################################################
-# Annotation in XML file corresponding to row and column
-###############################################################################
+### XML annotation names relating to plate row, column and name
 rowAnnotName <- "Annot2"
 colAnnotName <- "Annot3"
 plateAnnotName <- "Annot1"
@@ -456,11 +460,11 @@ for(i in 1:length(xmlFiles)){
 ---
 
 ### Heatmap
-```{r, out.width='100%', fig.asp=1.2}
+```{r, out.width='100%', fig.asp=0.33333}
 
 for(i in 1:length(xmlFiles)){
   well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
-  par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(0,2,2,0), pty="s")
+  par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(0,2,2,0))
   for (j in 1:length(ICs)){
     plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste0("Plate ", as.character(i),": ",  ICs[j]), cex=0.5, digits=(if(heatMapRel) 3 else 0), well_order=well_order,relative=heatMapRel)
   }
@@ -597,7 +601,6 @@ wellcolors <- function(data, well_types, boxplot_colors ){
 paletteLength <- 50
 myColor <- colorRampPalette(c("blue", "white", "red"))(paletteLength)
 for(i in 1:length(xmlFiles)){
-  pandoc.header(paste("Plate", i), 4)
   B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else ""
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   mycolors <- wellcolors(data_mCherry_scaled[[i]], well_types, boxplot_colors)
@@ -607,7 +610,7 @@ for(i in 1:length(xmlFiles)){
   data_mCherry_scaled2$status <- rep(1, 96) # 
   data_mCherry_scaled2$colors <- mycolors
   e <- pheatmap(data_mCherry_scaled2[,1:(length(data_mCherry_scaled2[1, ]) - 2)],
-         main = "", fontsize=5,
+         main = paste("Plate", i), fontsize=10, fontsize_row=5, fontsize_col=5,
          color=myColor,
          breaks=myBreaks,
          show_colnames=FALSE, silent=T)
@@ -622,7 +625,6 @@ for(i in 1:length(xmlFiles)){
 ## Sample correlation
 ```{r, out.width='100%', fig.asp=1, results='asis'}
 for(i in 1:length(xmlFiles)){
-  pandoc.header(paste("Plate", i), 4)
   pdf(file=NULL)
   corrvals <- corrplot(cor(data_mCherry_scaled[[i]]), order='hclust') 
   dev.off()
@@ -631,8 +633,10 @@ for(i in 1:length(xmlFiles)){
   mycolors <- wellcolors(corrvals$corr, well_types, boxplot_colors)
   corrplot(corrvals$corr,
          tl.cex=0.4,
+         mar=c(1,1,1,1),
          tl.col=mycolors,
          order="original",
+         title=paste("Plate", i),
          is.corr=FALSE)
   cat("\n")
 }
