@@ -11,6 +11,8 @@
 #' counts will be printed in each cell of the heatmap. Default is TRUE.
 #' @param cex Character expansion factor that controls size of the 
 #' printed counts. Default is 0.7.
+#' @param cex.axis Character expansion factor that controls size of the 
+#' axis labels. Default is 0.8.
 #' @param digits number of digits after the decimal point to print. 
 #' Default is 0.
 #' @param title Optional. Plot title.
@@ -26,6 +28,7 @@ plateHeatmap <- function(target_data,
                          well_order=NULL,
                          print_counts=TRUE,
                          cex=0.7,
+                         cex.axis=0.8,
                          digits=0,
                          title=NULL,relative=F){
   if(!is.null(well_order)){
@@ -38,8 +41,8 @@ plateHeatmap <- function(target_data,
   image(data_matrix,
         xaxt='n', yaxt='n', main='', 
         col=hcl.colors(12, "YlOrRd", rev = TRUE))
-  axis(2, (0:7)/7, c('H','G','F','E','D','C','B','A'), las=1, cex.axis=0.8)
-  axis(1, (0:11)/11, 1:12, las=1, cex.axis=0.8)
+  axis(2, (0:7)/7, c('H','G','F','E','D','C','B','A'), las=1, cex.axis=cex.axis)
+  axis(1, (0:11)/11, 1:12, las=1, cex.axis=cex.axis)
   mtext(title, side=3, line=1, font=2, cex.axis=1)
   if (print_counts==TRUE){
     for (x in 1:nrow(data_matrix))
