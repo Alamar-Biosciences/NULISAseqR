@@ -74,6 +74,7 @@ wellorder <- function(samples, rowAnnotName, colAnnotName){
 ###############################################################################
 # Read in files
 ###############################################################################
+multipleFiles = if(length(xmlFiles) > 1) TRUE else FALSE
 title_var <- paste(study_name, assayName, sep='<br>')
 boxplot_colors <- unlist(lapply(alamarColorPalette(n=4, tint='light', nReps=4), function(x) x[3]))
 knitr::opts_knit$set(root.dir=dataDir)
@@ -503,19 +504,19 @@ abline(h=c(0:8*5), col='grey', lty=3)
 
 ---
 
-### Inter-plate CV
-Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).
+```{r eval=multipleFiles, results='asis'}
+pandoc.header("Inter-plate CV", 3)
+cat("Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).")
 
-#### Inter-plate %CV table 
-```{r}
+pandoc.header("Inter-plate %CV", 4)
 if (length(xmlFiles) > 1){
   knitr::kable(interCV_summary_table, caption='', align='r', 
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
 }
 ```
 
-#### Inter-plate CV boxplot
-```{r, out.width='100%', fig.asp=0.8}
+```{r out.width='100%', fig.asp=0.8, eval=multipleFiles, results='asis'}
+pandoc.header("Inter-plate CV boxplot", 4)
 if(length(xmlFiles) > 1){
   par(mfrow=c(1,2))
   par(mar=c(8,5,1,1))
@@ -633,8 +634,8 @@ for(i in 1:length(xmlFiles)){
 }
 ```
 
-## Sample / Plate  PCA
-```{r, out.width='100%', fig.asp=0.5, results='asis'}
+```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
+pandoc.header("Sample / Plate PCA", 2)
 doPCA <- function(data, plateVar, normed=F){
   pca <- if(normed) prcomp(data, scale=F, center=F) else prcomp(log2(data+0.01), scale=F, center=F)
   title <- if(normed) "Normalized" else "Unnormalized"
