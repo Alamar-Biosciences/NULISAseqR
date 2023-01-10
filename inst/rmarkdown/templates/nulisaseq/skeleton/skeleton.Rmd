@@ -361,7 +361,7 @@ for (i in 1:length(xmlFiles)){
                                  exclude_targets=ICs)
   detectability <- cbind(format(round(mean(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
                                  format(round(sd(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
-                                 median(plate_detect$detectability, na.rm=TRUE),
+                                 formatC(median(plate_detect$detectability, na.rm=TRUE), width=2),
                                  min(plate_detect$detectability, na.rm=TRUE),
                                  max(plate_detect$detectability, na.rm=TRUE),
                                  paste0(sum(plate_detect$detectability >= 50),
@@ -575,7 +575,7 @@ for(i in 1:length(xmlFiles)){
 ### Detectability table
 ```{r, results='asis'}
 kable_styling(knitr::kable(detectability_summary, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=5)))
+             format.args=list(big.mark = ",", digits=2)))
 ```
 
 ## Sample and target clustering 
@@ -606,8 +606,7 @@ for(i in 1:length(xmlFiles)){
   data_mCherry_scaled2$status <- rep(1, 96) # 
   data_mCherry_scaled2$colors <- mycolors
   e <- pheatmap(data_mCherry_scaled2[,1:(length(data_mCherry_scaled2[1, ]) - 2)],
-         #main = paste("Plate", i), fontsize=10, fontsize_row=5, fontsize_col=5,
-         main = paste("Plate", i), fontsize=5, #fontsize_row=5, fontsize_col=5,
+         main = paste("Plate", i), fontsize=5,
          color=myColor,
          breaks=myBreaks,
          show_colnames=FALSE, silent=T)
