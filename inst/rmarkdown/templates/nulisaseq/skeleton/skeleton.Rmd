@@ -662,7 +662,7 @@ dataPCAunnormal <- dataPCAnormed <- plateVar <- NULL
 for(i in 1:length(xmlFiles)){
   dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, NC, IPC))
   dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_scaled[[i]], NC, IPC))
-  plateVar <- c(plateVar, rep(paste0("Plate",i), length(run[1, ])))
+  plateVar <- c(plateVar, rep(paste0("Plate",i), length(data_mCherry_scaled[[i]][1, ])))
 }
 
 par(mfrow=c(1,2))
