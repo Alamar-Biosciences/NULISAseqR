@@ -193,7 +193,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
     NC_means_total_perc <- format(round(NC_means_total/total_plate_reads*100, 1), nsmall=1)
     total_NC_counts <- c(NC_total, NC_totals, NC_means_total)
     total_NC_perc <- c(NC_total_perc, NC_totals_perc, NC_means_total_perc)
-    total_NC_count_perc <- paste0(format(total_NC_counts, big.mark=","), ' (',
+    total_NC_count_perc <- paste0(format(total_NC_counts, big.mark=",", nsmall=1), ' (',
                                   total_NC_perc, '%)')
     # mean count per target
     NC_total_mean <- mean(NC_data, na.rm=TRUE)
