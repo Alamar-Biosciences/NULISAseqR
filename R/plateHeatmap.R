@@ -27,7 +27,7 @@
 plateHeatmap <- function(target_data, 
                          well_order=NULL,
                          print_counts=TRUE,
-                         cex=0.7,
+                         cex=0.6,
                          cex.axis=0.8,
                          digits=0,
                          title=NULL,relative=F){
@@ -38,11 +38,22 @@ plateHeatmap <- function(target_data,
     target_data <- (target_data - median(target_data))/median(target_data)
   }
   data_matrix <- t(matrix(target_data, nrow=8, ncol=12, byrow=TRUE)[8:1,])
-  image(data_matrix,
-        xaxt='n', yaxt='n', main='', 
-        col=hcl.colors(12, "YlOrRd", rev = TRUE))
-  axis(2, (0:7)/7, c('H','G','F','E','D','C','B','A'), las=1, cex.axis=cex.axis)
-  axis(1, (0:11)/11, 1:12, las=1, cex.axis=cex.axis)
+  if(relative){
+    paletteLength <- 50
+    col <- colorRampPalette(c("blue", "white", "red"))(paletteLength)
+    myBreaks <- c(seq(min(data_matrix), 0, length.out=ceiling(paletteLength/2) + 1),
+              seq(max(data_matrix)/paletteLength, max(data_matrix), length.out=floor(paletteLength/2)))
+    image(data_matrix,
+          xaxt='n', yaxt='n', main='', 
+          col=col, breaks=myBreaks)
+  }else{
+    col <-  hcl.colors(12, "YlOrRd", rev = TRUE)
+    image(data_matrix,
+          xaxt='n', yaxt='n', main='', 
+          col=col)
+  }
+  axis(2, (0:7)/7, c('H','G','F','E','D','C','B','A'), col=NA, col.ticks=NA, las=1, cex.axis=cex.axis, tck=-0.01, line=-0.5)
+  axis(1, (0:11)/11, 1:12, col=NA, col.ticks=1, las=1, cex.axis=cex.axis, tck=-0.01, padj=-3)
   mtext(title, side=3, line=1, font=2, cex.axis=1)
   if (print_counts==TRUE){
     for (x in 1:nrow(data_matrix))

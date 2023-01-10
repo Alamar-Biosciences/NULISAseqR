@@ -461,13 +461,13 @@ for(i in 1:length(xmlFiles)){
 for(i in 1:length(xmlFiles)){
   well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,0))
-  plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=3,
+  digitsTotal <- if(heatMapRel) 3 else 1
+  digitsmCherry <- if(heatMapRel) 3 else 0
+  plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=digitsTotal,
                well_order=well_order, relative=heatMapRel, cex.axis=0.5)
   for (j in 1:length(ICs)){
-    plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste0("Plate ", as.character(i),": ",  ICs[j]), cex=0.5, digits=(if(heatMapRel) 3 else 0), well_order=well_order,relative=heatMapRel, cex.axis=0.5)
+    plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste0("Plate ", as.character(i),": ",  ICs[j]), cex=0.5, digits=digitsmCherry, well_order=well_order,relative=heatMapRel, cex.axis=0.5)
   }
-  plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=3,
-               well_order=well_order, relative=heatMapRel, cex.axis=0.5)
 }
 ```
 
@@ -635,8 +635,8 @@ for(i in 1:length(xmlFiles)){
 
 ```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
 pandoc.header("Sample / Plate PCA", 2)
-doPCA <- function(data, plateVar, normed=F){
-  pca <- if(normed) prcomp(data, scale=F, center=F) else prcomp(log2(data+0.01), scale=F, center=F)
+doPCA <- function(data, plateVar, normed=F, scale=F, center=F){
+  pca <- if(normed) prcomp(t(data), scale=scale, center=center) else prcomp(log2(t(data)+0.01), scale=scale, center=center)
   title <- if(normed) "Normalized" else "Unnormalized"
   par(mar=c(4,4,2,5))
   plot(pca$x[,1], pca$x[,2], 
@@ -665,6 +665,6 @@ for(i in 1:length(xmlFiles)){
 }
 
 par(mfrow=c(1,2))
-e<-doPCA(dataPCAunnormal, plateVar, normed=F)
-e<-doPCA(dataPCAnormed, plateVar, normed=T)
+e <- doPCA(dataPCAunnormal, plateVar, normed=F, scale=T, center=T)
+e <- doPCA(dataPCAnormed, plateVar, normed=T, scale=T, center=T)
 ```
