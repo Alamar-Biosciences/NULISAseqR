@@ -456,11 +456,13 @@ for(i in 1:length(xmlFiles)){
 ---
 
 ### Heatmap
-```{r, out.width='100%', fig.asp=0.33333}
+```{r, out.width='100%', fig.asp=0.33333*ceiling((length(ICs)+1)/2)}
 
 for(i in 1:length(xmlFiles)){
   well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,0))
+  plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=3,
+               well_order=well_order, relative=heatMapRel, cex.axis=0.5)
   for (j in 1:length(ICs)){
     plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste0("Plate ", as.character(i),": ",  ICs[j]), cex=0.5, digits=(if(heatMapRel) 3 else 0), well_order=well_order,relative=heatMapRel, cex.axis=0.5)
   }
@@ -488,18 +490,18 @@ knitr::kable(intraCV_mCherry_summary_table, caption='', align='r',
 ```
 
 #### Intra-plate CV boxplots by plate
-```{r, out.width='100%', fig.asp=0.8}
+```{r, out.width='100%', fig.asp=0.5}
 par(mfrow=c(1,2))
-boxplot(intraCV_unnorm, las=3, ylab='intra-plate CV (%)',
+boxplot(intraCV_unnorm, las=1, xlab='intra-plate CV (%)',
         ylim=c(0, max(c(intraCV_unnorm, intraCV_mCherry), na.rm=TRUE)),
-        main='un-normalized',
+        main='un-normalized', horizontal=T,
         col=alamarColorPalette(6))
-abline(h=c(0:8*5), col='grey', lty=3)
-boxplot(intraCV_mCherry, las=3, ylab='intra-plate CV (%)',
+abline(v=c(0:8*5), col='grey', lty=3)
+boxplot(intraCV_mCherry, las=1, xlab='intra-plate CV (%)',
         ylim=c(0, max(c(intraCV_unnorm, intraCV_mCherry), na.rm=TRUE)),
-        main='mCherry-normalized',
+        main='mCherry-normalized', horizontal=T,
         col=alamarColorPalette(6))
-abline(h=c(0:8*5), col='grey', lty=3)
+abline(v=c(0:8*5), col='grey', lty=3)
 ```
 
 ---
@@ -509,21 +511,17 @@ pandoc.header("Inter-plate CV", 3)
 cat("Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).")
 
 pandoc.header("Inter-plate %CV", 4)
-if (length(xmlFiles) > 1){
-  knitr::kable(interCV_summary_table, caption='', align='r', 
+knitr::kable(interCV_summary_table, caption='', align='r', 
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
-}
 ```
 
-```{r out.width='100%', fig.asp=0.8, eval=multipleFiles, results='asis'}
+```{r out.width='100%', fig.asp=0.5, eval=multipleFiles, results='asis'}
 pandoc.header("Inter-plate CV boxplot", 4)
-if(length(xmlFiles) > 1){
-  par(mfrow=c(1,2))
-  par(mar=c(8,5,1,1))
-  boxplot(interCV_results, las=3, ylab='inter-plate CV (%)',
-          col=alamarColorPalette(5))
-  abline(h=c(0:16*5), col='grey', lty=3)
-}
+par(mfrow=c(1,2))
+par(mar=c(5,8,1,1))
+boxplot(interCV_results, las=1, xlab='inter-plate CV (%)',
+        col=alamarColorPalette(5), horizontal=T)
+abline(v=c(0:16*5), col='grey', lty=3)
 ```
 
 ### Sample boxplots
@@ -542,6 +540,7 @@ sampleboxplot <- function( data, ordering, label, plate_sample_colors, boxplot_c
   lines(cbind(log2(data['mCherry',ordering]+0.01), 1:96), col='red', las=1)
   mtext('log2(count + 0.01)', side=1, line=2)
   legend('topleft', 'mCherry', col='red', lty=1, cex=0.4, bty='n')
+  abline(v=c(-50:50*5), col='grey', lty=3)
   return(NULL)
 }
 
