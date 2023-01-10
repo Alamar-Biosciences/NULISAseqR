@@ -139,12 +139,7 @@ names(plateNorms) <- xmlFilePlateNames
 # do inter-plate normalization 
 
 normData <- list()
-IPC_wells <- list(list())
-NC_wells <- list(list())
-Bridge_wells <- list(list())
-IPC_wells_orig <- list(list())
-NC_wells_orig <- list(list())
-Bridge_wells_orig <- list(list())
+IPC_wells <- NC_wells <- Bridge_wells <- IPC_wells_orig <- NC_wells_orig <- Bridge_wells_orig <- list(list())
 for (i in 1:length(xmlFiles)){
   normData[[i]] <- plateNorms[[i]]$mCherry$normData
   IPC_wells_orig[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(IPC, collapse="|"), runs[[i]]$samples$sampleName))]
@@ -482,13 +477,13 @@ Only values above LOD were used to calculate %CV (no minimum count requirement).
 #### Intra-plate %CV table -- un-normalized
 ```{r}
 knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=5)) %>% kable_styling()
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
 ```
 
 #### Intra-plate %CV table -- mCherry-normalized
 ```{r}
 knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=5)) %>% kable_styling()
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
 ```
 
 #### Intra-plate CV boxplots by plate
@@ -515,7 +510,7 @@ Only values above LOD were used to calculate %CV (no minimum count requirement).
 ```{r}
 if (length(xmlFiles) > 1){
   knitr::kable(interCV_summary_table, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=5)) %>% kable_styling()
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
 }
 ```
 
@@ -636,3 +631,40 @@ for(i in 1:length(xmlFiles)){
          is.corr=FALSE)
   cat("\n")
 }
+```
+
+## Sample / Plate  PCA
+```{r, out.width='100%', fig.asp=0.5, results='asis'}
+doPCA <- function(data, plateVar, normed=F){
+  pca <- if(normed) prcomp(data, scale=F, center=F) else prcomp(log2(data+0.01), scale=F, center=F)
+  title <- if(normed) "Normalized" else "Unnormalized"
+  par(mar=c(4,4,2,5))
+  plot(pca$x[,1], pca$x[,2], 
+       col=1:length(levels(factor(plateVar))),
+       pch=1:length(levels(factor(plateVar))),
+       xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), '% variance)'), 
+       ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), '% variance)'), 
+       main=title, las=1, cex=0.5)
+  legend(par('usr')[2], par('usr')[4], levels(factor(plateVar)),
+         col=1:length(levels(factor(plateVar))), xpd=NA,
+         pch=1:length(levels(factor(plateVar))), cex=0.75, bty='n')
+  return(NULL)
+}
+
+removeTargetsSamples <- function(data, NC, IPC){
+  data <- data[-which(grepl("mCherry", rownames(data))),]
+  data <- data[,-which(grepl(paste(c(NC, IPC), collapse="|"), colnames(data)))]
+  return(data)
+}
+
+dataPCAunnormal <- dataPCAnormed <- plateVar <- NULL
+for(i in 1:length(xmlFiles)){
+  dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, NC, IPC))
+  dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_scaled[[i]], NC, IPC))
+  plateVar <- c(plateVar, rep(paste0("Plate",i), length(run[1, ])))
+}
+
+par(mfrow=c(1,2))
+e<-doPCA(dataPCAunnormal, plateVar, normed=F)
+e<-doPCA(dataPCAnormed, plateVar, normed=T)
+```
