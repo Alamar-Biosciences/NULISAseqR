@@ -431,8 +431,17 @@ knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",
 
 ### Internal control (IC)
 ```{r, results='asis'}
-for(i in 1:length(xmlFiles)){
-  cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
+if(length(ICs) == 1){
+  IC_tables <- NULL
+  for (i in 1:length(xmlFiles)){
+    IC_tables <- rbind(IC_tables, runSummarys[[i]]$IC_table)
+  }
+  rownames(IC_tables) <- paste0("Plate", as.character(1:length(xmlFiles))) 
+  cat(knitr::kable(IC_tables, caption="mCherry (IC) summary", align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
+}else{
+  for(i in 1:length(xmlFiles)){
+    cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
+  }
 }
 ```
 
