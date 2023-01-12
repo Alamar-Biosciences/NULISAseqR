@@ -347,6 +347,7 @@ if(length(Bridge_wells[[1]])){
 ```{r, include=FALSE}
 # calculate detectability
 detectability_summary <- list()
+detectability_tar <- NULL
 for (i in 1:length(xmlFiles)){
   detect_samples <- colnames(plateNorms[[i]]$mCherry$normData)
   detect_samples <- detect_samples[-which(grepl(paste(IPC, collapse="|"), detect_samples))]
@@ -371,8 +372,10 @@ for (i in 1:length(xmlFiles)){
                                      'max',
                                      'detectable targets n (%)')
   detectability_summary <- rbind(detectability_summary, detectability)
+  detectability_tar <- cbind(detectability_tar, plate_detect$detectability)
 }
 rownames(detectability_summary) <- PlateNames
+colnames(detectability_tar) <- PlateNames
 ```
 
 ```{r, include=FALSE}
@@ -578,7 +581,9 @@ for(i in 1:length(xmlFiles)){
 
 ### Detectability table
 ```{r, results='asis'}
-kable_styling(knitr::kable(detectability_summary, caption='', align='r', 
+kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', align='r', 
+             format.args=list(big.mark = ",", digits=2)))
+kable_styling(knitr::kable(detectability_tar, caption='Target Detectability %', align='r', 
              format.args=list(big.mark = ",", digits=2)))
 ```
 
