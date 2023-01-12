@@ -41,7 +41,7 @@ sample_desc <- "This is a sample description"
 goal_desc <- " NULISAseq 200-plex inflammation panel"
 
 ### Special Targets
-IC <- c('mCherry') #"Internal Control"
+IC <- c('mCherry', 'NIC_1', 'NIC_3') #Internal Control and target of interest
 
 ### Special Samples
 IPC <- c('IPC') #"InterPlateControl"
@@ -432,7 +432,7 @@ knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",
 
 ---
 
-### Internal control (IC)
+### Internal control (IC) and targets of interest
 ```{r, results='asis'}
 if(length(ICs) == 1){
   IC_tables <- NULL
