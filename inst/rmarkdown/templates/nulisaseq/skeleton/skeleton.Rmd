@@ -473,8 +473,8 @@ for(i in 1:length(xmlFiles)){
 for(i in 1:length(xmlFiles)){
   well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,1))
-  digitsTotal <- if(heatMapRel) 3 else 1
-  digitsmCherry <- if(heatMapRel) 3 else 0
+  digitsTotal <- 1
+  digitsmCherry <- if(heatMapRel) 1 else 0
   plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=digitsTotal,
                well_order=well_order, relative=heatMapRel, cex.axis=0.5)
   for (j in 1:length(ICs)){
