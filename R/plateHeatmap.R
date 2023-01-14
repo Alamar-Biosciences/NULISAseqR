@@ -35,7 +35,7 @@ plateHeatmap <- function(target_data,
     target_data <- target_data[well_order]
   }
   if (relative){
-    target_data <- (target_data - median(target_data))/median(target_data)
+    target_data <- (target_data - median(target_data))/median(target_data)*100
   }
   data_matrix <- t(matrix(target_data, nrow=8, ncol=12, byrow=TRUE)[8:1,])
   if(relative){
@@ -45,12 +45,12 @@ plateHeatmap <- function(target_data,
               seq(max(data_matrix)/paletteLength, max(data_matrix), length.out=floor(paletteLength/2)))
     image.plot(data_matrix,
           xaxt='n', yaxt='n', main='', 
-          col=col, breaks=myBreaks, legend.cex=cex.axis)
+          col=col, breaks=myBreaks, axis.args=list(cex.axis=cex.axis, tck=-0.15, mgp=c(3,0.5,0)))
   }else{
     col <-  hcl.colors(12, "YlOrRd", rev = TRUE)
     image.plot(data_matrix,
-          xaxt='n', yaxt='n', main='', 
-          col=col, legend.cex=cex.axis)
+          xaxt='n', yaxt='n', main='',
+          col=col, axis.args=list(cex.axis=cex.axis, tck=-0.15, mgp=c(3,0.5,0)))
   }
   axis(2, (0:7)/7, c('H','G','F','E','D','C','B','A'), col=NA, col.ticks=NA, las=1, cex.axis=cex.axis, tck=-0.01, line=-0.5)
   axis(1, (0:11)/11, 1:12, col=NA, col.ticks=1, las=1, cex.axis=cex.axis, tck=-0.01, padj=-3)
