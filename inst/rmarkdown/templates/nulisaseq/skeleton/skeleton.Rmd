@@ -359,8 +359,8 @@ for (i in 1:length(xmlFiles)){
   detectability <- cbind(format(round(mean(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
                                  format(round(sd(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
                                  formatC(median(plate_detect$detectability, na.rm=TRUE), width=2),
-                                 min(plate_detect$detectability, na.rm=TRUE),
-                                 max(plate_detect$detectability, na.rm=TRUE),
+                                 formatC(min(plate_detect$detectability, na.rm=TRUE), width=2),
+                                 formatC(max(plate_detect$detectability, na.rm=TRUE), width=2),
                                  paste0(sum(plate_detect$detectability >= 50),
                                         ' (',
                                         format(round(sum(plate_detect$detectability > 50)/length(plate_detect$detectability) * 100, 1), nsmall=1),
@@ -472,7 +472,7 @@ for(i in 1:length(xmlFiles)){
 
 for(i in 1:length(xmlFiles)){
   well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
-  par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,0))
+  par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,1))
   digitsTotal <- if(heatMapRel) 3 else 1
   digitsmCherry <- if(heatMapRel) 3 else 0
   plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=digitsTotal,
