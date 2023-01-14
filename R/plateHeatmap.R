@@ -43,14 +43,14 @@ plateHeatmap <- function(target_data,
     col <- colorRampPalette(c("blue", "white", "red"))(paletteLength)
     myBreaks <- c(seq(min(data_matrix), 0, length.out=ceiling(paletteLength/2) + 1),
               seq(max(data_matrix)/paletteLength, max(data_matrix), length.out=floor(paletteLength/2)))
-    image(data_matrix,
+    image.plot(data_matrix,
           xaxt='n', yaxt='n', main='', 
-          col=col, breaks=myBreaks)
+          col=col, breaks=myBreaks, legend.cex=cex.axis)
   }else{
     col <-  hcl.colors(12, "YlOrRd", rev = TRUE)
-    image(data_matrix,
+    image.plot(data_matrix,
           xaxt='n', yaxt='n', main='', 
-          col=col)
+          col=col, legend.cex=cex.axis)
   }
   axis(2, (0:7)/7, c('H','G','F','E','D','C','B','A'), col=NA, col.ticks=NA, las=1, cex.axis=cex.axis, tck=-0.01, line=-0.5)
   axis(1, (0:11)/11, 1:12, col=NA, col.ticks=1, las=1, cex.axis=cex.axis, tck=-0.01, padj=-3)

@@ -8,7 +8,8 @@ plateHeatmap(
   target_data,
   well_order = NULL,
   print_counts = TRUE,
-  cex = 0.7,
+  cex = 0.6,
+  cex.axis = 0.8,
   digits = 0,
   title = NULL,
   relative = F
@@ -27,6 +28,9 @@ counts will be printed in each cell of the heatmap. Default is TRUE.}
 
 \item{cex}{Character expansion factor that controls size of the 
 printed counts. Default is 0.7.}
+
+\item{cex.axis}{Character expansion factor that controls size of the 
+axis labels. Default is 0.8.}
 
 \item{digits}{number of digits after the decimal point to print. 
 Default is 0.}
