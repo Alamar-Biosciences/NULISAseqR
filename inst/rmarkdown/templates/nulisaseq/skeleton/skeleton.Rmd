@@ -14,6 +14,7 @@ library(pheatmap)
 library(corrplot)
 library(pander)
 library(grid)
+library(gdata)
 ```
 
 ```{r, include=FALSE}
@@ -507,16 +508,15 @@ knitr::kable(intraCV_mCherry_summary_table, caption='', align='r',
 
 #### Intra-plate CV boxplots by plate
 ```{r, out.width='100%', fig.asp=0.5}
-par(mfrow=c(1,2))
-boxplot(intraCV_unnorm, las=1, xlab='intra-plate CV (%)',
-        ylim=c(0, max(c(intraCV_unnorm, intraCV_mCherry), na.rm=TRUE)),
-        main='un-normalized', horizontal=T,
-        col=alamarColorPalette(6))
-abline(v=c(0:8*5), col='grey', lty=3)
-boxplot(intraCV_mCherry, las=1, xlab='intra-plate CV (%)',
-        ylim=c(0, max(c(intraCV_unnorm, intraCV_mCherry), na.rm=TRUE)),
-        main='mCherry-normalized', horizontal=T,
-        col=alamarColorPalette(6))
+intraCV_mCherry2 <- intraCV_mCherry
+colnames(intraCV_mCherry2) <- paste0(colnames("*", intraCV_mCherry))
+intraCV_vals <- t(interleave(t(intraCV_unnorm), t(intraCV_mCherry2), drop=F))
+col <- alamarColorPalette(ceiling(length(intraCV_vals[1,])/2))
+boxplot(intraCV_vals
+        , las=1, xlab='intra-plate CV (%)',
+        ylim=c(0, max(c(intraCV_vals), na.rm=TRUE)),
+        main='Intra-plate CV (* - Normalized)', horizontal=T,
+        col=interleave(col,col))
 abline(v=c(0:8*5), col='grey', lty=3)
 ```
 
