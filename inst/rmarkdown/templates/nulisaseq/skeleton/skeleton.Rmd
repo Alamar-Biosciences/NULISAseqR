@@ -604,7 +604,7 @@ wellcolors <- function(data, well_types, boxplot_colors ){
 }
 
 paletteLength <- 50
-myColor <- colorRampPalette(c("blue", "white", "red"))(paletteLength)
+myColor <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
 for(i in 1:length(xmlFiles)){
   B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else ""
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
