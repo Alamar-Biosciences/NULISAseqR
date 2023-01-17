@@ -509,7 +509,7 @@ knitr::kable(intraCV_mCherry_summary_table, caption='', align='r',
 #### Intra-plate CV boxplots by plate
 ```{r, out.width='100%', fig.asp=0.5}
 intraCV_mCherry2 <- intraCV_mCherry
-colnames(intraCV_mCherry2) <- paste0(colnames("*", intraCV_mCherry))
+colnames(intraCV_mCherry2) <- paste0("*", colnames(intraCV_mCherry))
 intraCV_vals <- t(interleave(t(intraCV_unnorm), t(intraCV_mCherry2), drop=F))
 col <- alamarColorPalette(ceiling(length(intraCV_vals[1,])/2))
 boxplot(intraCV_vals
