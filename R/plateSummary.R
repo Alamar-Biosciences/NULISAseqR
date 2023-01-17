@@ -62,19 +62,19 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
   # paste reads and percents together
   reads <- c(totalReads, parseable, 
              parseable_match, parseable_nonmatch,
-             unparseable, balancers, 
+             unparseable, 
              total_samples, total_targets,
              samples_targets, missing_samples_targets)
   reads <- formatC(reads, format='d', big.mark=',')
   percents <- paste0(' (', 
                      c(parseable_perc, parseable_match_perc, 
                        parseable_nonmatch_perc,
-                       unparseable_perc, balancers_perc), '%)')
+                       unparseable_perc), '%)')
   reads_percents <- paste0(reads, c('', percents, '', '', '', missing_perc))
-  reads_percents <- matrix(reads_percents, nrow=10)
+  reads_percents <- matrix(reads_percents, nrow=9)
   row.names(reads_percents) <- c('Total reads', 'Parseable',
                                  'Parseable Match', 'Parseable Non-match',
-                                 'Unparseable', 'Balancers',
+                                 'Unparseable',
                                  'Total samples',
                                  'Total targets',
                                  'Total samples*targets',
