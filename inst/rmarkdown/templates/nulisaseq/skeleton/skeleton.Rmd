@@ -41,7 +41,8 @@ sample_desc <- "This is a sample description"
 goal_desc <- " NULISAseq 200-plex inflammation panel"
 
 ### Special Targets
-IC <- c('mCherry', 'NIC_1', 'NIC_3') #Internal Control
+#IC <- c('mCherry', 'NIC_1', 'NIC_3') #Internal Control
+IC <- c('mCherry') #Internal Control
 
 ### Special Samples
 IPC <- c('IPC') #"InterPlateControl"
@@ -654,8 +655,8 @@ doPCA <- function(data, plateVar, normed=F, scale=F, center=F){
   title <- if(normed) "Normalized" else "Unnormalized"
   par(mar=c(4,4,2,5))
   plot(pca$x[,1], pca$x[,2], 
-       col=1:length(levels(factor(plateVar))),
-       pch=1:length(levels(factor(plateVar))),
+       col=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
+       pch=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
        xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), '% variance)'), 
        ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), '% variance)'), 
        main=title, las=1, cex=0.5)
