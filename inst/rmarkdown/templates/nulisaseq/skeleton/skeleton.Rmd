@@ -27,10 +27,10 @@ dataDir <- '/Users/dkuo/Projects/NULISAseqR/data'
 
 ### Input file names
 xmlFiles <- c(
-#  '20221226_Cleveland_plate01_nomismatch_XML.xml',
-#  '20221227_cleveland_plate02_nononmatch_XML.xml',
-#  '20221227_Cleveland_plate03_nononmatch_XML.xml',
-#  '20221229_cleveland_plate04_nononmatch_XML.xml',
+  '20221226_Cleveland_plate01_nomismatch_XML.xml',
+  '20221227_cleveland_plate02_nononmatch_XML.xml',
+  '20221227_Cleveland_plate03_nononmatch_XML.xml',
+  '20221229_cleveland_plate04_nononmatch_XML.xml',
   '20221229_cleveland_plate05_nononmatch_XML.xml',
   '20221230_Cleveland_plate06_nononmatch_XML.xml'
   )
@@ -515,7 +515,7 @@ col <- alamarColorPalette(ceiling(length(intraCV_vals[1,])/2))
 boxplot(intraCV_vals
         , las=1, xlab='intra-plate CV (%)',
         ylim=c(0, max(c(intraCV_vals), na.rm=TRUE)),
-        main='Intra-plate CV (* - Normalized)', horizontal=T,
+        main='Intra-plate CV (* - Normalized)', horizontal=T, cex.axis=0.5, lex.order=T,
         col=interleave(col,col))
 abline(v=c(0:8*5), col='grey', lty=3)
 ```
