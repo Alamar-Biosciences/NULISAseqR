@@ -645,7 +645,6 @@ knitr::kable(interCV_summary_table, caption='', align='r',
 
 ```{r out.width='100%', fig.asp=0.5, eval=multipleFiles, results='asis'}
 pandoc.header("Inter-plate CV boxplot", 3)
-par(mfrow=c(1,2))
 par(mar=c(5,12,1,1))
 boxplot(interCV_results, las=1, xlab='inter-plate CV (%)',
         ylim=c(0, max(interCV_results, na.rm=TRUE)), col=alamarColorPalette(5), horizontal=T)
