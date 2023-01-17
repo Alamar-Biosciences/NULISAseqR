@@ -40,7 +40,7 @@ plateHeatmap <- function(target_data,
   data_matrix <- t(matrix(target_data, nrow=8, ncol=12, byrow=TRUE)[8:1,])
   if(relative){
     paletteLength <- 50
-    col <- colorRampPalette(c("blue", "white", "red"))(paletteLength)
+    col <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
     myBreaks <- c(seq(min(data_matrix), 0, length.out=ceiling(paletteLength/2) + 1),
               seq(max(data_matrix)/paletteLength, max(data_matrix), length.out=floor(paletteLength/2)))
     image.plot(data_matrix,
