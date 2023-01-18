@@ -421,7 +421,9 @@ for(i in 1:length(xmlFiles)){
       val[inds] <- cell_spec(val[inds], "html", background=boxplot_colors[j+1])
     }
   }
-  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c",escape=F) %>% kable_styling(font_size=9))
+  table.attr <- paste0("id=\"plate-summary", i, "\"")
+  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c",escape=F, table.attr=table.attr) %>%
+      kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
 
@@ -429,7 +431,8 @@ for(i in 1:length(xmlFiles)){
 
 ## Read summary
 ```{r, results='asis'}
-knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",")) %>% kable_styling()
+knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ","), table.attr="id=\"read-summary\"") %>% 
+  kable_styling(bootstrap_options=c("striped", "hover", "condensed"), full_width=T)
 ```
 
 ---
@@ -442,10 +445,13 @@ if(length(ICs) == 1){
     IC_tables <- rbind(IC_tables, runSummarys[[i]]$IC_table)
   }
   rownames(IC_tables) <- paste0("Plate", as.character(1:length(xmlFiles))) 
-  cat(knitr::kable(IC_tables, caption="mCherry (IC) summary", align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
+  cat(knitr::kable(IC_tables, caption="mCherry (IC) summary", align='r', format.args=list(big.mark = ","), table.attr="id=\"IC-summary\"") %>% 
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))  
 }else{
   for(i in 1:length(xmlFiles)){
-    cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())  
+    table.attr <- paste0("id=\"IC-summary", i, "\"")
+    cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
   }
 }
 ```
@@ -455,7 +461,9 @@ if(length(ICs) == 1){
 ### Inter-plate control (IPC)
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
+  table.attr <- paste0("id=\"IPC-summary", i, "\"")
+  cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
 ---
@@ -463,7 +471,9 @@ for(i in 1:length(xmlFiles)){
 ### Negative control (NC) 
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ",")) %>% kable_styling())
+  table.attr <- paste0("id=\"NC-summary", i, "\"")
+  cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
 
@@ -495,10 +505,10 @@ for(i in 1:length(xmlFiles)){
 
 ### Detectability table
 ```{r, results='asis'}
-kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', align='r', 
-             format.args=list(big.mark = ",", digits=2)))
-kable_styling(knitr::kable(detectability_tar, caption='Target Detectability %', align='r', 
-             format.args=list(big.mark = ",", digits=2)))
+kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', align='r', table.attr="id=\"detectability-summary\"",
+             format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+kable_styling(knitr::kable(detectability_tar, caption='Target Detectability %', align='r', , table.attr="id=\"detectability-indepth\"",
+             format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) 
 ```
 
 
@@ -507,14 +517,14 @@ Only values above LOD were used to calculate %CV (no minimum count requirement).
 
 ### Intra-plate %CV table -- un-normalized
 ```{r}
-knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
+knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-unnormalized-summary\"", 
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
 ### Intra-plate %CV table -- mCherry-normalized
 ```{r}
-knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
+knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-mCherry-summary\"",
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
 ### Intra-plate CV boxplots by plate
@@ -641,8 +651,8 @@ pandoc.header("Inter-plate CV", 3)
 cat("Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).")
 
 pandoc.header("Inter-plate %CV", 3)
-knitr::kable(interCV_summary_table, caption='', align='r', 
-             format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
+knitr::kable(interCV_summary_table, caption='', align='r', table.attr="id=\"inter-plateCV-summary\"",
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
 ```{r out.width='100%', fig.asp=0.5, eval=multipleFiles, results='asis'}
