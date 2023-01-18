@@ -490,23 +490,34 @@ for(i in 1:length(xmlFiles)){
 ---
 
 ## Quality Control:
+
 ### QC Flags
-### Intra-plate CV
+
+### Detectability table
+```{r, results='asis'}
+kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', align='r', 
+             format.args=list(big.mark = ",", digits=2)))
+kable_styling(knitr::kable(detectability_tar, caption='Target Detectability %', align='r', 
+             format.args=list(big.mark = ",", digits=2)))
+```
+
+
+## Intra-plate Normalization
 Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).
 
-#### Intra-plate %CV table -- un-normalized
+### Intra-plate %CV table -- un-normalized
 ```{r}
 knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', 
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
 ```
 
-#### Intra-plate %CV table -- mCherry-normalized
+### Intra-plate %CV table -- mCherry-normalized
 ```{r}
 knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', 
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling()
 ```
 
-#### Intra-plate CV boxplots by plate
+### Intra-plate CV boxplots by plate
 ```{r, out.width='100%', fig.asp=0.5}
 intraCV_mCherry2 <- intraCV_mCherry
 colnames(intraCV_mCherry2) <- paste0("*", colnames(intraCV_mCherry))
@@ -565,15 +576,7 @@ for(i in 1:length(xmlFiles)){
 }
 ```
 
-### Detectability table
-```{r, results='asis'}
-kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', align='r', 
-             format.args=list(big.mark = ",", digits=2)))
-kable_styling(knitr::kable(detectability_tar, caption='Target Detectability %', align='r', 
-             format.args=list(big.mark = ",", digits=2)))
-```
-
-## Sample and target clustering 
+### Sample correlation
 ```{r, out.width='100%', fig.asp=1, results='asis'}
 wellcolors <- function(data, well_types, boxplot_colors ){
   mycolors <- rep("black", 96)
@@ -589,6 +592,26 @@ wellcolors <- function(data, well_types, boxplot_colors ){
   return(mycolors)
 }
 
+for(i in 1:length(xmlFiles)){
+  pdf(file=NULL)
+  corrvals <- corrplot(cor(data_mCherry_scaled[[i]]), order='hclust') 
+  dev.off()
+  B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else ""
+  well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
+  mycolors <- wellcolors(corrvals$corr, well_types, boxplot_colors)
+  corrplot(corrvals$corr,
+         tl.cex=0.4,
+         mar=c(1,1,1,1),
+         tl.col=mycolors,
+         order="original",
+         title=paste("Plate", i),
+         is.corr=FALSE)
+  cat("\n")
+}
+```
+
+### Sample and target clustering 
+```{r, out.width='100%', fig.asp=1, results='asis'}
 paletteLength <- 50
 myColor <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
 for(i in 1:length(xmlFiles)){
@@ -612,27 +635,6 @@ for(i in 1:length(xmlFiles)){
   cat("\n")
 }
 ```
-
-## Sample correlation
-```{r, out.width='100%', fig.asp=1, results='asis'}
-for(i in 1:length(xmlFiles)){
-  pdf(file=NULL)
-  corrvals <- corrplot(cor(data_mCherry_scaled[[i]]), order='hclust') 
-  dev.off()
-  B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else ""
-  well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
-  mycolors <- wellcolors(corrvals$corr, well_types, boxplot_colors)
-  corrplot(corrvals$corr,
-         tl.cex=0.4,
-         mar=c(1,1,1,1),
-         tl.col=mycolors,
-         order="original",
-         title=paste("Plate", i),
-         is.corr=FALSE)
-  cat("\n")
-}
-```
-
 ```{r eval=multipleFiles, results='asis'}
 pandoc.header("Inter-plate Normalization", 2)
 pandoc.header("Inter-plate CV", 3)
@@ -652,10 +654,9 @@ abline(v=c(0:16*5), col='grey', lty=3)
 ```
 
 ```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
-pandoc.header("Sample / Plate PCA", 3)
-doPCA <- function(data, plateVar, normed=F, scale=F, center=F){
+pandoc.header("Sample PCA", 3)
+doPCA <- function(data, plateVar, normed=F, scale=F, center=F, title="Unnormalized"){
   pca <- if(normed) prcomp(t(data), scale=scale, center=center) else prcomp(log2(t(data)+0.01), scale=scale, center=center)
-  title <- if(normed) "Normalized" else "Unnormalized"
   par(mar=c(4,4,2,5))
   plot(pca$x[,1], pca$x[,2], 
        col=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
@@ -669,21 +670,25 @@ doPCA <- function(data, plateVar, normed=F, scale=F, center=F){
   return(NULL)
 }
 
-removeTargetsSamples <- function(data, NC, IPC){
+removeTargetsSamples <- function(data, NC, IPC, Bridge){
   data <- data[-which(grepl("mCherry", rownames(data))),]
-  data <- data[,-which(grepl(paste(c(NC, IPC), collapse="|"), colnames(data)))]
+  data <- data[,-which(grepl(paste(c(NC, IPC, Bridge), collapse="|"), colnames(data)))]
   return(data)
 }
 
-dataPCAunnormal <- dataPCAnormed <- plateVar <- NULL
+dataPCAunnormal <- dataPCAnormed <- dataPCAnormedIPC <- dataPCAnormedIN <-plateVar <- NULL
 for(i in 1:length(xmlFiles)){
-  dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, NC, IPC))
-  dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_scaled[[i]], NC, IPC))
-  plateVar <- c(plateVar, rep(paste0("Plate",i), length(data_mCherry_scaled[[i]][1, ])))
+  dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, NC, IPC, Bridge))
+  dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_scaled[[i]], NC, IPC, Bridge))
+  dataPCAnormedIPC <- cbind(dataPCAnormedIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], NC, IPC, Bridge))
+  dataPCAnormedIN <- cbind(dataPCAnormedIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], NC, IPC, Bridge))
+  plateVar <- c(plateVar, rep(paste0("Plate",i),length(removeTargetsSamples(data_mCherry_scaled[[i]], NC, IPC, Bridge)[1,])))
 }
 
-par(mfrow=c(1,2))
-e <- doPCA(dataPCAunnormal, plateVar, normed=F, scale=T, center=T)
-e <- doPCA(dataPCAnormed, plateVar, normed=T, scale=T, center=T)
+par(mfrow=c(2,2))
+e <- doPCA(dataPCAunnormal, plateVar, normed=F, scale=T, center=T, title="Unnormalized")
+e <- doPCA(dataPCAnormed, plateVar, normed=T, scale=T, center=T, title="mCherry")
+e <- doPCA(dataPCAnormedIPC, plateVar, normed=T, scale=T, center=T, title="mCherry + IPC")
+e <- doPCA(dataPCAnormedIN, plateVar, normed=T, scale=T, center=T, title="mCherry + IN")
 ```
 
