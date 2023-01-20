@@ -162,9 +162,9 @@ interPlateNorm <- function(data_list,
     for (i in 1:length(data_list)){
       data_list_IN_samples[[i]] <- data_list[[i]][,IN_samples[[i]]]
       IN_medians[,i] <- apply(data_list_IN_samples[[i]], 1, median, na.rm=TRUE)
-      # replace zeros with 1s
-      IN_medians[IN_medians==0,i] <- 1
     }
+    # replace zeros with 1s
+    IN_medians[IN_medians==0] <- 1
     # combine data to calculate global medians
     all_IN_sample_data <- do.call(cbind(data_list_IN_samples))
     global_medians <- apply(all_IN_sample_data, 1, median, na.rm=TRUE)
