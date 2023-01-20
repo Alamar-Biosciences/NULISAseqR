@@ -139,7 +139,7 @@ readNULISAseq <- function(xml_file,
     # remove day of week
     plateID <- substr(plateID, 5, nchar(plateID))
   }
-  colnames(DataMatrix) <- paste(plateID, samples$sampleName, sep='_')
+  colnames(DataMatrix) <- if(plateID != "") paste(plateID, samples$sampleName, sep='_') else samples$sampleName
   
   ###########################
   # return the output
