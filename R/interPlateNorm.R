@@ -165,7 +165,9 @@ interPlateNorm <- function(data_list,
       # replace zeros with 1s
       IN_medians[IN_medians==0,i] <- 1
     }
-    global_medians <- apply(IN_medians, 1, median, na.rm=TRUE)
+    # combine data to calculate global medians
+    all_IN_sample_data <- do.call(cbind(data_list_IN_samples))
+    global_medians <- apply(all_IN_sample_data, 1, median, na.rm=TRUE)
     # replace zeros with 1s
     global_medians[global_medians==0] <- 1
     if (dataScale=='count'){
@@ -181,7 +183,7 @@ interPlateNorm <- function(data_list,
         data_list[[i]] <- data_list[[i]] + IN_factors[,i]
       }
     }
-  }# end intensity normalization
+  } # end intensity normalization
   
   # apply the scale factor to the data
   data_list <- lapply(data_list, function(x) x*scaleFactor)
