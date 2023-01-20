@@ -162,8 +162,12 @@ interPlateNorm <- function(data_list,
     for (i in 1:length(data_list)){
       data_list_IN_samples[[i]] <- data_list[[i]][,IN_samples[[i]]]
       IN_medians[,i] <- apply(data_list_IN_samples[[i]], 1, median, na.rm=TRUE)
+      # replace zeros with 1s
+      IN_medians[IN_medians==0,i] <- 1
     }
     global_medians <- apply(IN_medians, 1, median, na.rm=TRUE)
+    # replace zeros with 1s
+    global_medians[global_medians==0] <- 1
     if (dataScale=='count'){
       IN_factors <- (1/IN_medians)*global_medians
       # IN rescale data
