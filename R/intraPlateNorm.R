@@ -54,7 +54,7 @@ intraPlateNorm <- function(data_matrix,
                            scaleFactor=1){
   
   if (method=='IC'){
-    if (is.null(IC)){
+    if (is.null(IC)|| length(IC) == 0){
       stop('Must specify ICs.')
     }
     IC_missing <- sum(is.na(data_matrix[IC,])) + sum(data_matrix[IC,]==0, na.rm=TRUE)
