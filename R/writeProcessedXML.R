@@ -46,7 +46,7 @@ bcodeA_XML <- function(targets){
   }
   return(bcodeA)
 }
-bcodeB_XML <- function(samples){
+bcodeB_XML <- function(samples, barcodeB=NULL){
   # Process BarcodeBs
   inds <- c()
   sampColI <- names(samples)
@@ -56,17 +56,35 @@ bcodeB_XML <- function(samples){
       inds <- c(inds, i)
     }
   }
+  barcodeB_file <- NULL
+  if(!is.null(barcodeB)){
+    barcodeB_file <- read.table(barcodeB, sep='\t', comment.char='&', header=T, na.strings=c())
+  }
   bcodeB <- newXMLNode("BarcodeB")
   for(i in 1:length(samples$sampleBarcode)){
     attrVals <- attrNames <- c()
-    for (j in 1:length(inds)){
-      attrNames <- c(attrNames, sampColI[inds[j]])
-      attrVals <- c(attrVals, eval(parse(text=paste0("(samples$", sampColI[inds[j]],")[i]"))))
+    if(is.null(barcodeB_file)){
+      for (j in 1:length(inds)){
+        attrNames <- c(attrNames, sampColI[inds[j]])
+        attrVals <- c(attrVals, eval(parse(text=paste0("(samples$", sampColI[inds[j]],")[i]"))))
+      }
+      attrVals <- c(attrVals, samples$sampleBarcode[i])
+      attrNames <- c(attrNames, "name")
+    }else{
+      info <- barcodeB_file[which(samples$sampleBarcode[i] == barcodeB_file[,1]),]
+
+      attrVals <- c(info[2])
+      attrNames <- c("name")
+      if (length(info)>2){
+        for( k in 3:length(info)){
+          val <- colnames(barcodeB_file)[k]
+          attrVals <- c(attrVals, info[k])
+          attrNames <- c(attrNames, names(info)[k])
+        }
+      }
     }
-    attrVals <- c(attrVals, samples$sampleBarcode[i])
-    attrNames <- c(attrNames, "name")
     names(attrVals) <- attrNames
-    addChildren(bcodeB, newXMLNode("Barcode", samples$sampleName[i], attrs=attrVals)) 
+    addChildren(bcodeB, newXMLNode("Barcode", rownames(info), attrs=attrVals)) 
   }
   return(bcodeB)
 }
@@ -111,11 +129,13 @@ NCBkgdLevels_XML <- function(Data, ICs, NCs){
 #'
 #' @export
 #'
-writeProcessedXML <- function(in_xml_file, out_xml_file, IPCs, NCs, ICs){
+writeProcessedXML <- function(in_xml_file, out_xml_file, IPCs, NCs, ICs, barcodeB=NULL){
   c(plateID, ExecutionDetails, RunSummary, targets, samples, Data) %<-%  
     readNULISAseq(in_xml_file,
                   plateID="",
                   file_type='xml_no_mismatches')
+  if(!is.null(barcodeB)){
+  }
 #  Data[is.na(Data)] <- 0
   IPC <- c('IPC') #"InterPlateControl"
   NC <- c('NC') #"NegativeControl"
@@ -125,7 +145,7 @@ writeProcessedXML <- function(in_xml_file, out_xml_file, IPCs, NCs, ICs){
  NCs <- which(grepl(paste(NC, collapse="|"), colnames(Data)))
  ICs <- which(grepl(paste(IC, collapse="|"), rownames(Data)))
   bcodeA <- bcodeA_XML(targets)
-  bcodeB <- bcodeB_XML(samples)
+  bcodeB <- bcodeB_XML(samples, barcodeB)
 
   #NC Bkgd Levels
   NCBkgdLevels <- NCBkgdLevels_XML(Data, ICs, NCs)
@@ -144,9 +164,24 @@ writeProcessedXML <- function(in_xml_file, out_xml_file, IPCs, NCs, ICs){
                                              signal=samples$matching[ind[j]], 
                                              bkgd=samples$"non-matching"[ind[j]]) 
                         )
-#      for (k in 1:length()){
-
-#      }
+      for (k in 1:2){
+        name <- if(k == 1) "raw" else "IC"
+        method <- newXMLNode("Method", attrs=c(name=name))
+        vals <- if (k == 1) Data[, ind[j]] else normedData$normData[, ind[j]]
+        lod <- if (k == 1) lod(data_matrix=Data, blanks=NCs, min_count=0) else lod(data_matrix=normedData$normData, blanks=NCs, min_count=0)
+        for (m in 1:length(vals)){
+          name <- targets$targetBarcode[which(names(vals[m]) == targets$targetName)]
+          addChildren(method, newXMLNode("Target", 
+                                          attrs=c(
+                                            names=name,
+                                            aboveBkgd= lod$aboveLOD[m, ind[j]]
+                                          ),
+                                          vals[m]
+                                        )
+          )
+        }
+        addChildren(rep, method)
+      }
       addChildren(sampleNode, rep)
 
       #CalcQC
