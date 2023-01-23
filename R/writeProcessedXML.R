@@ -1,4 +1,4 @@
-base_XML <- function(ExecutionDetails, bcodeA, bcodeB, RunSummary){
+base_XML <- function(ExecutionDetails, bcodeA, bcodeB, RunSummary, QCFlags){
   return( newXMLNode("NULISAseq", 
                       .children=c(
                         newXMLNode("ExecutionDetails", 
@@ -30,7 +30,8 @@ base_XML <- function(ExecutionDetails, bcodeA, bcodeB, RunSummary){
                             newXMLNode("TotalReads", RunSummary$TotalReads),
                             newXMLNode("Parseable", RunSummary$Parseable),
                             newXMLNode("ParseableMatch", RunSummary$ParseableMatch),
-                            newXMLNode("Unparseable", RunSummary$Unparseable)
+                            newXMLNode("Unparseable", RunSummary$Unparseable),
+                            newXMLNode("QCFlags", QCFlags)
                           )
                         )
                       )
@@ -107,53 +108,53 @@ NCBkgdLevels_XML <- function(Data, ICs, NCs){
                         methodIC
                       )))
 }
-#' Write Processed NULISAseq XML
-#'
-#' Writes NULISAseq XML file with unnormalized / normalized data and QC flags
-#'
-#' @param xml_file Character string. Path and name of the file.
-#' @param plateID Character string that will be added to the beginning of
-#' column names before the sample name. This is helpful for 
-#' identifying the plate each sample came from 
-#' after interplate normalization. If no plate ID is given, the function
-#' will use the date and time in the execution details (this is 
-#' very long so it is recommended to provide a plate ID!).
-#' @param file_type Character string. Type of input file, as output from Galaxy. Options include
-#' xml_full_output, xml_no_mismatches (default) (both from NULISAseq tool),
-#' or xml_normalization (from NULISAseq Normalization tool).
-#'
-#' @return NULL
-#'
-#' @examples
-#' writeXML('filename.xml')
-#'
-#' @export
-#'
-writeProcessedXML <- function(in_xml_file, out_xml_file, IPCs, NCs, ICs, barcodeB=NULL){
+
+QCFlag <- function(raw, normed){
+  QCFlagSample <- c()
+  QCFlagPlate <- newXMLNode("QCFlags")
+  return(QCFlagPlate, QCFlagSample)
+}
+
+#* Write Processed NULISAseq XML
+#*
+#* Writes NULISAseq XML file with unnormalized / normalized data and QC flags
+#*
+#* @param xml_file:[file] Character string. Path and name of the file.
+#* @IPC IPC
+#* @NC NC
+#* @IC IC
+#* @barcodeB barcodeB
+#* @return 
+#*
+#* @examples
+#* writeXML('filename.xml')
+#*
+#* @export
+#* @post /processXML
+processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL){
   c(plateID, ExecutionDetails, RunSummary, targets, samples, Data) %<-%  
     readNULISAseq(in_xml_file,
                   plateID="",
                   file_type='xml_no_mismatches')
-  if(!is.null(barcodeB)){
-  }
 #  Data[is.na(Data)] <- 0
-  IPC <- c('IPC') #"InterPlateControl"
-  NC <- c('NC') #"NegativeControl"
-  IC <- c("mCherry")
-  Bridge <- c('Donor') #NULL
- IPCs <- which(grepl(paste(IPC, collapse="|"), colnames(Data)))
- NCs <- which(grepl(paste(NC, collapse="|"), colnames(Data)))
- ICs <- which(grepl(paste(IC, collapse="|"), rownames(Data)))
+#  IPC <- c('IPC') #"InterPlateControl"
+#  NC <- c('NC') #"NegativeControl"
+#  IC <- c("mCherry")
+#  Bridge <- c('Donor') #NULL
+  IPCs <- which(grepl(paste(IPC, collapse="|"), colnames(Data)))
+  NCs <- which(grepl(paste(NC, collapse="|"), colnames(Data)))
+  ICs <- which(grepl(paste(IC, collapse="|"), rownames(Data)))
   bcodeA <- bcodeA_XML(targets)
   bcodeB <- bcodeB_XML(samples, barcodeB)
 
   #NC Bkgd Levels
   NCBkgdLevels <- NCBkgdLevels_XML(Data, ICs, NCs)
-  base <- base_XML(ExecutionDetails, bcodeA, bcodeB, RunSummary)  
+  normedData <- intraPlateNorm(data_matrix=Data, method="IC", IC=ICs)
+  c(QCFlagPlate, QCFlagSamples) %<-% QCFlag(Data, normedData$normData)
+  base <- base_XML(ExecutionDetails, bcodeA, bcodeB, RunSummary, QCFlagPlate)  
   data <- newXMLNode("Data")
   addChildren(base, addChildren(data, NCBkgdLevels))
 
-  normedData <- intraPlateNorm(data_matrix=Data, method="IC", IC=ICs)
   uniqSampleNames <- unique(samples$sampleName)
   for( i in 1:length(uniqSampleNames)){
     ind <- which(samples$sampleName == uniqSampleNames[i])
