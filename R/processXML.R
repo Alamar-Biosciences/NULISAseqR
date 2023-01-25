@@ -1,16 +1,13 @@
-base_XML <- function(ExecutionDetails, bcodeA, bcodeB, RunSummary, QCFlags){
+base_XML <- function(ExecutionDetails, bcodeA, bcodeB, RunSummary){
+  children <- c()
+  for(i in 1:length(ExecutionDetails)){
+    val <- if(length(ExecutionDetails[[i]]) == 1) ExecutionDetails[i] else ExecutionDetails[[i]][[1]]
+    children <- c(children, newXMLNode(names(ExecutionDetails)[i], val))
+  }
   return( newXMLNode("NULISAseq", 
                       .children=c(
                         newXMLNode("ExecutionDetails", 
-                          .children=c(
-                            newXMLNode("CommandLine", ExecutionDetails$CommandLine),
-                            newXMLNode("ExecutionTime", ExecutionDetails$ExecutionTime[[1]],
-                              attrs=c(units=ExecutionDetails$ExecutionTime$unit)),
-                            newXMLNode("CommitID", ExecutionDetails$CommitID),
-                            newXMLNode("Date", ExecutionDetails$Date),
-                            newXMLNode("Normalize_CommitID"),
-                            newXMLNode("NormalizeDate")
-                          )
+                          .children=children
                         ),
                         newXMLNode("plateID"),
                         newXMLNode("RunSummary",
@@ -30,8 +27,7 @@ base_XML <- function(ExecutionDetails, bcodeA, bcodeB, RunSummary, QCFlags){
                             newXMLNode("TotalReads", RunSummary$TotalReads),
                             newXMLNode("Parseable", RunSummary$Parseable),
                             newXMLNode("ParseableMatch", RunSummary$ParseableMatch),
-                            newXMLNode("Unparseable", RunSummary$Unparseable),
-                            newXMLNode("QCFlags", QCFlags)
+                            newXMLNode("Unparseable", RunSummary$Unparseable)
                           )
                         )
                       )
@@ -109,10 +105,69 @@ NCBkgdLevels_XML <- function(Data, ICs, NCs){
                       )))
 }
 
-QCFlag <- function(raw, normed){
-  QCFlagSample <- c()
-  QCFlagPlate <- newXMLNode("QCFlags")
-  return(QCFlagPlate, QCFlagSample)
+QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
+  # Sample QC criteria
+  MIN_FRAC_TARGETS_ABOVE_BKGD <- 0.8 # Minimim fraction (B): # Targets with reads above background / TotalReads
+  MIN_FRAC_COGNATE_RATIO <- 0.9      # Minimum fraction (C): Cognate reads / total reads
+  MIN_IC_READS_PER_SAMPLE <- 500.0   # Minimum number (I) of IC reads within a sample
+
+  QCFlagSamples <- c()
+  return(QCFlagSamples)
+}
+
+QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
+  QCFlagPlateXML <- newXMLNode("PlateQC")
+
+  # Plate QC criteria
+  MAX_IC_CV <- 0.5                # (V) CV of number of IC reads across all samples
+  MAX_IPC_CV <- 0.5               # (I) CV of total read count for each IPC sample
+#  MAX_NUM_NC_READ_FRACTION <- 0.1 # (N) Fraction of: NC_reads / total_cognate_reads
+#  MAX_UNPARSEABLE_FRACTION <- 0.5 # (U) Fraction of Non-ParseablerReads / Total Reads
+  MAX_MEDIAN_IPC_TARGET_CV <- 0.2 # (P) Median of CVs of all IPC targets (Performed on normalized data) 
+  DETECTABILITY_FRAC <- 0.75      # (D) Detectability fraction (target is detected if >50% of samples > LOD)
+
+  # Calculate Plate-wide QC vals
+  ## MAX_IC_CV (V)
+  ICvals <- raw[ICs,]
+  ICvals[is.na(ICvals)] <- 0
+  IC_CV <- sd(ICvals) / mean(ICvals)
+  addChildren(QCFlagPlateXML, newXMLNode("QCFlag", IC_CV,
+                                         attrs=c(
+                                                name="V",
+                                                set=if(IC_CV > MAX_IC_CV) "T" else "F",
+                                                method="raw"
+                                                )
+              )
+  )
+
+  ## MAX_IPC_CV (I)
+  IPCvals <- raw[, IPCs]
+  IPCvals[is.na(IPCvals)] <- 0
+  IPCvals2 <- colMeans(IPCvals)
+  IPC_CV <- sd(IPCvals2) / mean(IPCvals2)
+  addChildren(QCFlagPlateXML, newXMLNode("QCFlag", IPC_CV,
+                                         attrs=c(
+                                                name="I",
+                                                set=if(IPC_CV > MAX_IPC_CV) "T" else "F",
+                                                method="raw"
+                                                )
+              )
+  )
+
+  ## MAX_MEDIAN_IPC_TARGET_CV (P)
+  IPCnormvals <- normed[, IPCs]
+  IPCnormvals[is.na(IPCvals)] <- 0
+  median_IPC_targetCV <- median(apply(IPCnormvals, 1, sd) / rowMeans(IPCnormvals)) 
+  addChildren(QCFlagPlateXML, newXMLNode("QCFlag", median_IPC_targetCV,
+                                         attrs=c(
+                                                name="P",
+                                                set=if(median_IPC_targetCV > MAX_MEDIAN_IPC_TARGET_CV) "T" else "F",
+                                                method="IC"
+                                                )
+              )
+  )
+
+  return(QCFlagPlateXML)
 }
 
 #* Write Processed NULISAseq XML
@@ -131,7 +186,7 @@ QCFlag <- function(raw, normed){
 #*
 #* @export
 #* @post /processXML
-processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL){
+processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
   c(plateID, ExecutionDetails, RunSummary, targets, samples, Data) %<-%  
     readNULISAseq(in_xml_file,
                   plateID="",
@@ -150,11 +205,13 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL){
   #NC Bkgd Levels
   NCBkgdLevels <- NCBkgdLevels_XML(Data, ICs, NCs)
   normedData <- intraPlateNorm(data_matrix=Data, method="IC", IC=ICs)
-  c(QCFlagPlate, QCFlagSamples) %<-% QCFlag(Data, normedData$normData)
-  base <- base_XML(ExecutionDetails, bcodeA, bcodeB, RunSummary, QCFlagPlate)  
+  base <- base_XML(ExecutionDetails, bcodeA, bcodeB, RunSummary)  
   data <- newXMLNode("Data")
   addChildren(base, addChildren(data, NCBkgdLevels))
+  qcPlate <- QCFlagPlate(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs)
+  addChildren(data, qcPlate)
 
+  qcSample <- QCFlagSample(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs)
   uniqSampleNames <- unique(samples$sampleName)
   for( i in 1:length(uniqSampleNames)){
     ind <- which(samples$sampleName == uniqSampleNames[i])
@@ -172,10 +229,11 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL){
         lod <- if (k == 1) lod(data_matrix=Data, blanks=NCs, min_count=0) else lod(data_matrix=normedData$normData, blanks=NCs, min_count=0)
         for (m in 1:length(vals)){
           name <- targets$targetBarcode[which(names(vals[m]) == targets$targetName)]
+          aboveLODval <- if(!lod$aboveLOD[m, ind[j]] || is.na(lod$aboveLOD[m, ind[j]])) "N" else "Y"
           addChildren(method, newXMLNode("Target", 
                                           attrs=c(
-                                            names=name,
-                                            aboveBkgd= lod$aboveLOD[m, ind[j]]
+                                            name=name,
+                                            aboveBkgd=aboveLODval
                                           ),
                                           vals[m]
                                         )
@@ -192,5 +250,9 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL){
     }
     addChildren(data, sampleNode)
   }
-  print(base)
+  if(!is.null(out_XML)){
+    write_xml(base, out_XML)
+    return(NULL)
+  }
+  return(base)
 }
