@@ -64,7 +64,7 @@ intraPlateNorm <- function(data_matrix,
     }
     if (length(IC) == 1){
       # normalize using single internal control
-      cat('Using single IC to normalize data.')
+      cat('Using single IC to normalize data.\n')
       normFactor <- scaleFactor/data_matrix[IC,]
       normCounts <- t(t(data_matrix)*normFactor)
     } else if (length(IC) > 1){
