@@ -27,14 +27,15 @@ dataDir <- '/Users/dkuo/Projects/NULISAseqR/data'
 
 ### Input file names
 xmlFiles <- c(
-  '20221226_Cleveland_plate01_nomismatch_XML.xml',
-  '20221227_cleveland_plate02_nononmatch_XML.xml',
-  '20221227_Cleveland_plate03_nononmatch_XML.xml',
-  '20221229_cleveland_plate04_nononmatch_XML.xml',
-  '20221229_cleveland_plate05_nononmatch_XML.xml',
+#  '20221226_Cleveland_plate01_nomismatch_XML.xml',
+#  '20221227_cleveland_plate02_nononmatch_XML.xml',
+#  '20221227_Cleveland_plate03_nononmatch_XML.xml',
+#  '20221229_cleveland_plate04_nononmatch_XML.xml',
+#  '20221229_cleveland_plate05_nononmatch_XML.xml',
   '20221230_Cleveland_plate06_nononmatch_XML.xml'
   )
-
+#  '20230109_TAP_covid_plate01_nononmatch_XML.xml',
+#  '20230109_TAP_covid_plate02_nononmatch_XML.xml')
 ### Document Text
 study_name<- "Study Name"
 assayName <- "NULISAseq 200-plex Inflammation Panel"
@@ -48,7 +49,7 @@ IC <- c('mCherry') #Internal Control
 ### Special Samples
 IPC <- c('IPC') #"InterPlateControl"
 NC <- c('NC') #"NegativeControl"
-Bridge <- c('Donor') #NULL
+Bridge <- NULL#c('Donor') #NULL
 
 ### Heat map values are relative or absolute
 heatMapRel <- TRUE
@@ -189,7 +190,7 @@ if(length(Bridge_wells[[1]])){
 intraCV_unnorm <- NULL
 intraCV_mCherry <- NULL
 for (i in 1:length(xmlFiles)){
-  sc <- rep(NA, 96)
+  sc <- rep(NA, nrow(runs[[i]]$samples))
   sc[colnames(runs[[i]]$Data) %in% IPC_wells[[i]]]<- 'SC'
   plate_unnorm_intraCV <- intraCV(data_matrix=runs[[i]]$Data,
                                  samples=sc,
@@ -249,7 +250,7 @@ aboveLOD <- vector("list", length(xmlFiles))
 exclude_targets <- vector("list", length(xmlFiles))
 plate_mCherry <- vector("list", length(xmlFiles))
 for(i in 1:length(xmlFiles)){
-  sc <- rep(NA, 96)
+  sc <- rep(NA, nrow(runs[[i]]$samples))
   sc[colnames(runs[[i]]$Data) %in% IPC_wells[[i]]]<- 'SC'
   scs[[i]] <- sc
   plateData[[i]] <- runs[[i]]$Data
@@ -354,7 +355,9 @@ for (i in 1:length(xmlFiles)){
   detect_samples <- colnames(plateNorms[[i]]$mCherry$normData)
   detect_samples <- detect_samples[-which(grepl(paste(IPC, collapse="|"), detect_samples))]
   detect_samples <- detect_samples[-which(grepl(paste(NC, collapse="|"), detect_samples))]
-  detect_samples <- detect_samples[-which(grepl(paste(Bridge, collapse="|"), detect_samples))]
+  if(!is.null(Bridge)){
+    detect_samples <- detect_samples[-which(grepl(paste(Bridge, collapse="|"), detect_samples))]
+  }
   plate_detect <- detectability(aboveLOD_matrix=run_lod[[i]]$aboveLOD,
                                  sample_subset=detect_samples,
                                  exclude_targets=ICs)
@@ -406,10 +409,16 @@ title: `r title_var`
 ## Plate layout
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
-  val <- matrix(runs[[i]]$samples[well_order,]$sampleName, nrow=8, byrow=T)
+  val <- matrix(rep(NA, 96), nrow=8)
   colnames(val) <- 1:12
   rownames(val) <- LETTERS[1:8]
+  for(j in LETTERS[1:8]){
+    for(k in 1:12){
+      sample_jk <- runs[[i]]$samples$sampleName[runs[[i]]$samples[rowAnnotName]==j & runs[[i]]$samples[colAnnotName]==k]
+      if(length(sample_jk)==0) sample_jk <- ''
+      val[rownames(val)==j, colnames(val)==k] <- sample_jk
+    }
+  }
   B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else NULL
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   for (j in 1:length(well_types)){
@@ -421,9 +430,13 @@ for(i in 1:length(xmlFiles)){
       val[inds] <- cell_spec(val[inds], "html", background=boxplot_colors[j+1])
     }
   }
+  val <- gsub('_', ' ', val) # replace underscore with space
   table.attr <- paste0("id=\"plate-summary", i, "\"")
-  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c",escape=F, table.attr=table.attr) %>%
-      kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
+  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c", escape=F, table.attr=table.attr) %>%
+      kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) #%>%
+     #   column_spec(column=1:12, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
+     #   row_spec(1:8, extra_css = "border-bottom: 1px solid")
+      )
 }
 ```
 
@@ -552,11 +565,11 @@ sampleboxplot <- function( data, ordering, label, plate_sample_colors, boxplot_c
           main=paste0("Plate ", as.character(i), ": ", label),
           outcex=0.5,
           col=plate_sample_colors, horizontal=T, cex=0.5)
-  for (j in 1:96){
+  for (j in 1:ncol(data)){
     color <- if(plate_sample_colors[j] == boxplot_colors[1]) "black" else plate_sample_colors[j]
     axis(2, at=j, labels=colnames(data)[ordering[j]], cex.axis=0.3, las=2, col.axis=color, tck=-0.01)
   }
-  lines(cbind(log2(data['mCherry',ordering]+0.01), 1:96), col='red', las=1)
+  lines(cbind(log2(data['mCherry',ordering]+0.01), 1:ncol(data)), col='red', las=1)
   mtext('log2(count + 0.01)', side=1, line=2)
   legend('topleft', 'mCherry', col='red', lty=1, cex=0.4, bty='n')
   abline(v=c(-50:50*5), col='grey', lty=3)
@@ -564,7 +577,7 @@ sampleboxplot <- function( data, ordering, label, plate_sample_colors, boxplot_c
 }
 
 for(i in 1:length(xmlFiles)){
-  plate_sample_type <- rep("1_sample",96)
+  plate_sample_type <- rep("1_sample",ncol(runs[[i]]$Data))
   if(!is.null(Bridge)){
     plate_sample_type[grepl(paste0(Bridge_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '2_donor'
   }
@@ -589,7 +602,7 @@ for(i in 1:length(xmlFiles)){
 ### Sample correlation
 ```{r, out.width='100%', fig.asp=1, results='asis'}
 wellcolors <- function(data, well_types, boxplot_colors ){
-  mycolors <- rep("black", 96)
+  mycolors <- rep("black", ncol(data))
   for (j in 1:length(well_types)){
     if (j == 1 && well_types[j] == ""){
       next
@@ -631,7 +644,7 @@ for(i in 1:length(xmlFiles)){
   myBreaks <- c(seq(min(data_mCherry_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
               seq(max(data_mCherry_scaled[[i]])/paletteLength, max(data_mCherry_scaled[[i]]), length.out=floor(paletteLength/2)))
   data_mCherry_scaled2 <- data.frame(t(data_mCherry_scaled[[i]]))
-  data_mCherry_scaled2$status <- rep(1, 96) # 
+  data_mCherry_scaled2$status <- rep(1, nrow(runs[[i]]$samples)) # 
   data_mCherry_scaled2$colors <- mycolors
   e <- pheatmap(data_mCherry_scaled2[,1:(length(data_mCherry_scaled2[1, ]) - 2)],
          main = paste("Plate", i), fontsize=5,
