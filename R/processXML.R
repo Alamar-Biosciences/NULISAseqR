@@ -175,11 +175,11 @@ QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
 #* Writes NULISAseq XML file with unnormalized / normalized data and QC flags
 #*
 #* @param xml_file:[file] Character string. Path and name of the file.
-#* @IPC IPC
-#* @NC NC
-#* @IC IC
-#* @barcodeB barcodeB
-#* @return 
+#* @param IPC Name to search for Interprocess control (IPC) samples
+#* @param NC Name to search for Negative control (NC) samples
+#* @param IC Name to search for Internal Control (IC) targets
+#* @param barcodeB optional BarcodeB file
+#* @param out_XML optional output XML to write to
 #*
 #* @examples
 #* writeXML('filename.xml')
