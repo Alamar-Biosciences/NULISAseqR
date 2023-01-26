@@ -35,14 +35,14 @@ plateHeatmap <- function(target_data,
     target_data <- target_data[well_order]
   }
   if (relative){
-    target_data <- (target_data - median(target_data))/median(target_data)*100
+    target_data <- (target_data - median(target_data, na.rm=T))/median(target_data, na.rm=T)*100
   }
   data_matrix <- t(matrix(target_data, nrow=8, ncol=12, byrow=TRUE)[8:1,])
   if(relative){
     paletteLength <- 50
     col <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
-    myBreaks <- c(seq(min(data_matrix), 0, length.out=ceiling(paletteLength/2) + 1),
-              seq(max(data_matrix)/paletteLength, max(data_matrix), length.out=floor(paletteLength/2)))
+    myBreaks <- c(seq(min(data_matrix, na.rm=T), 0, length.out=ceiling(paletteLength/2) + 1),
+              seq(max(data_matrix, na.rm=T)/paletteLength, max(data_matrix, na.rm=T), length.out=floor(paletteLength/2)))
     image.plot(data_matrix,
           xaxt='n', yaxt='n', main='', 
           col=col, breaks=myBreaks, axis.args=list(cex.axis=cex.axis, tck=-0.15, mgp=c(3,0.5,0)))
