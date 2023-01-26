@@ -32,10 +32,12 @@ xmlFiles <- c(
 #  '20221227_Cleveland_plate03_nononmatch_XML.xml',
 #  '20221229_cleveland_plate04_nononmatch_XML.xml',
 #  '20221229_cleveland_plate05_nononmatch_XML.xml',
-  '20221230_Cleveland_plate06_nononmatch_XML.xml'
-  )
-#  '20230109_TAP_covid_plate01_nononmatch_XML.xml',
-#  '20230109_TAP_covid_plate02_nononmatch_XML.xml')
+#  '20221230_Cleveland_plate06_nononmatch_XML.xml'
+#  )
+  '20230109_TAP_covid_plate01_nononmatch_XML.xml',
+  '20230109_TAP_covid_plate02_nononmatch_XML.xml')
+xmlFilePlateNames <- rep("", times=length(xmlFiles)) #Plate prefix
+
 ### Document Text
 study_name<- "Study Name"
 assayName <- "NULISAseq 200-plex Inflammation Panel"
@@ -74,6 +76,24 @@ wellorder <- function(samples, rowAnnotName, colAnnotName){
   return(inds$ix)
 }
 
+matrixify <- function(runSamples, rowAnnotName, colAnnotName, plate=F){
+  val <- matrix(rep(NA, 96), nrow=8)
+  colnames(val) <- 1:12
+  rownames(val) <- LETTERS[1:8]
+  for(j in LETTERS[1:8]){
+    for(k in 1:12){
+      sample_jk <- runSamples$sampleName[runSamples[rowAnnotName]==j & runSamples[colAnnotName]==k]
+      if(length(sample_jk)!=0){
+        val[rownames(val)==j, colnames(val)==k] <- sample_jk
+      }
+      if(plate && length(sample_jk) == 0){
+        val[rownames(val)==j, colnames(val)==k] <- ""
+      }
+    }
+  }
+  return(val)
+}
+
 ###############################################################################
 # Read in files
 ###############################################################################
@@ -82,26 +102,27 @@ title_var <- paste(study_name, assayName, sep='<br>')
 boxplot_colors <- unlist(lapply(alamarColorPalette(n=4, tint='light', nReps=4), function(x) x[3]))
 knitr::opts_knit$set(root.dir=dataDir)
 xmlFilesPath <- paste0(dataDir, "/", xmlFiles)
-xmlFilePlateNames <- rep("", times=length(xmlFiles))
 runs <- vector('list', length(xmlFiles))
 runSummarys <- vector('list', length(xmlFiles))
 read_summary <- NULL
 PlateNames <- NULL
 for(i in 1:length(xmlFiles)){
   # Read each run1
-  plateID <- if(xmlFilePlateNames[i] == "") paste0("plate", i) else xmlFilePlateNames[i]
-  runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=plateID)
-  xmlFilePlateNames[i] <- plateID
+  runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=xmlFilePlateNames[i])
   ICs  <- runs[[i]]$targets$targetName[which(grepl(paste(IC, collapse="|"),  runs[[i]]$targets$targetName))]
   IPCs <- runs[[i]]$samples$sampleName[which(grepl(paste(IPC, collapse="|"), runs[[i]]$samples$sampleName))]
   NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
-  IPCs <- paste0(plateID, "_", IPCs)
-  NCs  <- paste0(plateID, "_", NCs)
-
+  if(xmlFilePlateNames[i] !=""){
+    IPCs <- paste0(xmlFilePlateNames[i], "_", IPCs)
+    NCs  <- paste0(xmlFilePlateNames[i], "_", NCs)
+  }
   # Summarize each Plate
   runSummarys[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs)
   read_summary <- cbind(read_summary,runSummarys[[i]]$readsTable)
   PlateNames <- c(PlateNames, paste("Plate", i, sep=" "))
+  if (xmlFilePlateNames[i] != ""){
+    PlateNames[i] <- paste0(PlateNames[i], "(", xmlPlateNames[i], ")")
+  }
 }
 names(runs) <- xmlFilePlateNames
 names(runSummarys) <- xmlFilePlateNames
@@ -118,8 +139,9 @@ for (i in 1:length(xmlFiles)){
 
   # calculate LODs 
   NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
-  plateID <- if(xmlFilePlateNames[i] == "") paste0("plate", i) else xmlFilePlateNames[i]
-  NCs  <- paste0(plateID, "_", NCs)
+  if (xmlFilePlateNames[i] != ""){
+    NCs  <- paste0(xmlFilePlateNames[i], "_", NCs)
+  }
   run_lod[[i]] <- lod(data_matrix=runs[[i]]$Data, blanks=NCs, min_count=0)
 }
 ```
@@ -147,14 +169,20 @@ IPC_wells <- NC_wells <- Bridge_wells <- IPC_wells_orig <- NC_wells_orig <- Brid
 for (i in 1:length(xmlFiles)){
   normData[[i]] <- plateNorms[[i]]$mCherry$normData
   IPC_wells_orig[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(IPC, collapse="|"), runs[[i]]$samples$sampleName))]
-  plateID <- if(xmlFilePlateNames[i] == "") paste0("run", i) else xmlFilePlateNames[i]
   if(!is.null(Bridge)){
-    Bridge_wells_orig[[i]] <-runs[[i]]$samples$sampleName[which(grepl(paste(Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
-    Bridge_wells[[i]] <- paste0(plateID,"_", Bridge_wells_orig[[i]])
+    Bridge_wells_orig[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
+    if(xmlFilePlateNames[i] != ""){
+      Bridge_wells[[i]] <- if(xmlFilePlateNames[i] != "") paste0(xmlFilePlateNames[i],"_", Bridge_wells_orig[[i]]) else Bridge_wells_orig[[i]]
+    }
   }
-  IPC_wells[[i]] <- paste0(plateID, "_", IPC_wells_orig[[i]])
-  NC_wells_orig[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"),  runs[[i]]$samples$sampleName))]
-  NC_wells[[i]]  <- paste0(plateID, "_", NC_wells_orig[[i]]) 
+  NC_wells_orig[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(NC, collapse="|"), runs[[i]]$samples$sampleName))]
+  if(xmlFilePlateNames[i] != ""){
+    IPC_wells[[i]] <- paste0(xmlFilePlateNames[i], "_", IPC_wells_orig[[i]])
+    NC_wells[[i]]  <- paste0(xmlFilePlateNames[i], "_", NC_wells_orig[[i]]) 
+  }else{
+    IPC_wells[[i]] <- IPC_wells_orig[[i]]
+    NC_wells[[i]]  <- NC_wells_orig[[i]] 
+  }
 } 
 
 # using intra-plate means
@@ -409,16 +437,7 @@ title: `r title_var`
 ## Plate layout
 ```{r, results='asis'}
 for(i in 1:length(xmlFiles)){
-  val <- matrix(rep(NA, 96), nrow=8)
-  colnames(val) <- 1:12
-  rownames(val) <- LETTERS[1:8]
-  for(j in LETTERS[1:8]){
-    for(k in 1:12){
-      sample_jk <- runs[[i]]$samples$sampleName[runs[[i]]$samples[rowAnnotName]==j & runs[[i]]$samples[colAnnotName]==k]
-      if(length(sample_jk)==0) sample_jk <- ''
-      val[rownames(val)==j, colnames(val)==k] <- sample_jk
-    }
-  }
+  val <- matrixify(runs[[i]]$samples, rowAnnotName, colAnnotName, plate=T)
   B_well_orig <- if (!is.null(Bridge)) Bridge_wells_orig[[i]] else NULL
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   for (j in 1:length(well_types)){
@@ -433,9 +452,9 @@ for(i in 1:length(xmlFiles)){
   val <- gsub('_', ' ', val) # replace underscore with space
   table.attr <- paste0("id=\"plate-summary", i, "\"")
   cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c", escape=F, table.attr=table.attr) %>%
-      kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) #%>%
-     #   column_spec(column=1:12, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
-     #   row_spec(1:8, extra_css = "border-bottom: 1px solid")
+      kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
+      column_spec(column=1:12, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
+        row_spec(1:8, extra_css = "border-bottom: 1px solid")
       )
 }
 ```
@@ -497,15 +516,23 @@ for(i in 1:length(xmlFiles)){
 if (heatMapRel){
   write("Numbers shown are percent relative to plate median",stdout());
 }
+
 for(i in 1:length(xmlFiles)){
-  well_order <- wellorder(runs[[i]]$samples, rowAnnotName, colAnnotName)
+  val <- matrixify(runs[[i]]$samples, rowAnnotName, colAnnotName)
+  vals<- unlist(as.list(t(val)))
+
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,1))
   digitsTotal <- 1
   digitsmCherry <- if(heatMapRel) 1 else 0
-  plateHeatmap(log2(colSums(runs[[i]]$Data, na.rm=TRUE)), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=digitsTotal,
-               well_order=well_order, relative=heatMapRel, cex.axis=0.5)
+  logVals <- log2(colSums(runs[[i]]$Data, na.rm=T))
+  val <- vals
+  val[which(!is.na(vals))] <- logVals
+  plateHeatmap(as.numeric(val), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=digitsTotal,
+               relative=heatMapRel, cex.axis=0.5)
   for (j in 1:length(ICs)){
-    plateHeatmap(runs[[i]]$Data[ICs[j],], title=paste0("Plate ", as.character(i),": ",  ICs[j]), cex=0.5, digits=digitsmCherry, well_order=well_order,relative=heatMapRel, cex.axis=0.5)
+    val <- vals
+    val[ which(!is.na(vals))] <- runs[[i]]$Data[ICs[j],]
+    plateHeatmap(as.numeric(val), title=paste0("Plate ", as.character(i),": ",  ICs[j]), cex=0.5, digits=digitsmCherry, relative=heatMapRel, cex.axis=0.5)
   }
 }
 ```
