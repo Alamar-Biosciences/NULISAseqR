@@ -525,13 +525,15 @@ for(i in 1:length(xmlFiles)){
   digitsTotal <- 1
   digitsmCherry <- if(heatMapRel) 1 else 0
   logVals <- log2(colSums(runs[[i]]$Data, na.rm=T))
+  well_order <- wellorder(runs[[i]]$sample, rowAnnotName, colAnnotName)
+  
   val <- vals
-  val[which(!is.na(vals))] <- logVals
+  val[which(!is.na(vals))] <- logVals[well_order]
   plateHeatmap(as.numeric(val), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=digitsTotal,
                relative=heatMapRel, cex.axis=0.5)
   for (j in 1:length(ICs)){
     val <- vals
-    val[ which(!is.na(vals))] <- runs[[i]]$Data[ICs[j],]
+    val[ which(!is.na(vals))] <- runs[[i]]$Data[ICs[j],][well_order]
     plateHeatmap(as.numeric(val), title=paste0("Plate ", as.character(i),": ",  ICs[j]), cex=0.5, digits=digitsmCherry, relative=heatMapRel, cex.axis=0.5)
   }
 }
