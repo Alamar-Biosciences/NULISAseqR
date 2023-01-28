@@ -4,15 +4,15 @@ params:
   IPC: !r c("IPC")
   NC: !r c("NC")
   Bridge: !r NULL
-  dataDir: !r '/Users/dkuo/Projects/NULISAseqR/data'
-  rowAnnotName: !r "Annot2"
-  colAnnotName: !r "Annot3"
-  plateAnnotName: !r "Annot1"
+  dataDir: "/Users/dkuo/Projects/NULISAseqR/data"
+  rowAnnotName: "Annot2"
+  colAnnotName: "Annot3"
+  plateAnnotName: "Annot1"
   heatMapRel: !r TRUE
-  study_name: !r "Study Name"
-  assayName: !r "NULISAseq 200-plex Inflammation Panel"
-  sample_desc: !r "This is a sample description"
-  goal_desc: !r "NULISAseq 200-plex inflammation panel"
+  study_name: "Study Name"
+  assayName: "NULISAseq 200-plex Inflammation Panel"
+  sample_desc: "This is a sample description"
+  goal_desc: "NULISAseq 200-plex inflammation panel"
   xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
   plateNames: !r c()
 output:
