@@ -105,7 +105,7 @@ NCBkgdLevels_XML <- function(Data, ICs, NCs){
                       )))
 }
 
-QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
+QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, xml=F){
   # Sample QC criteria
   MIN_FRAC_TARGETS_ABOVE_BKGD <- 0.8 # Minimim fraction (B): # Targets with reads above background / TotalReads
   MIN_FRAC_COGNATE_RATIO <- 0.9      # Minimum fraction (C): Cognate reads / total reads
@@ -116,58 +116,105 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
 }
 
 QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
-  QCFlagPlateXML <- newXMLNode("PlateQC")
+  QCFlagReturn <- newXMLNode("PlateQC")
 
   # Plate QC criteria
-  MAX_IC_CV <- 0.5                # (V) CV of number of IC reads across all samples
+  MAX_IC_CV <- 0.5                # (V) CV of IC reads across all samples
   MAX_IPC_CV <- 0.5               # (I) CV of total read count for each IPC sample
-#  MAX_NUM_NC_READ_FRACTION <- 0.1 # (N) Fraction of: NC_reads / total_cognate_reads
-#  MAX_UNPARSEABLE_FRACTION <- 0.5 # (U) Fraction of Non-ParseablerReads / Total Reads
   MAX_MEDIAN_IPC_TARGET_CV <- 0.2 # (P) Median of CVs of all IPC targets (Performed on normalized data) 
   DETECTABILITY_FRAC <- 0.75      # (D) Detectability fraction (target is detected if >50% of samples > LOD)
+  MIN_READS <- 5e5                #(R) Minimum number of reads
 
   # Calculate Plate-wide QC vals
   ## MAX_IC_CV (V)
   ICvals <- raw[ICs,]
   ICvals[is.na(ICvals)] <- 0
   IC_CV <- sd(ICvals) / mean(ICvals)
-  addChildren(QCFlagPlateXML, newXMLNode("QCFlag", IC_CV,
-                                         attrs=c(
-                                                name="V",
-                                                set=if(IC_CV > MAX_IC_CV) "T" else "F",
-                                                method="raw"
-                                                )
-              )
-  )
+  set <- if(IC_CV > MAX_IC_CV) "T" else "F"
+  if (xml){
+    addChildren(QCFlagReturn, newXMLNode("QCFlag", IC_CV,
+                                           attrs=c(
+                                                  name="V",
+                                                  set=set,
+                                                  method="raw"
+                                                  )
+                )
+    )
+  }else{
+    QCFlagReturn <- rbind(QCFlagReturn, c("V", "method", set, IC_CV))
+  }
 
   ## MAX_IPC_CV (I)
   IPCvals <- raw[, IPCs]
   IPCvals[is.na(IPCvals)] <- 0
   IPCvals2 <- colMeans(IPCvals)
   IPC_CV <- sd(IPCvals2) / mean(IPCvals2)
-  addChildren(QCFlagPlateXML, newXMLNode("QCFlag", IPC_CV,
+  set <- if(IPC_CV > MAX_IPC_CV) "T" else "F"
+  if(xml){
+    addChildren(QCFlagReturn, newXMLNode("QCFlag", IPC_CV,
                                          attrs=c(
                                                 name="I",
-                                                set=if(IPC_CV > MAX_IPC_CV) "T" else "F",
+                                                set=set,
                                                 method="raw"
                                                 )
-              )
-  )
+               )
+    )
+  }else{
+    QCFlagReturn <- rbind(QCFlagReturn, c("I", "raw", set, IPC_CV))
+  }
 
   ## MAX_MEDIAN_IPC_TARGET_CV (P)
   IPCnormvals <- normed[, IPCs]
   IPCnormvals[is.na(IPCvals)] <- 0
   median_IPC_targetCV <- median(apply(IPCnormvals, 1, sd) / rowMeans(IPCnormvals)) 
-  addChildren(QCFlagPlateXML, newXMLNode("QCFlag", median_IPC_targetCV,
+  set <- if(median_IPC_targetCV > MAX_MEDIAN_IPC_TARGET_CV) "T" else "F"
+  if(xml){
+    addChildren(QCFlagReturn, newXMLNode("QCFlag", median_IPC_targetCV,
                                          attrs=c(
                                                 name="P",
-                                                set=if(median_IPC_targetCV > MAX_MEDIAN_IPC_TARGET_CV) "T" else "F",
+                                                set=set,
                                                 method="IC"
                                                 )
-              )
-  )
+                )
+    )
+  }else{
+    QCFlagReturn <- rbind(QCFlagReturn, c("P", "IC", set, median_IPC_targetCV))
+  }
 
-  return(QCFlagPlateXML)
+  ## Detectability fraction (D)
+  set <- ""
+  if(xml){
+    addChildren(QCFlagReturn, newXMLNode("QCFlag", ,
+                                         attrs=c(
+                                                name="D",
+                                                set=set,
+                                                method="IC"
+                                                )
+                )
+    )
+  }else{
+    QCFlagReturn <- rbind(QCFlagReturn, c("D", "IC", set, ""))
+  }
+
+  ## Min number of reads (R)
+  set <- ""
+  if(xml){
+    addChildren(QCFlagReturn, newXMLNode("QCFlag", ,
+                                         attrs=c(
+                                                name="R",
+                                                set=set,
+                                                method="raw"
+                                                )
+                )
+    )
+  }else{
+    QCFlagReturn <- rbind(QCFlagReturn, c("R", "raw", set, ""))
+  }
+
+  if(!xml){
+    colnames(QCFlagReturn) <- c("Flag", "normalization", "set", "val")
+  }
+  return(QCFlagReturn)
 }
 
 #* Write Processed NULISAseq XML
