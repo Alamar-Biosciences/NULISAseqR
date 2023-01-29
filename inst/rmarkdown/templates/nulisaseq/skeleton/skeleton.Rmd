@@ -519,6 +519,15 @@ for(i in 1:length(params$xmlFiles)){
 ## Quality Control:
 
 ### QC Flags
+```{r, results='asis'}
+for( i in 1:length(runs)){
+  ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
+  IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
+  NCs  <- which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))
+  qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs)
+  qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs)
+}
+```
 
 ### Detectability table
 ```{r, results='asis'}
