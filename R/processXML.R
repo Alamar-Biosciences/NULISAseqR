@@ -88,7 +88,7 @@ bcodeB_XML <- function(samples, barcodeB=NULL){
   return(bcodeB)
 }
 
-NCBkgdLevels_XML <- function(Data, ICs, NCs){
+NCBkgdLevels_XML <- function(Data, targets, ICs, NCs){
   NCmeansRad <- rowMeans(Data[, NCs], na.rm=T)
   methodRad <- newXMLNode("Method", attrs=c(name="raw"))
 
@@ -140,15 +140,15 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
   bcodeB <- bcodeB_XML(samples, barcodeB)
 
   #NC Bkgd Levels
-  NCBkgdLevels <- NCBkgdLevels_XML(Data, ICs, NCs)
+  NCBkgdLevels <- NCBkgdLevels_XML(Data, targets, ICs, NCs)
   normedData <- intraPlateNorm(data_matrix=Data, method="IC", IC=ICs)
   base <- base_XML(ExecutionDetails, bcodeA, bcodeB, RunSummary)  
   data <- newXMLNode("Data")
   addChildren(base, addChildren(data, NCBkgdLevels))
   qcPlate <- QCFlagPlate(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs)
+  qcSample <- QCFlagSample(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs)
   addChildren(data, qcPlate)
 
-  qcSample <- QCFlagSample(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs)
   uniqSampleNames <- unique(samples$sampleName)
   for( i in 1:length(uniqSampleNames)){
     ind <- which(samples$sampleName == uniqSampleNames[i])
@@ -159,6 +159,10 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
                                              signal=samples$matching[ind[j]], 
                                              bkgd=samples$"non-matching"[ind[j]]) 
                         )
+      inds2 <- which(qcSample$sampleName == uniqSampleNames[i])
+      for (q in 1:length(inds2)){
+        addChildren(rep, QC2XML(qcSample[q,], sample=T))
+      }
       for (k in 1:2){
         name <- if(k == 1) "raw" else "IC"
         method <- newXMLNode("Method", attrs=c(name=name))
