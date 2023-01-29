@@ -1,25 +1,3 @@
-#' Write Sample QC table
-#'
-#' Writes NULISAseq QC sample flags 
-#' @param raw unnormalized data
-#' @param normednormalized data
-#' @param ICs indices of IC samples
-#' @param NCs indices of NC samples
-#' @param IPCs indices of IPC samples
-#' @return QC table
-#' @examples
-#' QCFlagSample(inputtable)
-#'
-#' @export
-QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
-  # Sample QC criteria
-  MIN_FRAC_TARGETS_ABOVE_LOD <- 0.8  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
-  MIN_IC_READS_PER_SAMPLE <- 1000    # Minimum number (ICReads) of IC reads within a sample
-  MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (ICReads) of IC reads within a sample
-  QCFlagSamples <- c()
-  return(QCFlagSamples)
-}
-
 #' Write Processed XML from QC table
 #'
 #' Writes NULISAseq QC flags to XML
@@ -46,6 +24,60 @@ QC2XML <- function(input, sample=F){
   return(QCFlagReturn)
 }
 
+#' Write Sample QC table
+#'
+#' Writes NULISAseq QC sample flags 
+#' @param raw unnormalized data
+#' @param normednormalized data
+#' @param ICs indices of IC samples
+#' @param NCs indices of NC samples
+#' @param IPCs indices of IPC samples
+#' @return QC table
+#' @examples
+#' QCFlagSample(inputtable)
+#'
+#' @export
+QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
+  columns <- c("sampleName", "flagName", "normMethod", "set", "val", "text")
+  QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
+  # Sample QC criteria
+  MIN_FRAC_TARGETS_ABOVE_LOD <- 0.8  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
+  MIN_IC_READS_PER_SAMPLE <- 1000    # Minimum number (ICReads) of IC reads within a sample
+  MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a sample
+
+  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
+  normed2 <- normed
+  normed2 <- normed2[-ICs, ]
+  lod <- lod(data_matrix=normed2, blanks=NCs, min_count=0)
+  lod$aboveLOD[which(is.na(lod$aboveLOD))] <- FALSE
+  perc_tar <- colSums(lod$aboveLOD == TRUE)/ nrow(lod$aboveLOD)
+  for (i in 1:length(perc_tar)){
+    set <- if(perc_tar[i] < MIN_FRAC_TARGETS_ABOVE_LOD) "Y" else "N"
+    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "TARGETS_ABOVE_LOD", "IC", set, perc_tar[i], ""))
+  }
+
+  
+  # Minimum number (ICReads) of IC reads within a sample
+  ICvals <- raw[ICs, ]
+  ICvals[is.na(ICvals)] <- 0
+  for (i in 1:length(ICvals)){
+    set <- if(ICvals[i] < MIN_IC_READS_PER_SAMPLE) "Y" else "N"
+    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], ""))
+  }
+
+  # Minimum number (NumReads) of reads within a sample
+  raw2 <- raw
+    write(capture.output(raw2), stdout())
+  raw2 <- raw2[,-NCs]
+  val <- colSums(raw2, na.rm=T)
+  for(i in 1:length(val)){
+    set <- if(val[i] < MIN_NUM_READS_PER_SAMPLE) "Y" else "N"
+    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], ""))
+  }
+  colnames(QCFlagReturn) <- columns
+  return(QCFlagReturn)
+}
+
 #' Write Plate QC table
 #'
 #' Writes NULISAseq QC plate flags 
@@ -64,7 +96,7 @@ QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
 
   # Plate QC criteria
-  MAX_IC_CV <- 0.5                # (ICREAD_CV) CV of IC reads across all samples
+  MAX_IC_CV <- 0.5                # (ICRead_CV) CV of IC reads across all samples
   MAX_IPC_CV <- 0.5               # (IPCRead_CV) CV of total read count for each IPC sample
   MAX_MEDIAN_IPC_TARGET_CV <- 0.2 # (IPCTarget_CV) Median of CVs of all IPC targets (Performed on normalized data) 
   DETECTABILITY_FRAC <- 0.75      # (Detectability) Target-wise Detectability fraction (target is detected if >50% of samples > LOD)
@@ -76,7 +108,7 @@ QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
   ICvals[is.na(ICvals)] <- 0
   IC_CV <- sd(ICvals, na.rm=T) / mean(ICvals, na.rm=T)
   set <- if(IC_CV > MAX_IC_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("ICREAD_CV", "raw", set, IC_CV, ""))
+  QCFlagReturn <- rbind(QCFlagReturn, c("ICRead_CV", "raw", set, IC_CV, ""))
 
   ## MAX_IPC_CV (I)
   IPCvals <- raw[, IPCs]
