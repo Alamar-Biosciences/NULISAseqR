@@ -107,101 +107,22 @@ NCBkgdLevels_XML <- function(Data, ICs, NCs){
                       )))
 }
 
-QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
-  # Sample QC criteria
-  MIN_FRAC_TARGETS_ABOVE_BKGD <- 0.8 # Minimim fraction (B): # Targets with reads above background / TotalReads
-  MIN_FRAC_COGNATE_RATIO <- 0.9      # Minimum fraction (C): Cognate reads / total reads
-  MIN_IC_READS_PER_SAMPLE <- 500.0   # Minimum number (I) of IC reads within a sample
-
-  QCFlagSamples <- c()
-  return(QCFlagSamples)
-}
-
-QC2XML <- function(input, sample=F){
-  name <- if(sample) "SampleQC" else "PlateQC"
-  QCFlagReturn <- newXMLNode(name)
-  for (i in 1:nrow(input)){
-    addChildren(QCFlagReturn, newXMLNode("QCFlag", input$val[i],
-                                           attrs=c(
-                                                  name=input$flagName[i],
-                                                  set=input$set[i],
-                                                  method=input$normMethod[i]
-                                                  )
-                )
-    )
-  }
-  return(QCFlagReturn)
-}
-
-QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
-  columns <- c("flagName", "normMethod", "set", "val", "text")
-  QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
-
-  # Plate QC criteria
-  MAX_IC_CV <- 0.5                # (V) CV of IC reads across all samples
-  MAX_IPC_CV <- 0.5               # (I) CV of total read count for each IPC sample
-  MAX_MEDIAN_IPC_TARGET_CV <- 0.2 # (P) Median of CVs of all IPC targets (Performed on normalized data) 
-  DETECTABILITY_FRAC <- 0.75      # (D) Target-wise Detectability fraction (target is detected if >50% of samples > LOD)
-  MIN_READS <- 5e5                #(R) Minimum number of reads
-
-  # Calculate Plate-wide QC vals
-  ## MAX_IC_CV (V)
-  ICvals <- raw[ICs,]
-  ICvals[is.na(ICvals)] <- 0
-  IC_CV <- sd(ICvals, na.rm=T) / mean(ICvals, na.rm=T)
-  set <- if(IC_CV > MAX_IC_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("V", "raw", set, IC_CV, ""))
-
-  ## MAX_IPC_CV (I)
-  IPCvals <- raw[, IPCs]
-  IPCvals[is.na(IPCvals)] <- 0
-  IPCvals2 <- colMeans(IPCvals, na.rm=T)
-  IPC_CV <- sd(IPCvals2, na.rm=T) / mean(IPCvals2, na.rm=T)
-  set <- if(IPC_CV > MAX_IPC_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("I", "raw", set, IPC_CV, ""))
-
-  ## MAX_MEDIAN_IPC_TARGET_CV (P)
-  IPCnormvals <- normed[, IPCs]
-  IPCnormvals[is.na(IPCvals)] <- 0
-  median_IPC_targetCV <- median(apply(IPCnormvals, 1, sd) / rowMeans(IPCnormvals, na.rm=T), na.rm=T) 
-  set <- if(median_IPC_targetCV > MAX_MEDIAN_IPC_TARGET_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("P", "IC", set, median_IPC_targetCV, ""))
-
-  ## Detectability fraction (D)
-  normed2 <- normed
-  normed2 <- normed2[-ICs,]
-  lod <- lod(data_matrix=normed2, blanks=NCs, min_count=0)
-  lod$aboveLOD[which(is.na(lod$aboveLOD))] <- FALSE
-  perc_tar <- rowSums(lod$aboveLOD == TRUE)/ ncol(lod$aboveLOD)
-  perc_all <- length(which(perc_tar > 0.5))/ nrow(lod$aboveLOD)
-  set <- if(perc_all < DETECTABILITY_FRAC) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("D", "IC", set, perc_all, ""))
-
-  ## Min number of reads (R)
-  nReads <- sum(raw, na.rm=T)
-  set <- if(nReads < MIN_READS) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("R", "raw", set, nReads, ""))
-
-  colnames(QCFlagReturn) <- columns
-  return(QCFlagReturn)
-}
-
-#* Write Processed NULISAseq XML
-#*
-#* Writes NULISAseq XML file with unnormalized / normalized data and QC flags
-#*
-#* @param xml_file:[file] Character string. Path and name of the file.
-#* @param IPC Name to search for Interprocess control (IPC) samples
-#* @param NC Name to search for Negative control (NC) samples
-#* @param IC Name to search for Internal Control (IC) targets
-#* @param barcodeB optional BarcodeB file
-#* @param out_XML optional output XML to write to
-#*
-#* @examples
-#* writeXML('filename.xml')
-#*
-#* @export
-#* @post /processXML
+#' Write Processed NULISAseq XML
+#'
+#' Writes NULISAseq XML file with unnormalized / normalized data and QC flags
+#'
+#' @param xml_file:[file] Character string. Path and name of the file.
+#' @param IPC Name to search for Interprocess control (IPC) samples
+#' @param NC Name to search for Negative control (NC) samples
+#' @param IC Name to search for Internal Control (IC) targets
+#' @param barcodeB optional BarcodeB file
+#' @param out_XML optional output XML to write to
+#'
+#' @examples
+#' writeXML('filename.xml')
+#'
+#' @export
+#' @post /processXML
 processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
   c(plateID, ExecutionDetails, RunSummary, targets, samples, Data) %<-%  
     readNULISAseq(in_xml_file,
