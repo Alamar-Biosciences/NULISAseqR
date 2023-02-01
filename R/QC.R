@@ -38,7 +38,7 @@ QC2XML <- function(input, sample=F){
 #'
 #' @export
 QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
-  columns <- c("sampleName", "flagName", "normMethod", "set", "val", "text")
+  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
   # Sample QC criteria
   MIN_FRAC_TARGETS_ABOVE_LOD <- 0.8  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
@@ -51,9 +51,10 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
   lod <- lod(data_matrix=normed2, blanks=NCs, min_count=0)
   lod$aboveLOD[which(is.na(lod$aboveLOD))] <- FALSE
   perc_tar <- colSums(lod$aboveLOD == TRUE)/ nrow(lod$aboveLOD)
+  perc_tar <- perc_tar[-NCs]
   for (i in 1:length(perc_tar)){
-    set <- if(perc_tar[i] < MIN_FRAC_TARGETS_ABOVE_LOD) "Y" else "N"
-    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "TARGETS_ABOVE_LOD", "IC", set, perc_tar[i], ""))
+    set <- if(perc_tar[i] < MIN_FRAC_TARGETS_ABOVE_LOD) "T" else "F"
+    QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "TARGETS_ABOVE_LOD", "IC", set, perc_tar[i], ""))
   }
 
   
@@ -61,17 +62,16 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
   ICvals <- raw[ICs, ]
   ICvals[is.na(ICvals)] <- 0
   for (i in 1:length(ICvals)){
-    set <- if(ICvals[i] < MIN_IC_READS_PER_SAMPLE) "Y" else "N"
+    set <- if(ICvals[i] < MIN_IC_READS_PER_SAMPLE) "T" else "F"
     QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], ""))
   }
 
   # Minimum number (NumReads) of reads within a sample
   raw2 <- raw
-    write(capture.output(raw2), stdout())
   raw2 <- raw2[,-NCs]
   val <- colSums(raw2, na.rm=T)
   for(i in 1:length(val)){
-    set <- if(val[i] < MIN_NUM_READS_PER_SAMPLE) "Y" else "N"
+    set <- if(val[i] < MIN_NUM_READS_PER_SAMPLE) "T" else "F"
     QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], ""))
   }
   colnames(QCFlagReturn) <- columns
@@ -92,7 +92,7 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
 #'
 #' @export
 QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
-  columns <- c("flagName", "normMethod", "set", "val", "text")
+  columns <- c("flagName", "normMethod", "status", "val", "text")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
 
   # Plate QC criteria
