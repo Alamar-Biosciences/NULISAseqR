@@ -149,6 +149,8 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
   for( i in 1:length(uniqSampleNames)){
     ind <- which(samples$sampleName == uniqSampleNames[i])
     sampleNode <- newXMLNode("Sample", attrs=c(name=uniqSampleNames[i], replicates=length(ind)))
+    combinedNode <- newXMLNode("Combined", attrs=c(name=uniqSampleNames[i], replicates=length(ind)))
+
     for (j in 1:length(ind)){
       rep <- newXMLNode("Replicate", attrs=c(
                                              name=samples$sampleBarcode[ind[j]],
@@ -156,8 +158,10 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
                                              bkgd=samples$"non-matching"[ind[j]]) 
                         )
       indQC <- which(qcSample$sampleBarcode == samples$sampleBarcode[ind[j]])
+      
       for (q in 1:length(indQC)){
         QC2XML(qcSample[indQC[q],], rep, sample=T)
+        QC2XML(qcSample[indQC[q],], combinedNode, sample=T, combined=T)
       }
       for (k in 1:2){
         name <- if(k == 1) "raw" else "IC"
@@ -179,13 +183,39 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
         addChildren(rep, method)
       }
       addChildren(sampleNode, rep)
-
-      #CalcQC
-      methodIC  <- newXMLNode("Method", attrs=c(name="IC")) 
-      methodRaw <- newXMLNode("Method", attrs=c(name="raw")) 
-      
     }
     addChildren(data, sampleNode)
+
+    ## Handle combining replicates here
+    dataCombined <- if(length(ind) > 1) cbind(rowMeans(Data[, ind],na.rm=T), Data[, NCs]) else cbind(Data[, ind], Data[, NCs])
+    normCombined <- if(length(ind) > 1) cbind(rowMeans(normedData$normData[, ind]), normedData$normData[, NCs]) else cbind(normedData$normData[, ind], normedData$normData[, NCs])
+    lodData <- lod(data_matrix=dataCombined, blanks=c(2:ncol(dataCombined)), min_count=0)
+    lodNorm <- lod(data_matrix=normCombined, blanks=c(2:ncol(normCombined)), min_count=0)
+    combRaw <- newXMLNode("Method", attrs=c(name="raw"))
+    combIC  <- newXMLNode("Method", attrs=c(name="IC"))
+    addChildren(combinedNode, combRaw)
+    addChildren(combinedNode, combIC) 
+    for (w in 1:nrow(dataCombined)){
+      val <- if (lodData$aboveLOD[w] && !is.na(lodData$aboveLOD[w])) "Y" else "N"
+      addChildren(combRaw, newXMLNode("Target",
+                                      attrs=c(
+                                              name=rownames(dataCombined)[w],
+                                              aboveBkgd=val
+                                              ),
+                                      dataCombined[w, 1]
+                                      )
+      )
+      val <- if (lodNorm$aboveLOD[w] && !is.na(lodNorm$aboveLOD[w])) "Y" else "N"
+      addChildren(combIC, newXMLNode("Target",
+                                      attrs=c(
+                                              name=rownames(normCombined)[w],
+                                              aboveBkgd=val
+                                              ),
+                                      normCombined[w, 1]
+                                      )
+      )
+    }
+    addChildren(sampleNode, combinedNode)
   }
   if(!is.null(out_XML)){
     cat(saveXML(base, indent=TRUE, prefix='<?xml version="1.0" encoding="UTF-8"?>\n'), file=out_XML)
