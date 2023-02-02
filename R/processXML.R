@@ -128,11 +128,6 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
     readNULISAseq(in_xml_file,
                   plateID="",
                   file_type='xml_no_mismatches')
-#  Data[is.na(Data)] <- 0
-#  IPC <- c('IPC') #"InterPlateControl"
-#  NC <- c('NC') #"NegativeControl"
-#  IC <- c("mCherry")
-#  Bridge <- c('Donor') #NULL
   IPCs <- which(grepl(paste(IPC, collapse="|"), colnames(Data)))
   NCs <- which(grepl(paste(NC, collapse="|"), colnames(Data)))
   ICs <- which(grepl(paste(IC, collapse="|"), rownames(Data)))
@@ -146,8 +141,9 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
   data <- newXMLNode("Data")
   addChildren(base, addChildren(data, NCBkgdLevels))
   qcPlate <- QCFlagPlate(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs)
-  qcSample <- QCFlagSample(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs)
-  addChildren(data, qcPlate)
+  qcSample <- QCFlagSample(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs, samples)
+  plateNode <- newXMLNode("PlateQC")
+  QC2XML(qcPlate, plateNode, sample=F)
 
   uniqSampleNames <- unique(samples$sampleName)
   for( i in 1:length(uniqSampleNames)){
@@ -159,9 +155,9 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
                                              signal=samples$matching[ind[j]], 
                                              bkgd=samples$"non-matching"[ind[j]]) 
                         )
-      inds2 <- which(qcSample$sampleName == uniqSampleNames[i])
-      for (q in 1:length(inds2)){
-        addChildren(rep, QC2XML(qcSample[q,], sample=T))
+      indQC <- which(qcSample$sampleBarcode == samples$sampleBarcode[ind[j]])
+      for (q in 1:length(indQC)){
+        QC2XML(qcSample[indQC[q],], rep, sample=T)
       }
       for (k in 1:2){
         name <- if(k == 1) "raw" else "IC"
@@ -192,7 +188,7 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
     addChildren(data, sampleNode)
   }
   if(!is.null(out_XML)){
-    write_xml(base, out_XML)
+    cat(saveXML(base, indent=TRUE, prefix='<?xml version="1.0" encoding="UTF-8"?>\n'), file=out_XML)
     return(NULL)
   }
   return(base)
