@@ -29,6 +29,6 @@ Reads NULISAseq XML file, where XML file is output from the Alamar
 Biosciences Galaxy NULISAseq (Beta) tool or the NULISAseq Normalization (Alpha) tool.
 }
 \examples{
-plate1 <- readNULISAseq('filename.xml')
+# plate1 <- readNULISAseq('filename.xml')
 
 }

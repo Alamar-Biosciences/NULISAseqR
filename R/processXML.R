@@ -119,7 +119,7 @@ NCBkgdLevels_XML <- function(Data, targets, ICs, NCs){
 #' @param out_XML optional output XML to write to
 #'
 #' @examples
-#' writeXML('filename.xml')
+#' # writeXML('filename.xml')
 #'
 #' @export
 #' @post /processXML
