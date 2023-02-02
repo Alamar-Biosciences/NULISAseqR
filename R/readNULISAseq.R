@@ -18,7 +18,7 @@
 #' Output will differ slightly depending on the input file type.
 #'
 #' @examples
-#' plate1 <- readNULISAseq('filename.xml')
+#' # plate1 <- readNULISAseq('filename.xml')
 #'
 #' @export
 #'
