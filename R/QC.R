@@ -8,17 +8,29 @@
 #' # QC2XML(inputtable)
 #'
 #' @export
-QC2XML <- function(input, QCNode, sample=F){
+QC2XML <- function(input, QCNode, sample=F, combined=F){
   for (i in 1:nrow(input)){
     if(sample){
-      addChildren(QCNode, newXMLNode("QCFlag", input$val[i],
+      if(combined){
+        addChildren(QCNode, newXMLNode("QCFlag", input$val[i],
+                                           attrs=c(
+                                                  name=input$flagName[i],
+                                                  set=input$status[i],
+                                                  method=input$normMethod[i],
+                                                  rep=input$sampleBarcode[i]
+                                                  )
+                )
+        )
+      }else{
+        addChildren(QCNode, newXMLNode("QCFlag", input$val[i],
                                            attrs=c(
                                                   name=input$flagName[i],
                                                   set=input$status[i],
                                                   method=input$normMethod[i]
                                                   )
                 )
-      )
+        )
+      }
     }else{
       addChildren(QCNode, newXMLNode("QCFlag", input$val[i],
                                            attrs=c(
