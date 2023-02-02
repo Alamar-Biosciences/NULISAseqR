@@ -1,0 +1,228 @@
+ <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="NULISAseq">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="ExecutionDetails">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="CommandLine"/>
+                            <xs:element name="ExecutionTime">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:double">
+                                            <xs:attribute name="unit" type="xs:string"/>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element type="xs:string" name="CommitID"/>
+                            <xs:element type="xs:string" name="Date"/>
+                            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/> 
+                            <xs:element type="xs:string" name="Normalize_CommitID"/>
+                            <xs:element type="xs:string" name="Normalize_Date"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="RunSummary">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Barcodes">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="BarcodeA">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element maxOccurs="unbounded" name="Barcode">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:string">
+                                                                    <xs:attribute name="name" type="xs:string" use="required"/>
+                                                                    <xs:anyAttribute processContents="skip"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="BarcodeB">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element maxOccurs="unbounded" name="Barcode">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:string">
+                                                                    <xs:attribute name="name" type="xs:string" use="required"/>
+                                                                    <xs:anyAttribute processContents="skip"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="Tags">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="TagA"/>
+                                        <xs:element type="xs:string" name="TagB"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element type="xs:unsignedLong" name="TotalReads"/>
+                            <xs:element type="xs:unsignedLong" name="Parseable"/>
+                            <xs:element type="xs:unsignedLong" name="ParseableMatch"/>
+                            <xs:element type="xs:unsignedLong" name="Unparseable"/>
+                            <xs:element name="Balancers" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element maxOccurs="unbounded" name="Balancer">
+                                            <xs:complexType>
+                                                <xs:simpleContent>
+                                                    <xs:extension base="xs:unsignedLong">
+                                                        <xs:attribute name="name" type="xs:string"/>
+                                                    </xs:extension>
+                                                </xs:simpleContent>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Data">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="NCBkgdLevels">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element maxOccurs="unbounded" name="Method">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="Target" maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:float">
+                                                                    <xs:attribute name="name" type="xs:string"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="name" type="xs:string"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element maxOccurs="unbounded" name="Sample">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="Replicate" minOccurs="1" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="QCFlag" maxOccurs="unbounded" minOccurs="0">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:decimal">
+                                                                    <xs:attribute name="name" type="xs:string"/>
+                                                                    <xs:attribute name="set" type="xs:string"/>
+                                                                    <xs:attribute name="method" type="xs:string"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                    <xs:element maxOccurs="unbounded" name="Method">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element name="Target" maxOccurs="unbounded">
+                                                                    <xs:complexType>
+                                                                        <xs:simpleContent>
+                                                                            <xs:extension base="xs:float">
+                                                                                <xs:attribute name="name" type="xs:string"/>
+                                                                                <xs:attribute name="aboveBkgd" type="xs:string"/>
+                                                                            </xs:extension>
+                                                                        </xs:simpleContent>
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                            </xs:sequence>
+                                                            <xs:attribute name="name" type="xs:string"/>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="signal" type="xs:string"/>
+                                                <xs:attribute name="bkgd" type="xs:string"/>
+                                                <xs:attribute name="name" type="xs:string"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="Combined">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="QCFlag" maxOccurs="unbounded" minOccurs="0">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:decimal">
+                                                                    <xs:attribute name="name" type="xs:string"/>
+                                                                    <xs:attribute name="replicate" type="xs:string"/>
+                                                                    <xs:attribute name="set" type="xs:string"/>
+                                                                    <xs:attribute name="rep" type="xs:string"/>
+                                                                    <xs:attribute name="method" type="xs:string"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                    <xs:element maxOccurs="unbounded" name="Method">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element name="Target" maxOccurs="unbounded">
+                                                                    <xs:complexType>
+                                                                        <xs:simpleContent>
+                                                                            <xs:extension base="xs:float">
+                                                                                <xs:attribute name="name" type="xs:string"/>
+                                                                                <xs:attribute name="aboveBkgd" type="xs:string"/>
+                                                                            </xs:extension>
+                                                                        </xs:simpleContent>
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                            </xs:sequence>
+                                                            <xs:attribute name="name" type="xs:string"/>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="replicates" type="xs:string"/>
+                                                <xs:attribute name="name" type="xs:string"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="name" type="xs:string"/>
+                                    <xs:attribute name="replicates" type="xs:string"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="PlateQC">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="QCFlag" maxOccurs="unbounded" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:decimal">
+                                            <xs:attribute name="name" type="xs:string"/>
+                                            <xs:attribute name="method" type="xs:string"/>
+                                            <xs:attribute name="set" type="xs:string"/>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

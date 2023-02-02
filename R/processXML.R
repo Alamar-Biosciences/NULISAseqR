@@ -4,12 +4,25 @@ base_XML <- function(ExecutionDetails, bcodeA, bcodeB, RunSummary){
     val <- if(length(ExecutionDetails[[i]]) == 1) ExecutionDetails[i] else ExecutionDetails[[i]][[1]]
     children <- c(children, newXMLNode(names(ExecutionDetails)[i], val))
   }
+  norm_ver <- "?"
+  norm_ver_file <- ".git/refs/heads/main"
+  if(file.exists(norm_ver_file)){
+    norm_ver <- paste(readLines(norm_ver_file), collapse="\n")
+  }else{
+    if (file.exists("main")){
+    norm_ver <- paste(readLines("main"), collapse="\n")
+    }
+  }
+
+  children <- c(children,
+                newXMLNode("Normalize_CommitID", norm_ver),
+                newXMLNode("Normalize_Date", toString(Sys.time()))
+                )
   return( newXMLNode("NULISAseq", 
                       .children=c(
                         newXMLNode("ExecutionDetails", 
                           .children=children
                         ),
-                        newXMLNode("plateID"),
                         newXMLNode("RunSummary",
                           .children=c(
                             newXMLNode("Barcodes", 
@@ -144,7 +157,7 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
   qcSample <- QCFlagSample(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs, samples)
   plateNode <- newXMLNode("PlateQC")
   QC2XML(qcPlate, plateNode, sample=F)
-
+  addChildren(base, plateNode)
   uniqSampleNames <- unique(samples$sampleName)
   for( i in 1:length(uniqSampleNames)){
     ind <- which(samples$sampleName == uniqSampleNames[i])
@@ -176,7 +189,7 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
                                             name=name,
                                             aboveBkgd=aboveLODval
                                           ),
-                                          vals[m]
+                                          if(is.na(vals[m])) 0 else vals[m]
                                         )
           )
         }
@@ -202,7 +215,7 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
                                               name=rownames(dataCombined)[w],
                                               aboveBkgd=val
                                               ),
-                                      dataCombined[w, 1]
+                                      if(is.na(dataCombined[w, 1])) 0 else dataCombined[w, 1]
                                       )
       )
       val <- if (lodNorm$aboveLOD[w] && !is.na(lodNorm$aboveLOD[w])) "Y" else "N"
@@ -211,7 +224,7 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
                                               name=rownames(normCombined)[w],
                                               aboveBkgd=val
                                               ),
-                                      normCombined[w, 1]
+                                      if(is.na(normCombined[w, 1])) 0 else normCombined[w, 1]
                                       )
       )
     }
