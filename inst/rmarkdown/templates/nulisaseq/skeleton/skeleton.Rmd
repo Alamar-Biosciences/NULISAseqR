@@ -547,7 +547,7 @@ for( i in 1:length(runs)){
 
   table.attr <- paste0("id=\"QCFlagSample-summary", i, "\"")
   # Sample QC
-  qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs)
+  qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples)
   qcSample$status[which(qcSample$status == "F")] <- "Pass"
   qcSample$status[which(qcSample$status == "T")] <- "Fail"
   inds <- which(qcSample$flagName=="TARGETS_ABOVE_LOD")
