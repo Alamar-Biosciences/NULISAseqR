@@ -8,20 +8,29 @@
 #' # QC2XML(inputtable)
 #'
 #' @export
-QC2XML <- function(input, sample=F){
-  name <- if(sample) "SampleQC" else "PlateQC"
-  QCFlagReturn <- newXMLNode(name)
+QC2XML <- function(input, QCNode, sample=F){
   for (i in 1:nrow(input)){
-    addChildren(QCFlagReturn, newXMLNode("QCFlag", input$val[i],
+    if(sample){
+      addChildren(QCNode, newXMLNode("QCFlag", input$val[i],
                                            attrs=c(
                                                   name=input$flagName[i],
-                                                  set=input$set[i],
+                                                  set=input$status[i],
                                                   method=input$normMethod[i]
                                                   )
                 )
-    )
+      )
+    }else{
+      addChildren(QCNode, newXMLNode("QCFlag", input$val[i],
+                                           attrs=c(
+                                                  name=input$flagName[i],
+                                                  set=input$status[i],
+                                                  method=input$normMethod[i]
+                                                  )
+                )
+      )
+    }
   }
-  return(QCFlagReturn)
+  return(QCNode)
 }
 
 #' Write Sample QC table
@@ -37,8 +46,8 @@ QC2XML <- function(input, sample=F){
 #' # QCFlagSample(inputtable)
 #'
 #' @export
-QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
-  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text")
+QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples){
+  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
   # Sample QC criteria
   MIN_FRAC_TARGETS_ABOVE_LOD <- 0.8  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
@@ -48,13 +57,14 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
   # Minimim fraction (Target_Detectability): # Targets with reads above LOD
   normed2 <- normed
   normed2 <- normed2[-ICs, ]
+  
   lod <- lod(data_matrix=normed2, blanks=NCs, min_count=0)
   lod$aboveLOD[which(is.na(lod$aboveLOD))] <- FALSE
   perc_tar <- colSums(lod$aboveLOD == TRUE)/ nrow(lod$aboveLOD)
   perc_tar <- perc_tar[-NCs]
   for (i in 1:length(perc_tar)){
     set <- if(perc_tar[i] < MIN_FRAC_TARGETS_ABOVE_LOD) "T" else "F"
-    QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "TARGETS_ABOVE_LOD", "IC", set, perc_tar[i], ""))
+    QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "TARGETS_ABOVE_LOD", "IC", set, perc_tar[i], "", samples$sampleBarcode[i]))
   }
 
   
@@ -63,16 +73,18 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
   ICvals[is.na(ICvals)] <- 0
   for (i in 1:length(ICvals)){
     set <- if(ICvals[i] < MIN_IC_READS_PER_SAMPLE) "T" else "F"
-    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], ""))
+    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[i]))
   }
 
   # Minimum number (NumReads) of reads within a sample
   raw2 <- raw
   raw2 <- raw2[,-NCs]
+  barNames <- samples$sampleBarcode
+  barNames <- barNames[-NCs] 
   val <- colSums(raw2, na.rm=T)
   for(i in 1:length(val)){
     set <- if(val[i] < MIN_NUM_READS_PER_SAMPLE) "T" else "F"
-    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], ""))
+    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], "", barNames[i]))
   }
   colnames(QCFlagReturn) <- columns
   return(QCFlagReturn)
