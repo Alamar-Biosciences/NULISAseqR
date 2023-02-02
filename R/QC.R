@@ -5,7 +5,7 @@
 #' @param sample whether the table is sample or plate
 #' @return QC XML
 #' @examples
-#' QC2XML(inputtable)
+#' # QC2XML(inputtable)
 #'
 #' @export
 QC2XML <- function(input, sample=F){
@@ -34,7 +34,7 @@ QC2XML <- function(input, sample=F){
 #' @param IPCs indices of IPC samples
 #' @return QC table
 #' @examples
-#' QCFlagSample(inputtable)
+#' # QCFlagSample(inputtable)
 #'
 #' @export
 QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
@@ -88,7 +88,7 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs){
 #' @param IPCs indices of IPC samples
 #' @return QC table
 #' @examples
-#' QCFlagPlate(inputtable)
+#' # QCFlagPlate(inputtable)
 #'
 #' @export
 QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){

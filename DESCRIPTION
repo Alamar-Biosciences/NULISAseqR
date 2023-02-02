@@ -10,7 +10,8 @@ License: MIT + file LICENSE
 Imports: 
     fields,
     xml2,
-    zeallot
+    zeallot,
+    XML
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
