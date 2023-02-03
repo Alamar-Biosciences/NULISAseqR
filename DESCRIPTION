@@ -8,6 +8,7 @@ Description: NULISAseqR package can load data from Galaxy XML output files.
     Includes functions to normalize, calculate CV, and visualize data, among others.
 License: MIT + file LICENSE
 Imports: 
+    future,
     fields,
     xml2,
     zeallot,

@@ -67,8 +67,12 @@ bcodeB_XML <- function(samples, barcodeB=NULL){
     }
   }
   barcodeB_file <- NULL
-  if(!is.null(barcodeB)){
-    barcodeB_file <- read.table(barcodeB, sep='\t', comment.char='&', header=T, na.strings=c())
+  if(!is.null(barcodeB) && barcodeB != ""){
+    if(file.exists(barcodeB)){
+      barcodeB_file <- read.table(barcodeB, sep='\t', comment.char='&', header=T, na.strings=c())
+    }else{
+      barcodeB_file <- read.table(text=barcodeB, sep='\t', comment.char='&', header=T, na.strings=c())
+    }
   }
   bcodeB <- newXMLNode("BarcodeB")
   for(i in 1:length(samples$sampleBarcode)){
@@ -135,10 +139,9 @@ NCBkgdLevels_XML <- function(Data, targets, ICs, NCs){
 #' # writeXML('filename.xml')
 #'
 #' @export
-#' @post /processXML
-processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
+processXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeControl"), IC=c("mCherry"), barcodeB="", out_XML=""){
   c(plateID, ExecutionDetails, RunSummary, targets, samples, Data) %<-%  
-    readNULISAseq(in_xml_file,
+    readNULISAseq(in_xml,
                   plateID="",
                   file_type='xml_no_mismatches')
   IPCs <- which(grepl(paste(IPC, collapse="|"), colnames(Data)))
@@ -230,9 +233,9 @@ processXML <- function(in_xml_file, IPC, NC, IC, barcodeB=NULL, out_XML=NULL){
     }
     addChildren(sampleNode, combinedNode)
   }
-  if(!is.null(out_XML)){
+  if(!is.null(out_XML) && out_XML != ""){
     cat(saveXML(base, indent=TRUE, prefix='<?xml version="1.0" encoding="UTF-8"?>\n'), file=out_XML)
-    return(NULL)
+    return(base)
   }
-  return(base)
+  return(saveXML(base, indent=F, prefix='<?xml version="1.0" encoding="UTF-8"?>\n'))
 }
