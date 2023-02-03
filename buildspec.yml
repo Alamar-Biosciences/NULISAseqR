@@ -1,0 +1,44 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: "us-west-1"
+    IMAGE_REPO_NAME: "nulisaseq_r"
+    IMAGE_TAG: "latest"
+    DOCKERHUB_REPO: "alamarbiosciences/nulisaseq_r"
+
+phases:
+
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR ...
+      - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_DEFAULT_REGION) $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+
+  build:
+    on-failure: ABORT
+    commands:
+      - echo Building the Docker image ...
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - echo Tagging the built Docker image ...
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Build and tagging complete with no errors!
+
+  post_build:
+    commands:
+      - echo Pushing the Docker image to ECR ...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Pushing to ECR complete!
+      - printf '[{"name":"%s", "imageUri":"%s"}]' $IMAGE_REPO_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+      - echo Login to DockerHub ...
+      - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
+      - echo Pushing the Docker image to DockerHub ...
+      - docker tag $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG $DOCKERHUB_REPO:$IMAGE_TAG
+      - docker push $DOCKERHUB_REPO:$IMAGE_TAG
+      - echo Pushing to DockerHub complete!
+      - echo Build, test and push to both ECR and DockerHub complete!
+
+artifacts:
+
+  files:
+    - "**/*"
+  discard-paths: no
