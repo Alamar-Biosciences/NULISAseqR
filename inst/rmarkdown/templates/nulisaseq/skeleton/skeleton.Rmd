@@ -539,7 +539,7 @@ for( i in 1:length(runs)){
   qcPlate$status[which(qcPlate$status == "T")] <- "Fail"
   qcPlate$val[1:nrow(qcPlate)-1] <- paste0(format(as.numeric(qcPlate$val[1:nrow(qcPlate)-1])*100, digits=2), "%")
   qcPlate$val[nrow(qcPlate)] <- format(as.numeric(qcPlate$val[nrow(qcPlate)]), big.mark=",")
-  cat(knitr::kable(qcPlate, caption=paste0("Plate ", as.character(i), ": QC Flag Plate Summary"), 
+  cat(knitr::kable(qcPlate, caption=paste0("Plate ", as.character(i), ": Plate QC Flag Summary"), 
                    align='r', format.args=list(big.mark = ",", digits=2), table.attr=table.attr) %>%
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
@@ -564,7 +564,7 @@ for( i in 1:length(runs)){
   qcSample <- qcSample[order(qcSample$sampleName),]
   rownames(qcSample) <- NULL
   qcSample <- qcSample %>% group_by(sampleName) %>% mutate(sampleName=replace(sampleName, duplicated(sampleName), ''))
-  cat(knitr::kable(qcSample, caption=paste0("Plate ", as.character(i), ": QC Flag Sample Summary"), 
+  cat(knitr::kable(qcSample, caption=paste0("Plate ", as.character(i), ": Sample QC Flag Summary"), 
                    align='r', format.args=list(big.mark = ",", digits=2), table.attr=table.attr) %>%
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
@@ -573,6 +573,8 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
+Detectability is percentage of samples above limit of detection (LOD). A target is "detectable" if at least 50% of samples are above LOD. 
+
 ```{r, results='asis'}
 # Detectability summary
 kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', 
