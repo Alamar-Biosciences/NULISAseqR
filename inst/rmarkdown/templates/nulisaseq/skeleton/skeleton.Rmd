@@ -384,7 +384,7 @@ for(i in 1:length(params$xmlFiles)){
   # remove ICs
   data_mCherry <- data_mCherry[!grepl(paste(params$IC, collapse="|"), rownames(data_mCherry)),]
   # log transform and scale
-  data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(intraPlateNormData[[i]]$mCherry$normData+0.01)),
+  data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry+0.01)),
                                            center=TRUE, scale=TRUE))
 }
 ```
@@ -404,7 +404,7 @@ title: `r title_var`
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
-  well_types <- list(Bridge_wells[[i]], IPC_wells[[i]], NC_wells[[i]])
+  well_types <- list(IPC_wells[[i]], NC_wells[[i]], Bridge_wells[[i]])
   for (j in 1:length(well_types)){
     if (j == 1 && is.null(params$Bridge)){
       next
@@ -662,8 +662,8 @@ for(i in 1:length(params$xmlFiles)){
   dev.off()
   well_types <- list(IPC_wells[[i]], NC_wells[[i]], Bridge_wells[[i]])
   colors <- wellcolors(data=corrvals$corr, 
-                         well_types=well_types, 
-                         boxplot_colors=boxplot_colors)
+                       well_types=well_types, 
+                       boxplot_colors=boxplot_colors)
   corrplot(corrvals$corr,
            tl.cex=0.4,
            mar=c(1,1,1,1),
@@ -677,22 +677,24 @@ for(i in 1:length(params$xmlFiles)){
 
 ### Sample and target clustering 
 ```{r, out.width='100%', fig.asp=1, results='asis'}
+# define colors
 paletteLength <- 50
-myColor <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
+heatmapColors <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
 for(i in 1:length(params$xmlFiles)){
-  well_types <- list(Bridge_wells[[i]], IPC_wells[[i]], NC_wells[[i]])
-  mycolors <- wellcolors(data_mCherry_log2_scaled[[i]], well_types, boxplot_colors)
-  myBreaks <- c(seq(min(data_mCherry_log2_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
-                seq(max(data_mCherry_log2_scaled[[i]])/paletteLength, max(data_mCherry_log2_scaled[[i]]), length.out=floor(paletteLength/2)))
+  well_types <- list(IPC_wells[[i]], NC_wells[[i]], Bridge_wells[[i]])
+  label_colors <- wellcolors(data=data_mCherry_log2_scaled[[i]], 
+                             well_types=well_types, 
+                             boxplot_colors=boxplot_colors)
+  breaks <- c(seq(min(data_mCherry_log2_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(data_mCherry_log2_scaled[[i]])/paletteLength, max(data_mCherry_log2_scaled[[i]]), length.out=floor(paletteLength/2)))
   data_mCherry_log2_scaled2 <- data.frame(t(data_mCherry_log2_scaled[[i]]))
-  data_mCherry_log2_scaled2$status <- rep(1, nrow(runs[[i]]$samples))
-  data_mCherry_log2_scaled2$colors <- mycolors
-  e <- pheatmap(data_mCherry_log2_scaled2[,1:(length(data_mCherry_log2_scaled2[1, ]) - 2)],
+  data_mCherry_log2_scaled2$colors <- label_colors
+  e <- pheatmap(data_mCherry_log2_scaled2[,1:(length(data_mCherry_log2_scaled2[1,]) - 2)],
                 main = paste("Plate", i), fontsize=5,
-                color=myColor,
-                breaks=myBreaks,
+                color=heatmapColors,
+                breaks=breaks,
                 show_colnames=FALSE, silent=TRUE)
-  cols <- data_mCherry_log2_scaled2[order(match(rownames(data_mCherry_log2_scaled2), e$gtable$grobs[[5]]$label)), ]$colors
+  cols <- data_mCherry_log2_scaled2[order(match(rownames(data_mCherry_log2_scaled2), e$gtable$grobs[[5]]$label)),]$colors
   e$gtable$grobs[[5]]$gp=gpar(col=cols)
   grid::grid.newpage()
   grid::grid.draw(e$gtable)
@@ -720,41 +722,41 @@ abline(v=c(0:16*5), col='grey', lty=3)
 ```
 
 ```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
-pandoc.header("Sample PCA", 3)
-doPCA <- function(data, plateVar, normed=FALSE, scale=FALSE, center=FALSE, title="Unnormalized"){
-  pca <- if(normed) prcomp(t(data), scale=scale, center=center) else prcomp(log2(t(data)+0.01), scale=scale, center=center)
-  par(mar=c(4,4,2,5))
-  plot(pca$x[,1], pca$x[,2], 
-       col=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
-       pch=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
-       xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), '% variance)'), 
-       ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), '% variance)'), 
-       main=title, las=1, cex=0.5)
-  legend(par('usr')[2], par('usr')[4], levels(factor(plateVar)),
-         col=1:length(levels(factor(plateVar))), xpd=NA,
-         pch=1:length(levels(factor(plateVar))), cex=0.75, bty='n')
-  return(NULL)
-}
+# pandoc.header("Sample PCA", 3)
+# doPCA <- function(data, plateVar, normed=FALSE, scale=FALSE, center=FALSE, title="Unnormalized"){
+#   pca <- if(normed) prcomp(t(data), scale=scale, center=center) else prcomp(log2(t(data)+0.01), scale=scale, center=center)
+#   par(mar=c(4,4,2,5))
+#   plot(pca$x[,1], pca$x[,2], 
+#        col=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
+#        pch=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
+#        xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), '% variance)'), 
+#        ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), '% variance)'), 
+#        main=title, las=1, cex=0.5)
+#   legend(par('usr')[2], par('usr')[4], levels(factor(plateVar)),
+#          col=1:length(levels(factor(plateVar))), xpd=NA,
+#          pch=1:length(levels(factor(plateVar))), cex=0.75, bty='n')
+#   return(NULL)
+# }
+# 
+# removeTargetsSamples <- function(data, NC, IPC, Bridge){
+#   data <- data[-which(grepl("mCherry", rownames(data))),]
+#   data <- data[,-which(grepl(paste(c(NC, IPC, Bridge), collapse="|"), colnames(data)))]
+#   return(data)
+# }
+# 
+# dataPCAunnormal <- dataPCAnormed <- dataPCAnormedIPC <- dataPCAnormedIN <-plateVar <- NULL
+# for(i in 1:length(params$xmlFiles)){
+#   dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, params$NC, params$IPC, params$Bridge))
+#   dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge))
+#   dataPCAnormedIPC <- cbind(dataPCAnormedIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], params$NC, params$IPC, params$Bridge))
+#   dataPCAnormedIN <- cbind(dataPCAnormedIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], params$NC, params$IPC, params$Bridge))
+#   plateVar <- c(plateVar, rep(paste0("Plate",i),length(removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge)[1,])))
+# }
 
-removeTargetsSamples <- function(data, NC, IPC, Bridge){
-  data <- data[-which(grepl("mCherry", rownames(data))),]
-  data <- data[,-which(grepl(paste(c(NC, IPC, Bridge), collapse="|"), colnames(data)))]
-  return(data)
-}
-
-dataPCAunnormal <- dataPCAnormed <- dataPCAnormedIPC <- dataPCAnormedIN <-plateVar <- NULL
-for(i in 1:length(params$xmlFiles)){
-  dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, params$NC, params$IPC, params$Bridge))
-  dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge))
-  dataPCAnormedIPC <- cbind(dataPCAnormedIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], params$NC, params$IPC, params$Bridge))
-  dataPCAnormedIN <- cbind(dataPCAnormedIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], params$NC, params$IPC, params$Bridge))
-  plateVar <- c(plateVar, rep(paste0("Plate",i),length(removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge)[1,])))
-}
-
-par(mfrow=c(2,2))
-e <- doPCA(dataPCAunnormal, plateVar, normed=FALSE, scale=TRUE, center=TRUE, title="Unnormalized")
-e <- doPCA(dataPCAnormed, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry")
-e <- doPCA(dataPCAnormedIPC, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IPC")
-e <- doPCA(dataPCAnormedIN, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IN")
+# par(mfrow=c(2,2))
+# e <- doPCA(dataPCAunnormal, plateVar, normed=FALSE, scale=TRUE, center=TRUE, title="Unnormalized")
+# e <- doPCA(dataPCAnormed, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry")
+# e <- doPCA(dataPCAnormedIPC, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IPC")
+# e <- doPCA(dataPCAnormedIN, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IN")
 ```
 
