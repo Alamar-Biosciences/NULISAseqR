@@ -4,6 +4,7 @@ params:
   IPC: !r c("IPC")
   NC: !r c("NC")
   Bridge: !r NULL
+  SC: !r c("IPC")
   dataDir: "/Users/jbeer/github/TAP-COVID/data"
   rowAnnotName: "Annot2"
   colAnnotName: "Annot3"
@@ -174,38 +175,33 @@ if(!is.null(params$Bridge)){
 ```
 
 ```{r, include=FALSE}
-# do inter-plate bridge sample normalization 
-
-```
-
-```{r, include=FALSE}
-# calculate intra-plate CVs unnormalized
-# using the sample controls 
-
+# calculate intra-plate CVs using sample controls
 intraCV_unnorm <- NULL
 intraCV_mCherry <- NULL
 for (i in 1:length(params$xmlFiles)){
-  sc <- rep(NA, nrow(runs[[i]]$samples))
-  sc[colnames(runs[[i]]$Data) %in% IPC_wells[[i]]]<- 'SC'
+  sample_controls <- rep(NA, nrow(runs[[i]]$samples))
+  sample_control_wells <- runs[[i]]$samples$sampleName[which(grepl(paste(params$SC, collapse="|"), runs[[i]]$samples$sampleName))]
+  sample_controls[colnames(runs[[i]]$Data) %in% sample_control_wells] <- 'SC'
+  # unnormalized intraCV
   plate_unnorm_intraCV <- intraCV(data_matrix=runs[[i]]$Data,
-                                  samples=sc,
+                                  samples=sample_controls,
                                   aboveLOD=plate_lod[[i]]$aboveLOD,
                                   exclude_targets=ICs)
   # combine plates into one matrix
   intraCV_unnorm <- cbind(intraCV_unnorm, plate_unnorm_intraCV) 
+  # mCherry intraCV
   plate_mCherry_intraCV <- intraCV(data_matrix=intraPlateNormData[[i]]$mCherry$normData,
-                                   samples=sc,
+                                   samples=sample_controls,
                                    aboveLOD=plate_lod[[i]]$aboveLOD,
                                    exclude_targets=ICs)
+  # combine plates into one matrix
   intraCV_mCherry <- cbind(intraCV_mCherry, plate_mCherry_intraCV)
 }
 
 colnames(intraCV_unnorm) <- PlateNames
-
-# calculate intra-plate CVs mCherry
 colnames(intraCV_mCherry) <- PlateNames
 
-# create intra-plate CV table
+# create intra-plate CV table -- unnormalized
 intraCV_unnorm_summary_table <- cbind(colMeans(intraCV_unnorm, na.rm=TRUE),
                                       apply(intraCV_unnorm, 2, sd, na.rm=TRUE),
                                       apply(intraCV_unnorm, 2, median, na.rm=TRUE),
@@ -215,11 +211,10 @@ intraCV_unnorm_summary_table <- cbind(colMeans(intraCV_unnorm, na.rm=TRUE),
                                         sum(is.na(x))
                                       }))
 
-
 rownames(intraCV_unnorm_summary_table) <- PlateNames
 colnames(intraCV_unnorm_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
 
-# create intra-plate CV table
+# create intra-plate CV table -- mCherry
 intraCV_mCherry_summary_table <- cbind(colMeans(intraCV_mCherry, na.rm=TRUE),
                                        apply(intraCV_mCherry, 2, sd, na.rm=TRUE),
                                        apply(intraCV_mCherry, 2, median, na.rm=TRUE),
