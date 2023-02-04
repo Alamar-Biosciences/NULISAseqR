@@ -114,6 +114,21 @@ read_summary <- t(read_summary)
 ```
 
 ```{r, include=FALSE}
+# do intra-plate normalizations
+intraPlateNormData <- vector("list", length(params$xmlFiles))
+for (i in 1:length(params$xmlFiles)){
+  intraPlateNormData[[i]] <- vector("list", length(ICs))
+  for (j in 1:length(ICs)){
+    intraPlateNormData[[i]][[j]] <- intraPlateNorm(data_matrix=runs[[i]]$Data,
+                               method="IC",
+                               IC=ICs[j])
+  }
+  names(intraPlateNormData[[i]]) <- ICs
+}
+names(intraPlateNormData) <- xmlFilePlateNames
+```
+
+```{r, include=FALSE}
 run_lod <- vector('list',length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
   # calculate LODs 
@@ -126,27 +141,12 @@ for (i in 1:length(params$xmlFiles)){
 ```
 
 ```{r, include=FALSE}
-# do intra-plate normalizations
-plateNorms <- vector("list", length(params$xmlFiles))
-for (i in 1:length(params$xmlFiles)){
-  plateNorms[[i]] <- vector("list", length(ICs))
-  for (j in 1:length(ICs)){
-    plateNorms[[i]][[j]] <- intraPlateNorm(data_matrix=runs[[i]]$Data,
-                               method="IC",
-                               IC=ICs[j])
-  }
-  names(plateNorms[[i]]) <- ICs
-}
-names(plateNorms) <- xmlFilePlateNames
-```
-
-```{r, include=FALSE}
 # do inter-plate normalization 
 
 normData <- list()
 IPC_wells <- NC_wells <- Bridge_wells <- IPC_wells_orig <- NC_wells_orig <- Bridge_wells_orig <- list(list())
 for (i in 1:length(params$xmlFiles)){
-  normData[[i]] <- plateNorms[[i]]$mCherry$normData
+  normData[[i]] <- intraPlateNormData[[i]]$mCherry$normData
   IPC_wells_orig[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))]
   if(!is.null(params$Bridge)){
     Bridge_wells_orig[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(params$Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
@@ -205,7 +205,7 @@ for (i in 1:length(params$xmlFiles)){
                                  exclude_targets=ICs)
 # combine plates into one matrix
   intraCV_unnorm <- cbind(intraCV_unnorm, plate_unnorm_intraCV) 
-  plate_mCherry_intraCV <- intraCV(data_matrix=plateNorms[[i]]$mCherry$normData,
+  plate_mCherry_intraCV <- intraCV(data_matrix=intraPlateNormData[[i]]$mCherry$normData,
                                   samples=sc,
                                   aboveLOD=run_lod[[i]]$aboveLOD,
                                   exclude_targets=ICs)
@@ -263,7 +263,7 @@ for(i in 1:length(params$xmlFiles)){
   plateData[[i]] <- runs[[i]]$Data
   aboveLOD[[i]] <- run_lod[[i]]$aboveLOD
   exclude_targets[[i]] <- ICs
-  plate_mCherry[[i]] <- plateNorms[[i]]$mCherry$normData
+  plate_mCherry[[i]] <- intraPlateNormData[[i]]$mCherry$normData
 }
 interCV_unnorm <- interCV(data_list=plateData,
                           samples=scs,
@@ -355,7 +355,7 @@ if(length(Bridge_wells[[1]])){
 detectability_summary <- list()
 detectability_tar <- NULL
 for (i in 1:length(params$xmlFiles)){
-  detect_samples <- colnames(plateNorms[[i]]$mCherry$normData)
+  detect_samples <- colnames(intraPlateNormData[[i]]$mCherry$normData)
   detect_samples <- detect_samples[-which(grepl(paste(params$IPC, collapse="|"), detect_samples))]
   detect_samples <- detect_samples[-which(grepl(paste(params$NC, collapse="|"), detect_samples))]
   if(!is.null(params$Bridge)){
@@ -390,7 +390,7 @@ colnames(detectability_tar) <- PlateNames
 # sample clustering
 data_mCherry_scaled <- list(list())
 for(i in 1:length(params$xmlFiles)){
-  data_mCherry_scaled[[i]] <- scale(log2(plateNorms[[i]]$mCherry$normData+0.01))
+  data_mCherry_scaled[[i]] <- scale(log2(intraPlateNormData[[i]]$mCherry$normData+0.01))
 #  colnames(data_mCherry_scaled[[i]]) <- paste0(sample_info$personID, '_', 
 #                                        sample_info$sample, 
 #                                        '_',
