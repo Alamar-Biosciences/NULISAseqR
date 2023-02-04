@@ -11,8 +11,8 @@ params:
   heatMapRel: !r TRUE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
-  sample_desc: "This is a sample description"
-  goal_desc: "NULISAseq 200-plex inflammation panel"
+  sample_desc: "This is a sample description."
+  goal_desc: "NULISAseq 200-plex Inflammation panel"
   xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
   plateNames: !r c()
 output:
@@ -35,20 +35,17 @@ library(dplyr)
 ```
 
 ```{r, include=FALSE}
-###############################################################################
-# Function for colorizing wells
-###############################################################################
-
+# function for colorizing wells
 wellorder <- function(samples, rowAnnotName, colAnnotName){
   cmd <- paste0("samples$", colAnnotName)
   cols <- eval(parse(text=cmd))
-  cols <- formatC( as.numeric(cols), width=2, flag=0)
+  cols <- formatC(as.numeric(cols), width=2, flag=0)
   cmd <- paste0("samples$", rowAnnotName)
-  inds <- sort(paste0(eval(parse(text=cmd)), cols), index.return=T)
+  inds <- sort(paste0(eval(parse(text=cmd)), cols), index.return=TRUE)
   return(inds$ix)
 }
 
-matrixify <- function(runSamples, rowAnnotName, colAnnotName, plate=F){
+matrixify <- function(runSamples, rowAnnotName, colAnnotName, plate=FALSE){
   val <- matrix(rep(NA, 96), nrow=8)
   colnames(val) <- 1:12
   rownames(val) <- LETTERS[1:8]
@@ -413,7 +410,7 @@ title: `r title_var`
 ## Plate layout
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
-  val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=T)
+  val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
   B_well_orig <- if (!is.null(params$Bridge)) Bridge_wells_orig[[i]] else NULL
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   for (j in 1:length(well_types)){
@@ -427,7 +424,7 @@ for(i in 1:length(params$xmlFiles)){
   }
   val <- gsub('_', ' ', val) # replace underscore with space
   table.attr <- paste0("id=\"plate-summary", i, "\"")
-  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c", escape=F, table.attr=table.attr) %>%
+  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c", escape=FALSE, table.attr=table.attr) %>%
       kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
       column_spec(column=1:12, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
         row_spec(1:8, extra_css = "border-bottom: 1px solid")
@@ -440,7 +437,7 @@ for(i in 1:length(params$xmlFiles)){
 ## Read summary
 ```{r, results='asis'}
 knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ","), table.attr="id=\"read-summary\"") %>% 
-  kable_styling(bootstrap_options=c("striped", "hover", "condensed"), full_width=T)
+  kable_styling(bootstrap_options=c("striped", "hover", "condensed"), full_width=TRUE)
 ```
 
 ---
@@ -500,7 +497,7 @@ for(i in 1:length(params$xmlFiles)){
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,1))
   digitsTotal <- 1
   digitsmCherry <- if(params$heatMapRel) 1 else 0
-  logVals <- log2(colSums(runs[[i]]$Data, na.rm=T))
+  logVals <- log2(colSums(runs[[i]]$Data, na.rm=TRUE))
   well_order <- wellorder(runs[[i]]$sample, params$rowAnnotName, params$colAnnotName)
   
   val <- vals
@@ -591,12 +588,12 @@ knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', table.attr="i
 ```{r, out.width='100%', fig.asp=0.5}
 intraCV_mCherry2 <- intraCV_mCherry
 colnames(intraCV_mCherry2) <- paste0("*", colnames(intraCV_mCherry))
-intraCV_vals <- t(interleave(t(intraCV_unnorm), t(intraCV_mCherry2), drop=F))
+intraCV_vals <- t(interleave(t(intraCV_unnorm), t(intraCV_mCherry2), drop=FALSE))
 col <- alamarColorPalette(ceiling(length(intraCV_vals[1,])/2))
 boxplot(intraCV_vals
         , las=1, xlab='intra-plate CV (%)',
         ylim=c(0, max(c(intraCV_vals), na.rm=TRUE)),
-        main='Intra-plate CV (* - Normalized)', horizontal=T, cex.axis=0.5, lex.order=T,
+        main='Intra-plate CV (* - Normalized)', horizontal=TRUE, cex.axis=0.5, lex.order=TRUE,
         col=interleave(col,col))
 abline(v=c(0:8*5), col='grey', lty=3)
 ```
@@ -611,7 +608,7 @@ sampleboxplot <- function( data, ordering, label, plate_sample_colors, boxplot_c
           ylab='',
           main=paste0("Plate ", as.character(i), ": ", label),
           outcex=0.5,
-          col=plate_sample_colors, horizontal=T, cex=0.5)
+          col=plate_sample_colors, horizontal=TRUE, cex=0.5)
   for (j in 1:ncol(data)){
     color <- if(plate_sample_colors[j] == boxplot_colors[1]) "black" else plate_sample_colors[j]
     axis(2, at=j, labels=colnames(data)[ordering[j]], cex.axis=0.3, las=2, col.axis=color, tck=-0.01)
@@ -697,7 +694,7 @@ for(i in 1:length(params$xmlFiles)){
          main = paste("Plate", i), fontsize=5,
          color=myColor,
          breaks=myBreaks,
-         show_colnames=FALSE, silent=T)
+         show_colnames=FALSE, silent=TRUE)
   cols <- data_mCherry_scaled2[order(match(rownames(data_mCherry_scaled2), e$gtable$grobs[[5]]$label)), ]$colors
   e$gtable$grobs[[5]]$gp=gpar(col=cols)
   grid::grid.newpage()
@@ -719,13 +716,13 @@ knitr::kable(interCV_summary_table, caption='', align='r', table.attr="id=\"inte
 pandoc.header("Inter-plate CV boxplot", 3)
 par(mar=c(5,12,1,1))
 boxplot(interCV_results, las=1, xlab='inter-plate CV (%)',
-        ylim=c(0, max(interCV_results, na.rm=TRUE)), col=alamarColorPalette(5), horizontal=T)
+        ylim=c(0, max(interCV_results, na.rm=TRUE)), col=alamarColorPalette(5), horizontal=TRUE)
 abline(v=c(0:16*5), col='grey', lty=3)
 ```
 
 ```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
 pandoc.header("Sample PCA", 3)
-doPCA <- function(data, plateVar, normed=F, scale=F, center=F, title="Unnormalized"){
+doPCA <- function(data, plateVar, normed=FALSE, scale=FALSE, center=FALSE, title="Unnormalized"){
   pca <- if(normed) prcomp(t(data), scale=scale, center=center) else prcomp(log2(t(data)+0.01), scale=scale, center=center)
   par(mar=c(4,4,2,5))
   plot(pca$x[,1], pca$x[,2], 
@@ -756,9 +753,9 @@ for(i in 1:length(params$xmlFiles)){
 }
 
 par(mfrow=c(2,2))
-e <- doPCA(dataPCAunnormal, plateVar, normed=F, scale=T, center=T, title="Unnormalized")
-e <- doPCA(dataPCAnormed, plateVar, normed=T, scale=T, center=T, title="mCherry")
-e <- doPCA(dataPCAnormedIPC, plateVar, normed=T, scale=T, center=T, title="mCherry + IPC")
-e <- doPCA(dataPCAnormedIN, plateVar, normed=T, scale=T, center=T, title="mCherry + IN")
+e <- doPCA(dataPCAunnormal, plateVar, normed=FALSE, scale=TRUE, center=TRUE, title="Unnormalized")
+e <- doPCA(dataPCAnormed, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry")
+e <- doPCA(dataPCAnormedIPC, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IPC")
+e <- doPCA(dataPCAnormedIN, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IN")
 ```
 
