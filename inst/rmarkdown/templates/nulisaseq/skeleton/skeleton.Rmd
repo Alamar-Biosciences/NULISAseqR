@@ -116,9 +116,6 @@ read_summary <- t(read_summary)
 ```{r, include=FALSE}
 run_lod <- vector('list',length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
-  # replace NAs with 0
-  runs[[i]]$Data[is.na(runs[[i]]$Data)] <- 0
-
   # calculate LODs 
   NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))]
   if (xmlFilePlateNames[i] != ""){
