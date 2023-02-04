@@ -179,6 +179,7 @@ if(!is.null(params$Bridge)){
 intraCV_unnorm <- NULL
 intraCV_mCherry <- NULL
 for (i in 1:length(params$xmlFiles)){
+  # define sample control vector
   sample_controls <- rep(NA, nrow(runs[[i]]$samples))
   sample_control_wells <- runs[[i]]$samples$sampleName[which(grepl(paste(params$SC, collapse="|"), runs[[i]]$samples$sampleName))]
   sample_controls[colnames(runs[[i]]$Data) %in% sample_control_wells] <- 'SC'
@@ -229,64 +230,63 @@ colnames(intraCV_mCherry_summary_table) <- c('mean', 'sd', 'median', 'min', 'max
 ```
 
 ```{r, include=FALSE}
-# calculate inter-plate CVs 
-# using individual replicates
-
-# run-run plates 1-6
-# un-normalized data
-scs <- vector("list", length(params$xmlFiles))
+# calculate inter-plate CVs using sample controls
+sampleControlList <- vector("list", length(params$xmlFiles))
 plateData <- vector("list", length(params$xmlFiles))
 aboveLOD <- vector("list", length(params$xmlFiles))
 exclude_targets <- vector("list", length(params$xmlFiles))
 plate_mCherry <- vector("list", length(params$xmlFiles))
 for(i in 1:length(params$xmlFiles)){
-  sc <- rep(NA, nrow(runs[[i]]$samples))
-  sc[colnames(runs[[i]]$Data) %in% IPC_wells[[i]]]<- 'SC'
-  scs[[i]] <- sc
+  # define sample control vector
+  sample_controls <- rep(NA, nrow(runs[[i]]$samples))
+  sample_control_wells <- runs[[i]]$samples$sampleName[which(grepl(paste(params$SC, collapse="|"), runs[[i]]$samples$sampleName))]
+  sample_controls[colnames(runs[[i]]$Data) %in% sample_control_wells] <- 'SC'
+  sampleControlList[[i]] <- sample_controls
   plateData[[i]] <- runs[[i]]$Data
+  plate_mCherry[[i]] <- intraPlateNormData[[i]]$mCherry$normData
   aboveLOD[[i]] <- plate_lod[[i]]$aboveLOD
   exclude_targets[[i]] <- ICs
-  plate_mCherry[[i]] <- intraPlateNormData[[i]]$mCherry$normData
 }
+
+# unnormalized interCV
 interCV_unnorm <- interCV(data_list=plateData,
-                          samples=scs,
+                          samples=sampleControlList,
                           aboveLOD=aboveLOD,
                           exclude_targets=exclude_targets,
                           useMean=FALSE)
 
-# mCherry normalized data
+# mCherry interCV
 interCV_mCherry <- interCV(data_list=plate_mCherry,
-                           samples=scs,
+                           samples=sampleControlList,
                            aboveLOD=aboveLOD,
                            exclude_targets=exclude_targets,
                            useMean=FALSE)
 
-# mCherry + IPC normalized data
+# mCherry + IPC interCV
 interCV_mCherry_IPC <- interCV(data_list=mCherry_IPC$interNormData,
-                               samples=scs,
+                               samples=sampleControlList,
                                aboveLOD=aboveLOD,
                                exclude_targets=exclude_targets,
                                useMean=FALSE)
 
-# mCherry + IN normalized data
+# mCherry + IN interCV
 interCV_mCherry_IN <- interCV(data_list=mCherry_IN$interNormData,
-                              samples=scs,
+                              samples=sampleControlList,
                               aboveLOD=aboveLOD,
                               exclude_targets=exclude_targets,
                               useMean=FALSE)
 
-# mCherry + bridge sample normalized data
-if(length(Bridge_wells[[1]])){
+# mCherry + bridge interCV
+if(!is.null(params$Bridge)){
   interCV_mCherry_bridge <- interCV(data_list=mCherry_bridge$interNormData,
-                                    samples=scs,
+                                    samples=sampleControlList,
                                     aboveLOD=aboveLOD,
                                     exclude_targets=exclude_targets,
                                     useMean=FALSE)
 }
 
 # combine results into one matrix
-interCV_results <- NULL
-if(length(Bridge_wells[[1]])){
+if(!is.null(params$Bridge)){
   interCV_results <- cbind(interCV_unnorm,
                            interCV_mCherry,
                            interCV_mCherry_IPC,
@@ -297,12 +297,11 @@ if(length(Bridge_wells[[1]])){
                                  'mCherry + IPC',
                                  'mCherry + IN',
                                  'mCherry + bridge')
-}else{
+} else {
   interCV_results <- cbind(interCV_unnorm,
                            interCV_mCherry,
                            interCV_mCherry_IPC,
                            interCV_mCherry_IN)
-  
   colnames(interCV_results) <- c('unnorm',
                                  'mCherry',
                                  'mCherry + IPC',
@@ -318,18 +317,20 @@ interCV_summary_table <- cbind(colMeans(interCV_results, na.rm=TRUE),
                                apply(interCV_results, 2, function(x){
                                  sum(is.na(x))
                                }))
-if(length(Bridge_wells[[1]])){
+
+if(!is.null(params$Bridge)){
   rownames(interCV_summary_table) <- c('unnorm',
                                        'mCherry',
                                        'mCherry + IPC',
                                        'mCherry + IN',
                                        'mCherry + bridge')
-} else{
+} else {
   rownames(interCV_summary_table) <- c('unnorm',
                                        'mCherry',
                                        'mCherry + IPC',
                                        'mCherry + IN')
 }
+
 colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
 ```
 
