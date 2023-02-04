@@ -114,7 +114,7 @@ read_summary <- t(read_summary)
 ```
 
 ```{r, include=FALSE}
-# do intra-plate normalizations
+# do intra-plate normalization
 intraPlateNormData <- vector("list", length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
   intraPlateNormData[[i]] <- vector("list", length(ICs))
@@ -129,14 +129,12 @@ names(intraPlateNormData) <- xmlFilePlateNames
 ```
 
 ```{r, include=FALSE}
-run_lod <- vector('list',length(params$xmlFiles))
+# calculate LOD on the IC normalized data
+# use 1st IC as the primary IC (should be mCherry)
+plate_lod <- vector('list',length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
-  # calculate LODs 
   NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))]
-  if (xmlFilePlateNames[i] != ""){
-    NCs  <- paste0(xmlFilePlateNames[i], "_", NCs)
-  }
-  run_lod[[i]] <- lod(data_matrix=runs[[i]]$Data, blanks=NCs, min_count=0)
+  plate_lod[[i]] <- lod(data_matrix=intraPlateNormData[[i]][[1]]$normData, blanks=NCs, min_count=0)
 }
 ```
 
@@ -201,13 +199,13 @@ for (i in 1:length(params$xmlFiles)){
   sc[colnames(runs[[i]]$Data) %in% IPC_wells[[i]]]<- 'SC'
   plate_unnorm_intraCV <- intraCV(data_matrix=runs[[i]]$Data,
                                  samples=sc,
-                                 aboveLOD=run_lod[[i]]$aboveLOD,
+                                 aboveLOD=plate_lod[[i]]$aboveLOD,
                                  exclude_targets=ICs)
 # combine plates into one matrix
   intraCV_unnorm <- cbind(intraCV_unnorm, plate_unnorm_intraCV) 
   plate_mCherry_intraCV <- intraCV(data_matrix=intraPlateNormData[[i]]$mCherry$normData,
                                   samples=sc,
-                                  aboveLOD=run_lod[[i]]$aboveLOD,
+                                  aboveLOD=plate_lod[[i]]$aboveLOD,
                                   exclude_targets=ICs)
   intraCV_mCherry <- cbind(intraCV_mCherry, plate_mCherry_intraCV)
 }
@@ -261,7 +259,7 @@ for(i in 1:length(params$xmlFiles)){
   sc[colnames(runs[[i]]$Data) %in% IPC_wells[[i]]]<- 'SC'
   scs[[i]] <- sc
   plateData[[i]] <- runs[[i]]$Data
-  aboveLOD[[i]] <- run_lod[[i]]$aboveLOD
+  aboveLOD[[i]] <- plate_lod[[i]]$aboveLOD
   exclude_targets[[i]] <- ICs
   plate_mCherry[[i]] <- intraPlateNormData[[i]]$mCherry$normData
 }
@@ -361,7 +359,7 @@ for (i in 1:length(params$xmlFiles)){
   if(!is.null(params$Bridge)){
     detect_samples <- detect_samples[-which(grepl(paste(params$Bridge, collapse="|"), detect_samples))]
   }
-  plate_detect <- detectability(aboveLOD_matrix=run_lod[[i]]$aboveLOD,
+  plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
                                  sample_subset=detect_samples,
                                  exclude_targets=ICs)
   detectability <- cbind(format(round(mean(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
