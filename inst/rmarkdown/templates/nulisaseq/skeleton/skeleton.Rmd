@@ -335,7 +335,7 @@ colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'miss
 ```
 
 ```{r, include=FALSE}
-# calculate detectability for each plate / target
+# calculate detectability
 detectability_summary <- NULL
 detectability_targets <- NULL
 for (i in 1:length(params$xmlFiles)){
@@ -428,7 +428,9 @@ for(i in 1:length(params$xmlFiles)){
 
 ## Read summary
 ```{r, results='asis'}
-knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ","), table.attr="id=\"read-summary\"") %>% 
+knitr::kable(read_summary, caption='', 
+             align='r', format.args=list(big.mark = ","), 
+             table.attr="id=\"read-summary\"") %>% 
   kable_styling(bootstrap_options=c("striped", "hover", "condensed"), full_width=TRUE)
 ```
 
@@ -442,12 +444,20 @@ if(length(ICs) == 1){
     IC_tables <- rbind(IC_tables, runSummaries[[i]]$IC_table)
   }
   rownames(IC_tables) <- paste0("Plate", as.character(1:length(params$xmlFiles))) 
-  cat(knitr::kable(IC_tables, caption="mCherry (IC) summary", align='r', format.args=list(big.mark = ","), table.attr="id=\"IC-summary\"") %>% 
+  cat(knitr::kable(IC_tables, 
+                   caption="mCherry (IC) summary", 
+                   align='r', 
+                   format.args=list(big.mark = ","), 
+                   table.attr="id=\"IC-summary\"") %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))  
-}else{
+} else {
   for(i in 1:length(params$xmlFiles)){
     table.attr <- paste0("id=\"IC-summary", i, "\"")
-    cat(knitr::kable(runSummaries[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+    cat(knitr::kable(runSummaries[[i]]$IC_table, 
+                     caption=paste0("Plate ", as.character(i), ": IC summary"), 
+                     align='r', 
+                     format.args=list(big.mark = ","), 
+                     table.attr=table.attr) %>% 
           kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
   }
 }
@@ -476,37 +486,43 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-### Heatmap
-```{r, out.width='100%', fig.asp=0.33333*ceiling((length(ICs)+1)/2)}
-if (params$heatMapRel){
-  write("Numbers shown are percent relative to plate median",stdout());
-}
+## Heatmaps
+```{r, include=FALSE}
+# describe heatmap scale
+if (params$heatMapRel==TRUE) heatmap_description <- "Numbers shown are percent relative to plate median"
+if (params$heatMapRel==FALSE) heatmap_description <- ""
+```
+`r heatmap_description`
 
+```{r, out.width='100%', fig.asp=0.33333*ceiling((length(ICs)+1)/2)}
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName)
-  vals<- unlist(as.list(t(val)))
-  
+  vals <- unlist(as.list(t(val)))
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,1))
   digitsTotal <- 1
   digitsmCherry <- if(params$heatMapRel) 1 else 0
   logVals <- log2(colSums(runs[[i]]$Data, na.rm=TRUE))
   well_order <- wellorder(runs[[i]]$sample, params$rowAnnotName, params$colAnnotName)
-  
   val <- vals
   val[which(!is.na(vals))] <- logVals[well_order]
-  plateHeatmap(as.numeric(val), title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), cex=0.5, digits=digitsTotal,
+  plateHeatmap(as.numeric(val), 
+               title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), 
+               cex=0.5, digits=digitsTotal,
                relative=params$heatMapRel, cex.axis=0.5)
   for (j in 1:length(ICs)){
     val <- vals
-    val[ which(!is.na(vals))] <- runs[[i]]$Data[ICs[j],][well_order]
-    plateHeatmap(as.numeric(val), title=paste0("Plate ", as.character(i),": ",  ICs[j]), cex=0.5, digits=digitsmCherry, relative=params$heatMapRel, cex.axis=0.5)
+    val[which(!is.na(vals))] <- runs[[i]]$Data[ICs[j],][well_order]
+    plateHeatmap(as.numeric(val), 
+                 title=paste0("Plate ", as.character(i),": ",  ICs[j]), 
+                 cex=0.5, digits=digitsmCherry, 
+                 relative=params$heatMapRel, cex.axis=0.5)
   }
 }
 ```
 
 ---
 
-## Quality Control:
+## Quality Control
 
 ### QC Flags (Plate)
 ```{r, results='asis'}
@@ -552,19 +568,31 @@ for( i in 1:length(runs)){
 }
 ```
 
-### Detectability table
+---
+
+## Detectability
 ```{r, results='asis'}
-kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', align='r', table.attr="id=\"detectability-summary\"",
-                           format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
-kable_styling(knitr::kable(detectability_targets, caption='Target Detectability %', align='r', table.attr="id=\"detectability-indepth\"",
-                           format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) 
+# Detectability summary
+kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', 
+                           align='r', 
+                           table.attr="id=\"detectability-summary\"",
+                           format.args=list(big.mark = ",", digits=2)), 
+              bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+
+# Target detectability
+kable_styling(knitr::kable(detectability_targets, caption='Target Detectability %', 
+                           align='r', 
+                           table.attr="id=\"detectability-indepth\"",
+                           format.args=list(big.mark = ",", digits=2)), 
+              bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) 
 ```
 
+---
 
 ## Intra-plate Normalization
-Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).
+%CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV. 
 
-### Intra-plate %CV table -- un-normalized
+### Intra-plate %CV table -- unnormalized
 ```{r}
 knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-unnormalized-summary\"", 
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
@@ -592,7 +620,7 @@ abline(v=c(0:8*5), col='grey', lty=3)
 
 ---
 
-### Sample boxplots
+## Sample boxplots
 ```{r, out.width='100%', fig.asp=1}
 sampleboxplot <- function( data, ordering, label, plate_sample_colors, boxplot_colors){
   boxplot(log2(data[,ordering]+0.01),
@@ -635,7 +663,9 @@ for(i in 1:length(params$xmlFiles)){
 }
 ```
 
-### Sample correlation
+---
+
+## Sample correlation
 ```{r, out.width='100%', fig.asp=1, results='asis'}
 wellcolors <- function(data, well_types, boxplot_colors){
   # all labels black by default
@@ -675,7 +705,9 @@ for(i in 1:length(params$xmlFiles)){
 }
 ```
 
-### Sample and target clustering 
+---
+
+## Sample and target clustering 
 ```{r, out.width='100%', fig.asp=1, results='asis'}
 # define colors
 paletteLength <- 50
@@ -722,6 +754,7 @@ knitr::kable(interCV_summary_table, caption='', align='r', table.attr="id=\"inte
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
+
 ```{r out.width='100%', fig.asp=0.5, eval=multipleFiles, results='asis'}
 pandoc.header("Inter-plate CV boxplot", 3)
 par(mar=c(5,12,1,1))
@@ -730,8 +763,9 @@ boxplot(interCV_results, las=1, xlab='inter-plate CV (%)',
 abline(v=c(0:16*5), col='grey', lty=3)
 ```
 
+
 ```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
-# pandoc.header("Sample PCA", 3)
+# pandoc.header("Sample PCA", 2)
 # doPCA <- function(data, plateVar, normed=FALSE, scale=FALSE, center=FALSE, title="Unnormalized"){
 #   pca <- if(normed) prcomp(t(data), scale=scale, center=center) else prcomp(log2(t(data)+0.01), scale=scale, center=center)
 #   par(mar=c(4,4,2,5))
