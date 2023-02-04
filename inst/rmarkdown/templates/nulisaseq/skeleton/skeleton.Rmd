@@ -120,8 +120,8 @@ for (i in 1:length(params$xmlFiles)){
   intraPlateNormData[[i]] <- vector("list", length(ICs))
   for (j in 1:length(ICs)){
     intraPlateNormData[[i]][[j]] <- intraPlateNorm(data_matrix=runs[[i]]$Data,
-                               method="IC",
-                               IC=ICs[j])
+                                                   method="IC",
+                                                   IC=ICs[j])
   }
   names(intraPlateNormData[[i]]) <- ICs
 }
@@ -131,7 +131,7 @@ names(intraPlateNormData) <- xmlFilePlateNames
 ```{r, include=FALSE}
 # calculate LOD on the IC normalized data
 # use 1st IC as the primary IC (should be mCherry)
-plate_lod <- vector('list',length(params$xmlFiles))
+plate_lod <- vector('list', length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
   NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))]
   plate_lod[[i]] <- lod(data_matrix=intraPlateNormData[[i]][[1]]$normData, blanks=NCs, min_count=0)
@@ -140,41 +140,30 @@ for (i in 1:length(params$xmlFiles)){
 
 ```{r, include=FALSE}
 # do inter-plate normalization 
+# save mCherry-normalized data in a list
+normData <- lapply(intraPlateNormData, function(x) x[[1]]$normData)
 
-normData <- list()
-IPC_wells <- NC_wells <- Bridge_wells <- IPC_wells_orig <- NC_wells_orig <- Bridge_wells_orig <- list(list())
+# save IPCs, NCs, and Bridge wells for each plate
+IPC_wells <- NC_wells <- Bridge_wells <- vector('list', length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
-  normData[[i]] <- intraPlateNormData[[i]]$mCherry$normData
-  IPC_wells_orig[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))]
+  IPC_wells[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))]
+  NC_wells[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"), runs[[i]]$samples$sampleName))]
   if(!is.null(params$Bridge)){
-    Bridge_wells_orig[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(params$Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
-    if(xmlFilePlateNames[i] != ""){
-      Bridge_wells[[i]] <- if(xmlFilePlateNames[i] != "") paste0(xmlFilePlateNames[i],"_", Bridge_wells_orig[[i]]) else Bridge_wells_orig[[i]]
-    }
-  }
-  NC_wells_orig[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"), runs[[i]]$samples$sampleName))]
-  if(xmlFilePlateNames[i] != ""){
-    IPC_wells[[i]] <- paste0(xmlFilePlateNames[i], "_", IPC_wells_orig[[i]])
-    NC_wells[[i]]  <- paste0(xmlFilePlateNames[i], "_", NC_wells_orig[[i]]) 
-  }else{
-    IPC_wells[[i]] <- IPC_wells_orig[[i]]
-    NC_wells[[i]]  <- NC_wells_orig[[i]] 
+    Bridge_wells[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(params$Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
   }
 } 
 
-# using intra-plate means
 # mCherry + IPC
 mCherry_IPC <- interPlateNorm(data_list=normData,
                               IPC=TRUE, IN=FALSE,
                               IPC_wells=IPC_wells,
                               IPC_method='median')
-# using intra-plate means
+
 # mCherry + IN
 mCherry_IN <- interPlateNorm(data_list=normData,
-                              IPC=FALSE, IN=TRUE,
-                              IPC_wells=IPC_wells,
-                              NC_wells=NC_wells
-                            )
+                             IPC=FALSE, IN=TRUE,
+                             IPC_wells=IPC_wells,
+                             NC_wells=NC_wells)
 ```
 
 ```{r, include=FALSE}
@@ -182,9 +171,9 @@ mCherry_IN <- interPlateNorm(data_list=normData,
 # mCherry + bridge
 if(length(Bridge_wells[[1]])){
   mCherry_bridge <- interPlateNorm(data_list=normData,
-                                 IPC=FALSE, IN=TRUE,
-                                 IN_samples=Bridge_wells
-                                  )
+                                   IPC=FALSE, IN=TRUE,
+                                   IN_samples=Bridge_wells
+  )
 }
 ```
 
@@ -198,15 +187,15 @@ for (i in 1:length(params$xmlFiles)){
   sc <- rep(NA, nrow(runs[[i]]$samples))
   sc[colnames(runs[[i]]$Data) %in% IPC_wells[[i]]]<- 'SC'
   plate_unnorm_intraCV <- intraCV(data_matrix=runs[[i]]$Data,
-                                 samples=sc,
-                                 aboveLOD=plate_lod[[i]]$aboveLOD,
-                                 exclude_targets=ICs)
-# combine plates into one matrix
-  intraCV_unnorm <- cbind(intraCV_unnorm, plate_unnorm_intraCV) 
-  plate_mCherry_intraCV <- intraCV(data_matrix=intraPlateNormData[[i]]$mCherry$normData,
                                   samples=sc,
                                   aboveLOD=plate_lod[[i]]$aboveLOD,
                                   exclude_targets=ICs)
+  # combine plates into one matrix
+  intraCV_unnorm <- cbind(intraCV_unnorm, plate_unnorm_intraCV) 
+  plate_mCherry_intraCV <- intraCV(data_matrix=intraPlateNormData[[i]]$mCherry$normData,
+                                   samples=sc,
+                                   aboveLOD=plate_lod[[i]]$aboveLOD,
+                                   exclude_targets=ICs)
   intraCV_mCherry <- cbind(intraCV_mCherry, plate_mCherry_intraCV)
 }
 
@@ -293,35 +282,35 @@ interCV_mCherry_IN <- interCV(data_list=mCherry_IN$interNormData,
 # mCherry + bridge sample normalized data
 if(length(Bridge_wells[[1]])){
   interCV_mCherry_bridge <- interCV(data_list=mCherry_bridge$interNormData,
-                                  samples=scs,
-                                  aboveLOD=aboveLOD,
-                                  exclude_targets=exclude_targets,
-                                  useMean=FALSE)
+                                    samples=scs,
+                                    aboveLOD=aboveLOD,
+                                    exclude_targets=exclude_targets,
+                                    useMean=FALSE)
 }
 
 # combine results into one matrix
 interCV_results <- NULL
 if(length(Bridge_wells[[1]])){
   interCV_results <- cbind(interCV_unnorm,
-                         interCV_mCherry,
-                         interCV_mCherry_IPC,
-                         interCV_mCherry_IN,
-                         interCV_mCherry_bridge)
+                           interCV_mCherry,
+                           interCV_mCherry_IPC,
+                           interCV_mCherry_IN,
+                           interCV_mCherry_bridge)
   colnames(interCV_results) <- c('unnorm',
-                               'mCherry',
-                               'mCherry + IPC',
-                               'mCherry + IN',
-                               'mCherry + bridge')
+                                 'mCherry',
+                                 'mCherry + IPC',
+                                 'mCherry + IN',
+                                 'mCherry + bridge')
 }else{
   interCV_results <- cbind(interCV_unnorm,
-                         interCV_mCherry,
-                         interCV_mCherry_IPC,
-                         interCV_mCherry_IN)
-                                  
+                           interCV_mCherry,
+                           interCV_mCherry_IPC,
+                           interCV_mCherry_IN)
+  
   colnames(interCV_results) <- c('unnorm',
-                               'mCherry',
-                               'mCherry + IPC',
-                               'mCherry + IN')
+                                 'mCherry',
+                                 'mCherry + IPC',
+                                 'mCherry + IN')
 }
 
 # create inter-plate CV table
@@ -335,17 +324,17 @@ interCV_summary_table <- cbind(colMeans(interCV_results, na.rm=TRUE),
                                }))
 if(length(Bridge_wells[[1]])){
   rownames(interCV_summary_table) <- c('unnorm',
-                                                 'mCherry',
-                                                 'mCherry + IPC',
-                                                 'mCherry + IN',
-                                                 'mCherry + bridge')
+                                       'mCherry',
+                                       'mCherry + IPC',
+                                       'mCherry + IN',
+                                       'mCherry + bridge')
 } else{
   rownames(interCV_summary_table) <- c('unnorm',
-                                                 'mCherry',
-                                                 'mCherry + IPC',
-                                                 'mCherry + IN')
+                                       'mCherry',
+                                       'mCherry + IPC',
+                                       'mCherry + IN')
 }
-  colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
+colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
 ```
 
 ```{r, include=FALSE}
@@ -360,23 +349,23 @@ for (i in 1:length(params$xmlFiles)){
     detect_samples <- detect_samples[-which(grepl(paste(params$Bridge, collapse="|"), detect_samples))]
   }
   plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
-                                 sample_subset=detect_samples,
-                                 exclude_targets=ICs)
+                                sample_subset=detect_samples,
+                                exclude_targets=ICs)
   detectability <- cbind(format(round(mean(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
-                                 format(round(sd(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
-                                 formatC(median(plate_detect$detectability, na.rm=TRUE), width=2),
-                                 formatC(min(plate_detect$detectability, na.rm=TRUE), width=2),
-                                 formatC(max(plate_detect$detectability, na.rm=TRUE), width=2),
-                                 paste0(sum(plate_detect$detectability >= 50),
-                                        ' (',
-                                        format(round(sum(plate_detect$detectability > 50)/length(plate_detect$detectability) * 100, 1), nsmall=1),
-                                        '%)'))
+                         format(round(sd(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
+                         formatC(median(plate_detect$detectability, na.rm=TRUE), width=2),
+                         formatC(min(plate_detect$detectability, na.rm=TRUE), width=2),
+                         formatC(max(plate_detect$detectability, na.rm=TRUE), width=2),
+                         paste0(sum(plate_detect$detectability >= 50),
+                                ' (',
+                                format(round(sum(plate_detect$detectability > 50)/length(plate_detect$detectability) * 100, 1), nsmall=1),
+                                '%)'))
   colnames(detectability) <- c('mean',
-                                     'sd',
-                                     'median',
-                                     'min',
-                                     'max',
-                                     'detectable targets n (%)')
+                               'sd',
+                               'median',
+                               'min',
+                               'max',
+                               'detectable targets n (%)')
   detectability_summary <- rbind(detectability_summary, detectability)
   detectability_tar <- cbind(detectability_tar, plate_detect$detectability)
 }
@@ -389,10 +378,10 @@ colnames(detectability_tar) <- PlateNames
 data_mCherry_scaled <- list(list())
 for(i in 1:length(params$xmlFiles)){
   data_mCherry_scaled[[i]] <- scale(log2(intraPlateNormData[[i]]$mCherry$normData+0.01))
-#  colnames(data_mCherry_scaled[[i]]) <- paste0(sample_info$personID, '_', 
-#                                        sample_info$sample, 
-#                                        '_',
-#                                        sample_info$sampleName)
+  #  colnames(data_mCherry_scaled[[i]]) <- paste0(sample_info$personID, '_', 
+  #                                        sample_info$sample, 
+  #                                        '_',
+  #                                        sample_info$sampleName)
 }
 ```
 
@@ -425,10 +414,10 @@ for(i in 1:length(params$xmlFiles)){
   val <- gsub('_', ' ', val) # replace underscore with space
   table.attr <- paste0("id=\"plate-summary", i, "\"")
   cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c", escape=FALSE, table.attr=table.attr) %>%
-      kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
-      column_spec(column=1:12, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
+        kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
+        column_spec(column=1:12, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
         row_spec(1:8, extra_css = "border-bottom: 1px solid")
-      )
+  )
 }
 ```
 
@@ -451,12 +440,12 @@ if(length(ICs) == 1){
   }
   rownames(IC_tables) <- paste0("Plate", as.character(1:length(params$xmlFiles))) 
   cat(knitr::kable(IC_tables, caption="mCherry (IC) summary", align='r', format.args=list(big.mark = ","), table.attr="id=\"IC-summary\"") %>% 
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))  
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))  
 }else{
   for(i in 1:length(params$xmlFiles)){
     table.attr <- paste0("id=\"IC-summary", i, "\"")
     cat(knitr::kable(runSummaries[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
-        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
   }
 }
 ```
@@ -468,7 +457,7 @@ if(length(ICs) == 1){
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"IPC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
 ---
@@ -478,7 +467,7 @@ for(i in 1:length(params$xmlFiles)){
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
 
@@ -493,7 +482,7 @@ if (params$heatMapRel){
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName)
   vals<- unlist(as.list(t(val)))
-
+  
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,1))
   digitsTotal <- 1
   digitsmCherry <- if(params$heatMapRel) 1 else 0
@@ -541,7 +530,7 @@ for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
   IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
   NCs  <- which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))
-
+  
   table.attr <- paste0("id=\"QCFlagSample-summary", i, "\"")
   # Sample QC
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples)
@@ -563,9 +552,9 @@ for( i in 1:length(runs)){
 ### Detectability table
 ```{r, results='asis'}
 kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', align='r', table.attr="id=\"detectability-summary\"",
-             format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+                           format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 kable_styling(knitr::kable(detectability_tar, caption='Target Detectability %', align='r', , table.attr="id=\"detectability-indepth\"",
-             format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) 
+                           format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) 
 ```
 
 
@@ -627,7 +616,7 @@ for(i in 1:length(params$xmlFiles)){
   }
   plate_sample_type[grepl(paste0(IPC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '3_IPC'
   plate_sample_type[grepl(paste0(NC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '4_NC'
-
+  
   ordering2 <- wellorder(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName) 
   ordering <- NULL
   types <- sort(unique(plate_sample_type))
@@ -635,7 +624,7 @@ for(i in 1:length(params$xmlFiles)){
     inds <- which(plate_sample_type[ordering2] == types[j])
     ordering <- c(ordering, ordering2[inds])
   }
-
+  
   plate_sample_colors <- boxplot_colors[as.numeric(as.factor(plate_sample_type))[ordering]]
   par(mfrow=c(1,2), mar=c(4,6,2,0))
   sampleboxplot(runs[[i]]$Data, ordering, "unnormalized", plate_sample_colors, boxplot_colors)
@@ -667,12 +656,12 @@ for(i in 1:length(params$xmlFiles)){
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   mycolors <- wellcolors(corrvals$corr, well_types, boxplot_colors)
   corrplot(corrvals$corr,
-         tl.cex=0.4,
-         mar=c(1,1,1,1),
-         tl.col=mycolors,
-         order="original",
-         title=paste("Plate", i),
-         is.corr=FALSE)
+           tl.cex=0.4,
+           mar=c(1,1,1,1),
+           tl.col=mycolors,
+           order="original",
+           title=paste("Plate", i),
+           is.corr=FALSE)
   cat("\n")
 }
 ```
@@ -686,15 +675,15 @@ for(i in 1:length(params$xmlFiles)){
   well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
   mycolors <- wellcolors(data_mCherry_scaled[[i]], well_types, boxplot_colors)
   myBreaks <- c(seq(min(data_mCherry_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(data_mCherry_scaled[[i]])/paletteLength, max(data_mCherry_scaled[[i]]), length.out=floor(paletteLength/2)))
+                seq(max(data_mCherry_scaled[[i]])/paletteLength, max(data_mCherry_scaled[[i]]), length.out=floor(paletteLength/2)))
   data_mCherry_scaled2 <- data.frame(t(data_mCherry_scaled[[i]]))
   data_mCherry_scaled2$status <- rep(1, nrow(runs[[i]]$samples)) # 
   data_mCherry_scaled2$colors <- mycolors
   e <- pheatmap(data_mCherry_scaled2[,1:(length(data_mCherry_scaled2[1, ]) - 2)],
-         main = paste("Plate", i), fontsize=5,
-         color=myColor,
-         breaks=myBreaks,
-         show_colnames=FALSE, silent=TRUE)
+                main = paste("Plate", i), fontsize=5,
+                color=myColor,
+                breaks=myBreaks,
+                show_colnames=FALSE, silent=TRUE)
   cols <- data_mCherry_scaled2[order(match(rownames(data_mCherry_scaled2), e$gtable$grobs[[5]]$label)), ]$colors
   e$gtable$grobs[[5]]$gp=gpar(col=cols)
   grid::grid.newpage()
