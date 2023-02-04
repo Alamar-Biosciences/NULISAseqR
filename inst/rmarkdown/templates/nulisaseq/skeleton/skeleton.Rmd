@@ -12,7 +12,7 @@ params:
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
   sample_desc: "This is a sample description."
-  goal_desc: "NULISAseq 200-plex Inflammation panel"
+  goal_desc: "NULISAseq 200-plex Inflammation Panel"
   xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
   plateNames: !r c()
 output:
