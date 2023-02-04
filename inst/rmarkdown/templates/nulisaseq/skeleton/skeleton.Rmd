@@ -524,7 +524,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ## Quality Control
 
-### QC Flags (Plate)
+### Plate QC Flags
 ```{r, results='asis'}
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
@@ -543,7 +543,7 @@ for( i in 1:length(runs)){
 }
 ```
 
-### QC Flags (Sample)
+### Sample QC Flags
 ```{r, results='asis'}
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
@@ -604,18 +604,20 @@ knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', table.attr="i
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
-### Intra-plate CV boxplots by plate
+### Intra-plate %CV boxplots by plate
 ```{r, out.width='100%', fig.asp=0.5}
+intraCV_unnorm2 <- intraCV_unnorm
+colnames(intraCV_unnorm2) <- paste0(colnames(intraCV_mCherry), ' unnormalized')
 intraCV_mCherry2 <- intraCV_mCherry
-colnames(intraCV_mCherry2) <- paste0("*", colnames(intraCV_mCherry))
-intraCV_vals <- t(interleave(t(intraCV_unnorm), t(intraCV_mCherry2), drop=FALSE))
-col <- alamarColorPalette(ceiling(length(intraCV_vals[1,])/2))
-boxplot(intraCV_vals
-        , las=1, xlab='intra-plate CV (%)',
+colnames(intraCV_mCherry2) <- paste0(colnames(intraCV_mCherry), ' normalized')
+intraCV_vals <- t(interleave(t(intraCV_unnorm2), t(intraCV_mCherry2), drop=FALSE))
+col <- unlist(alamarColorPalette(ceiling(length(intraCV_vals[1,])/2), nReps=2))
+par(mar=c(5, 7, 2, 1))
+boxplot(intraCV_vals, las=1, xlab='intra-plate CV (%)',
         ylim=c(0, max(c(intraCV_vals), na.rm=TRUE)),
-        main='Intra-plate CV (* - Normalized)', horizontal=TRUE, cex.axis=0.5, lex.order=TRUE,
-        col=interleave(col,col))
-abline(v=c(0:8*5), col='grey', lty=3)
+        main='Intra-plate CV', horizontal=T, cex.axis=0.5, lex.order=T,
+        col=col)
+abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
 ---
