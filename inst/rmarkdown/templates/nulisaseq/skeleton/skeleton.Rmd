@@ -406,7 +406,7 @@ for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
   well_types <- list(IPC_wells[[i]], NC_wells[[i]], Bridge_wells[[i]])
   for (j in 1:length(well_types)){
-    if (j == 1 && is.null(params$Bridge)){
+    if (j == 3 && is.null(params$Bridge)){
       next
     }
     inds <- which(grepl(paste0(well_types[[j]], collapse="|"), val))
@@ -416,9 +416,11 @@ for(i in 1:length(params$xmlFiles)){
   }
   val <- gsub('_', ' ', val) # replace underscore with space
   table.attr <- paste0("id=\"plate-summary", i, "\"")
-  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), align="c", escape=FALSE, table.attr=table.attr) %>%
-        kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
-        column_spec(column=1:12, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
+  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), 
+                   align="c", escape=FALSE, table.attr=table.attr) %>%
+        kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), 
+                      full_width = TRUE) %>%
+        column_spec(column=1:13, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
         row_spec(1:8, extra_css = "border-bottom: 1px solid")
   )
 }
@@ -479,7 +481,7 @@ for(i in 1:length(params$xmlFiles)){
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
-  cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+  cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
@@ -489,7 +491,7 @@ for(i in 1:length(params$xmlFiles)){
 ## Heatmaps
 ```{r, include=FALSE}
 # describe heatmap scale
-if (params$heatMapRel==TRUE) heatmap_description <- "Numbers shown are percent relative to plate median"
+if (params$heatMapRel==TRUE) heatmap_description <- "Numbers shown are percent relative to plate median."
 if (params$heatMapRel==FALSE) heatmap_description <- ""
 ```
 `r heatmap_description`
@@ -745,26 +747,32 @@ for(i in 1:length(params$xmlFiles)){
 }
 ```
 
+---
 
 ```{r eval=multipleFiles, results='asis'}
 pandoc.header("Inter-plate Normalization", 2)
-pandoc.header("Inter-plate CV", 3)
-cat("Only values above LOD were used to calculate %CV (no minimum count requirement). %CV was calculated for each of the 204 targets for the 2 pooled plasma (sample control) replicates (PP).")
-
-pandoc.header("Inter-plate %CV", 3)
-knitr::kable(interCV_summary_table, caption='', align='r', table.attr="id=\"inter-plateCV-summary\"",
-             format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+cat("%CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV.")
 ```
 
+```{r eval=multipleFiles, results='asis'}
+pandoc.header("Inter-plate %CV", 3)
+knitr::kable(interCV_summary_table, caption='', 
+             align='r', 
+             table.attr="id=\"inter-plateCV-summary\"",
+             format.args=list(big.mark = ",", digits=3)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+```
 
 ```{r out.width='100%', fig.asp=0.5, eval=multipleFiles, results='asis'}
-pandoc.header("Inter-plate CV boxplot", 3)
+pandoc.header("Inter-plate %CV boxplot", 3)
 par(mar=c(5,12,1,1))
 boxplot(interCV_results, las=1, xlab='inter-plate CV (%)',
-        ylim=c(0, max(interCV_results, na.rm=TRUE)), col=alamarColorPalette(5), horizontal=TRUE)
-abline(v=c(0:16*5), col='grey', lty=3)
+        ylim=c(0, max(interCV_results, na.rm=TRUE)), 
+        col=alamarColorPalette(5), horizontal=TRUE)
+abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
+---
 
 ```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
 # pandoc.header("Sample PCA", 2)
