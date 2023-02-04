@@ -109,7 +109,7 @@ for(i in 1:length(params$xmlFiles)){
 names(runs) <- xmlFilePlateNames
 names(runSummaries) <- xmlFilePlateNames
 colnames(read_summary) <- PlateNames
-rownames(read_summary)[length(params$xmlFiles)] <- 'Total samples * targets'
+# transpose read summary
 read_summary <- t(read_summary)
 ```
 
