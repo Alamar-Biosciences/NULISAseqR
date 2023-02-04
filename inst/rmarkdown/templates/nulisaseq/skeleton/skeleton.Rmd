@@ -401,8 +401,7 @@ title: `r title_var`
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
-  B_well_orig <- if (!is.null(params$Bridge)) Bridge_wells_orig[[i]] else NULL
-  well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
+  well_types <- list(Bridge_wells[[i]], IPC_wells[[i]], NC_wells[[i]])
   for (j in 1:length(well_types)){
     if (j == 1 && is.null(params$Bridge)){
       next
@@ -638,7 +637,7 @@ for(i in 1:length(params$xmlFiles)){
 wellcolors <- function(data, well_types, boxplot_colors ){
   mycolors <- rep("black", ncol(data))
   for (j in 1:length(well_types)){
-    if (j == 1 && well_types[j] == ""){
+    if (j == 1 && is.null(well_types[j])){
       next
     }
     inds <- which(grepl(paste0(well_types[[j]], collapse="|"), colnames(data)))
@@ -653,8 +652,7 @@ for(i in 1:length(params$xmlFiles)){
   pdf(file=NULL)
   corrvals <- corrplot(cor(data_mCherry_scaled[[i]]), order='hclust') 
   dev.off()
-  B_well_orig <- if (!is.null(params$Bridge)) Bridge_wells_orig[[i]] else ""
-  well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
+  well_types <- list(Bridge_wells[[i]], IPC_wells[[i]], NC_wells[[i]])
   mycolors <- wellcolors(corrvals$corr, well_types, boxplot_colors)
   corrplot(corrvals$corr,
            tl.cex=0.4,
@@ -672,8 +670,7 @@ for(i in 1:length(params$xmlFiles)){
 paletteLength <- 50
 myColor <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
 for(i in 1:length(params$xmlFiles)){
-  B_well_orig <- if (!is.null(params$Bridge)) Bridge_wells_orig[[i]] else ""
-  well_types <- list(B_well_orig, IPC_wells_orig[[i]], NC_wells_orig[[i]])
+  well_types <- list(Bridge_wells[[i]], IPC_wells[[i]], NC_wells[[i]])
   mycolors <- wellcolors(data_mCherry_scaled[[i]], well_types, boxplot_colors)
   myBreaks <- c(seq(min(data_mCherry_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
                 seq(max(data_mCherry_scaled[[i]])/paletteLength, max(data_mCherry_scaled[[i]]), length.out=floor(paletteLength/2)))
