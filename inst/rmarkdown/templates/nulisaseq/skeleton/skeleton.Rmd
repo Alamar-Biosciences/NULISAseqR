@@ -416,12 +416,12 @@ for(i in 1:length(params$xmlFiles)){
   }
   val <- gsub('_', ' ', val) # replace underscore with space
   table.attr <- paste0("id=\"plate-summary", i, "\"")
-  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate/Sample Layout"), 
+  cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate Layout"), 
                    align="c", escape=FALSE, table.attr=table.attr) %>%
         kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), 
                       full_width = TRUE) %>%
         column_spec(column=1:13, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
-        row_spec(1:8, extra_css = "border-bottom: 1px solid")
+        row_spec(0:8, extra_css = "border-bottom: 1px solid") 
   )
 }
 ```
@@ -467,7 +467,7 @@ if(length(ICs) == 1){
 
 ---
 
-### Inter-plate control (IPC)
+### Inter-plate controls (IPC)
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"IPC-summary", i, "\"")
@@ -477,7 +477,7 @@ for(i in 1:length(params$xmlFiles)){
 ```
 ---
 
-### Negative control (NC) 
+### Negative controls (NC) 
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
@@ -524,9 +524,9 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-## Quality Control
+## Quality control
 
-### Plate QC Flags
+### Plate QC flags
 ```{r, results='asis'}
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
@@ -545,7 +545,7 @@ for( i in 1:length(runs)){
 }
 ```
 
-### Sample QC Flags
+### Sample QC flags
 ```{r, results='asis'}
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
@@ -593,7 +593,7 @@ kable_styling(knitr::kable(detectability_targets, caption='Target Detectability 
 
 ---
 
-## Intra-plate Normalization
+## Intra-plate normalization
 %CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV. 
 
 ### Intra-plate %CV table -- unnormalized
@@ -752,7 +752,7 @@ for(i in 1:length(params$xmlFiles)){
 ---
 
 ```{r eval=multipleFiles, results='asis'}
-pandoc.header("Inter-plate Normalization", 2)
+pandoc.header("Inter-plate normalization", 2)
 cat("%CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV.")
 ```
 
