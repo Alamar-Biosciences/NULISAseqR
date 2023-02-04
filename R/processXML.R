@@ -213,18 +213,20 @@ processXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeContr
     addChildren(combinedNode, combIC) 
     for (w in 1:nrow(dataCombined)){
       val <- if (lodData$aboveLOD[w] && !is.na(lodData$aboveLOD[w])) "Y" else "N"
+      barcode <- targets$targetBarcode[which(targets$targetName == rownames(dataCombined)[w])]
       addChildren(combRaw, newXMLNode("Target",
                                       attrs=c(
-                                              name=rownames(dataCombined)[w],
+                                              name=barcode, #rownames(dataCombined)[w],
                                               aboveBkgd=val
                                               ),
                                       if(is.na(dataCombined[w, 1])) 0 else dataCombined[w, 1]
                                       )
       )
       val <- if (lodNorm$aboveLOD[w] && !is.na(lodNorm$aboveLOD[w])) "Y" else "N"
+      barcode <- targets$targetBarcode[which(targets$targetName == rownames(normCombined)[w])]
       addChildren(combIC, newXMLNode("Target",
                                       attrs=c(
-                                              name=rownames(normCombined)[w],
+                                              name=barcode,#rownames(normCombined)[w],
                                               aboveBkgd=val
                                               ),
                                       if(is.na(normCombined[w, 1])) 0 else normCombined[w, 1]
