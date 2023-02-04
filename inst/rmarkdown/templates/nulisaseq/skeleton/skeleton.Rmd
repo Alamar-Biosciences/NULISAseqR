@@ -164,17 +164,18 @@ mCherry_IN <- interPlateNorm(data_list=normData,
                              IPC=FALSE, IN=TRUE,
                              IPC_wells=IPC_wells,
                              NC_wells=NC_wells)
+
+# mCherry + bridge
+if(!is.null(params$Bridge)){
+  mCherry_bridge <- interPlateNorm(data_list=normData,
+                                   IPC=FALSE, IN=TRUE,
+                                   IN_samples=Bridge_wells)
+}
 ```
 
 ```{r, include=FALSE}
 # do inter-plate bridge sample normalization 
-# mCherry + bridge
-if(length(Bridge_wells[[1]])){
-  mCherry_bridge <- interPlateNorm(data_list=normData,
-                                   IPC=FALSE, IN=TRUE,
-                                   IN_samples=Bridge_wells
-  )
-}
+
 ```
 
 ```{r, include=FALSE}
