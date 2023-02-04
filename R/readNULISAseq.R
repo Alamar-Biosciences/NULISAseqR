@@ -4,27 +4,23 @@
 #' Biosciences Galaxy NULISAseq (Beta) tool or the NULISAseq Normalization (Alpha) tool.
 #'
 #' @param xml_file Character string. Path and name of the file.
-#' @param plateID Character string that will be added to the beginning of
-#' column names before the sample name. This is helpful for 
-#' identifying the plate each sample came from 
-#' after interplate normalization. If no plate ID is given, the function
-#' will use the date and time in the execution details (this is 
-#' very long so it is recommended to provide a plate ID!).
+#' @param plateID Character string that denotes plate ID.
 #' @param file_type Character string. Type of input file, as output from Galaxy. Options include
 #' xml_full_output, xml_no_mismatches (default) (both from NULISAseq tool),
 #' or xml_normalization (from NULISAseq Normalization tool).
+#' @param replaceNA Logical. If TRUE (default), will replace missing counts with 
+#' zeros.
 #'
 #' @return List of lists, data frames, and matrices.
 #' Output will differ slightly depending on the input file type.
 #'
-#' @examples
-#' # plate1 <- readNULISAseq('filename.xml')
 #'
 #' @export
 #'
 readNULISAseq <- function(xml_file, 
                           plateID=NULL, 
-                          file_type='xml_no_mismatches'){
+                          file_type='xml_no_mismatches',
+                          replaceNA=TRUE){
   # read in xml file
   xml <- xml2::read_xml(xml_file)
   
@@ -38,6 +34,7 @@ readNULISAseq <- function(xml_file,
   ExecutionDetails <- lapply(ExecutionDetails, unlist)
   ExecutionDetails$ExecutionTime <- c(ExecutionDetails$ExecutionTime[1],
                                       ExecutionTimeUnits)
+  
   ###########################
   # save Run Summary 
   ###########################
@@ -107,6 +104,8 @@ readNULISAseq <- function(xml_file,
                    by.x='sampleBarcode', by.y='barcode', all=TRUE)
   # sort samples by sample name
   samples <- samples[order(samples$sampleName),]
+  # add plateID to samples 
+  samples$plateID <- plateID
   # loop over sample replicates and save data
   Data <- targets[,c('targetBarcode', 'targetName')]
   sampleBarcode <- c()
@@ -132,14 +131,11 @@ readNULISAseq <- function(xml_file,
   # add row names
   rownames(DataMatrix) <- Data$targetName
   # add column names
-  # if no plate ID given, use date and time
-  if (is.null(plateID)){
-    # replace space with underscore
-    plateID <- gsub(" ", "_", ExecutionDetails$Date, fixed = TRUE)
-    # remove day of week
-    plateID <- substr(plateID, 5, nchar(plateID))
+  colnames(DataMatrix) <- samples$sampleName
+  # if replaceNA=TRUE, replace NAs with zeros
+  if (replaceNA==TRUE){
+    DataMatrix[is.na(DataMatrix)] <- 0
   }
-  colnames(DataMatrix) <- if(plateID != "") paste(plateID, samples$sampleName, sep='_') else samples$sampleName
   
   ###########################
   # return the output
