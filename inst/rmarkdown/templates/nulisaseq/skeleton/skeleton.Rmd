@@ -375,14 +375,17 @@ colnames(detectability_targets) <- PlateNames
 ```
 
 ```{r, include=FALSE}
-# sample clustering
-data_mCherry_scaled <- list(list())
+# log transform and scale data for clustered heatmap
+data_mCherry_log2_scaled <- list()
 for(i in 1:length(params$xmlFiles)){
-  data_mCherry_scaled[[i]] <- scale(log2(intraPlateNormData[[i]]$mCherry$normData+0.01))
-  #  colnames(data_mCherry_scaled[[i]]) <- paste0(sample_info$personID, '_', 
-  #                                        sample_info$sample, 
-  #                                        '_',
-  #                                        sample_info$sampleName)
+  # remove negative controls
+  data_mCherry <- intraPlateNormData[[i]]$mCherry$normData
+  data_mCherry <- data_mCherry[,!grepl(paste(params$NC, collapse="|"), colnames(data_mCherry))]
+  # remove ICs
+  data_mCherry <- data_mCherry[!grepl(paste(params$IC, collapse="|"), rownames(data_mCherry)),]
+  # log transform and scale
+  data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(intraPlateNormData[[i]]$mCherry$normData+0.01)),
+                                           center=TRUE, scale=TRUE))
 }
 ```
 
@@ -678,24 +681,26 @@ paletteLength <- 50
 myColor <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
 for(i in 1:length(params$xmlFiles)){
   well_types <- list(Bridge_wells[[i]], IPC_wells[[i]], NC_wells[[i]])
-  mycolors <- wellcolors(data_mCherry_scaled[[i]], well_types, boxplot_colors)
-  myBreaks <- c(seq(min(data_mCherry_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
-                seq(max(data_mCherry_scaled[[i]])/paletteLength, max(data_mCherry_scaled[[i]]), length.out=floor(paletteLength/2)))
-  data_mCherry_scaled2 <- data.frame(t(data_mCherry_scaled[[i]]))
-  data_mCherry_scaled2$status <- rep(1, nrow(runs[[i]]$samples)) # 
-  data_mCherry_scaled2$colors <- mycolors
-  e <- pheatmap(data_mCherry_scaled2[,1:(length(data_mCherry_scaled2[1, ]) - 2)],
+  mycolors <- wellcolors(data_mCherry_log2_scaled[[i]], well_types, boxplot_colors)
+  myBreaks <- c(seq(min(data_mCherry_log2_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
+                seq(max(data_mCherry_log2_scaled[[i]])/paletteLength, max(data_mCherry_log2_scaled[[i]]), length.out=floor(paletteLength/2)))
+  data_mCherry_log2_scaled2 <- data.frame(t(data_mCherry_log2_scaled[[i]]))
+  data_mCherry_log2_scaled2$status <- rep(1, nrow(runs[[i]]$samples))
+  data_mCherry_log2_scaled2$colors <- mycolors
+  e <- pheatmap(data_mCherry_log2_scaled2[,1:(length(data_mCherry_log2_scaled2[1, ]) - 2)],
                 main = paste("Plate", i), fontsize=5,
                 color=myColor,
                 breaks=myBreaks,
                 show_colnames=FALSE, silent=TRUE)
-  cols <- data_mCherry_scaled2[order(match(rownames(data_mCherry_scaled2), e$gtable$grobs[[5]]$label)), ]$colors
+  cols <- data_mCherry_log2_scaled2[order(match(rownames(data_mCherry_log2_scaled2), e$gtable$grobs[[5]]$label)), ]$colors
   e$gtable$grobs[[5]]$gp=gpar(col=cols)
   grid::grid.newpage()
   grid::grid.draw(e$gtable)
   cat("\n")
 }
 ```
+
+
 ```{r eval=multipleFiles, results='asis'}
 pandoc.header("Inter-plate Normalization", 2)
 pandoc.header("Inter-plate CV", 3)
@@ -740,10 +745,10 @@ removeTargetsSamples <- function(data, NC, IPC, Bridge){
 dataPCAunnormal <- dataPCAnormed <- dataPCAnormedIPC <- dataPCAnormedIN <-plateVar <- NULL
 for(i in 1:length(params$xmlFiles)){
   dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, params$NC, params$IPC, params$Bridge))
-  dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_scaled[[i]], params$NC, params$IPC, params$Bridge))
+  dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge))
   dataPCAnormedIPC <- cbind(dataPCAnormedIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], params$NC, params$IPC, params$Bridge))
   dataPCAnormedIN <- cbind(dataPCAnormedIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], params$NC, params$IPC, params$Bridge))
-  plateVar <- c(plateVar, rep(paste0("Plate",i),length(removeTargetsSamples(data_mCherry_scaled[[i]], params$NC, params$IPC, params$Bridge)[1,])))
+  plateVar <- c(plateVar, rep(paste0("Plate",i),length(removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge)[1,])))
 }
 
 par(mfrow=c(2,2))
