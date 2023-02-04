@@ -680,24 +680,33 @@ for(i in 1:length(params$xmlFiles)){
 # define colors
 paletteLength <- 50
 heatmapColors <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
+# loop over plates and draw heatmaps
 for(i in 1:length(params$xmlFiles)){
+  # define label colors
   well_types <- list(IPC_wells[[i]], NC_wells[[i]], Bridge_wells[[i]])
   label_colors <- wellcolors(data=data_mCherry_log2_scaled[[i]], 
                              well_types=well_types, 
                              boxplot_colors=boxplot_colors)
+  # define color scale breaks
   breaks <- c(seq(min(data_mCherry_log2_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(data_mCherry_log2_scaled[[i]])/paletteLength, max(data_mCherry_log2_scaled[[i]]), length.out=floor(paletteLength/2)))
+              seq(max(data_mCherry_log2_scaled[[i]])/paletteLength, 
+                  max(data_mCherry_log2_scaled[[i]]), length.out=floor(paletteLength/2)))
+  # transpose and add color variable
   data_mCherry_log2_scaled2 <- data.frame(t(data_mCherry_log2_scaled[[i]]))
-  data_mCherry_log2_scaled2$colors <- label_colors
-  e <- pheatmap(data_mCherry_log2_scaled2[,1:(length(data_mCherry_log2_scaled2[1,]) - 2)],
-                main = paste("Plate", i), fontsize=5,
+  data_mCherry_log2_scaled2$label_colors <- label_colors
+  # generate heatmap for plate i
+  heatmap_i <- pheatmap(data_mCherry_log2_scaled2[,1:(ncol(data_mCherry_log2_scaled2) - 1)],
+                main = paste("Plate", i), 
+                fontsize=5,
                 color=heatmapColors,
                 breaks=breaks,
                 show_colnames=FALSE, silent=TRUE)
-  cols <- data_mCherry_log2_scaled2[order(match(rownames(data_mCherry_log2_scaled2), e$gtable$grobs[[5]]$label)),]$colors
-  e$gtable$grobs[[5]]$gp=gpar(col=cols)
+  # put colors in order
+  label_colors_ordered <- data_mCherry_log2_scaled2[order(match(rownames(data_mCherry_log2_scaled2), heatmap_i$gtable$grobs[[5]]$label)),]$label_colors
+  # add label colors to plot
+  heatmap_i$gtable$grobs[[5]]$gp=gpar(col=label_colors_ordered)
   grid::grid.newpage()
-  grid::grid.draw(e$gtable)
+  grid::grid.draw(heatmap_i$gtable)
   cat("\n")
 }
 ```
