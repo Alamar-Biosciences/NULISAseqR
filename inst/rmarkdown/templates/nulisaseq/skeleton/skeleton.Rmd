@@ -4,7 +4,7 @@ params:
   IPC: !r c("IPC")
   NC: !r c("NC")
   Bridge: !r NULL
-  dataDir: "/Users/dkuo/Projects/NULISAseqR/data"
+  dataDir: "/Users/jbeer/github/TAP-COVID/data"
   rowAnnotName: "Annot2"
   colAnnotName: "Annot3"
   plateAnnotName: "Annot1"
@@ -35,7 +35,7 @@ library(dplyr)
 ```
 
 ```{r, include=FALSE}
-# function for colorizing wells
+# function for colorizing wells in heatmap
 wellorder <- function(samples, rowAnnotName, colAnnotName){
   cmd <- paste0("samples$", colAnnotName)
   cols <- eval(parse(text=cmd))
@@ -45,6 +45,7 @@ wellorder <- function(samples, rowAnnotName, colAnnotName){
   return(inds$ix)
 }
 
+# function to convert data into matrix for plate layout and heatmap
 matrixify <- function(runSamples, rowAnnotName, colAnnotName, plate=FALSE){
   val <- matrix(rep(NA, 96), nrow=8)
   colnames(val) <- 1:12
@@ -62,26 +63,33 @@ matrixify <- function(runSamples, rowAnnotName, colAnnotName, plate=FALSE){
   }
   return(val)
 }
+```
 
-###############################################################################
-# Read in files
-###############################################################################
+```{r, include=FALSE}
+# define plateIDs
 xmlFilePlateNames <- c()
 if(length(params$plateNames) == 0){
   xmlFilePlateNames <- rep("", times=length(params$xmlFiles))
 }
-multipleFiles = if(length(params$xmlFiles) > 1) TRUE else FALSE
+# set multiple file indicator
+multipleFiles <- if(length(params$xmlFiles) > 1) TRUE else FALSE
+# define title
 title_var <- paste(params$study_name, params$assayName, sep='<br>')
+# define sample specific boxplot colors for use in plots
 boxplot_colors <- unlist(lapply(alamarColorPalette(n=4, tint='light', nReps=4), function(x) x[3]))
+# set data directory
 knitr::opts_knit$set(root.dir=params$dataDir)
+# save xml file path
 xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
+# define variables to store results
 runs <- vector('list', length(params$xmlFiles))
-runSummarys <- vector('list', length(params$xmlFiles))
+runSummaries <- vector('list', length(params$xmlFiles))
 read_summary <- NULL
 PlateNames <- NULL
 for(i in 1:length(params$xmlFiles)){
-  # Read each run1
+  # read each run
   runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=xmlFilePlateNames[i])
+  # save names of IC, IPC and NC
   ICs  <- runs[[i]]$targets$targetName[which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))]
   IPCs <- runs[[i]]$samples$sampleName[which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))]
   NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))]
@@ -89,16 +97,17 @@ for(i in 1:length(params$xmlFiles)){
     IPCs <- paste0(xmlFilePlateNames[i], "_", IPCs)
     NCs  <- paste0(xmlFilePlateNames[i], "_", NCs)
   }
-  # Summarize each Plate
-  runSummarys[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs)
-  read_summary <- cbind(read_summary,runSummarys[[i]]$readsTable)
+  # summarize each plate
+  runSummaries[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs)
+  read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
+  # create plate names
   PlateNames <- c(PlateNames, paste("Plate", i, sep=" "))
   if (xmlFilePlateNames[i] != ""){
     PlateNames[i] <- paste0(PlateNames[i], "(", xmlFilePlateNames[i], ")")
   }
 }
 names(runs) <- xmlFilePlateNames
-names(runSummarys) <- xmlFilePlateNames
+names(runSummaries) <- xmlFilePlateNames
 colnames(read_summary) <- PlateNames
 rownames(read_summary)[length(params$xmlFiles)] <- 'Total samples * targets'
 read_summary <- t(read_summary)
@@ -345,10 +354,6 @@ if(length(Bridge_wells[[1]])){
 ```
 
 ```{r, include=FALSE}
-# convert data to long format
-```
-
-```{r, include=FALSE}
 # calculate detectability
 detectability_summary <- list()
 detectability_tar <- NULL
@@ -447,7 +452,7 @@ knitr::kable(read_summary, caption='', align='r', format.args=list(big.mark = ",
 if(length(ICs) == 1){
   IC_tables <- NULL
   for (i in 1:length(params$xmlFiles)){
-    IC_tables <- rbind(IC_tables, runSummarys[[i]]$IC_table)
+    IC_tables <- rbind(IC_tables, runSummaries[[i]]$IC_table)
   }
   rownames(IC_tables) <- paste0("Plate", as.character(1:length(params$xmlFiles))) 
   cat(knitr::kable(IC_tables, caption="mCherry (IC) summary", align='r', format.args=list(big.mark = ","), table.attr="id=\"IC-summary\"") %>% 
@@ -455,7 +460,7 @@ if(length(ICs) == 1){
 }else{
   for(i in 1:length(params$xmlFiles)){
     table.attr <- paste0("id=\"IC-summary", i, "\"")
-    cat(knitr::kable(runSummarys[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+    cat(knitr::kable(runSummaries[[i]]$IC_table, caption=paste0("Plate ", as.character(i), ": IC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
   }
 }
@@ -467,7 +472,7 @@ if(length(ICs) == 1){
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"IPC-summary", i, "\"")
-  cat(knitr::kable(runSummarys[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+  cat(knitr::kable(runSummaries[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
       kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
@@ -477,7 +482,7 @@ for(i in 1:length(params$xmlFiles)){
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
-  cat(knitr::kable(runSummarys[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+  cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summaray"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
       kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
