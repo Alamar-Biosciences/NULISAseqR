@@ -609,7 +609,7 @@ knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', table.attr="i
 intraCV_unnorm2 <- intraCV_unnorm
 colnames(intraCV_unnorm2) <- paste0(colnames(intraCV_mCherry), ' unnormalized')
 intraCV_mCherry2 <- intraCV_mCherry
-colnames(intraCV_mCherry2) <- paste0(colnames(intraCV_mCherry), ' normalized')
+colnames(intraCV_mCherry2) <- paste0(colnames(intraCV_mCherry), ' mCherry-normalized')
 intraCV_vals <- t(interleave(t(intraCV_unnorm2), t(intraCV_mCherry2), drop=FALSE))
 col <- unlist(alamarColorPalette(ceiling(length(intraCV_vals[1,])/2), nReps=2))
 par(mar=c(5, 7, 2, 1))
