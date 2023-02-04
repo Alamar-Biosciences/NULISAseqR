@@ -634,30 +634,37 @@ for(i in 1:length(params$xmlFiles)){
 
 ### Sample correlation
 ```{r, out.width='100%', fig.asp=1, results='asis'}
-wellcolors <- function(data, well_types, boxplot_colors ){
-  mycolors <- rep("black", ncol(data))
+wellcolors <- function(data, well_types, boxplot_colors){
+  # all labels black by default
+  colors <- rep("black", ncol(data))
   for (j in 1:length(well_types)){
-    if (j == 1 && is.null(well_types[j])){
+    # if bridge wells undefined leave color black
+    if (j == 3 && is.null(well_types[[j]])){
       next
     }
-    inds <- which(grepl(paste0(well_types[[j]], collapse="|"), colnames(data)))
-    if(length(inds) > 0){
-      mycolors[inds] <- boxplot_colors[j+1]
+    # save indices matching the given well type
+    indices <- which(grepl(paste0(well_types[[j]], collapse="|"), colnames(data)))
+    # color well label to match well type
+    if(length(indices) > 0){
+      colors[indices] <- boxplot_colors[j+1]
     }
   }
-  return(mycolors)
+  return(colors)
 }
 
 for(i in 1:length(params$xmlFiles)){
   pdf(file=NULL)
-  corrvals <- corrplot(cor(data_mCherry_scaled[[i]]), order='hclust') 
+  corrvals <- corrplot(cor(intraPlateNormData[[i]]$mCherry$normData), 
+                       order='hclust') 
   dev.off()
-  well_types <- list(Bridge_wells[[i]], IPC_wells[[i]], NC_wells[[i]])
-  mycolors <- wellcolors(corrvals$corr, well_types, boxplot_colors)
+  well_types <- list(IPC_wells[[i]], NC_wells[[i]], Bridge_wells[[i]])
+  colors <- wellcolors(data=corrvals$corr, 
+                         well_types=well_types, 
+                         boxplot_colors=boxplot_colors)
   corrplot(corrvals$corr,
            tl.cex=0.4,
            mar=c(1,1,1,1),
-           tl.col=mycolors,
+           tl.col=colors,
            order="original",
            title=paste("Plate", i),
            is.corr=FALSE)
