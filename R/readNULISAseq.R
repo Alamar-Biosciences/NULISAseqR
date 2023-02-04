@@ -104,7 +104,7 @@ readNULISAseq <- function(xml_file,
                    by.x='sampleBarcode', by.y='barcode', all=TRUE)
   # sort samples by sample name
   samples <- samples[order(samples$sampleName),]
-  # add plateID to samples 
+  # if given, add plateID to samples 
   samples$plateID <- plateID
   # loop over sample replicates and save data
   Data <- targets[,c('targetBarcode', 'targetName')]
