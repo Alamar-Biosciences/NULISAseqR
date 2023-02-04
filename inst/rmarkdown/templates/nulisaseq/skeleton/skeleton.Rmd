@@ -393,9 +393,9 @@ for(i in 1:length(params$xmlFiles)){
 title: `r title_var`
 ---
 
-## Summary
+## Study summary
 * **Goal:** `r params$goal_desc`.
-* Sample description: `r params$sample_desc`
+* **Sample description:** `r params$sample_desc`
 
 
 ---
