@@ -335,15 +335,18 @@ colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'miss
 ```
 
 ```{r, include=FALSE}
-# calculate detectability
-detectability_summary <- list()
-detectability_tar <- NULL
+# calculate detectability for each plate / target
+detectability_summary <- NULL
+detectability_targets <- NULL
 for (i in 1:length(params$xmlFiles)){
   detect_samples <- colnames(intraPlateNormData[[i]]$mCherry$normData)
-  detect_samples <- detect_samples[-which(grepl(paste(params$IPC, collapse="|"), detect_samples))]
-  detect_samples <- detect_samples[-which(grepl(paste(params$NC, collapse="|"), detect_samples))]
+  # remove IPCs, NCs, and SCs
+  detect_samples <- detect_samples[!grepl(paste(params$IPC, collapse="|"), detect_samples)]
+  detect_samples <- detect_samples[!grepl(paste(params$NC, collapse="|"), detect_samples)]
+  detect_samples <- detect_samples[!grepl(paste(params$SC, collapse="|"), detect_samples)]
+  # remove bridge samples if specified
   if(!is.null(params$Bridge)){
-    detect_samples <- detect_samples[-which(grepl(paste(params$Bridge, collapse="|"), detect_samples))]
+    detect_samples <- detect_samples[!grepl(paste(params$Bridge, collapse="|"), detect_samples)]
   }
   plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
                                 sample_subset=detect_samples,
@@ -364,10 +367,11 @@ for (i in 1:length(params$xmlFiles)){
                                'max',
                                'detectable targets n (%)')
   detectability_summary <- rbind(detectability_summary, detectability)
-  detectability_tar <- cbind(detectability_tar, plate_detect$detectability)
+  detectability_targets <- cbind(detectability_targets, plate_detect$detectability)
 }
+
 rownames(detectability_summary) <- PlateNames
-colnames(detectability_tar) <- PlateNames
+colnames(detectability_targets) <- PlateNames
 ```
 
 ```{r, include=FALSE}
@@ -550,7 +554,7 @@ for( i in 1:length(runs)){
 ```{r, results='asis'}
 kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', align='r', table.attr="id=\"detectability-summary\"",
                            format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
-kable_styling(knitr::kable(detectability_tar, caption='Target Detectability %', align='r', , table.attr="id=\"detectability-indepth\"",
+kable_styling(knitr::kable(detectability_targets, caption='Target Detectability %', align='r', , table.attr="id=\"detectability-indepth\"",
                            format.args=list(big.mark = ",", digits=2)), bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) 
 ```
 
