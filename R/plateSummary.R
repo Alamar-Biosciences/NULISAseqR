@@ -77,7 +77,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
                                  'Unparseable',
                                  'Total samples',
                                  'Total targets',
-                                 'Total samples*targets',
+                                 'Total samples * targets',
                                  'Missing/zero values')
   output <- reads_percents
   # check if total reads in Data equals parseable match reads in Run Summary
