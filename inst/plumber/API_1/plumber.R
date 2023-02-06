@@ -5,7 +5,7 @@
 #* @param barcodeB:file optional BarcodeB file
 #* @post /normXML
 normXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeControl"), IC=c("mCherry"), barcodeB=""){
-  future({
+  future_promise({
     return(processXML(toString(in_xml), IPC, NC, IC, toString(barcodeB)))
   })
 }
