@@ -4,7 +4,8 @@ library(promises)
 library(optparse)
 library(future)
 library(NULISAseqR)
-plan(cluster, workers=2) #do not use multicore (possible garbage collection issue)
+workers <- max(2, availableCores(), na.rm=T)
+plan(cluster, workers=workers) #do not use multicore (possible garbage collection issue)
 args = commandArgs(trailingOnly=T)
 PORT <- if (length(args) == 0 ) 8000 else args[1]
 plumb_api(package="NULISAseqR", name="API_1", edit=FALSE) %>%
