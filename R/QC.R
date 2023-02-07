@@ -1,3 +1,40 @@
+# Sample QC criteria
+MIN_FRAC_TARGETS_ABOVE_LOD <- 0.8  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
+MIN_IC_READS_PER_SAMPLE <- 1000    # Minimum number (ICReads) of IC reads within a sample
+MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a sample
+
+#' QCSampleCriteria
+#'
+#' Sample QC Criteria
+#' @return criteria
+#' @examples
+#' # QCSampleCriteria()
+#'
+#' @export
+QCSampleCriteria <- function(){
+  return (c(TARGETS_ABOVE_LOD=MIN_FRAC_TARGETS_ABOVE_LOD,ICReads=MIN_IC_READS_PER_SAMPLE, NumReads=MIN_NUM_READS_PER_SAMPLE)) 
+}
+
+# Plate QC criteria
+MAX_IC_CV <- 0.5                # (ICRead_CV) CV of IC reads across all samples
+MAX_IPC_CV <- 0.5               # (IPCRead_CV) CV of total read count for each IPC sample
+MAX_MEDIAN_IPC_TARGET_CV <- 0.2 # (IPCTarget_CV) Median of CVs of all IPC targets (Performed on normalized data) 
+DETECTABILITY_FRAC <- 0.75      # (Detectability) Target-wise Detectability fraction (target is detected if >50% of samples > LOD)
+MIN_READS <- 5e5                # (MinReads) Minimum number of reads
+
+#' QCPlateCriteria
+#'
+#' Plate QC Criteria
+#' @return criteria
+#' @examples
+#' # QCPlateCriteria()
+#'
+#' @export
+QCPlateCriteria <- function(){
+  return (c(ICRead_CV=MAX_IC_CV,IPCRead_CV=MAX_IPC_CV, IPCTarget_CV=MAX_MEDIAN_IPC_TARGET_CV, Detectability=DETECTABILITY_FRAC, MinReads=MIN_READS)) 
+}
+
+
 #' Write Processed XML from QC table
 #'
 #' Writes NULISAseq QC flags to XML
@@ -61,10 +98,6 @@ QC2XML <- function(input, QCNode, sample=F, combined=F){
 QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples){
   columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
-  # Sample QC criteria
-  MIN_FRAC_TARGETS_ABOVE_LOD <- 0.8  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
-  MIN_IC_READS_PER_SAMPLE <- 1000    # Minimum number (ICReads) of IC reads within a sample
-  MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a sample
 
   # Minimim fraction (Target_Detectability): # Targets with reads above LOD
   normed2 <- normed
@@ -118,13 +151,6 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples){
 QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
   columns <- c("flagName", "normMethod", "status", "val", "text")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
-
-  # Plate QC criteria
-  MAX_IC_CV <- 0.5                # (ICRead_CV) CV of IC reads across all samples
-  MAX_IPC_CV <- 0.5               # (IPCRead_CV) CV of total read count for each IPC sample
-  MAX_MEDIAN_IPC_TARGET_CV <- 0.2 # (IPCTarget_CV) Median of CVs of all IPC targets (Performed on normalized data) 
-  DETECTABILITY_FRAC <- 0.75      # (Detectability) Target-wise Detectability fraction (target is detected if >50% of samples > LOD)
-  MIN_READS <- 5e5                # (MinReads) Minimum number of reads
 
   # Calculate Plate-wide QC vals
   ## MAX_IC_CV (V)

@@ -526,7 +526,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ## Quality control
 
-### Plate QC flags
+### Plate QC
 ```{r, results='asis'}
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
@@ -544,35 +544,45 @@ for( i in 1:length(runs)){
                    align='r', 
                    format.args=list(big.mark = ",", digits=2),
                    table.attr=table.attr) %>%
-        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
+        row_spec(which(qcPlate$status == "Fail"), bold=T, color="white", background="red"))
 }
 ```
 
-### Sample QC flags
-```{r, results='asis'}
+### Sample QC
+```{r, out.width='100%', fig.asp=2}
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
   IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
   NCs  <- which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))
   
-  table.attr <- paste0("id=\"QCFlagSample-summary", i, "\"")
   # Sample QC
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples)
   qcSample$status[which(qcSample$status == "F")] <- "Pass"
   qcSample$status[which(qcSample$status == "T")] <- "Fail"
-  inds <- which(qcSample$flagName=="TARGETS_ABOVE_LOD")
-  qcSample$val[inds] <- paste0(format(as.numeric(qcSample$val[inds])*100, digits=2), "%")
-  inds <- which(qcSample$flagName != "TARGETS_ABOVE_LOD")
-  qcSample$val[inds] <- format(as.numeric(qcSample$val[inds]), big.mark=",")
-  qcSample <- qcSample[order(qcSample$sampleName),]
-  rownames(qcSample) <- NULL
-  qcSample <- qcSample %>% group_by(sampleName) %>% mutate(sampleName=replace(sampleName, duplicated(sampleName), ''))
-  cat(knitr::kable(qcSample, 
-                   caption=paste0("Plate ", as.character(i), ": Sample QC Flag Summary"), 
-                   align='r', 
-                   format.args=list(big.mark = ",", digits=2), 
-                   table.attr=table.attr) %>%
-        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
+  cats <- unique(qcSample$flagName)
+  par(mfrow=c(ceiling(length(cats)/2), 2))
+  
+  for(j in 1:length(cats)){
+    inds <- which(qcSample$flagName == cats[j])
+    qcSample[inds,]$status[23]<-"Fail"
+    color <- rep("darkgreen", length(inds))
+    xlab <- ""
+    xval <- NULL
+    if(cats[j] == "TARGETS_ABOVE_LOD"){
+      xlab <- "Detectability %"
+      xval <- as.numeric(qcSample[inds, ]$val)*100
+    }else{
+      xlab <- "Number of Reads"
+      xval <- qcSample[inds, ]$val
+    }
+    
+    dotchart(x=as.numeric(xval), xlab=xlab, 
+             labels=qcSample[inds, ]$sampleName, las=1, 
+             main=paste0("Plate ", as.character(i), ": ", cats[j]), 
+             cex=0.45, color=color )
+    legend('topleft', legend=c('Pass', "Fail"), col=c('darkgreen', 'red'), lty=1, cex=0.4, bty='n')
+  } 
 }
 ```
 
