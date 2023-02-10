@@ -865,7 +865,7 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ---
 
-```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
+```{r, out.width='100%', fig.asp=0.8, results='asis', eval=multipleFiles}
 pandoc.header("Sample PCA", 2)
 
 doPCA <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
