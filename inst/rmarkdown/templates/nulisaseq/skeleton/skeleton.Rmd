@@ -638,8 +638,8 @@ for( i in 1:length(runs)){
     color[which(qcSample[inds,]$type == "NC")] <- boxplot_colors[2]
     
     val <- if(cats[j] == "Detectability") criteria[j]*100 else criteria[j]
-    rmin <- min(val, as.numeric(xval), na.rm=T)
-    rmax <- max(val, as.numeric(xval), na.rm=T)
+    rmin <- if(cats[j] == "Detectability") 0.0 else min(val, as.numeric(xval), na.rm=T)
+    rmax <- if(cats[j] == "Detectability") 100 else  max(val, as.numeric(xval), na.rm=T)
     log <- if(cats[j] != "Detectability") "x" else ""
     dotchart(x=as.numeric(xval), xlab=xlab, 
              labels=qcSample[inds, ]$sampleName, las=1, 
