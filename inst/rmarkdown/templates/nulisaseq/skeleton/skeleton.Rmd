@@ -865,10 +865,65 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ---
 
-```{r, out.width='100%', fig.asp=0.8, results='asis', eval=multipleFiles}
+```{r, out.width='100%', fig.asp=0.4, results='asis', eval=!multipleFiles}
+# PCA plot for single plate 
 pandoc.header("Sample PCA", 2)
 
-doPCA <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
+PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
+  pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
+  par(mar=c(4,4,2,5))
+  plateID <- factor(plateID)
+  colors <- alamarColorPalette(length(levels(plateID)))
+  IPC_samples <- grep(paste(params$IPC, collapse="|"), colnames(data))
+  SC_samples <- grep(paste(params$SC, collapse="|"), colnames(data))
+  if(!is.null(params$Bridge)){
+    Bridge_samples <- grep(paste(params$Bridge, collapse="|"), colnames(data))
+  } else {
+    Bridge_samples <- NULL
+  }
+  point_shapes <- rep(1, ncol(data))
+  point_shapes[SC_samples] <- 9
+  point_shapes[IPC_samples] <- 8
+  if(!is.null(params$Bridge)) point_shapes[Bridge_samples] <- 10
+  plot(pca$x[,1], pca$x[,2],
+       col=colors[as.integer(plateID)],
+       pch=point_shapes,
+       xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), 
+                   '% variance)'),
+       ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), 
+                   '% variance)'),
+       main=title, las=1, cex=0.5)
+  legend(par('usr')[2], par('usr')[4], 
+         c(levels(plateID), 'Sample', 'IPCs', 'SCs', 'Bridge'),
+         col=c(colors, 'black', 'black', 'black', 'black'), xpd=NA,
+         pch=c(1,1,1,8,9,10), cex=0.75, bty='n')
+}
+
+removeTargetsSamples <- function(data, NC){
+  data <- data[-which(grepl("mCherry", rownames(data))),]
+  data <- data[,-which(grepl(paste(NC, collapse="|"), colnames(data)))]
+  return(data)
+}
+
+dataPCA_unnorm <- dataPCA_mCherry <- plateID <- NULL
+for(i in 1:length(params$xmlFiles)){
+  dataPCA_unnorm <- cbind(dataPCA_unnorm, removeTargetsSamples(runs[[i]]$Data, params$NC))
+  dataPCA_mCherry <- cbind(dataPCA_mCherry, removeTargetsSamples(intraPlateNormData[[i]][[1]]$normData, params$NC))
+  plateID <- c(plateID, rep(paste0("Plate",i), ncol(dataPCA_unnorm)))
+}
+
+par(mfrow=c(1,2))
+PCAplot(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
+PCAplot(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
+```
+
+
+
+```{r, out.width='100%', fig.asp=0.8, results='asis', eval=multipleFiles}
+# PCA plot for multiple plates
+pandoc.header("Sample PCA", 2)
+
+PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
   pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
   par(mar=c(4,4,2,5))
   plateID <- factor(plateID)
@@ -914,9 +969,8 @@ for(i in 1:length(params$xmlFiles)){
 }
 
 par(mfrow=c(2,2))
-doPCA(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
-doPCA(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
-doPCA(dataPCA_mCherryIPC, plateID, scale=TRUE, center=TRUE, title="mCherry + IPC")
-doPCA(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
+PCAplot(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
+PCAplot(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
+PCAplot(dataPCA_mCherryIPC, plateID, scale=TRUE, center=TRUE, title="mCherry + IPC")
+PCAplot(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
 ```
-
