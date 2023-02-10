@@ -335,6 +335,47 @@ colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'miss
 ```
 
 ```{r, include=FALSE}
+QC_mCherry_table <- list()
+# QC tables
+for(i in 1:length(params$xmlFiles)){
+  # get mCherry data
+  run_i_mCherry <- runs[[i]]$Data['mCherry',]
+  # remove IPCs, NCs, and SCs
+  run_i_mCherry <- run_i_mCherry[!grepl(paste(params$IPC, collapse="|"), names(run_i_mCherry))]
+  run_i_mCherry <- run_i_mCherry[!grepl(paste(params$NC, collapse="|"), names(run_i_mCherry))]
+  run_i_mCherry <- run_i_mCherry[!grepl(paste(params$SC, collapse="|"), names(run_i_mCherry))]
+  # count # of samples with mCherry outside +/- 30% of median
+  mCherry_median <- median(run_i_mCherry)
+  mCherry_median_plus30 <- mCherry_median + mCherry_median*(30/100)
+  mCherry_median_minus30 <- mCherry_median - mCherry_median*(30/100)
+  samples_above_threshold <- names(run_i_mCherry)[run_i_mCherry > mCherry_median_plus30]
+  samples_below_threshold <- names(run_i_mCherry)[run_i_mCherry < mCherry_median_minus30]
+  # output
+  output <- data.frame(Plate=paste0('Plate ', i),
+                       TotalSamples=length(run_i_mCherry),
+                       NumberWarnings=length(c(samples_above_threshold,
+                                               samples_below_threshold)),
+                       SamplesAbove=paste(samples_above_threshold, collapse=', '),
+                       SamplesBelow=paste(samples_below_threshold, collapse=', '))
+  QC_mCherry_table[[i]] <- output
+}
+
+QC_mCherry_table <- do.call(rbind, QC_mCherry_table)
+QC_mCherry_totals <- c('Totals', 
+                       sum(as.numeric(QC_mCherry_table[,2])),
+                       sum(as.numeric(QC_mCherry_table[,3])),
+                       '',
+                       '')
+QC_mCherry_table <- rbind(QC_mCherry_table,
+                          QC_mCherry_totals )
+
+rownames(QC_mCherry_table) <- NULL
+colnames(QC_mCherry_table) <- c('Plate', 'Total Samples', 'Number QC Warnings',
+                                'Samples mCherry > 30% median',
+                                'Samples mCherry < 30% median')
+```
+
+```{r, include=FALSE}
 # calculate detectability
 detectability_summary <- NULL
 detectability_targets <- NULL
@@ -552,6 +593,17 @@ for( i in 1:length(runs)){
 ```
 
 ### Sample QC
+#### Sample QC summary table
+```{r, results='asis'}
+# QC table
+knitr::kable(QC_mCherry_table, caption='Sample QC mCherry table', 
+             align='r', 
+             table.attr="id=\"QC-mCherry-table\"",
+             format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+```
+
+#### Sample QC plots
 ```{r, out.width='100%', fig.asp=2}
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
