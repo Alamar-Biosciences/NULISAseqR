@@ -10,7 +10,6 @@ params:
   colAnnotName: "Annot3"
   plateAnnotName: "Annot1"
   heatMapRel: !r TRUE
-  PCA: !r FALSE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
   sample_desc: "This is a sample description."
@@ -336,6 +335,47 @@ colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'miss
 ```
 
 ```{r, include=FALSE}
+QC_mCherry_table <- list()
+# QC tables
+for(i in 1:length(params$xmlFiles)){
+  # get mCherry data
+  run_i_mCherry <- runs[[i]]$Data['mCherry',]
+  # remove IPCs, NCs, and SCs
+  run_i_mCherry <- run_i_mCherry[!grepl(paste(params$IPC, collapse="|"), names(run_i_mCherry))]
+  run_i_mCherry <- run_i_mCherry[!grepl(paste(params$NC, collapse="|"), names(run_i_mCherry))]
+  run_i_mCherry <- run_i_mCherry[!grepl(paste(params$SC, collapse="|"), names(run_i_mCherry))]
+  # count # of samples with mCherry outside +/- 30% of median
+  mCherry_median <- median(run_i_mCherry)
+  mCherry_median_plus30 <- mCherry_median + mCherry_median*(30/100)
+  mCherry_median_minus30 <- mCherry_median - mCherry_median*(30/100)
+  samples_above_threshold <- names(run_i_mCherry)[run_i_mCherry > mCherry_median_plus30]
+  samples_below_threshold <- names(run_i_mCherry)[run_i_mCherry < mCherry_median_minus30]
+  # output
+  output <- data.frame(Plate=paste0('Plate ', i),
+                       TotalSamples=length(run_i_mCherry),
+                       NumberWarnings=length(c(samples_above_threshold,
+                                               samples_below_threshold)),
+                       SamplesAbove=paste(samples_above_threshold, collapse=', '),
+                       SamplesBelow=paste(samples_below_threshold, collapse=', '))
+  QC_mCherry_table[[i]] <- output
+}
+
+QC_mCherry_table <- do.call(rbind, QC_mCherry_table)
+QC_mCherry_totals <- c('Totals', 
+                       sum(as.numeric(QC_mCherry_table[,2])),
+                       sum(as.numeric(QC_mCherry_table[,3])),
+                       '',
+                       '')
+QC_mCherry_table <- rbind(QC_mCherry_table,
+                          QC_mCherry_totals )
+
+rownames(QC_mCherry_table) <- NULL
+colnames(QC_mCherry_table) <- c('Plate', 'Total Samples', 'Number QC Warnings',
+                                'Samples mCherry > 30% median',
+                                'Samples mCherry < 30% median')
+```
+
+```{r, include=FALSE}
 # calculate detectability
 detectability_summary <- NULL
 detectability_targets <- NULL
@@ -553,6 +593,17 @@ for( i in 1:length(runs)){
 ```
 
 ### Sample QC
+#### Sample QC summary table
+```{r, results='asis'}
+# QC table
+knitr::kable(QC_mCherry_table, caption='Sample QC mCherry table', 
+             align='r', 
+             table.attr="id=\"QC-mCherry-table\"",
+             format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+```
+
+#### Sample QC plots
 ```{r, out.width='100%', fig.asp=2}
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
@@ -814,44 +865,58 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ---
 
-```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
-if(params$PCA){
- pandoc.header("Sample PCA", 2)
- doPCA <- function(data, plateVar, normed=FALSE, scale=FALSE, center=FALSE, title="Unnormalized"){
-   pca <- if(normed) prcomp(t(data), scale=scale, center=center) else prcomp(log2(t(data)+0.01), scale=scale, center=center)
-   par(mar=c(4,4,2,5))
-   plot(pca$x[,1], pca$x[,2], 
-        col=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
-        pch=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
-        xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), '% variance)'), 
-        ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), '% variance)'), 
-        main=title, las=1, cex=0.5)
-   legend(par('usr')[2], par('usr')[4], levels(factor(plateVar)),
-          col=1:length(levels(factor(plateVar))), xpd=NA,
-          pch=1:length(levels(factor(plateVar))), cex=0.75, bty='n')
-   return(NULL)
- }
- 
- removeTargetsSamples <- function(data, NC, IPC, Bridge){
-   data <- data[-which(grepl("mCherry", rownames(data))),]
-   data <- data[,-which(grepl(paste(c(NC, IPC, Bridge), collapse="|"), colnames(data)))]
-   return(data)
- }
- 
- dataPCAunnormal <- dataPCAnormed <- dataPCAnormedIPC <- dataPCAnormedIN <-plateVar <- NULL
- for(i in 1:length(params$xmlFiles)){
-   dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, params$NC, params$IPC, params$Bridge))
-   dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge))
-   dataPCAnormedIPC <- cbind(dataPCAnormedIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], params$NC, params$IPC, params$Bridge))
-   dataPCAnormedIN <- cbind(dataPCAnormedIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], params$NC, params$IPC, params$Bridge))
-   plateVar <- c(plateVar, rep(paste0("Plate",i),length(removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge)[1,])))
- }
+```{r, out.width='100%', fig.asp=0.8, results='asis', eval=multipleFiles}
+pandoc.header("Sample PCA", 2)
 
- par(mfrow=c(2,2))
- e <- doPCA(dataPCAunnormal, plateVar, normed=FALSE, scale=TRUE, center=TRUE, title="Unnormalized")
- e <- doPCA(dataPCAnormed, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry")
- e <- doPCA(dataPCAnormedIPC, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IPC")
- e <- doPCA(dataPCAnormedIN, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IN")
+doPCA <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
+  pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
+  par(mar=c(4,4,2,5))
+  plateID <- factor(plateID)
+  colors <- alamarColorPalette(length(levels(plateID)))
+  IPC_samples <- grep(paste(params$IPC, collapse="|"), colnames(data))
+  SC_samples <- grep(paste(params$SC, collapse="|"), colnames(data))
+  if(!is.null(params$Bridge)){
+    Bridge_samples <- grep(paste(params$Bridge, collapse="|"), colnames(data))
+  } else {
+    Bridge_samples <- NULL
+  }
+  point_shapes <- rep(1, ncol(data))
+  point_shapes[SC_samples] <- 9
+  point_shapes[IPC_samples] <- 8
+  if(!is.null(params$Bridge)) point_shapes[Bridge_samples] <- 10
+  plot(pca$x[,1], pca$x[,2],
+       col=colors[as.integer(plateID)],
+       pch=point_shapes,
+       xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), 
+                   '% variance)'),
+       ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), 
+                   '% variance)'),
+       main=title, las=1, cex=0.5)
+  legend(par('usr')[2], par('usr')[4], 
+         c(levels(plateID), 'Sample', 'IPCs', 'SCs', 'Bridge'),
+         col=c(colors, 'black', 'black', 'black', 'black'), xpd=NA,
+         pch=c(1,1,1,8,9,10), cex=0.75, bty='n')
 }
+
+removeTargetsSamples <- function(data, NC){
+  data <- data[-which(grepl("mCherry", rownames(data))),]
+  data <- data[,-which(grepl(paste(NC, collapse="|"), colnames(data)))]
+  return(data)
+}
+
+dataPCA_unnorm <- dataPCA_mCherry <- dataPCA_mCherryIPC <- dataPCA_mCherryIN <- plateID <- NULL
+for(i in 1:length(params$xmlFiles)){
+  dataPCA_unnorm <- cbind(dataPCA_unnorm, removeTargetsSamples(runs[[i]]$Data, params$NC))
+  dataPCA_mCherry <- cbind(dataPCA_mCherry, removeTargetsSamples(intraPlateNormData[[i]][[1]]$normData, params$NC))
+  dataPCA_mCherryIPC <- cbind(dataPCA_mCherryIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], params$NC))
+  dataPCA_mCherryIN <- cbind(dataPCA_mCherryIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], params$NC))
+  plateID <- c(plateID, rep(paste0("Plate",i), ncol(dataPCA_unnorm)))
+}
+
+par(mfrow=c(2,2))
+doPCA(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
+doPCA(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
+doPCA(dataPCA_mCherryIPC, plateID, scale=TRUE, center=TRUE, title="mCherry + IPC")
+doPCA(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
 ```
 
