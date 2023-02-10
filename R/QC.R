@@ -1,5 +1,5 @@
 # Sample QC criteria
-MIN_FRAC_TARGETS_ABOVE_LOD <- 0.8  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
+MIN_FRAC_DETECTABILITY <- 0.8  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
 MIN_IC_READS_PER_SAMPLE <- 1000    # Minimum number (ICReads) of IC reads within a sample
 MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a sample
 
@@ -12,7 +12,7 @@ MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a
 #'
 #' @export
 QCSampleCriteria <- function(){
-  return (c(TARGETS_ABOVE_LOD=MIN_FRAC_TARGETS_ABOVE_LOD,ICReads=MIN_IC_READS_PER_SAMPLE, NumReads=MIN_NUM_READS_PER_SAMPLE)) 
+  return (c(Detectability=MIN_FRAC_DETECTABILITY,ICReads=MIN_IC_READS_PER_SAMPLE, NumReads=MIN_NUM_READS_PER_SAMPLE)) 
 }
 
 # Plate QC criteria
@@ -95,41 +95,74 @@ QC2XML <- function(input, QCNode, sample=F, combined=F){
 #' # QCFlagSample(inputtable)
 #'
 #' @export
-QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples){
-  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode")
+QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples, well_order=NULL){
+  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode", "type")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
-
+  if(is.null(well_order)){
+    well_order <- 1:length(raw[,1])
+  }else{
+    well_order <- rev(well_order)
+  }
   # Minimim fraction (Target_Detectability): # Targets with reads above LOD
   normed2 <- normed
-  normed2 <- normed2[-ICs, ]
   
   lod <- lod(data_matrix=normed2, blanks=NCs, min_count=0)
   lod$aboveLOD[which(is.na(lod$aboveLOD))] <- FALSE
   perc_tar <- colSums(lod$aboveLOD == TRUE)/ nrow(lod$aboveLOD)
-  perc_tar <- perc_tar[-NCs]
-  for (i in 1:length(perc_tar)){
-    set <- if(perc_tar[i] < MIN_FRAC_TARGETS_ABOVE_LOD) "T" else "F"
-    QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "TARGETS_ABOVE_LOD", "IC", set, perc_tar[i], "", samples$sampleBarcode[i]))
+  perc_tar[NCs] <-NA
+  for (j in 1:length(perc_tar)){
+    i <- well_order[j]
+    set <- NULL
+    if(is.na(perc_tar[i])){
+      set <- NA
+    }else{
+      set <- if(perc_tar[i] < MIN_FRAC_DETECTABILITY) "T" else "F"
+    }
+    type <- "Sample"
+    if(i %in% NCs){
+      type <- "NC"
+    }else if (i %in% IPCs){
+      type <- "IPC"
+    }
+    QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "Detectability", "IC", set, perc_tar[i], "", samples$sampleBarcode[i], type))
   }
 
   
   # Minimum number (ICReads) of IC reads within a sample
   ICvals <- raw[ICs, ]
   ICvals[is.na(ICvals)] <- 0
-  for (i in 1:length(ICvals)){
+  for (j in 1:length(ICvals)){
+    i <- well_order[j]
     set <- if(ICvals[i] < MIN_IC_READS_PER_SAMPLE) "T" else "F"
-    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[i]))
+    type <-"Sample"
+    if(i %in% NCs){
+      type <- "NC"
+    }else if (i %in% IPCs){
+      type <- "IPC"
+    }
+    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[i], type))
   }
 
   # Minimum number (NumReads) of reads within a sample
   raw2 <- raw
-  raw2 <- raw2[,-NCs]
   barNames <- samples$sampleBarcode
-  barNames <- barNames[-NCs] 
   val <- colSums(raw2, na.rm=T)
-  for(i in 1:length(val)){
-    set <- if(val[i] < MIN_NUM_READS_PER_SAMPLE) "T" else "F"
-    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], "", barNames[i]))
+  for(j in 1:length(val)){
+    i <- well_order[j]
+    set <- NULL
+    if(i %in% NCs){
+      set <- NA  
+      val[i] <- NA
+    }else{
+      set <- if(val[i] < MIN_NUM_READS_PER_SAMPLE) "T" else "F"
+    }
+    type <- "Sample"
+    if(i %in% NCs){
+      type <- "NC"
+    }else if (i %in% IPCs){
+      type <- "IPC"
+    }
+    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], "", barNames[i], type))
   }
   colnames(QCFlagReturn) <- columns
   return(QCFlagReturn)
@@ -149,7 +182,7 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples){
 #'
 #' @export
 QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
-  columns <- c("flagName", "normMethod", "status", "val", "text")
+  columns <- c("flagName", "normMethod", "status", "val", "QCthreshold")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
 
   # Calculate Plate-wide QC vals
@@ -158,7 +191,7 @@ QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
   ICvals[is.na(ICvals)] <- 0
   IC_CV <- sd(ICvals, na.rm=T) / mean(ICvals, na.rm=T)
   set <- if(IC_CV > MAX_IC_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("ICRead_CV", "raw", set, IC_CV, ""))
+  QCFlagReturn <- rbind(QCFlagReturn, c("ICRead_CV", "raw", set, IC_CV, MAX_IC_CV))
 
   ## MAX_IPC_CV (I)
   IPCvals <- raw[, IPCs]
@@ -166,14 +199,14 @@ QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
   IPCvals2 <- colMeans(IPCvals, na.rm=T)
   IPC_CV <- sd(IPCvals2, na.rm=T) / mean(IPCvals2, na.rm=T)
   set <- if(IPC_CV > MAX_IPC_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("IPCRead_CV", "raw", set, IPC_CV, ""))
+  QCFlagReturn <- rbind(QCFlagReturn, c("IPCRead_CV", "raw", set, IPC_CV, MAX_IPC_CV))
 
   ## MAX_MEDIAN_IPC_TARGET_CV (P)
   IPCnormvals <- normed[, IPCs]
   IPCnormvals[is.na(IPCvals)] <- 0
   median_IPC_targetCV <- median(apply(IPCnormvals, 1, sd) / rowMeans(IPCnormvals, na.rm=T), na.rm=T) 
   set <- if(median_IPC_targetCV > MAX_MEDIAN_IPC_TARGET_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("IPCTarget_CV", "IC", set, median_IPC_targetCV, ""))
+  QCFlagReturn <- rbind(QCFlagReturn, c("IPCTarget_CV", "IC", set, median_IPC_targetCV, MAX_MEDIAN_IPC_TARGET_CV))
 
   ## Detectability fraction (D)
   normed2 <- normed
@@ -183,12 +216,12 @@ QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
   perc_tar <- rowSums(lod$aboveLOD == TRUE)/ ncol(lod$aboveLOD)
   perc_all <- length(which(perc_tar > 0.5))/ nrow(lod$aboveLOD)
   set <- if(perc_all < DETECTABILITY_FRAC) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("Detectability", "IC", set, perc_all, ""))
+  QCFlagReturn <- rbind(QCFlagReturn, c("Detectability", "IC", set, perc_all, DETECTABILITY_FRAC))
 
   ## Min number of reads (R)
   nReads <- sum(raw, na.rm=T)
   set <- if(nReads < MIN_READS) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("MinReads", "raw", set, nReads, ""))
+  QCFlagReturn <- rbind(QCFlagReturn, c("MinReads", "raw", set, nReads, MIN_READS))
 
   colnames(QCFlagReturn) <- columns
   return(QCFlagReturn)

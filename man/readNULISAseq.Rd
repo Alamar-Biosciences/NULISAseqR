@@ -4,21 +4,24 @@
 \alias{readNULISAseq}
 \title{Read NULISAseq XML}
 \usage{
-readNULISAseq(xml_file, plateID = NULL, file_type = "xml_no_mismatches")
+readNULISAseq(
+  xml_file,
+  plateID = NULL,
+  file_type = "xml_no_mismatches",
+  replaceNA = TRUE
+)
 }
 \arguments{
 \item{xml_file}{Character string. Path and name of the file.}
 
-\item{plateID}{Character string that will be added to the beginning of
-column names before the sample name. This is helpful for 
-identifying the plate each sample came from 
-after interplate normalization. If no plate ID is given, the function
-will use the date and time in the execution details (this is 
-very long so it is recommended to provide a plate ID!).}
+\item{plateID}{Character string that denotes plate ID.}
 
 \item{file_type}{Character string. Type of input file, as output from Galaxy. Options include
 xml_full_output, xml_no_mismatches (default) (both from NULISAseq tool),
 or xml_normalization (from NULISAseq Normalization tool).}
+
+\item{replaceNA}{Logical. If TRUE (default), will replace missing counts with 
+zeros.}
 }
 \value{
 List of lists, data frames, and matrices.
@@ -27,8 +30,4 @@ Output will differ slightly depending on the input file type.
 \description{
 Reads NULISAseq XML file, where XML file is output from the Alamar
 Biosciences Galaxy NULISAseq (Beta) tool or the NULISAseq Normalization (Alpha) tool.
-}
-\examples{
-# plate1 <- readNULISAseq('filename.xml')
-
 }
