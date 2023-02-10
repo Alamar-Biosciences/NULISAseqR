@@ -10,6 +10,7 @@ params:
   colAnnotName: "Annot3"
   plateAnnotName: "Annot1"
   heatMapRel: !r TRUE
+  PCA: !r FALSE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
   sample_desc: "This is a sample description."
@@ -537,6 +538,8 @@ for( i in 1:length(runs)){
   table.attr <- paste0("id=\"QCFlagPlate-summary", i, "\"")
   qcPlate$status[which(qcPlate$status == "F")] <- "Pass"
   qcPlate$status[which(qcPlate$status == "T")] <- "Fail"
+  qcPlate$QCthreshold[1:nrow(qcPlate)-1] <- paste0(format(as.numeric(qcPlate$QCthreshold[1:nrow(qcPlate)-1])*100, digits=2), "%")
+  qcPlate$QCthreshold[nrow(qcPlate)] <- format(as.numeric(qcPlate$QCthreshold[nrow(qcPlate)]), big.mark=",")
   qcPlate$val[1:nrow(qcPlate)-1] <- paste0(format(as.numeric(qcPlate$val[1:nrow(qcPlate)-1])*100, digits=2), "%")
   qcPlate$val[nrow(qcPlate)] <- format(as.numeric(qcPlate$val[nrow(qcPlate)]), big.mark=",")
   cat(knitr::kable(qcPlate, 
@@ -555,33 +558,52 @@ for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
   IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
   NCs  <- which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))
+  well_order <- wellorder(runs[[i]]$sample, params$rowAnnotName, params$colAnnotName)
   
   # Sample QC
-  qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples)
+  qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples, well_order)
   qcSample$status[which(qcSample$status == "F")] <- "Pass"
   qcSample$status[which(qcSample$status == "T")] <- "Fail"
   cats <- unique(qcSample$flagName)
-  par(mfrow=c(ceiling(length(cats)/2), 2))
-  
+  par(mfrow=c(ceiling(length(cats)/2), 2), mar=c(5,6,2,2))
+  criteria <- QCSampleCriteria()
   for(j in 1:length(cats)){
     inds <- which(qcSample$flagName == cats[j])
-    qcSample[inds,]$status[23]<-"Fail"
-    color <- rep("darkgreen", length(inds))
+    color <- rep("black", length(inds))
     xlab <- ""
     xval <- NULL
-    if(cats[j] == "TARGETS_ABOVE_LOD"){
+    if(cats[j] == "Detectability"){
       xlab <- "Detectability %"
       xval <- as.numeric(qcSample[inds, ]$val)*100
     }else{
       xlab <- "Number of Reads"
       xval <- qcSample[inds, ]$val
+      zs <- which(xval == 0)
+      if(length(zs) > 0){
+        xval[zs] <- xval[zs]+1
+      }
     }
+    color[which(qcSample[inds,]$type == "IPC")] <- boxplot_colors[1]
+    color[which(qcSample[inds,]$type == "NC")] <- boxplot_colors[2]
     
+    val <- if(cats[j] == "Detectability") criteria[j]*100 else criteria[j]
+    rmin <- min(val, as.numeric(xval), na.rm=T)
+    rmax <- max(val, as.numeric(xval), na.rm=T)
+    log <- if(cats[j] != "Detectability") "x" else ""
     dotchart(x=as.numeric(xval), xlab=xlab, 
              labels=qcSample[inds, ]$sampleName, las=1, 
-             main=paste0("Plate ", as.character(i), ": ", cats[j]), 
-             cex=0.45, color=color )
-    legend('topleft', legend=c('Pass', "Fail"), col=c('darkgreen', 'red'), lty=1, cex=0.4, bty='n')
+             cex=0.45, xlim=c(rmin, rmax), color=color, log=log)
+    indFail <- which(qcSample[inds,]$status != "Fail")
+    indPass <- which(qcSample[inds,]$status != "Pass")
+    xvalFail <- xval
+    xvalFail[indFail] <- NA
+    xvalPass <-xval
+    xvalFail[indPass] <- NA
+    points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
+    points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
+    abline(v=val, col='brown')
+    legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), pch=19, cex=0.4, bty='n', inset=c(0,1), xpd=T,horiz=T)
+    title(main=paste0("Plate ", as.character(i), ": ", cats[j]))
   } 
 }
 ```
@@ -793,41 +815,43 @@ abline(v=c(0:200*5), col='grey', lty=3)
 ---
 
 ```{r, out.width='100%', fig.asp=0.5, results='asis', eval=multipleFiles}
-# pandoc.header("Sample PCA", 2)
-# doPCA <- function(data, plateVar, normed=FALSE, scale=FALSE, center=FALSE, title="Unnormalized"){
-#   pca <- if(normed) prcomp(t(data), scale=scale, center=center) else prcomp(log2(t(data)+0.01), scale=scale, center=center)
-#   par(mar=c(4,4,2,5))
-#   plot(pca$x[,1], pca$x[,2], 
-#        col=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
-#        pch=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
-#        xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), '% variance)'), 
-#        ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), '% variance)'), 
-#        main=title, las=1, cex=0.5)
-#   legend(par('usr')[2], par('usr')[4], levels(factor(plateVar)),
-#          col=1:length(levels(factor(plateVar))), xpd=NA,
-#          pch=1:length(levels(factor(plateVar))), cex=0.75, bty='n')
-#   return(NULL)
-# }
-# 
-# removeTargetsSamples <- function(data, NC, IPC, Bridge){
-#   data <- data[-which(grepl("mCherry", rownames(data))),]
-#   data <- data[,-which(grepl(paste(c(NC, IPC, Bridge), collapse="|"), colnames(data)))]
-#   return(data)
-# }
-# 
-# dataPCAunnormal <- dataPCAnormed <- dataPCAnormedIPC <- dataPCAnormedIN <-plateVar <- NULL
-# for(i in 1:length(params$xmlFiles)){
-#   dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, params$NC, params$IPC, params$Bridge))
-#   dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge))
-#   dataPCAnormedIPC <- cbind(dataPCAnormedIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], params$NC, params$IPC, params$Bridge))
-#   dataPCAnormedIN <- cbind(dataPCAnormedIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], params$NC, params$IPC, params$Bridge))
-#   plateVar <- c(plateVar, rep(paste0("Plate",i),length(removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge)[1,])))
-# }
+if(params$PCA){
+ pandoc.header("Sample PCA", 2)
+ doPCA <- function(data, plateVar, normed=FALSE, scale=FALSE, center=FALSE, title="Unnormalized"){
+   pca <- if(normed) prcomp(t(data), scale=scale, center=center) else prcomp(log2(t(data)+0.01), scale=scale, center=center)
+   par(mar=c(4,4,2,5))
+   plot(pca$x[,1], pca$x[,2], 
+        col=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
+        pch=(1:length(levels(factor(plateVar))))[as.integer(factor(plateVar))],
+        xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), '% variance)'), 
+        ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), '% variance)'), 
+        main=title, las=1, cex=0.5)
+   legend(par('usr')[2], par('usr')[4], levels(factor(plateVar)),
+          col=1:length(levels(factor(plateVar))), xpd=NA,
+          pch=1:length(levels(factor(plateVar))), cex=0.75, bty='n')
+   return(NULL)
+ }
+ 
+ removeTargetsSamples <- function(data, NC, IPC, Bridge){
+   data <- data[-which(grepl("mCherry", rownames(data))),]
+   data <- data[,-which(grepl(paste(c(NC, IPC, Bridge), collapse="|"), colnames(data)))]
+   return(data)
+ }
+ 
+ dataPCAunnormal <- dataPCAnormed <- dataPCAnormedIPC <- dataPCAnormedIN <-plateVar <- NULL
+ for(i in 1:length(params$xmlFiles)){
+   dataPCAunnormal <- cbind(dataPCAunnormal, removeTargetsSamples(runs[[i]]$Data, params$NC, params$IPC, params$Bridge))
+   dataPCAnormed <- cbind(dataPCAnormed, removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge))
+   dataPCAnormedIPC <- cbind(dataPCAnormedIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], params$NC, params$IPC, params$Bridge))
+   dataPCAnormedIN <- cbind(dataPCAnormedIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], params$NC, params$IPC, params$Bridge))
+   plateVar <- c(plateVar, rep(paste0("Plate",i),length(removeTargetsSamples(data_mCherry_log2_scaled[[i]], params$NC, params$IPC, params$Bridge)[1,])))
+ }
 
-# par(mfrow=c(2,2))
-# e <- doPCA(dataPCAunnormal, plateVar, normed=FALSE, scale=TRUE, center=TRUE, title="Unnormalized")
-# e <- doPCA(dataPCAnormed, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry")
-# e <- doPCA(dataPCAnormedIPC, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IPC")
-# e <- doPCA(dataPCAnormedIN, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IN")
+ par(mfrow=c(2,2))
+ e <- doPCA(dataPCAunnormal, plateVar, normed=FALSE, scale=TRUE, center=TRUE, title="Unnormalized")
+ e <- doPCA(dataPCAnormed, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry")
+ e <- doPCA(dataPCAnormedIPC, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IPC")
+ e <- doPCA(dataPCAnormedIN, plateVar, normed=TRUE, scale=TRUE, center=TRUE, title="mCherry + IN")
+}
 ```
 
