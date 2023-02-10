@@ -4,7 +4,14 @@
 \alias{processXML}
 \title{Write Processed NULISAseq XML}
 \usage{
-processXML(in_xml_file, IPC, NC, IC, barcodeB = NULL, out_XML = NULL)
+processXML(
+  in_xml,
+  IPC = c("InterProcessControl"),
+  NC = c("NegativeControl"),
+  IC = c("mCherry"),
+  barcodeB = "",
+  out_XML = ""
+)
 }
 \arguments{
 \item{IPC}{Name to search for Interprocess control (IPC) samples}

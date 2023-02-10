@@ -4,7 +4,7 @@
 \alias{QCFlagSample}
 \title{Write Sample QC table}
 \usage{
-QCFlagSample(raw, normed, ICs, NCs, IPCs)
+QCFlagSample(raw, normed, ICs, NCs, IPCs, samples, well_order = NULL)
 }
 \arguments{
 \item{raw}{unnormalized data}
