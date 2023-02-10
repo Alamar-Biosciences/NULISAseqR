@@ -4,7 +4,7 @@
 \alias{QC2XML}
 \title{Write Processed XML from QC table}
 \usage{
-QC2XML(input, sample = F)
+QC2XML(input, QCNode, sample = F, combined = F)
 }
 \arguments{
 \item{input}{QC table}
