@@ -626,6 +626,9 @@ for( i in 1:length(runs)){
     if(cats[j] == "Detectability"){
       xlab <- "Detectability %"
       xval <- as.numeric(qcSample[inds, ]$val)*100
+    }else if(cats[j] == "IC_Median"){
+      xlab <- "% of mCherry Median"
+      xval <- as.numeric(qcSample[inds, ]$val)*100
     }else{
       xlab <- "Number of Reads"
       xval <- qcSample[inds, ]$val
@@ -637,10 +640,20 @@ for( i in 1:length(runs)){
     color[which(qcSample[inds,]$type == "IPC")] <- boxplot_colors[1]
     color[which(qcSample[inds,]$type == "NC")] <- boxplot_colors[2]
     
-    val <- if(cats[j] == "Detectability") criteria[j]*100 else criteria[j]
-    rmin <- min(val, as.numeric(xval), na.rm=T)
-    rmax <- max(val, as.numeric(xval), na.rm=T)
-    log <- if(cats[j] != "Detectability") "x" else ""
+    val <- if(cats[j] == "Detectability" || cats[j] == "IC_Median") criteria[cats[j]]*100 else criteria[cats[j]]
+    rmin <- NULL
+    rmax <- NULL
+    if(cats[j] == "Detectability"){
+      rmin <- 0.0
+      rmax <- 100.0
+    }else if (cats[j] == "IC_Median"){
+      rmin <- min(-val, as.numeric(xval), na.rm=T)
+      rmax <- max(val, as.numeric(xval), na.rm=T)
+    }else{
+      rmin <- min(val, as.numeric(xval), na.rm=T)
+      rmax <- max(val, as.numeric(xval), na.rm=T)
+    }
+    log <- if(cats[j] != "Detectability" && cats[j] != "IC_Median") "x" else ""
     dotchart(x=as.numeric(xval), xlab=xlab, 
              labels=qcSample[inds, ]$sampleName, las=1, 
              cex=0.45, xlim=c(rmin, rmax), color=color, log=log)
@@ -649,10 +662,13 @@ for( i in 1:length(runs)){
     xvalFail <- xval
     xvalFail[indFail] <- NA
     xvalPass <-xval
-    xvalFail[indPass] <- NA
-    points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
+    xvalPass[indPass] <- NA
     points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
+    points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
     abline(v=val, col='brown')
+    if(cats[j] == "IC_Median"){
+      abline(v=-val, col='brown')
+    }
     legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), pch=19, cex=0.4, bty='n', inset=c(0,1), xpd=T,horiz=T)
     title(main=paste0("Plate ", as.character(i), ": ", cats[j]))
   } 
@@ -865,10 +881,65 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ---
 
-```{r, out.width='100%', fig.asp=0.8, results='asis', eval=multipleFiles}
+```{r, out.width='100%', fig.asp=0.4, results='asis', eval=!multipleFiles}
+# PCA plot for single plate 
 pandoc.header("Sample PCA", 2)
 
-doPCA <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
+PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
+  pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
+  par(mar=c(4,4,2,5))
+  plateID <- factor(plateID)
+  colors <- alamarColorPalette(length(levels(plateID)))
+  IPC_samples <- grep(paste(params$IPC, collapse="|"), colnames(data))
+  SC_samples <- grep(paste(params$SC, collapse="|"), colnames(data))
+  if(!is.null(params$Bridge)){
+    Bridge_samples <- grep(paste(params$Bridge, collapse="|"), colnames(data))
+  } else {
+    Bridge_samples <- NULL
+  }
+  point_shapes <- rep(1, ncol(data))
+  point_shapes[SC_samples] <- 9
+  point_shapes[IPC_samples] <- 8
+  if(!is.null(params$Bridge)) point_shapes[Bridge_samples] <- 10
+  plot(pca$x[,1], pca$x[,2],
+       col=colors[as.integer(plateID)],
+       pch=point_shapes,
+       xlab=paste0('PC1 (', format(round(summary(pca)$importance[2,1]*100, 1), nsmall=1), 
+                   '% variance)'),
+       ylab=paste0('PC2 (', format(round(summary(pca)$importance[2,2]*100, 1), nsmall=1), 
+                   '% variance)'),
+       main=title, las=1, cex=0.5)
+  legend(par('usr')[2], par('usr')[4], 
+         c(levels(plateID), 'Sample', 'IPCs', 'SCs', 'Bridge'),
+         col=c(colors, 'black', 'black', 'black', 'black'), xpd=NA,
+         pch=c(1,1,1,8,9,10), cex=0.75, bty='n')
+}
+
+removeTargetsSamples <- function(data, NC){
+  data <- data[-which(grepl("mCherry", rownames(data))),]
+  data <- data[,-which(grepl(paste(NC, collapse="|"), colnames(data)))]
+  return(data)
+}
+
+dataPCA_unnorm <- dataPCA_mCherry <- plateID <- NULL
+for(i in 1:length(params$xmlFiles)){
+  dataPCA_unnorm <- cbind(dataPCA_unnorm, removeTargetsSamples(runs[[i]]$Data, params$NC))
+  dataPCA_mCherry <- cbind(dataPCA_mCherry, removeTargetsSamples(intraPlateNormData[[i]][[1]]$normData, params$NC))
+  plateID <- c(plateID, rep(paste0("Plate",i), ncol(dataPCA_unnorm)))
+}
+
+par(mfrow=c(1,2))
+PCAplot(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
+PCAplot(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
+```
+
+
+
+```{r, out.width='100%', fig.asp=0.8, results='asis', eval=multipleFiles}
+# PCA plot for multiple plates
+pandoc.header("Sample PCA", 2)
+
+PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
   pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
   par(mar=c(4,4,2,5))
   plateID <- factor(plateID)
@@ -914,9 +985,8 @@ for(i in 1:length(params$xmlFiles)){
 }
 
 par(mfrow=c(2,2))
-doPCA(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
-doPCA(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
-doPCA(dataPCA_mCherryIPC, plateID, scale=TRUE, center=TRUE, title="mCherry + IPC")
-doPCA(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
+PCAplot(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
+PCAplot(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
+PCAplot(dataPCA_mCherryIPC, plateID, scale=TRUE, center=TRUE, title="mCherry + IPC")
+PCAplot(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
 ```
-
