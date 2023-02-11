@@ -605,6 +605,31 @@ knitr::kable(QC_mCherry_table, caption='Sample QC mCherry table',
 
 #### Sample QC plots
 ```{r, out.width='100%', fig.asp=2}
+rmin <- list() 
+rmax <- list()
+val <- list()
+criteria <- QCSampleCriteria()
+for (j in 1:length(criteria)){
+  for (i in 1:length(runs)){
+    qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples, well_order)
+    cats <- unique(qcSample$flagName)
+    inds <- which(qcSample$flagName == cats[j])
+    val[j] <- if(cats[j] == "Detectability" || cats[j] == "IC_Median") criteria[cats[j]]*100 else criteria[cats[j]]
+    if(cats[j] == "Detectability"){
+      xval <- as.numeric(qcSample[inds, ]$val)*100
+      rmax[j] <- 100.0
+      rmin[j] <- min(val[[j]], as.numeric(xval), na.rm=T) 
+    }else if (cats[j] == "IC_Median"){
+      xval <- as.numeric(qcSample[inds, ]$val)*100
+      rmin[j] <- min(-val[[j]], as.numeric(xval), na.rm=T)
+      rmax[j] <- max(val[[j]], as.numeric(xval), na.rm=T)
+    }else{
+      xval <- as.numeric(qcSample[inds, ]$val)
+      rmin[j] <- min(val[[j]], as.numeric(xval), na.rm=T)
+      rmax[j] <- max(val[[j]], as.numeric(xval), na.rm=T)
+    }
+  }
+}
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
   IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
@@ -615,7 +640,6 @@ for( i in 1:length(runs)){
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples, well_order)
   qcSample$status[which(qcSample$status == "F")] <- "Pass"
   qcSample$status[which(qcSample$status == "T")] <- "Fail"
-  cats <- unique(qcSample$flagName)
   par(mfrow=c(ceiling(length(cats)/2), 2), mar=c(5,6,2,2))
   criteria <- QCSampleCriteria()
   for(j in 1:length(cats)){
@@ -640,23 +664,10 @@ for( i in 1:length(runs)){
     color[which(qcSample[inds,]$type == "IPC")] <- boxplot_colors[1]
     color[which(qcSample[inds,]$type == "NC")] <- boxplot_colors[2]
     
-    val <- if(cats[j] == "Detectability" || cats[j] == "IC_Median") criteria[cats[j]]*100 else criteria[cats[j]]
-    rmin <- NULL
-    rmax <- NULL
-    if(cats[j] == "Detectability"){
-      rmin <- 0.0
-      rmax <- 100.0
-    }else if (cats[j] == "IC_Median"){
-      rmin <- min(-val, as.numeric(xval), na.rm=T)
-      rmax <- max(val, as.numeric(xval), na.rm=T)
-    }else{
-      rmin <- min(val, as.numeric(xval), na.rm=T)
-      rmax <- max(val, as.numeric(xval), na.rm=T)
-    }
     log <- if(cats[j] != "Detectability" && cats[j] != "IC_Median") "x" else ""
     dotchart(x=as.numeric(xval), xlab=xlab, 
              labels=qcSample[inds, ]$sampleName, las=1, 
-             cex=0.45, xlim=c(rmin, rmax), color=color, log=log)
+             cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), color=color, log=log)
     indFail <- which(qcSample[inds,]$status != "Fail")
     indPass <- which(qcSample[inds,]$status != "Pass")
     xvalFail <- xval
@@ -665,9 +676,9 @@ for( i in 1:length(runs)){
     xvalPass[indPass] <- NA
     points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
     points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
-    abline(v=val, col='brown')
+    abline(v=val[[j]], col='brown')
     if(cats[j] == "IC_Median"){
-      abline(v=-val, col='brown')
+      abline(v=-val[[j]], col='brown')
     }
     legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), pch=19, cex=0.4, bty='n', inset=c(0,1), xpd=T,horiz=T)
     title(main=paste0("Plate ", as.character(i), ": ", cats[j]))
