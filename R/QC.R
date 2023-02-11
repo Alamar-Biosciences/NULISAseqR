@@ -2,6 +2,7 @@
 MIN_FRAC_DETECTABILITY <- 0.8  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
 MIN_IC_READS_PER_SAMPLE <- 1000    # Minimum number (ICReads) of IC reads within a sample
 MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a sample
+MIN_IC_MEDIAN <- 0.3 # +/- of sample IC read count about the median
 
 #' QCSampleCriteria
 #'
@@ -12,7 +13,7 @@ MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a
 #'
 #' @export
 QCSampleCriteria <- function(){
-  return (c(Detectability=MIN_FRAC_DETECTABILITY,ICReads=MIN_IC_READS_PER_SAMPLE, NumReads=MIN_NUM_READS_PER_SAMPLE)) 
+  return (c(Detectability=MIN_FRAC_DETECTABILITY,ICReads=MIN_IC_READS_PER_SAMPLE, NumReads=MIN_NUM_READS_PER_SAMPLE, IC_Median=MIN_IC_MEDIAN)) 
 }
 
 # Plate QC criteria
@@ -102,6 +103,29 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples, well_order=NULL){
     well_order <- 1:length(raw[,1])
   }else{
     well_order <- rev(well_order)
+  }
+
+  # Median IC between -30% and 30% of median  
+  mCherry_median <- median(raw[ICs,], na.rm=T)
+  medianMin30 <- mCherry_median - mCherry_median * MIN_IC_MEDIAN
+  medianMax30 <- mCherry_median + mCherry_median * MIN_IC_MEDIAN
+  medVals <- (raw[ICs, ] - mCherry_median ) / mCherry_median 
+  for(j in 1:length(medVals)){
+    i <- well_order[j]
+    set <- NULL
+    if(is.na(medVals[i])){
+      set <- "T"
+    }else{
+      set <- if(abs(medVals[i]) > MIN_IC_MEDIAN) "T" else "F"
+    }
+    type <- "Sample"
+    if(i %in% NCs){
+      type <- "NC"
+    }else if (i %in% IPCs){
+      type <- "IPC"
+    }
+    QCFlagReturn <- rbind(QCFlagReturn, c(names(medVals)[i], "IC_Median", "raw", set, medVals[i], "", samples$sampleBarcode[i], type))
+
   }
   # Minimim fraction (Target_Detectability): # Targets with reads above LOD
   normed2 <- normed
