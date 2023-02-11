@@ -626,6 +626,9 @@ for( i in 1:length(runs)){
     if(cats[j] == "Detectability"){
       xlab <- "Detectability %"
       xval <- as.numeric(qcSample[inds, ]$val)*100
+    }else if(cats[j] == "IC_Median"){
+      xlab <- "% of mCherry Median"
+      xval <- as.numeric(qcSample[inds, ]$val)*100
     }else{
       xlab <- "Number of Reads"
       xval <- qcSample[inds, ]$val
@@ -637,10 +640,20 @@ for( i in 1:length(runs)){
     color[which(qcSample[inds,]$type == "IPC")] <- boxplot_colors[1]
     color[which(qcSample[inds,]$type == "NC")] <- boxplot_colors[2]
     
-    val <- if(cats[j] == "Detectability") criteria[j]*100 else criteria[j]
-    rmin <- if(cats[j] == "Detectability") 0.0 else min(val, as.numeric(xval), na.rm=T)
-    rmax <- if(cats[j] == "Detectability") 100 else  max(val, as.numeric(xval), na.rm=T)
-    log <- if(cats[j] != "Detectability") "x" else ""
+    val <- if(cats[j] == "Detectability" || cats[j] == "IC_Median") criteria[cats[j]]*100 else criteria[cats[j]]
+    rmin <- NULL
+    rmax <- NULL
+    if(cats[j] == "Detectability"){
+      rmin <- 0.0
+      rmax <- 100.0
+    }else if (cats[j] == "IC_Median"){
+      rmin <- min(-val, as.numeric(xval), na.rm=T)
+      rmax <- max(val, as.numeric(xval), na.rm=T)
+    }else{
+      rmin <- min(val, as.numeric(xval), na.rm=T)
+      rmax <- max(val, as.numeric(xval), na.rm=T)
+    }
+    log <- if(cats[j] != "Detectability" && cats[j] != "IC_Median") "x" else ""
     dotchart(x=as.numeric(xval), xlab=xlab, 
              labels=qcSample[inds, ]$sampleName, las=1, 
              cex=0.45, xlim=c(rmin, rmax), color=color, log=log)
@@ -649,10 +662,13 @@ for( i in 1:length(runs)){
     xvalFail <- xval
     xvalFail[indFail] <- NA
     xvalPass <-xval
-    xvalFail[indPass] <- NA
-    points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
+    xvalPass[indPass] <- NA
     points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
+    points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
     abline(v=val, col='brown')
+    if(cats[j] == "IC_Median"){
+      abline(v=-val, col='brown')
+    }
     legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), pch=19, cex=0.4, bty='n', inset=c(0,1), xpd=T,horiz=T)
     title(main=paste0("Plate ", as.character(i), ": ", cats[j]))
   } 
