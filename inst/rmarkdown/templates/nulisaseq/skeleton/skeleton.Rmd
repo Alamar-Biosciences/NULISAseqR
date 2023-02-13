@@ -689,7 +689,7 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
-Detectability is percentage of samples above limit of detection (LOD). A target is "detectable" if at least 50% of samples are above LOD. 
+Detectability is percentage of targets above limit of detection (LOD). A target is "detectable" if at least 50% of samples are above LOD. 
 
 ```{r, results='asis'}
 # Detectability summary
