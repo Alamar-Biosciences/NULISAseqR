@@ -335,47 +335,6 @@ colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'miss
 ```
 
 ```{r, include=FALSE}
-QC_mCherry_table <- list()
-# QC tables
-for(i in 1:length(params$xmlFiles)){
-  # get mCherry data
-  run_i_mCherry <- runs[[i]]$Data['mCherry',]
-  # remove IPCs, NCs, and SCs
-  run_i_mCherry <- run_i_mCherry[!grepl(paste(params$IPC, collapse="|"), names(run_i_mCherry))]
-  run_i_mCherry <- run_i_mCherry[!grepl(paste(params$NC, collapse="|"), names(run_i_mCherry))]
-  run_i_mCherry <- run_i_mCherry[!grepl(paste(params$SC, collapse="|"), names(run_i_mCherry))]
-  # count # of samples with mCherry outside +/- 30% of median
-  mCherry_median <- median(run_i_mCherry)
-  mCherry_median_plus30 <- mCherry_median + mCherry_median*(30/100)
-  mCherry_median_minus30 <- mCherry_median - mCherry_median*(30/100)
-  samples_above_threshold <- names(run_i_mCherry)[run_i_mCherry > mCherry_median_plus30]
-  samples_below_threshold <- names(run_i_mCherry)[run_i_mCherry < mCherry_median_minus30]
-  # output
-  output <- data.frame(Plate=paste0('Plate ', i),
-                       TotalSamples=length(run_i_mCherry),
-                       NumberWarnings=length(c(samples_above_threshold,
-                                               samples_below_threshold)),
-                       SamplesAbove=paste(samples_above_threshold, collapse=', '),
-                       SamplesBelow=paste(samples_below_threshold, collapse=', '))
-  QC_mCherry_table[[i]] <- output
-}
-
-QC_mCherry_table <- do.call(rbind, QC_mCherry_table)
-QC_mCherry_totals <- c('Totals', 
-                       sum(as.numeric(QC_mCherry_table[,2])),
-                       sum(as.numeric(QC_mCherry_table[,3])),
-                       '',
-                       '')
-QC_mCherry_table <- rbind(QC_mCherry_table,
-                          QC_mCherry_totals )
-
-rownames(QC_mCherry_table) <- NULL
-colnames(QC_mCherry_table) <- c('Plate', 'Total Samples', 'Number QC Warnings',
-                                'Samples mCherry > 30% median',
-                                'Samples mCherry < 30% median')
-```
-
-```{r, include=FALSE}
 # calculate detectability
 detectability_summary <- NULL
 detectability_targets <- NULL
@@ -592,34 +551,33 @@ for( i in 1:length(runs)){
 }
 ```
 
-### Sample QC
+### Sample QC 
 #### Sample QC summary table
-```{r, results='asis'}
-# QC table
-knitr::kable(QC_mCherry_table, caption='Sample QC mCherry table', 
-             align='r', 
-             table.attr="id=\"QC-mCherry-table\"",
-             format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
-```
-
-#### Sample QC plots
 ```{r, out.width='100%', fig.asp=2}
 rmin <- list() 
 rmax <- list()
 val <- list()
 criteria <- QCSampleCriteria()
+rowNameQC <- c()
+QCSummary <- matrix(nrow=length(runs)+1, ncol=length(criteria)+1)
+for (i in 1:length(runs)){
+  QCSummary[i, 1] <- ncol(runs[[i]]$Data)
+  rowNameQC <- c(rowNameQC,  paste0("Plate ", as.character(i))) 
+}
+
 for (j in 1:length(criteria)){
   for (i in 1:length(runs)){
+    ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
+    IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
+    NCs  <- which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))
     qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples, well_order)
-    cats <- unique(qcSample$flagName)
-    inds <- which(qcSample$flagName == cats[j])
-    val[j] <- if(cats[j] == "Detectability" || cats[j] == "IC_Median") criteria[cats[j]]*100 else criteria[cats[j]]
-    if(cats[j] == "Detectability"){
+    inds <- which(qcSample$flagName == names(criteria)[j])
+    val[j] <- if(names(criteria)[j] == "Detectability" || names(criteria)[j] == "IC_Median") criteria[j]*100 else criteria[j]
+    if(names(criteria)[j] == "Detectability"){
       xval <- as.numeric(qcSample[inds, ]$val)*100
       rmax[j] <- 100.0
       rmin[j] <- min(val[[j]], as.numeric(xval), na.rm=T) 
-    }else if (cats[j] == "IC_Median"){
+    }else if (names(criteria)[j] == "IC_Median"){
       xval <- as.numeric(qcSample[inds, ]$val)*100
       rmin[j] <- min(-val[[j]], as.numeric(xval), na.rm=T)
       rmax[j] <- max(val[[j]], as.numeric(xval), na.rm=T)
@@ -628,8 +586,20 @@ for (j in 1:length(criteria)){
       rmin[j] <- min(val[[j]], as.numeric(xval), na.rm=T)
       rmax[j] <- max(val[[j]], as.numeric(xval), na.rm=T)
     }
+    indFail <- which(qcSample[inds,]$status == "T")
+    QCSummary[i, j+1] <- length(indFail)
   }
 }
+QCSummary[i+1, ] <- colSums(QCSummary, na.rm=T) 
+rownames(QCSummary) <- c(rowNameQC, "Total")
+colnames(QCSummary) <- c("# of Samples", names(criteria))
+knitr::kable(QCSummary, caption='', 
+             align='r', 
+             table.attr="id=\"QC-summary-table\"",
+             format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+
+
 for( i in 1:length(runs)){
   ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
   IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
@@ -638,19 +608,17 @@ for( i in 1:length(runs)){
   
   # Sample QC
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples, well_order)
-  qcSample$status[which(qcSample$status == "F")] <- "Pass"
-  qcSample$status[which(qcSample$status == "T")] <- "Fail"
-  par(mfrow=c(ceiling(length(cats)/2), 2), mar=c(5,6,2,2))
+  par(mfrow=c(ceiling(length(criteria)/2), 2), mar=c(5,6,2,2))
   criteria <- QCSampleCriteria()
-  for(j in 1:length(cats)){
-    inds <- which(qcSample$flagName == cats[j])
+  for(j in 1:length(names(criteria))){
+    inds <- which(qcSample$flagName == names(criteria)[j])
     color <- rep("black", length(inds))
     xlab <- ""
     xval <- NULL
-    if(cats[j] == "Detectability"){
+    if(names(criteria)[j] == "Detectability"){
       xlab <- "Detectability %"
       xval <- as.numeric(qcSample[inds, ]$val)*100
-    }else if(cats[j] == "IC_Median"){
+    }else if(names(criteria)[j] == "IC_Median"){
       xlab <- "% of mCherry Median"
       xval <- as.numeric(qcSample[inds, ]$val)*100
     }else{
@@ -664,12 +632,12 @@ for( i in 1:length(runs)){
     color[which(qcSample[inds,]$type == "IPC")] <- boxplot_colors[1]
     color[which(qcSample[inds,]$type == "NC")] <- boxplot_colors[2]
     
-    log <- if(cats[j] != "Detectability" && cats[j] != "IC_Median") "x" else ""
+    log <- if(names(criteria)[j] != "Detectability" && names(criteria)[j] != "IC_Median") "x" else ""
     dotchart(x=as.numeric(xval), xlab=xlab, 
              labels=qcSample[inds, ]$sampleName, las=1, 
              cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), color=color, log=log)
-    indFail <- which(qcSample[inds,]$status != "Fail")
-    indPass <- which(qcSample[inds,]$status != "Pass")
+    indFail <- which(qcSample[inds,]$status != "T")
+    indPass <- which(qcSample[inds,]$status != "F")
     xvalFail <- xval
     xvalFail[indFail] <- NA
     xvalPass <-xval
@@ -677,11 +645,11 @@ for( i in 1:length(runs)){
     points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
     points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
     abline(v=val[[j]], col='brown')
-    if(cats[j] == "IC_Median"){
+    if(names(criteria)[j] == "IC_Median"){
       abline(v=-val[[j]], col='brown')
     }
     legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), pch=19, cex=0.4, bty='n', inset=c(0,1), xpd=T,horiz=T)
-    title(main=paste0("Plate ", as.character(i), ": ", cats[j]))
+    title(main=paste0("Plate ", as.character(i), ": ", names(criteria)[j]))
   } 
 }
 ```
