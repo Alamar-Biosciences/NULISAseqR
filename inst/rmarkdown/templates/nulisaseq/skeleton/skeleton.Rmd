@@ -406,7 +406,7 @@ for (i in 1:length(params$xmlFiles)){
                                'median',
                                'min',
                                'max',
-                               'detectable targets n (%)')
+                               '# of detectable targets (%)')
   detectability_summary <- rbind(detectability_summary, detectability)
   detectability_targets <- cbind(detectability_targets, plate_detect$detectability)
 }
@@ -689,8 +689,8 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
-Detectability is percentage of targets above limit of detection (LOD). A target is "detectable" if at least 50% of samples are above LOD. 
-
+Target detectability is calculated as the percentage of samples that are above the limit of detection for that target. 
+In the Detectability summary, for the  "# of detectable targets", a target is considered detectable if it is above limit of detection in at least 50% of samples 
 ```{r, results='asis'}
 # Detectability summary
 kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', 
