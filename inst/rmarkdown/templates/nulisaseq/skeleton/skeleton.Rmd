@@ -829,6 +829,11 @@ abline(v=c(0:200*5), col='grey', lty=3)
 ```{r, out.width='100%', fig.asp=0.8, results='asis'}
 # PCA plot for multiple plates
 pandoc.header("Sample PCA", 2)
+if(length(params$xmlFiles) == 1){
+  options(fig.asp=0.4)
+}else{
+  options(fig.asp=0.8)
+}
 
 PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
   pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
@@ -875,9 +880,15 @@ for(i in 1:length(params$xmlFiles)){
   plateID <- c(plateID, rep(paste0("Plate",i), ncol(dataPCA_unnorm)))
 }
 
-par(mfrow=c(2,2))
+if(length(params$xmlFiles) > 1){
+  par(mfrow=c(2,2))
+}else{
+  par(mfrow=c(1,2))
+}
 PCAplot(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
 PCAplot(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
-PCAplot(dataPCA_mCherryIPC, plateID, scale=TRUE, center=TRUE, title="mCherry + IPC")
-PCAplot(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
+if(length(params$xmlFiles) > 1){
+  PCAplot(dataPCA_mCherryIPC, plateID, scale=TRUE, center=TRUE, title="mCherry + IPC")
+  PCAplot(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
+}
 ```
