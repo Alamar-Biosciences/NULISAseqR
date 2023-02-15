@@ -4,6 +4,7 @@ params:
   IPC: !r c("IPC")
   NC: !r c("NC")
   SC: !r NULL
+  Bridge: !r NULL
   dataDir: "/Users/jbeer/github/TAP-COVID/data"
   rowAnnotName: "Annot2"
   colAnnotName: "Annot3"
@@ -73,10 +74,14 @@ if(length(params$plateNames) == 0){
 }
 # set multiple file indicator
 multipleFiles <- if(length(params$xmlFiles) > 1) TRUE else FALSE
+# set SC indicator
+indicatorSC <- if(is.null(params$SC)) FALSE else TRUE
+# set Bridge indicator
+indicatorBridge <- if(is.null(params$Bridge)) FALSE else TRUE
 # define title
 title_var <- paste(params$study_name, params$assayName, sep='<br>')
 # define sample specific boxplot colors for use in plots
-boxplot_colors <- unlist(lapply(alamarColorPalette(n=4, tint='light', nReps=4), function(x) x[3]))
+boxplot_colors <- unlist(lapply(alamarColorPalette(n=5, tint='light', nReps=5), function(x) x[4]))
 # set data directory
 knitr::opts_knit$set(root.dir=params$dataDir)
 # save xml file path
@@ -93,12 +98,20 @@ for(i in 1:length(params$xmlFiles)){
   ICs  <- runs[[i]]$targets$targetName[which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))]
   IPCs <- runs[[i]]$samples$sampleName[which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))]
   NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))]
+  SCs <- NULL
+  Bridges <- NULL
+  if(indicatorSC){
+    SCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$SC, collapse="|"),  runs[[i]]$samples$sampleName))]
+  }
+  if(indicatorBridge){
+    Bridges  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$Bridge, collapse="|"),  runs[[i]]$samples$sampleName))]
+  }
   if(xmlFilePlateNames[i] !=""){
     IPCs <- paste0(xmlFilePlateNames[i], "_", IPCs)
     NCs  <- paste0(xmlFilePlateNames[i], "_", NCs)
   }
   # summarize each plate
-  runSummaries[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs)
+  runSummaries[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs)#, Bridges=Bridges, SCs=SCs)
   read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
   # create plate names
   PlateNames <- c(PlateNames, paste("Plate", i, sep=" "))
@@ -144,12 +157,15 @@ for (i in 1:length(params$xmlFiles)){
 normData <- lapply(intraPlateNormData, function(x) x[[1]]$normData)
 
 # save IPCs, NCs wells for each plate
-IPC_wells <- NC_wells <- SC_wells <- vector('list', length(params$xmlFiles))
+IPC_wells <- NC_wells <- SC_wells <- Bridge_wells <- vector('list', length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
   IPC_wells[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))]
   NC_wells[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"), runs[[i]]$samples$sampleName))]
-  if(!is.null(params$SC)){
+  if(indicatorSC){
     SC_wells[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$SC, collapse="|"), runs[[i]]$samples$sampleName))]
+  }
+  if(indicatorBridge){
+    Bridge_wells[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
   }
 } 
 
@@ -306,9 +322,13 @@ for (i in 1:length(params$xmlFiles)){
   # remove IPCs, NCs, and SCs
   detect_samples <- detect_samples[!grepl(paste(params$IPC, collapse="|"), detect_samples)]
   detect_samples <- detect_samples[!grepl(paste(params$NC, collapse="|"), detect_samples)]
-  if(!is.null(params$SC)){
+  if(indicatorSC){
     detect_samples <- detect_samples[!grepl(paste(params$SC, collapse="|"), detect_samples)]
   }
+  if(indicatorBridge){
+    detect_samples <- detect_samples[!grepl(paste(params$Bridge, collapse="|"), detect_samples)]
+  }
+
   plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
                                 sample_subset=detect_samples,
                                 exclude_targets=ICs)
@@ -365,12 +385,12 @@ title: `r title_var`
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
-  well_types <- list(IPC_wells[[i]], NC_wells[[i]], SC_wells[[i]])
+  well_types <- list(IPC_wells[[i]], NC_wells[[i]])#, SC_wells[[i]], Bridge_wells[[i]])
+  if(indicatorSC){ well_types <- append(well_types, list(SC_wells[[i]]))}
+  if(indicatorBridge){ well_types <- append(well_types, list(Bridge_wells[[i]]))}
+
   for (j in 1:length(well_types)){
     inds <- which(grepl(paste0(well_types[[j]], collapse="|"), val))
-    if (j == 3 && is.null(params$SC)){
-      next
-    }
     if(length(inds) > 0){
       val[inds] <- cell_spec(val[inds], "html", background=boxplot_colors[j+1])
     }
@@ -447,13 +467,30 @@ for(i in 1:length(params$xmlFiles)){
 }
 ```
 
+```{r eval=indicatorSC, results='asis'}
+pandoc.header("Sample controls (SC)", 3)
+for(i in 1:length(params$xmlFiles)){
+  table.attr <- paste0("id=\"SC-summary", i, "\"")
+  cat(knitr::kable(runSummaries[[i]]$SC_table, caption=paste0("Plate ", as.character(i), ": SC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
+}
+```
+
+```{r eval=indicatorBridge, results='asis'}
+pandoc.header("Bridge Samples (Bridge)", 3)
+for(i in 1:length(params$xmlFiles)){
+  table.attr <- paste0("id=\"Bridge-summary", i, "\"")
+  cat(knitr::kable(runSummaries[[i]]$Bridge_table, caption=paste0("Plate ", as.character(i), ": Bridge summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
+}
+```
+
 ---
 
 ## Heatmaps
 ```{r, include=FALSE}
 # describe heatmap scale
-if (params$heatMapRel==TRUE) heatmap_description <- "Numbers shown are percent relative to plate median."
-if (params$heatMapRel==FALSE) heatmap_description <- ""
+heatmap_description <- if (params$heatMapRel==TRUE) "Numbers shown are percent relative to plate median." else ""
 ```
 `r heatmap_description`
 
@@ -569,9 +606,13 @@ for( i in 1:length(runs)){
   
   # Sample QC
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples, well_order)
-  if(!is.null(params$SC)){
+  if(indicatorSC){
     inds <- which(grepl(paste(params$SC, collapse="|"), qcSample$sampleName))
     qcSample[inds, ]$type <- "SC"
+  }
+  if(indicatorBridge){
+    inds <- which(grepl(paste(params$Bridge, collapse="|"), qcSample$sampleName))
+    qcSample[inds, ]$type <- "Bridge"
   }
   par(mfrow=c(ceiling(length(criteria)/2), 2), mar=c(5,6,2,2))
   criteria <- QCSampleCriteria()
@@ -598,6 +639,9 @@ for( i in 1:length(runs)){
     color[which(qcSample[inds,]$type == "NC")] <- boxplot_colors[3]
     if (length(which(qcSample[inds,]$type == "SC")) > 0 ){
       color[which(qcSample[inds,]$type == "SC")] <- boxplot_colors[4]
+    }
+    if (length(which(qcSample[inds,]$type == "Bridge")) > 0 ){
+      color[which(qcSample[inds,]$type == "Bridge")] <- boxplot_colors[5]
     }
     
     log <- if(names(criteria)[j] != "Detectability" && names(criteria)[j] != "IC_Median") "x" else ""
@@ -702,8 +746,11 @@ for(i in 1:length(params$xmlFiles)){
   plate_sample_type <- rep("1_sample",ncol(runs[[i]]$Data))
   plate_sample_type[grepl(paste0(IPC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '3_IPC'
   plate_sample_type[grepl(paste0(NC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '4_NC'
-  if(!is.null(params$SC)){
+  if(indicatorSC){
     plate_sample_type[grepl(paste0(SC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '5_SC'
+  }
+  if(indicatorBridge){
+    plate_sample_type[grepl(paste0(Bridge_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '6_Bridge'
   }
   ordering2 <- wellorder(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName) 
   ordering <- NULL
@@ -728,9 +775,6 @@ wellcolors <- function(data, well_types, boxplot_colors){
   # all labels black by default
   colors <- rep("black", ncol(data))
   for (j in 1:length(well_types)){
-    if (j == 3 && is.null(well_types[[j]])){
-      next
-    }
     # save indices matching the given well type
     indices <- which(grepl(paste0(well_types[[j]], collapse="|"), colnames(data)))
     # color well label to match well type
@@ -746,7 +790,10 @@ for(i in 1:length(params$xmlFiles)){
   corrvals <- corrplot(cor(intraPlateNormData[[i]]$mCherry$normData), 
                        order='hclust') 
   dev.off()
-  well_types <- list(IPC_wells[[i]], NC_wells[[i]], SC_wells[[i]])
+
+  well_types <- list(IPC_wells[[i]], NC_wells[[i]])
+  if(indicatorSC){ well_types <- append(well_types, list(SC_wells[[i]]))}
+  if(indicatorBridge){ well_types <- append(well_types, list(Bridge_wells[[i]]))}
   colors <- wellcolors(data=corrvals$corr, 
                        well_types=well_types, 
                        boxplot_colors=boxplot_colors)
@@ -771,7 +818,9 @@ heatmapColors <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength
 # loop over plates and draw heatmaps
 for(i in 1:length(params$xmlFiles)){
   # define label colors
-  well_types <- list(IPC_wells[[i]], NC_wells[[i]], SC_wells[[i]])
+  well_types <- list(IPC_wells[[i]], NC_wells[[i]])
+  if(indicatorSC){ well_types <- append(well_types, list(SC_wells[[i]]))}
+  if(indicatorBridge){ well_types <- append(well_types, list(Bridge_wells[[i]]))}
   label_colors <- wellcolors(data=data_mCherry_log2_scaled[[i]], 
                              well_types=well_types, 
                              boxplot_colors=boxplot_colors)
@@ -826,15 +875,8 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ---
 
-```{r, out.width='100%', fig.asp=0.8, results='asis'}
-# PCA plot for multiple plates
+```{r, out.width='100%', fig.asp=(0.4)+as.numeric(multipleFiles)*0.4, results='asis'}
 pandoc.header("Sample PCA", 2)
-if(length(params$xmlFiles) == 1){
-  options(fig.asp=0.4)
-}else{
-  options(fig.asp=0.8)
-}
-
 PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
   pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
   par(mar=c(4,4,2,5))
@@ -843,13 +885,16 @@ PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
   IPC_samples <- grep(paste(params$IPC, collapse="|"), colnames(data))
   point_shapes <- rep(1, ncol(data))
   point_shapes[IPC_samples] <- 8
-  legendText <- NULL
-  if(!is.null(params$SC)){
+  legendText <- c(levels(plateID), 'Sample', 'IPCs')
+  if(indicatorSC){
     SC_samples <- grep(paste(params$SC, collapse="|"), colnames(data))
     point_shapes[SC_samples] <- 9
-    legendText <-  c(levels(plateID), 'Sample', 'IPCs', 'SCs')
-  }else{
-    legendText <-  c(levels(plateID), 'Sample', 'IPCs')
+    legendText <- c(legendText, "SCs")
+  }
+  if(indicatorBridge){
+    Bridge_samples <- grep(paste(params$SC, collapse="|"), colnames(data))
+    point_shapes[Bridge_samples] <- 10
+    legendText <- c(legendText, "Bridges")
   }
   plot(pca$x[,1], pca$x[,2],
        col=colors[as.integer(plateID)],
