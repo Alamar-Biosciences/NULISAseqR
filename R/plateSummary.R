@@ -34,7 +34,7 @@
 #'
 #' @export
 #' 
-plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
+plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){#, SCs=NULL, Bridges=NULL){
   ##############################
   # main output
   ##############################
