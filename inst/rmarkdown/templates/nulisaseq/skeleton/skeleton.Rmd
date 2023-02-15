@@ -880,14 +880,11 @@ for(i in 1:length(params$xmlFiles)){
   plateID <- c(plateID, rep(paste0("Plate",i), ncol(dataPCA_unnorm)))
 }
 
-if(length(params$xmlFiles) > 1){
-  par(mfrow=c(2,2))
-}else{
-  par(mfrow=c(1,2))
-}
+nRowsPCA <- if(multipleFiles) 2 else 1
+par(mfrow=c(nRowsPCA, 2))
 PCAplot(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
 PCAplot(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
-if(length(params$xmlFiles) > 1){
+if(multipleFiles){
   PCAplot(dataPCA_mCherryIPC, plateID, scale=TRUE, center=TRUE, title="mCherry + IPC")
   PCAplot(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
 }
