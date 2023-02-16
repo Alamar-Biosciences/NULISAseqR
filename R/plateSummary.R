@@ -1,3 +1,65 @@
+typeSummary <- function(IPCs, plate_data, total_plate_reads){    
+  IPC_data <- plate_data$Data[,IPCs]
+  # total counts and percent
+  IPC_total <- sum(IPC_data, na.rm=TRUE)
+  IPC_total_perc <- format(round(IPC_total/total_plate_reads*100, 1), nsmall=1)
+  IPC_totals <- colSums(IPC_data, na.rm=TRUE)
+  IPC_totals_perc <- format(round(IPC_totals/total_plate_reads*100, 1), nsmall=1)
+  IPC_medians <- apply(IPC_data, 1, median, na.rm=TRUE)
+  IPC_medians_total <- sum(IPC_medians, na.rm=TRUE)
+  IPC_medians_total_perc <- format(round(IPC_medians_total/total_plate_reads*100, 1), nsmall=1)
+  total_IPC_counts <- c(IPC_total, IPC_totals, IPC_medians_total)
+  total_IPC_perc <- c(IPC_total_perc, IPC_totals_perc, IPC_medians_total_perc)
+  total_IPC_count_perc <- paste0(format(total_IPC_counts, big.mark=","), ' (',
+                                 total_IPC_perc, '%)')
+  # mean count per target
+  IPC_total_mean <- mean(IPC_data, na.rm=TRUE)
+  IPC_target_mean <- colMeans(IPC_data, na.rm=TRUE)
+  IPC_medians_mean <- mean(IPC_medians, na.rm=TRUE)
+  IPC_means_per_target <- c(IPC_total_mean, IPC_target_mean, IPC_medians_mean)
+  IPC_means_per_target <- format(round(IPC_means_per_target, 1), big.mark=",", nsmall=1)
+  # missing n %
+  IPC_total_missing <- sum(is.na(IPC_data)) + sum(IPC_data==0, na.rm=TRUE)
+  IPC_total_missing_perc <- IPC_total_missing/(nrow(IPC_data)*ncol(IPC_data))*100
+  IPC_missing <- apply(IPC_data, 2, function(x){
+    sum(is.na(x)) + sum(x==0, na.rm=TRUE)
+  })
+  IPC_missing_perc <- IPC_missing/nrow(IPC_data)*100
+  IPC_medians_missing <- sum(is.na(IPC_medians)) + sum(IPC_medians==0, na.rm=TRUE)
+  IPC_medians_missing_perc <- IPC_medians_missing/length(IPC_medians)*100
+  IPC_missing_totals <- c(IPC_total_missing, IPC_missing, IPC_medians_missing)
+  IPC_missing_percents <- c(IPC_total_missing_perc,
+                            IPC_missing_perc,
+                            IPC_medians_missing_perc)
+  IPC_missing_percents <- format(round(IPC_missing_percents, 1), nsmall=1, big.mark=",")
+  IPC_missing <- paste0(IPC_missing_totals, ' (',
+                        IPC_missing_percents, '%)')
+  # calculate CV
+  IPC_means <- rowMeans(IPC_data, na.rm=TRUE)
+  IPC_sds <- apply(IPC_data, 1, sd, na.rm=TRUE)
+  IPC_cvs <- IPC_sds/IPC_means*100
+  IPC_cv_mean <- c(paste0(format(round(mean(IPC_cvs, na.rm=TRUE), 1), nsmall=1), '%'),
+                   rep('', length(IPCs)),
+                   '')
+  IPC_cv_median <- c(paste0(format(round(median(IPC_cvs, na.rm=TRUE), 1), nsmall=1), '%'),
+                     rep('', length(IPCs)),
+                     '')
+  # create table
+  IPC_table <- cbind(total_IPC_count_perc,
+                     IPC_means_per_target,
+                     IPC_missing,
+                     IPC_cv_mean,
+                     IPC_cv_median)
+  colnames(IPC_table) <- c('Total count (%)',
+                           'Mean count per target',
+                           'Missing n (%)',
+                           'CV% mean',
+                           'CV% median')
+  rownames(IPC_table) <- c('Total',
+                           colnames(IPC_data),
+                           'Median')
+  return(IPC_table)
+}
 #' NULISAseq Plate Summary
 #'
 #' Summarizes plate reads. Input is the output of readNULISAseq.R.
@@ -34,7 +96,7 @@
 #'
 #' @export
 #' 
-plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
+plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Bridges=NULL){
   ##############################
   # main output
   ##############################
@@ -109,75 +171,21 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL){
                    IC_table=IC_table)
   }
   ############
-  # IPCs
+  # IPCs, SCs, Bridges
   ############
-  if (!is.null(IPCs)){
-    IPC_data <- plate_data$Data[,IPCs]
-    # total counts and percent
-    IPC_total <- sum(IPC_data, na.rm=TRUE)
-    IPC_total_perc <- format(round(IPC_total/total_plate_reads*100, 1), nsmall=1)
-    IPC_totals <- colSums(IPC_data, na.rm=TRUE)
-    IPC_totals_perc <- format(round(IPC_totals/total_plate_reads*100, 1), nsmall=1)
-    IPC_medians <- apply(IPC_data, 1, median, na.rm=TRUE)
-    IPC_medians_total <- sum(IPC_medians, na.rm=TRUE)
-    IPC_medians_total_perc <- format(round(IPC_medians_total/total_plate_reads*100, 1), nsmall=1)
-    total_IPC_counts <- c(IPC_total, IPC_totals, IPC_medians_total)
-    total_IPC_perc <- c(IPC_total_perc, IPC_totals_perc, IPC_medians_total_perc)
-    total_IPC_count_perc <- paste0(format(total_IPC_counts, big.mark=","), ' (',
-                                   total_IPC_perc, '%)')
-    # mean count per target
-    IPC_total_mean <- mean(IPC_data, na.rm=TRUE)
-    IPC_target_mean <- colMeans(IPC_data, na.rm=TRUE)
-    IPC_medians_mean <- mean(IPC_medians, na.rm=TRUE)
-    IPC_means_per_target <- c(IPC_total_mean, IPC_target_mean, IPC_medians_mean)
-    IPC_means_per_target <- format(round(IPC_means_per_target, 1), big.mark=",", nsmall=1)
-    # missing n %
-    IPC_total_missing <- sum(is.na(IPC_data)) + sum(IPC_data==0, na.rm=TRUE)
-    IPC_total_missing_perc <- IPC_total_missing/(nrow(IPC_data)*ncol(IPC_data))*100
-    IPC_missing <- apply(IPC_data, 2, function(x){
-      sum(is.na(x)) + sum(x==0, na.rm=TRUE)
-    })
-    IPC_missing_perc <- IPC_missing/nrow(IPC_data)*100
-    IPC_medians_missing <- sum(is.na(IPC_medians)) + sum(IPC_medians==0, na.rm=TRUE)
-    IPC_medians_missing_perc <- IPC_medians_missing/length(IPC_medians)*100
-    IPC_missing_totals <- c(IPC_total_missing, IPC_missing, IPC_medians_missing)
-    IPC_missing_percents <- c(IPC_total_missing_perc,
-                              IPC_missing_perc,
-                              IPC_medians_missing_perc)
-    IPC_missing_percents <- format(round(IPC_missing_percents, 1), nsmall=1, big.mark=",")
-    IPC_missing <- paste0(IPC_missing_totals, ' (',
-                          IPC_missing_percents, '%)')
-    # calculate CV
-    IPC_means <- rowMeans(IPC_data, na.rm=TRUE)
-    IPC_sds <- apply(IPC_data, 1, sd, na.rm=TRUE)
-    IPC_cvs <- IPC_sds/IPC_means*100
-    IPC_cv_mean <- c(paste0(format(round(mean(IPC_cvs, na.rm=TRUE), 1), nsmall=1), '%'),
-                     rep('', length(IPCs)),
-                     '')
-    IPC_cv_median <- c(paste0(format(round(median(IPC_cvs, na.rm=TRUE), 1), nsmall=1), '%'),
-                       rep('', length(IPCs)),
-                       '')
-    # create table
-    IPC_table <- cbind(total_IPC_count_perc,
-                       IPC_means_per_target,
-                       IPC_missing,
-                       IPC_cv_mean,
-                       IPC_cv_median)
-    colnames(IPC_table) <- c('Total count (%)',
-                             'Mean count per target',
-                             'Missing n (%)',
-                             'CV% mean',
-                             'CV% median')
-    rownames(IPC_table) <- c('IPC total',
-                             colnames(IPC_data),
-                             'IPC medians')
-    if (is.list(output)==TRUE){
-      output <- c(output, list(IPC_table=IPC_table))
-    } else {
-      output <- list(readsTable=output,
-                     IPC_table=IPC_table)
-    }
+  if(!is.null(IPCs)){
+    IPC_table <- typeSummary(IPCs, plate_data, total_plate_reads)
+    output <- if (is.list(output)==TRUE) c(output, list(IPC_table=IPC_table)) else list(readsTable=output, IPC_table=IPC_table)
   }
+  if(!is.null(SCs)){
+    SC_table <- typeSummary(SCs, plate_data, total_plate_reads)
+    output <- if (is.list(output)==TRUE) c(output, list(SC_table=SC_table)) else list(readsTable=output, SC_table=SC_table)
+  }
+  if(!is.null(Bridges)){
+    Bridge_table <- typeSummary(Bridges, plate_data, total_plate_reads)
+    output <- if (is.list(output)==TRUE) c(output, list(Bridge_table=Bridge_table)) else list(readsTable=output, Bridge_table=Bridge_table)
+  }
+
   ############
   # NCs
   ############
