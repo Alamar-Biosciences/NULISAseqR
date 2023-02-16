@@ -111,7 +111,7 @@ for(i in 1:length(params$xmlFiles)){
     NCs  <- paste0(xmlFilePlateNames[i], "_", NCs)
   }
   # summarize each plate
-  runSummaries[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs)#, Bridges=Bridges, SCs=SCs)
+  runSummaries[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs, SCs=SCs, Bridges=Bridges)
   read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
   # create plate names
   PlateNames <- c(PlateNames, paste("Plate", i, sep=" "))
