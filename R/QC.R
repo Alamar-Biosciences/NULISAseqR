@@ -96,7 +96,7 @@ QC2XML <- function(input, QCNode, sample=F, combined=F){
 #' # QCFlagSample(inputtable)
 #'
 #' @export
-QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples, well_order=NULL){
+QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL){
   columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode", "type")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
   if(is.null(well_order)){
@@ -104,7 +104,9 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples, well_order=NULL){
   }else{
     well_order <- rev(well_order)
   }
-
+  ICs  <- if(!is.null(ICs))   ICs else which(targets$targetType == "Control")
+  IPCs <- if(!is.null(IPCs)) IPCs else which(samples$sampleType == "IPC")
+  NCs  <- if(!is.null(NCs))   NCs else which(samples$sampleType == "NC")
   # Median IC between -30% and 30% of median  
   mCherry_median <- median(raw[ICs,], na.rm=T)
   medianMin30 <- mCherry_median - mCherry_median * MIN_IC_MEDIAN
@@ -205,7 +207,10 @@ QCFlagSample <- function(raw, normed, ICs, NCs, IPCs, samples, well_order=NULL){
 #' # QCFlagPlate(inputtable)
 #'
 #' @export
-QCFlagPlate <- function(raw, normed, ICs, NCs, IPCs){
+QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=NULL){
+  ICs  <- if(!is.null(ICs))   ICs else which(targets$targetType == "Control")
+  IPCs <- if(!is.null(IPCs)) IPCs else which(samples$sampleType == "IPC")
+  NCs  <- if(!is.null(NCs))   NCs else which(samples$sampleType == "NC")
   columns <- c("flagName", "normMethod", "status", "val", "QCthreshold")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
 
