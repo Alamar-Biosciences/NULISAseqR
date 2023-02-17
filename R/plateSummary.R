@@ -152,8 +152,9 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   ##############################
   # ICs
   ############
-  if (!is.null(ICs)){
-    IC_data <- plate_data$Data[ICs,, drop=F]
+  ICinds <- if(!is.null(ICs)) ICs else which(plate_data$targets$targetType == "Control")
+  if (length(ICinds) > 0){
+    IC_data <- plate_data$Data[ICinds,, drop=F]
     IC_totals <- rowSums(IC_data, na.rm=TRUE)
     IC_percents <- format(round(IC_totals/total_plate_reads*100, 1), nsmall=1)
     IC_total_percent <- paste0(format(IC_totals, big.mark=","), ' (', IC_percents, '%)')
@@ -173,15 +174,18 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   ############
   # IPCs, SCs, Bridges
   ############
-  if(!is.null(IPCs)){
-    IPC_table <- typeSummary(IPCs, plate_data, total_plate_reads)
+  IPCinds <- if(!is.null(IPCs)) IPCs else which(plate_data$samples$sampleType == "IPC")
+  if(length(IPCinds) > 0 ){
+    IPC_table <- typeSummary(IPCinds, plate_data, total_plate_reads)
     output <- if (is.list(output)==TRUE) c(output, list(IPC_table=IPC_table)) else list(readsTable=output, IPC_table=IPC_table)
   }
-  if(!is.null(SCs)){
-    SC_table <- typeSummary(SCs, plate_data, total_plate_reads)
+  SCinds <- if(!is.null(SCs)) SCs else which(plate_data$samples$sampleType == "SC")
+  if(length(SCinds) > 0){
+    SC_table <- typeSummary(SCinds, plate_data, total_plate_reads)
     output <- if (is.list(output)==TRUE) c(output, list(SC_table=SC_table)) else list(readsTable=output, SC_table=SC_table)
   }
-  if(!is.null(Bridges)){
+  Bridgeinds <- if(!is.null(Bridges)) Bridges else which(plate_data$samples$sampleType == "Bridge")
+  if(length(Bridgeinds)>0){
     Bridge_table <- typeSummary(Bridges, plate_data, total_plate_reads)
     output <- if (is.list(output)==TRUE) c(output, list(Bridge_table=Bridge_table)) else list(readsTable=output, Bridge_table=Bridge_table)
   }
@@ -189,8 +193,9 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   ############
   # NCs
   ############
-  if (!is.null(NCs)){
-    NC_data <- plate_data$Data[,NCs]
+  NCinds <- if(!is.null(NCs)) NCs else which(plate_data$samples$sampleType == "NC")
+  if (length(NCinds)> 0){
+    NC_data <- plate_data$Data[,NCinds]
     # total counts and percent
     NC_total <- sum(NC_data, na.rm=TRUE)
     NC_total_perc <- format(round(NC_total/total_plate_reads*100, 1), nsmall=1)

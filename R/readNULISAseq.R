@@ -142,8 +142,8 @@ readNULISAseq <- function(xml_file,
   val <- if(is.null(NC) && is.null(IPC) && is.null(SC) && is.null(Bridge)) NA else "Sample"
   sampleType <- rep(val, length(samples$sampleName))
   if(!is.null(NC)){     sampleType[grep(paste(NC, collapse="|"), samples$sampleName)]  <- "NC" }
-  if(!is.null(IPC)){    sampleType[grep(paste(IPC, collapse="|"), samples$sampleName)] <- "IPC" }
   if(!is.null(SC)){     sampleType[grep(paste(SC, collapse="|"), samples$sampleName)] <- "SC" }
+  if(!is.null(IPC)){    sampleType[grep(paste(IPC, collapse="|"), samples$sampleName)] <- "IPC" }
   if(!is.null(Bridge)){ sampleType[grep(paste(Bridge, collapse="|"), samples$sampleName)] <- "Bridge"}
   samples$sampleType <- sampleType
 
