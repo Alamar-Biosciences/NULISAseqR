@@ -106,6 +106,7 @@ interPlateNorm <- function(data_list,
       }
     } # end loop over data list
     data_list <- data_list_IPC
+    normFactors <- IPC_factors*scaleFactor
   } # end IPC normalization
   
   # intensity normalization
@@ -183,6 +184,7 @@ interPlateNorm <- function(data_list,
         data_list[[i]] <- data_list[[i]] + IN_factors[,i]
       }
     }
+    normFactors <- IN_factors*scaleFactor
   } # end intensity normalization
   
   # apply the scale factor to the data
@@ -196,5 +198,6 @@ interPlateNorm <- function(data_list,
   
   # return output
   return(list(interNormData=data_list,
-              plate=plate))
+              plate=plate,
+              normFactors=normFactors))
 }
