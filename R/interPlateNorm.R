@@ -198,10 +198,6 @@ interPlateNorm <- function(data_list,
   
   # return output
   return(list(interNormData=data_list,
-<<<<<<< HEAD
               plate=plate,
-=======
-              plate=plate
->>>>>>> 9a00d8a85db2ce336c5d795cf1776d642ffdf251
               normFactors=normFactors))
 }
