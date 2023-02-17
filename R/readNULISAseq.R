@@ -20,7 +20,8 @@
 readNULISAseq <- function(xml_file, 
                           plateID=NULL, 
                           file_type='xml_no_mismatches',
-                          replaceNA=TRUE){
+                          replaceNA=TRUE, 
+                          IPC=NULL, IC=NULL, NC=NULL, Bridge=NULL, SC=NULL){
   # read in xml file
   xml <- xml2::read_xml(xml_file)
   
@@ -136,7 +137,21 @@ readNULISAseq <- function(xml_file,
   if (replaceNA==TRUE){
     DataMatrix[is.na(DataMatrix)] <- 0
   }
-  
+ 
+  # add Type information
+  val <- if(is.null(NC) && is.null(IPC) && is.null(SC) && is.null(Bridge)) NA else "Sample"
+  sampleType <- rep(val, length(samples$sampleName))
+  if(!is.null(NC)){     sampleType[grep(paste(NC, collapse="|"), samples$sampleName)]  <- "NC" }
+  if(!is.null(IPC)){    sampleType[grep(paste(IPC, collapse="|"), samples$sampleName)] <- "IPC" }
+  if(!is.null(SC)){     sampleType[grep(paste(SC, collapse="|"), samples$sampleName)] <- "SC" }
+  if(!is.null(Bridge)){ sampleType[grep(paste(Bridge, collapse="|"), samples$sampleName)] <- "Bridge"}
+  samples$sampleType <- sampleType
+
+  val <- if(is.null(IC)) NA else "Target"
+  targetType <- rep(val, length(targets$targetName))
+  if(!is.null(IC)){ targetType[grep(paste(IC, collapse="|"), targets$targetName)] <- "Control"}
+  targets$targetType <- targetType
+
   ###########################
   # return the output
   ###########################
