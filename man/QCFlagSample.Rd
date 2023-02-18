@@ -4,16 +4,25 @@
 \alias{QCFlagSample}
 \title{Write Sample QC table}
 \usage{
-QCFlagSample(raw, normed, ICs, NCs, IPCs, samples, well_order = NULL)
+QCFlagSample(
+  raw,
+  normed,
+  samples,
+  targets,
+  well_order = NULL,
+  ICs = NULL,
+  IPCs = NULL,
+  NCs = NULL
+)
 }
 \arguments{
 \item{raw}{unnormalized data}
 
 \item{ICs}{indices of IC samples}
 
-\item{NCs}{indices of NC samples}
-
 \item{IPCs}{indices of IPC samples}
+
+\item{NCs}{indices of NC samples}
 
 \item{normednormalized}{data}
 }
