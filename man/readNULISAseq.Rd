@@ -8,7 +8,12 @@ readNULISAseq(
   xml_file,
   plateID = NULL,
   file_type = "xml_no_mismatches",
-  replaceNA = TRUE
+  replaceNA = TRUE,
+  IPC = NULL,
+  IC = NULL,
+  NC = NULL,
+  Bridge = NULL,
+  SC = NULL
 )
 }
 \arguments{
