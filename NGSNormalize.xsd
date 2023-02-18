@@ -17,9 +17,9 @@
                             </xs:element>
                             <xs:element type="xs:string" name="CommitID"/>
                             <xs:element type="xs:string" name="Date"/>
-                            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/> 
                             <xs:element type="xs:string" name="Normalize_CommitID"/>
                             <xs:element type="xs:string" name="Normalize_Date"/>
+                            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/> 
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
