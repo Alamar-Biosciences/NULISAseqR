@@ -138,7 +138,7 @@ readNULISAseq <- function(xml_file,
     DataMatrix[is.na(DataMatrix)] <- 0
   }
  
-  # add Type information
+  # add well type information
   val <- if(is.null(NC) && is.null(IPC) && is.null(SC) && is.null(Bridge)) NA else "Sample"
   sampleType <- rep(val, length(samples$sampleName))
   if(!is.null(NC)){     sampleType[grep(paste(NC, collapse="|"), samples$sampleName)]  <- "NC" }
@@ -146,21 +146,44 @@ readNULISAseq <- function(xml_file,
   if(!is.null(IPC)){    sampleType[grep(paste(IPC, collapse="|"), samples$sampleName)] <- "IPC" }
   if(!is.null(Bridge)){ sampleType[grep(paste(Bridge, collapse="|"), samples$sampleName)] <- "Bridge"}
   samples$sampleType <- sampleType
-
+  
+  # add IC target information
   val <- if(is.null(IC)) NA else "Target"
   targetType <- rep(val, length(targets$targetName))
   if(!is.null(IC)){ targetType[grep(paste(IC, collapse="|"), targets$targetName)] <- "Control"}
   targets$targetType <- targetType
-
+  
+  # save the special well type column names
+  special_wells_targets <- list()
+  if(!is.null(IPC)) {
+    special_wells_targets[['IPC']] <- samples$sampleName[samples$sampleType=='IPC']
+  }
+  if(!is.null(NC)) { 
+    special_wells_targets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
+  }
+  if(!is.null(SC)) {
+    special_wells_targets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
+  }
+  if(!is.null(Bridge)) {
+    special_wells_targets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
+  }
+  special_wells_targets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
+  
+  # save IC row names
+  if(!is.null(IC)) {
+    special_wells_targets[['IC']] <- targets$targetName[targets$targetType=='Control']
+  }
+  
+  
   ###########################
   # return the output
   ###########################
-  return(list(
+  return(c(list(
     plateID=plateID,
     ExecutionDetails=ExecutionDetails,
     RunSummary=RunSummary,
     targets=targets,
     samples=samples,
-    Data=DataMatrix
-  ))
+    Data=DataMatrix),
+    special_wells_targets))
 }
