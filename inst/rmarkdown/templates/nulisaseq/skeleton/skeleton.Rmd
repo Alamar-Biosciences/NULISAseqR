@@ -89,29 +89,12 @@ xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
 # define variables to store results
 runs <- vector('list', length(params$xmlFiles))
 runSummaries <- vector('list', length(params$xmlFiles))
-read_summary <- NULL
-PlateNames <- NULL
+read_summary <- PlateNames <- NULL
 for(i in 1:length(params$xmlFiles)){
   # read each run
-  runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=xmlFilePlateNames[i])
-  # save names of IC, IPC and NC
-  ICs  <- runs[[i]]$targets$targetName[which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))]
-  IPCs <- runs[[i]]$samples$sampleName[which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))]
-  NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))]
-  SCs <- NULL
-  Bridges <- NULL
-  if(indicatorSC){
-    SCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$SC, collapse="|"),  runs[[i]]$samples$sampleName))]
-  }
-  if(indicatorBridge){
-    Bridges  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$Bridge, collapse="|"),  runs[[i]]$samples$sampleName))]
-  }
-  if(xmlFilePlateNames[i] !=""){
-    IPCs <- paste0(xmlFilePlateNames[i], "_", IPCs)
-    NCs  <- paste0(xmlFilePlateNames[i], "_", NCs)
-  }
+  runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=xmlFilePlateNames[i], NC=params$NC, SC=params$SC, IC=params$IC, IPC=params$IPC, Bridge=params$Bridge)
   # summarize each plate
-  runSummaries[[i]] <- plateSummary(runs[[i]], ICs=ICs, IPCs=IPCs, NCs=NCs, SCs=SCs, Bridges=Bridges)
+  runSummaries[[i]] <- plateSummary(runs[[i]])
   read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
   # create plate names
   PlateNames <- c(PlateNames, paste("Plate", i, sep=" "))
@@ -119,8 +102,7 @@ for(i in 1:length(params$xmlFiles)){
     PlateNames[i] <- paste0(PlateNames[i], "(", xmlFilePlateNames[i], ")")
   }
 }
-names(runs) <- xmlFilePlateNames
-names(runSummaries) <- xmlFilePlateNames
+names(runs) <- names(runSummaries) <- xmlFilePlateNames
 colnames(read_summary) <- PlateNames
 # transpose read summary
 read_summary <- t(read_summary)
@@ -130,13 +112,14 @@ read_summary <- t(read_summary)
 # do intra-plate normalization
 intraPlateNormData <- vector("list", length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
+  ICs <- which(runs[[i]]$targets$targetType == "Control")
   intraPlateNormData[[i]] <- vector("list", length(ICs))
   for (j in 1:length(ICs)){
     intraPlateNormData[[i]][[j]] <- intraPlateNorm(data_matrix=runs[[i]]$Data,
                                                    method="IC",
                                                    IC=ICs[j])
   }
-  names(intraPlateNormData[[i]]) <- ICs
+  names(intraPlateNormData[[i]]) <- runs[[i]]$targets$targetName[ICs]
 }
 names(intraPlateNormData) <- xmlFilePlateNames
 ```
@@ -146,7 +129,7 @@ names(intraPlateNormData) <- xmlFilePlateNames
 # use 1st IC as the primary IC (should be mCherry)
 plate_lod <- vector('list', length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
-  NCs  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))]
+  NCs <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType == "NC")]
   plate_lod[[i]] <- lod(data_matrix=intraPlateNormData[[i]][[1]]$normData, blanks=NCs, min_count=0)
 }
 ```
@@ -159,13 +142,13 @@ normData <- lapply(intraPlateNormData, function(x) x[[1]]$normData)
 # save IPCs, NCs wells for each plate
 IPC_wells <- NC_wells <- SC_wells <- Bridge_wells <- vector('list', length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
-  IPC_wells[[i]] <- runs[[i]]$samples$sampleName[which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))]
-  NC_wells[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$NC, collapse="|"), runs[[i]]$samples$sampleName))]
+  IPC_wells[[i]] <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType=="IPC")]
+  NC_wells[[i]]  <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType=="NC")]
   if(indicatorSC){
-    SC_wells[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$SC, collapse="|"), runs[[i]]$samples$sampleName))]
+    SC_wells[[i]] <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType=="SC")]
   }
   if(indicatorBridge){
-    Bridge_wells[[i]]  <- runs[[i]]$samples$sampleName[which(grepl(paste(params$Bridge, collapse="|"), runs[[i]]$samples$sampleName))]
+    Bridge_wells[[i]]  <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType=="Bridge")]
   }
 } 
 
@@ -180,18 +163,17 @@ mCherry_IN <- interPlateNorm(data_list=normData,
                              IPC=FALSE, IN=TRUE,
                              IPC_wells=IPC_wells,
                              NC_wells=NC_wells)
-
 ```
 
 ```{r, include=FALSE}
 # calculate intra-plate CVs using sample controls
-intraCV_unnorm <- NULL
-intraCV_mCherry <- NULL
+intraCV_unnorm <- intraCV_mCherry <- NULL
 for (i in 1:length(params$xmlFiles)){
+  ICs <- which(runs[[i]]$targets$targetType == "Control")
   # define sample control vector
   sample_controls <- rep(NA, nrow(runs[[i]]$samples))
-  sample_control_wells <- runs[[i]]$samples$sampleName[which(grepl(paste(params$SC, collapse="|"), runs[[i]]$samples$sampleName))]
-  sample_controls[colnames(runs[[i]]$Data) %in% sample_control_wells] <- 'SC'
+  SCval <- if (!is.null(params$SC)) "SC" else "IPC"
+  sample_controls[which(runs[[i]]$samples$sampleType == SCval) ]<- "SC"
   # unnormalized intraCV
   plate_unnorm_intraCV <- intraCV(data_matrix=runs[[i]]$Data,
                                   samples=sample_controls,
@@ -208,8 +190,7 @@ for (i in 1:length(params$xmlFiles)){
   intraCV_mCherry <- cbind(intraCV_mCherry, plate_mCherry_intraCV)
 }
 
-colnames(intraCV_unnorm) <- PlateNames
-colnames(intraCV_mCherry) <- PlateNames
+colnames(intraCV_unnorm) <- colnames(intraCV_mCherry) <- PlateNames
 
 # create intra-plate CV table -- unnormalized
 intraCV_unnorm_summary_table <- cbind(colMeans(intraCV_unnorm, na.rm=TRUE),
@@ -240,21 +221,17 @@ colnames(intraCV_mCherry_summary_table) <- c('mean', 'sd', 'median', 'min', 'max
 
 ```{r, include=FALSE}
 # calculate inter-plate CVs using sample controls
-sampleControlList <- vector("list", length(params$xmlFiles))
-plateData <- vector("list", length(params$xmlFiles))
-aboveLOD <- vector("list", length(params$xmlFiles))
-exclude_targets <- vector("list", length(params$xmlFiles))
-plate_mCherry <- vector("list", length(params$xmlFiles))
+sampleControlList <- plateData <- aboveLOD <- exclude_targets <- plate_mCherry <- vector("list", length(params$xmlFiles))
 for(i in 1:length(params$xmlFiles)){
   # define sample control vector
   sample_controls <- rep(NA, nrow(runs[[i]]$samples))
-  sample_control_wells <- runs[[i]]$samples$sampleName[which(grepl(paste(params$SC, collapse="|"), runs[[i]]$samples$sampleName))]
-  sample_controls[colnames(runs[[i]]$Data) %in% sample_control_wells] <- 'SC'
+  SCval <- if (!is.null(params$SC)) "SC" else "IPC"
+  sample_controls[which(runs[[i]]$samples$sampleType == SCval) ]<- "SC"
   sampleControlList[[i]] <- sample_controls
   plateData[[i]] <- runs[[i]]$Data
   plate_mCherry[[i]] <- intraPlateNormData[[i]]$mCherry$normData
   aboveLOD[[i]] <- plate_lod[[i]]$aboveLOD
-  exclude_targets[[i]] <- ICs
+  exclude_targets[[i]] <- which(runs[[i]]$targets$targetType == "Control")
 }
 
 # unnormalized interCV
@@ -315,9 +292,9 @@ colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'miss
 
 ```{r, include=FALSE}
 # calculate detectability
-detectability_summary <- NULL
-detectability_targets <- NULL
+detectability_summary <- detectability_targets <- NULL
 for (i in 1:length(params$xmlFiles)){
+  ICs <- which(runs[[i]]$targets$targetType == "Control")
   detect_samples <- colnames(intraPlateNormData[[i]]$mCherry$normData)
   # remove IPCs, NCs, and SCs
   detect_samples <- detect_samples[!grepl(paste(params$IPC, collapse="|"), detect_samples)]
@@ -351,8 +328,7 @@ for (i in 1:length(params$xmlFiles)){
   detectability_targets <- cbind(detectability_targets, plate_detect$detectability)
 }
 
-rownames(detectability_summary) <- PlateNames
-colnames(detectability_targets) <- PlateNames
+rownames(detectability_summary) <- colnames(detectability_targets) <- PlateNames
 ```
 
 ```{r, include=FALSE}
@@ -378,16 +354,15 @@ title: `r title_var`
 * **Goal:** `r params$goal_desc`.
 * **Sample description:** `r params$sample_desc`
 
-
 ---
 
 ## Plate layout
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
-  well_types <- list(IPC_wells[[i]], NC_wells[[i]])#, SC_wells[[i]], Bridge_wells[[i]])
-  if(indicatorSC){ well_types <- append(well_types, list(SC_wells[[i]]))}
-  if(indicatorBridge){ well_types <- append(well_types, list(Bridge_wells[[i]]))}
+  well_types <- list(IPC_wells[[i]], NC_wells[[i]])
+  if(indicatorSC){      well_types <- append(well_types, list(SC_wells[[i]]))}
+  if(indicatorBridge){  well_types <- append(well_types, list(Bridge_wells[[i]]))}
 
   for (j in 1:length(well_types)){
     inds <- which(grepl(paste0(well_types[[j]], collapse="|"), val))
@@ -496,10 +471,10 @@ heatmap_description <- if (params$heatMapRel==TRUE) "Numbers shown are percent r
 
 ```{r, out.width='100%', fig.asp=0.33333*ceiling((length(ICs)+1)/2)}
 for(i in 1:length(params$xmlFiles)){
+  ICs <- which(runs[[i]]$targets$targetType == "Control")
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName)
   vals <- unlist(as.list(t(val)))
   par(mfrow=c(ceiling((length(ICs)+1)/2),2), oma=c(1,1,1,1), mar=c(2,2,2,1))
-  digitsTotal <- 1
   digitsmCherry <- if(params$heatMapRel) 1 else 0
   logVals <- log2(colSums(runs[[i]]$Data, na.rm=TRUE))
   well_order <- wellorder(runs[[i]]$sample, params$rowAnnotName, params$colAnnotName)
@@ -507,7 +482,7 @@ for(i in 1:length(params$xmlFiles)){
   val[which(!is.na(vals))] <- logVals[well_order]
   plateHeatmap(as.numeric(val), 
                title=paste0('Plate ', as.character(i), ": ", 'log2(total counts)'), 
-               cex=0.5, digits=digitsTotal,
+               cex=0.5, digits=1,
                relative=params$heatMapRel, cex.axis=0.5)
   for (j in 1:length(ICs)){
     val <- vals
@@ -527,11 +502,7 @@ for(i in 1:length(params$xmlFiles)){
 ### Plate QC
 ```{r, results='asis'}
 for( i in 1:length(runs)){
-  ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
-  IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
-  NCs  <- which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))
-  # Plate QC 
-  qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs)
+  qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
   table.attr <- paste0("id=\"QCFlagPlate-summary", i, "\"")
   qcPlate$status[which(qcPlate$status == "F")] <- "Pass"
   qcPlate$status[which(qcPlate$status == "T")] <- "Fail"
@@ -552,9 +523,7 @@ for( i in 1:length(runs)){
 ### Sample QC 
 #### Sample QC summary table
 ```{r, out.width='100%', fig.asp=2}
-rmin <- list() 
-rmax <- list()
-val <- list()
+rmin <- rmax <- val <- list()
 criteria <- QCSampleCriteria()
 rowNameQC <- c()
 QCSummary <- matrix(nrow=length(runs)+1, ncol=length(criteria)+1)
@@ -565,10 +534,7 @@ for (i in 1:length(runs)){
 
 for (j in 1:length(criteria)){
   for (i in 1:length(runs)){
-    ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
-    IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
-    NCs  <- which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))
-    qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples, well_order)
+    qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
     inds <- which(qcSample$flagName == names(criteria)[j])
     val[j] <- if(names(criteria)[j] == "Detectability" || names(criteria)[j] == "IC_Median") criteria[j]*100 else criteria[j]
     if(names(criteria)[j] == "Detectability"){
@@ -584,8 +550,7 @@ for (j in 1:length(criteria)){
       rmin[j] <- min(val[[j]], as.numeric(xval), na.rm=T)
       rmax[j] <- max(val[[j]], as.numeric(xval), na.rm=T)
     }
-    indFail <- which(qcSample[inds,]$status == "T")
-    QCSummary[i, j+1] <- length(indFail)
+    QCSummary[i, j+1] <- length(which(qcSample[inds,]$status == "T"))
   }
 }
 QCSummary[i+1, ] <- colSums(QCSummary, na.rm=T) 
@@ -597,15 +562,11 @@ knitr::kable(QCSummary, caption='',
              format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 
-
 for( i in 1:length(runs)){
-  ICs  <- which(grepl(paste(params$IC, collapse="|"),  runs[[i]]$targets$targetName))
-  IPCs <- which(grepl(paste(params$IPC, collapse="|"), runs[[i]]$samples$sampleName))
-  NCs  <- which(grepl(paste(params$NC, collapse="|"),  runs[[i]]$samples$sampleName))
   well_order <- wellorder(runs[[i]]$sample, params$rowAnnotName, params$colAnnotName)
   
   # Sample QC
-  qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], ICs, NCs, IPCs, runs[[i]]$samples, well_order)
+  qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
   if(indicatorSC){
     inds <- which(grepl(paste(params$SC, collapse="|"), qcSample$sampleName))
     qcSample[inds, ]$type <- "SC"
@@ -648,12 +609,10 @@ for( i in 1:length(runs)){
     dotchart(x=as.numeric(xval), xlab=xlab, 
              labels=qcSample[inds, ]$sampleName, las=1, 
              cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), color=color, log=log)
-    indFail <- which(qcSample[inds,]$status != "T")
-    indPass <- which(qcSample[inds,]$status != "F")
     xvalFail <- xval
-    xvalFail[indFail] <- NA
-    xvalPass <-xval
-    xvalPass[indPass] <- NA
+    xvalFail[which(qcSample[inds,]$status != "T")] <- NA
+    xvalPass <- xval
+    xvalPass[which(qcSample[inds,]$status != "F")] <- NA
     points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
     points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
     abline(v=val[[j]], col='brown')
@@ -892,7 +851,7 @@ PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
     legendText <- c(legendText, "SCs")
   }
   if(indicatorBridge){
-    Bridge_samples <- grep(paste(params$SC, collapse="|"), colnames(data))
+    Bridge_samples <- grep(paste(params$Bridge, collapse="|"), colnames(data))
     point_shapes[Bridge_samples] <- 10
     legendText <- c(legendText, "Bridges")
   }

@@ -1,65 +1,71 @@
-typeSummary <- function(IPCs, plate_data, total_plate_reads){    
-  IPC_data <- plate_data$Data[,IPCs]
+# helper function to summarize special well types:
+# IPCs
+# NCs
+# SCs
+# Bridge samples
+typeSummary <- function(well_type, plate_data, total_plate_reads){    
+  well_type_data <- plate_data$Data[,well_type]
   # total counts and percent
-  IPC_total <- sum(IPC_data, na.rm=TRUE)
-  IPC_total_perc <- format(round(IPC_total/total_plate_reads*100, 1), nsmall=1)
-  IPC_totals <- colSums(IPC_data, na.rm=TRUE)
-  IPC_totals_perc <- format(round(IPC_totals/total_plate_reads*100, 1), nsmall=1)
-  IPC_medians <- apply(IPC_data, 1, median, na.rm=TRUE)
-  IPC_medians_total <- sum(IPC_medians, na.rm=TRUE)
-  IPC_medians_total_perc <- format(round(IPC_medians_total/total_plate_reads*100, 1), nsmall=1)
-  total_IPC_counts <- c(IPC_total, IPC_totals, IPC_medians_total)
-  total_IPC_perc <- c(IPC_total_perc, IPC_totals_perc, IPC_medians_total_perc)
-  total_IPC_count_perc <- paste0(format(total_IPC_counts, big.mark=","), ' (',
-                                 total_IPC_perc, '%)')
+  well_type_total <- sum(well_type_data, na.rm=TRUE)
+  well_type_total_perc <- format(round(well_type_total/total_plate_reads*100, 1), nsmall=1)
+  well_type_totals <- colSums(well_type_data, na.rm=TRUE)
+  well_type_totals_perc <- format(round(well_type_totals/total_plate_reads*100, 1), nsmall=1)
+  well_type_medians <- apply(well_type_data, 1, median, na.rm=TRUE)
+  well_type_medians_total <- sum(well_type_medians, na.rm=TRUE)
+  well_type_medians_total_perc <- format(round(well_type_medians_total/total_plate_reads*100, 1), nsmall=1)
+  total_well_type_counts <- c(well_type_total, well_type_totals, well_type_medians_total)
+  total_well_type_perc <- c(well_type_total_perc, well_type_totals_perc, well_type_medians_total_perc)
+  total_well_type_count_perc <- paste0(format(total_well_type_counts, big.mark=","), ' (',
+                                       total_well_type_perc, '%)')
   # mean count per target
-  IPC_total_mean <- mean(IPC_data, na.rm=TRUE)
-  IPC_target_mean <- colMeans(IPC_data, na.rm=TRUE)
-  IPC_medians_mean <- mean(IPC_medians, na.rm=TRUE)
-  IPC_means_per_target <- c(IPC_total_mean, IPC_target_mean, IPC_medians_mean)
-  IPC_means_per_target <- format(round(IPC_means_per_target, 1), big.mark=",", nsmall=1)
+  well_type_total_mean <- mean(well_type_data, na.rm=TRUE)
+  well_type_target_mean <- colMeans(well_type_data, na.rm=TRUE)
+  well_type_medians_mean <- mean(well_type_medians, na.rm=TRUE)
+  well_type_means_per_target <- c(well_type_total_mean, well_type_target_mean, well_type_medians_mean)
+  well_type_means_per_target <- format(round(well_type_means_per_target, 1), big.mark=",", nsmall=1)
   # missing n %
-  IPC_total_missing <- sum(is.na(IPC_data)) + sum(IPC_data==0, na.rm=TRUE)
-  IPC_total_missing_perc <- IPC_total_missing/(nrow(IPC_data)*ncol(IPC_data))*100
-  IPC_missing <- apply(IPC_data, 2, function(x){
+  well_type_total_missing <- sum(is.na(well_type_data)) + sum(well_type_data==0, na.rm=TRUE)
+  well_type_total_missing_perc <- well_type_total_missing/(nrow(well_type_data)*ncol(well_type_data))*100
+  well_type_missing <- apply(well_type_data, 2, function(x){
     sum(is.na(x)) + sum(x==0, na.rm=TRUE)
   })
-  IPC_missing_perc <- IPC_missing/nrow(IPC_data)*100
-  IPC_medians_missing <- sum(is.na(IPC_medians)) + sum(IPC_medians==0, na.rm=TRUE)
-  IPC_medians_missing_perc <- IPC_medians_missing/length(IPC_medians)*100
-  IPC_missing_totals <- c(IPC_total_missing, IPC_missing, IPC_medians_missing)
-  IPC_missing_percents <- c(IPC_total_missing_perc,
-                            IPC_missing_perc,
-                            IPC_medians_missing_perc)
-  IPC_missing_percents <- format(round(IPC_missing_percents, 1), nsmall=1, big.mark=",")
-  IPC_missing <- paste0(IPC_missing_totals, ' (',
-                        IPC_missing_percents, '%)')
+  well_type_missing_perc <- well_type_missing/nrow(well_type_data)*100
+  well_type_medians_missing <- sum(is.na(well_type_medians)) + sum(well_type_medians==0, na.rm=TRUE)
+  well_type_medians_missing_perc <- well_type_medians_missing/length(well_type_medians)*100
+  well_type_missing_totals <- c(well_type_total_missing, well_type_missing, well_type_medians_missing)
+  well_type_missing_percents <- c(well_type_total_missing_perc,
+                                  well_type_missing_perc,
+                                  well_type_medians_missing_perc)
+  well_type_missing_percents <- format(round(well_type_missing_percents, 1), nsmall=1, big.mark=",")
+  well_type_missing <- paste0(well_type_missing_totals, ' (',
+                              well_type_missing_percents, '%)')
   # calculate CV
-  IPC_means <- rowMeans(IPC_data, na.rm=TRUE)
-  IPC_sds <- apply(IPC_data, 1, sd, na.rm=TRUE)
-  IPC_cvs <- IPC_sds/IPC_means*100
-  IPC_cv_mean <- c(paste0(format(round(mean(IPC_cvs, na.rm=TRUE), 1), nsmall=1), '%'),
-                   rep('', length(IPCs)),
-                   '')
-  IPC_cv_median <- c(paste0(format(round(median(IPC_cvs, na.rm=TRUE), 1), nsmall=1), '%'),
-                     rep('', length(IPCs)),
-                     '')
+  well_type_means <- rowMeans(well_type_data, na.rm=TRUE)
+  well_type_sds <- apply(well_type_data, 1, sd, na.rm=TRUE)
+  well_type_cvs <- well_type_sds/well_type_means*100
+  well_type_cv_mean <- c(paste0(format(round(mean(well_type_cvs, na.rm=TRUE), 1), nsmall=1), '%'),
+                         rep('', length(well_type)),
+                         '')
+  well_type_cv_median <- c(paste0(format(round(median(well_type_cvs, na.rm=TRUE), 1), nsmall=1), '%'),
+                           rep('', length(well_type)),
+                           '')
   # create table
-  IPC_table <- cbind(total_IPC_count_perc,
-                     IPC_means_per_target,
-                     IPC_missing,
-                     IPC_cv_mean,
-                     IPC_cv_median)
-  colnames(IPC_table) <- c('Total count (%)',
-                           'Mean count per target',
-                           'Missing n (%)',
-                           'CV% mean',
-                           'CV% median')
-  rownames(IPC_table) <- c('Total',
-                           colnames(IPC_data),
-                           'Median')
-  return(IPC_table)
+  well_type_table <- cbind(total_well_type_count_perc,
+                           well_type_means_per_target,
+                           well_type_missing,
+                           well_type_cv_mean,
+                           well_type_cv_median)
+  colnames(well_type_table) <- c('Total count (%)',
+                                 'Mean count per target',
+                                 'Zeros n (%)',
+                                 'CV% mean',
+                                 'CV% median')
+  rownames(well_type_table) <- c('Total',
+                                 colnames(well_type_data),
+                                 'Median')
+  return(well_type_table)
 }
+
 #' NULISAseq Plate Summary
 #'
 #' Summarizes plate reads. Input is the output of readNULISAseq.R.
@@ -140,7 +146,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
                                  'Total samples',
                                  'Total targets',
                                  'Total samples * targets',
-                                 'Missing/zero values')
+                                 'Zero values')
   output <- reads_percents
   # check if total reads in Data equals parseable match reads in Run Summary
   total_plate_reads <- sum(plate_data$Data, na.rm=TRUE)
@@ -152,8 +158,9 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   ##############################
   # ICs
   ############
-  if (!is.null(ICs)){
-    IC_data <- plate_data$Data[ICs,, drop=F]
+  ICinds <- if(!is.null(ICs)) ICs else which(plate_data$targets$targetType == "Control")
+  if (length(ICinds) > 0){
+    IC_data <- plate_data$Data[ICinds,, drop=F]
     IC_totals <- rowSums(IC_data, na.rm=TRUE)
     IC_percents <- format(round(IC_totals/total_plate_reads*100, 1), nsmall=1)
     IC_total_percent <- paste0(format(IC_totals, big.mark=","), ' (', IC_percents, '%)')
@@ -165,7 +172,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
     IC_cv <- paste0(format(round(apply(IC_data, 1, sd, na.rm=TRUE)/rowMeans(IC_data, na.rm=TRUE)*100, 1), nsmall=1),
                     '%')
     IC_table <- cbind(IC_missing_n_perc, IC_total_percent, IC_means, IC_sd, IC_cv)
-    colnames(IC_table) <- c('Missing n (%)', 'Total reads (%)', 'Mean', 'SD', 'CV%')
+    colnames(IC_table) <- c('Zeros n (%)', 'Total reads (%)', 'Mean', 'SD', 'CV%')
     rownames(IC_table) <- rownames(IC_data)
     output <- list(readsTable=output,
                    IC_table=IC_table)
@@ -173,24 +180,28 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   ############
   # IPCs, SCs, Bridges
   ############
-  if(!is.null(IPCs)){
-    IPC_table <- typeSummary(IPCs, plate_data, total_plate_reads)
+  IPCinds <- if(!is.null(IPCs)) IPCs else which(plate_data$samples$sampleType == "IPC")
+  if(length(IPCinds) > 0 ){
+    IPC_table <- typeSummary(IPCinds, plate_data, total_plate_reads)
     output <- if (is.list(output)==TRUE) c(output, list(IPC_table=IPC_table)) else list(readsTable=output, IPC_table=IPC_table)
   }
-  if(!is.null(SCs)){
-    SC_table <- typeSummary(SCs, plate_data, total_plate_reads)
+  SCinds <- if(!is.null(SCs)) SCs else which(plate_data$samples$sampleType == "SC")
+  if(length(SCinds) > 0){
+    SC_table <- typeSummary(SCinds, plate_data, total_plate_reads)
     output <- if (is.list(output)==TRUE) c(output, list(SC_table=SC_table)) else list(readsTable=output, SC_table=SC_table)
   }
-  if(!is.null(Bridges)){
+  Bridgeinds <- if(!is.null(Bridges)) Bridges else which(plate_data$samples$sampleType == "Bridge")
+  if(length(Bridgeinds)>0){
     Bridge_table <- typeSummary(Bridges, plate_data, total_plate_reads)
     output <- if (is.list(output)==TRUE) c(output, list(Bridge_table=Bridge_table)) else list(readsTable=output, Bridge_table=Bridge_table)
   }
-
+  
   ############
   # NCs
   ############
-  if (!is.null(NCs)){
-    NC_data <- plate_data$Data[,NCs]
+  NCinds <- if(!is.null(NCs)) NCs else which(plate_data$samples$sampleType == "NC")
+  if (length(NCinds)> 0){
+    NC_data <- plate_data$Data[,NCinds]
     # total counts and percent
     NC_total <- sum(NC_data, na.rm=TRUE)
     NC_total_perc <- format(round(NC_total/total_plate_reads*100, 1), nsmall=1)
