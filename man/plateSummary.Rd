@@ -4,7 +4,14 @@
 \alias{plateSummary}
 \title{NULISAseq Plate Summary}
 \usage{
-plateSummary(plate_data, ICs = NULL, IPCs = NULL, NCs = NULL)
+plateSummary(
+  plate_data,
+  ICs = NULL,
+  IPCs = NULL,
+  NCs = NULL,
+  SCs = NULL,
+  Bridges = NULL
+)
 }
 \arguments{
 \item{plate_data}{The list output from readNULISAseq.R.}
