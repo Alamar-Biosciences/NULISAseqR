@@ -6,9 +6,9 @@ params:
   SC: !r NULL
   Bridge: !r NULL
   dataDir: "/Users/jbeer/github/TAP-COVID/data"
-  rowAnnotName: "Annot2"
-  colAnnotName: "Annot3"
-  plateAnnotName: "Annot1"
+  rowAnnotName: "AUTO_WELLROW"
+  colAnnotName: "AUTO_WELLCOL"
+  plateAnnotName: "AUTO_PLATE"
   heatMapRel: !r TRUE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
