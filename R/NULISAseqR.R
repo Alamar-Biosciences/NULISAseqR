@@ -7,5 +7,5 @@
 #' @docType package
 #' @name NULISAseqR
 #' @author Joanne C. Beer \email{jbeer@alamarbio.com}
-#' @import xml2 zeallot fields XML future promises
+#' @import xml2 fields XML future promises
 NULL
