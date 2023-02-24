@@ -6,9 +6,9 @@ params:
   SC: !r NULL
   Bridge: !r NULL
   dataDir: "/Users/jbeer/github/TAP-COVID/data"
-  rowAnnotName: "Annot2"
-  colAnnotName: "Annot3"
-  plateAnnotName: "Annot1"
+  rowAnnotName: "AUTO_WELLROW"
+  colAnnotName: "AUTO_WELLCOL"
+  plateAnnotName: "AUTO_PLATE"
   heatMapRel: !r TRUE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
@@ -424,6 +424,7 @@ if(length(ICs) == 1){
 ---
 
 ### Inter-plate controls (IPC)
+Note: %CV in this table does not exclude values below LOD. See [Intra-plate normalization](#intraPlateNorm) or [Inter-plate normalization](#interPlateNorm) sections for %CV (before and after normalization) that excludes values below LOD.
 ```{r, results='asis'}
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"IPC-summary", i, "\"")
@@ -431,6 +432,7 @@ for(i in 1:length(params$xmlFiles)){
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
+
 ---
 
 ### Negative controls (NC) 
@@ -442,6 +444,8 @@ for(i in 1:length(params$xmlFiles)){
 }
 ```
 
+---
+
 ```{r eval=indicatorSC, results='asis'}
 pandoc.header("Sample controls (SC)", 3)
 for(i in 1:length(params$xmlFiles)){
@@ -450,6 +454,8 @@ for(i in 1:length(params$xmlFiles)){
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
 }
 ```
+
+---
 
 ```{r eval=indicatorBridge, results='asis'}
 pandoc.header("Bridge Samples (Bridge)", 3)
@@ -648,7 +654,7 @@ kable_styling(knitr::kable(detectability_targets, caption='Target Detectability 
 
 ---
 
-## Intra-plate normalization
+## Intra-plate normalization {#intraPlateNorm}
 %CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV. 
 
 ### Intra-plate %CV table -- unnormalized
@@ -810,7 +816,7 @@ for(i in 1:length(params$xmlFiles)){
 ---
 
 ```{r eval=multipleFiles, results='asis'}
-pandoc.header("Inter-plate normalization", 2)
+pandoc.header("Inter-plate normalization {#interPlateNorm}", 2)
 cat("%CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV.")
 ```
 
