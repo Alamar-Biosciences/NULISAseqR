@@ -100,7 +100,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
   columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode", "type")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
   if(is.null(well_order)){
-    well_order <- 1:length(raw[,1])
+    well_order <- 1:length(raw[1,])
   }else{
     well_order <- rev(well_order)
   }
