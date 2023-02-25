@@ -8,12 +8,12 @@
 #'   
 #' Input is a list of data matrices, one for each plate. 
 #' These would typically be normData matrix from the intraPlateNorm function 
-#' or the Data matrix of readNULISAseq.R (if no intra-plate normalization is 
+#' or the Data matrix of `readNULISAseq.R` (if no intra-plate normalization is 
 #' done). Other required input depends on methods used. 
 #' 
-#' Use option dataScale = log when data is already on a log scale.
+#' @description Use option dataScale = log when data is already on a log scale.
 #' 
-#' Output is a single matrix.
+#' @description Output is a list.
 #'
 #' @param data_list A list of data matrices, one for each plate, 
 #' to be normalized together. 
@@ -51,12 +51,15 @@
 #' in the log scale). Only useful for count scale data.
 #'
 #' @return A list.
-#' @param interNormData A matrix of normalized count data (not log-transformed).
-#' @param plate A vector of integers 1-(number of plates) 
+#' \item{interNormData}{A list of matrices of normalized count data (not 
+#' log-transformed, unless input data was log-transformed, which should use `dataScale='log'`).}
+#' \item{plate}{A vector of integers 1-(number of plates) 
 #' corresponding to the interNormData matrix columns
-#' that indicates which plate samples are from.
+#' that indicates which plate samples are from.} 
+#' \item{normFactors}{A list of vectors with the normalization factor for each 
+#' target in the corresponding plate}
+#' \item{scaleFactor}{The scale factor that was used in the final scaling step.}
 #'
-#' @examples
 #' 
 #'
 #' @export
@@ -77,6 +80,7 @@ interPlateNorm <- function(data_list,
     }
     IPC_factors <- list()
     data_list_IPC <- list()
+    normFactors <- list()
     for (i in 1:length(data_list)){
       IPC_cols <- data_list[[i]][,IPC_wells[[i]]]
       if (IPC_method=='median'){
@@ -98,15 +102,16 @@ interPlateNorm <- function(data_list,
         IPC_factors_i[is.na(IPC_factors_i)] <- 1
         IPC_factors[[i]] <- IPC_factors_i
         data_list_IPC[[i]] <- data_list[[i]] / IPC_factors_i
+        normFactors[[i]] <- 1 / IPC_factors_i
       } else if (dataScale=='log'){
         # replace NAs with 0s
         IPC_factors_i[is.na(IPC_factors_i)] <- 0
         IPC_factors[[i]] <- IPC_factors_i
         data_list_IPC[[i]] <- data_list[[i]] - IPC_factors_i
+        normFactors[[i]] <- 1 / IPC_factors_i
       }
     } # end loop over data list
     data_list <- data_list_IPC
-    normFactors <- unlist(IPC_factors)*scaleFactor
   } # end IPC normalization
   
   # intensity normalization
@@ -171,20 +176,25 @@ interPlateNorm <- function(data_list,
     global_medians <- apply(all_IN_sample_data, 1, median, na.rm=TRUE)
     # replace zeros with 1s
     global_medians[global_medians==0] <- 1
+    # save normFactors
+    normFactors <- list()
     if (dataScale=='count'){
+      # intensity normalization -- count scale
       IN_factors <- (1/IN_medians)*global_medians
       # IN rescale data
       for (i in 1:length(data_list)){
         data_list[[i]] <- data_list[[i]]*IN_factors[,i]
+        normFactors[[i]] <- IN_factors[,i]
       } 
     } else if (dataScale=='log'){
+      # intensity normalization -- log scale
       IN_factors <- global_medians - IN_medians
       # IN shift data
       for (i in 1:length(data_list)){
         data_list[[i]] <- data_list[[i]] + IN_factors[,i]
+        normFactors[[i]] <- IN_factors[,i]
       }
     }
-    normFactors <- IN_factors*scaleFactor
   } # end intensity normalization
   
   # apply the scale factor to the data
@@ -199,5 +209,6 @@ interPlateNorm <- function(data_list,
   # return output
   return(list(interNormData=data_list,
               plate=plate,
-              normFactors=normFactors))
+              normFactors=normFactors,
+              scaleFactor=scaleFactor))
 }

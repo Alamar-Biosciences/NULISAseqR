@@ -59,17 +59,24 @@ data; normalization is additive on the log scale.}
 after normalizing. Default is 1. This may be desirable to avoid
 normalized quantities between 0 and 1 (which will be negative
 in the log scale). Only useful for count scale data.}
-
-\item{interNormData}{A matrix of normalized count data (not log-transformed).}
-
-\item{plate}{A vector of integers 1-(number of plates) 
-corresponding to the interNormData matrix columns
-that indicates which plate samples are from.}
 }
 \value{
 A list.
+\item{interNormData}{A list of matrices of normalized count data (not 
+log-transformed, unless input data was log-transformed, which should use `dataScale='log'`).}
+\item{plate}{A vector of integers 1-(number of plates) 
+corresponding to the interNormData matrix columns
+that indicates which plate samples are from.} 
+\item{normFactors}{A list of vectors with the normalization factor for each 
+target in the corresponding plate}
+\item{scaleFactor}{The scale factor that was used in the final scaling step.}
 }
 \description{
+Use option dataScale = log when data is already on a log scale.
+
+Output is a list.
+}
+\details{
 Does inter-plate normalization using one of the following methods:
 inter-plate control (IPC; divides each target 
 by the median IPC count for that target), intensity normalization (IN; 
@@ -78,11 +85,6 @@ is to do IPC.
   
 Input is a list of data matrices, one for each plate. 
 These would typically be normData matrix from the intraPlateNorm function 
-or the Data matrix of readNULISAseq.R (if no intra-plate normalization is 
+or the Data matrix of `readNULISAseq.R` (if no intra-plate normalization is 
 done). Other required input depends on methods used.
-}
-\details{
-Use option dataScale = log when data is already on a log scale.
-
-Output is a single matrix.
 }
