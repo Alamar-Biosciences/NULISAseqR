@@ -128,7 +128,7 @@
                                                     <xs:element name="QCFlag" maxOccurs="unbounded" minOccurs="0">
                                                         <xs:complexType>
                                                             <xs:simpleContent>
-                                                                <xs:extension base="xs:decimal">
+                                                                <xs:extension base="xs:string">
                                                                     <xs:attribute name="name" type="xs:string"/>
                                                                     <xs:attribute name="set" type="xs:string"/>
                                                                     <xs:attribute name="method" type="xs:string"/>
@@ -165,7 +165,7 @@
                                                     <xs:element name="QCFlag" maxOccurs="unbounded" minOccurs="0">
                                                         <xs:complexType>
                                                             <xs:simpleContent>
-                                                                <xs:extension base="xs:decimal">
+                                                                <xs:extension base="xs:string">
                                                                     <xs:attribute name="name" type="xs:string"/>
                                                                     <xs:attribute name="replicate" type="xs:string"/>
                                                                     <xs:attribute name="set" type="xs:string"/>
