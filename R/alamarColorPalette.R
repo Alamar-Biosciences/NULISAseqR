@@ -1,16 +1,18 @@
 
 #' Make color palette based on Alamar colors
 #'
-#'@param n number of main colors to output. Maximum is 13 when interpolate=FALSE.
+#'@param n number of main colors to output. For `palette=1`, maximum is 13 
+#' when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`. For `palette=2`, 
+#' maximum is 9 when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`
 #'@param nReps optional, number of sub-colors to output 
 #' for each of the main colors. Useful for when there are technical replicates.
 #' Function will output n*nReps total colors.
-#' @param tint optional, used when subcolors are created.
-#' "light" blends main colors with white.
-#' "dark" blends main colors with black.
-#' "lightdark" (default) blends main colors with white & black.
-#' @param interpolate logical TRUE or FALSE (default). 
-#' If TRUE, main colors are based on interpolation of 
+#' @param tint optional, used when sub-colors are created.
+#' `"light"` blends main colors with white.
+#' `"dark"` blends main colors with black.
+#' `"lightdark"` (default) blends main colors with white & black.
+#' @param interpolate logical `TRUE` or `FALSE` (default). 
+#' If `TRUE`, main colors are based on interpolation of 
 #' the colors denoted by the interpolate_index 
 #' argument.
 #' @param interpolateIndex indices of colors to interpolate. For `palette=1`, 
@@ -62,7 +64,7 @@ alamarColorPalette <- function(n,
     if(is.null(interpolateIndex)) interpolateIndex <- 1:5
   } else if (palette==2){
     if (n > 9 & interpolate==FALSE){
-      stop('number of colors cannot exceed 13 unless interpolate==TRUE')
+      stop('number of colors cannot exceed 9 unless interpolate==TRUE')
     }
     allColors <- c('#005292', # blue (secondary color)
                    '#C91846', # red (secondary color)
