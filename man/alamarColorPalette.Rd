@@ -9,11 +9,12 @@ alamarColorPalette(
   nReps = 1,
   tint = "lightdark",
   interpolate = FALSE,
-  interpolateIndex = 1:5
+  interpolateIndex = NULL,
+  palette = 1
 )
 }
 \arguments{
-\item{n}{number of main colors to output (maximum 13)}
+\item{n}{number of main colors to output. Maximum is 13 when interpolate=FALSE.}
 
 \item{nReps}{optional, number of sub-colors to output 
 for each of the main colors. Useful for when there are technical replicates.
@@ -29,7 +30,12 @@ If TRUE, main colors are based on interpolation of
 the colors denoted by the interpolate_index 
 argument.}
 
-\item{interpolateIndex}{indices of colors to interpolate. Default is 1:5}
+\item{interpolateIndex}{indices of colors to interpolate. For `palette=1`, 
+default is 1:5. For `palette=2`, default is `c(1,2,4,3,5,6)`.}
+
+\item{palette}{Which set of colors to use. Integer. `"palette=1"` (default) 
+is based on the original website color palette. `palette=2` is the new 
+palette used in the NULISA manuscript.}
 }
 \value{
 A vector or list of vectors of colors in hex format
