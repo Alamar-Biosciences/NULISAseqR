@@ -14,19 +14,21 @@ alamarColorPalette(
 )
 }
 \arguments{
-\item{n}{number of main colors to output. Maximum is 13 when interpolate=FALSE.}
+\item{n}{number of main colors to output. For `palette=1`, maximum is 13 
+when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`. For `palette=2`, 
+maximum is 9 when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`}
 
 \item{nReps}{optional, number of sub-colors to output 
 for each of the main colors. Useful for when there are technical replicates.
 Function will output n*nReps total colors.}
 
-\item{tint}{optional, used when subcolors are created.
-"light" blends main colors with white.
-"dark" blends main colors with black.
-"lightdark" (default) blends main colors with white & black.}
+\item{tint}{optional, used when sub-colors are created.
+`"light"` blends main colors with white.
+`"dark"` blends main colors with black.
+`"lightdark"` (default) blends main colors with white & black.}
 
-\item{interpolate}{logical TRUE or FALSE (default). 
-If TRUE, main colors are based on interpolation of 
+\item{interpolate}{logical `TRUE` or `FALSE` (default). 
+If `TRUE`, main colors are based on interpolation of 
 the colors denoted by the interpolate_index 
 argument.}
 
