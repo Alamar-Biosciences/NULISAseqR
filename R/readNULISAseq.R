@@ -48,15 +48,15 @@ readNULISAseq <- function(xml_file,
   barcodeA_attrs <- names(attributes(RunSummary$Barcodes$BarcodeA[[1]]))
   barcodeA_attrs <- barcodeA_attrs[barcodeA_attrs!='name']
   if (length(barcodeA_attrs) > 0){
-    target_metadata <- data.frame(matrix(nrow=length(targetBarcode),
+    targetMetadata <- data.frame(matrix(nrow=length(targetBarcode),
                                            ncol=length(barcodeA_attrs)))
-    colnames(target_metadata) <- barcodeA_attrs
+    colnames(targetMetadata) <- barcodeA_attrs
     for (i in 1:length(barcodeA_attrs)){
-      target_metadata[,i] <- unlist(lapply(RunSummary$Barcodes$BarcodeA, function(x) attributes(x)[barcodeA_attrs[i]]))
+      targetMetadata[,i] <- unlist(lapply(RunSummary$Barcodes$BarcodeA, function(x) attributes(x)[barcodeA_attrs[i]]))
     }
     targets <- data.frame(targetBarcode=targetBarcode,
                           targetName=targetName,
-                          target_metadata)
+                          targetMetadata)
   } else if (length(barcodeA_attrs) == 0) {
     targets <- data.frame(targetBarcode=targetBarcode,
                           targetName=targetName)
@@ -70,15 +70,15 @@ readNULISAseq <- function(xml_file,
   barcodeB_attrs <- names(attributes(RunSummary$Barcodes$BarcodeB[[1]]))
   barcodeB_attrs <- barcodeB_attrs[barcodeB_attrs!='name']
   if (length(barcodeB_attrs) > 0){
-    sample_metadata <- data.frame(matrix(nrow=length(sampleBarcode),
+    sampleMetadata <- data.frame(matrix(nrow=length(sampleBarcode),
                                            ncol=length(barcodeB_attrs)))
-    colnames(sample_metadata) <- barcodeB_attrs
+    colnames(sampleMetadata) <- barcodeB_attrs
     for (i in 1:length(barcodeB_attrs)){
-      sample_metadata[,i] <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)[barcodeB_attrs[i]]))
+      sampleMetadata[,i] <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)[barcodeB_attrs[i]]))
     }
     samples <- data.frame(sampleBarcode=sampleBarcode, 
                           sampleName=sampleName, 
-                          sample_metadata)
+                          sampleMetadata)
   } else if (length(barcodeB_attrs) == 0) {
     samples <- data.frame(sampleBarcode, sampleName)
   }
@@ -152,24 +152,24 @@ readNULISAseq <- function(xml_file,
   targets$targetType <- targetType
   
   # save the special well type column names
-  special_wells_targets <- list()
+  specialWellsTargets <- list()
   if(!is.null(IPC)) {
-    special_wells_targets[['IPC']] <- samples$sampleName[samples$sampleType=='IPC']
+    specialWellsTargets[['IPC']] <- samples$sampleName[samples$sampleType=='IPC']
   }
   if(!is.null(NC)) { 
-    special_wells_targets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
+    specialWellsTargets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
   }
   if(!is.null(SC)) {
-    special_wells_targets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
+    specialWellsTargets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
   }
   if(!is.null(Bridge)) {
-    special_wells_targets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
+    specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
   }
-  special_wells_targets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
+  specialWellsTargets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
   
   # save IC row names
   if(!is.null(IC)) {
-    special_wells_targets[['IC']] <- targets$targetName[targets$targetType=='Control']
+    specialWellsTargets[['IC']] <- targets$targetName[targets$targetType=='Control']
   }
   
   # if given, add plateID to samples 
@@ -189,5 +189,5 @@ readNULISAseq <- function(xml_file,
     targets=targets,
     samples=samples,
     Data=DataMatrix),
-    special_wells_targets))
+    specialWellsTargets))
 }
