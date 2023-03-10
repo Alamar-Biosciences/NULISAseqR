@@ -192,3 +192,31 @@ readNULISAseq <- function(xml_file,
     Data=DataMatrix),
     specialWellsTargets))
 }
+
+#' Convenience function for use by SAM
+#' Read NULISAseq XML, perform normalization, and QC 
+#'
+#' Reads NULISAseq XML file, where XML file is output from the Alamar
+#' Biosciences Galaxy NULISAseq (Beta) tool or the NULISAseq Normalization (Alpha) tool.
+#'
+#' @param xml_file Character string. Path and name of the file.
+#' @param plateID Character string that denotes plate ID.
+#' @param file_type Character string. Type of input file, as output from Galaxy. Options include
+#' xml_full_output, xml_no_mismatches (default) (both from NULISAseq tool),
+#' or xml_normalization (from NULISAseq Normalization tool).
+#' @param replaceNA Logical. If TRUE (default), will replace missing counts with 
+#' zeros.
+#'
+#' @return List of lists, data frames, and matrices.
+#' Output will differ slightly depending on the input file type.
+#'
+#'
+#' @export
+#'
+loadNULISAseq <- function(file,IPC, ...){
+  raw <- readNULISAseq(file, IPC=IPC, ...)
+  raw$normed <- intraPlateNorm(raw$Data, ...)
+  raw$qcPlate <- QCFlagPlate(raw$Data, raw$normed$normData, raw$targets, raw$samples)
+  raw$qcSample <- QCFlagSample(raw$Data, raw$normed$normData, raw$samples, raw$targets)
+  return(raw)
+}
