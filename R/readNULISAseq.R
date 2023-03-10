@@ -105,8 +105,6 @@ readNULISAseq <- function(xml_file,
                    by.x='sampleBarcode', by.y='barcode', all=TRUE)
   # sort samples by sample name
   samples <- samples[order(samples$sampleName),]
-  # if given, add plateID to samples 
-  samples$plateID <- plateID
   # loop over sample replicates and save data
   Data <- targets[,c('targetBarcode', 'targetName')]
   sampleBarcode <- c()
@@ -174,6 +172,12 @@ readNULISAseq <- function(xml_file,
     special_wells_targets[['IC']] <- targets$targetName[targets$targetType=='Control']
   }
   
+  # if given, add plateID to samples 
+  if( !is.null(plateID) && !is.null(samples$AUTO_PLATE)){
+    samples$plateID <- unique(samples$AUTO_PLATE)[1]
+  }else{
+    samples$plateID <- plateID
+  }
   
   ###########################
   # return the output
