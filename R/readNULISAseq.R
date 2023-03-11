@@ -177,7 +177,8 @@ readNULISAseq <- function(xml_file,
     samples$plateID <- plateID
   }else{
     if ( !is.null(samples$AUTO_PLATE) ){
-    samples$plateID <- unique(samples$AUTO_PLATE)[1]
+      samples$plateID <- unique(samples$AUTO_PLATE)[1]
+    }
   }
   
   ###########################
