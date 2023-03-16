@@ -33,7 +33,7 @@ readNULISAseq <- function(xml_file,
   # if we need to save the Execution Time units
   ExecutionTimeUnits <- attributes(ExecutionDetails$ExecutionTime)
   ExecutionDetails <- lapply(ExecutionDetails, unlist)
-  ExecutionDetails$ExecutionTime <- c(ExecutionDetails$ExecutionTime[1],
+  ExecutionDetails$ExecutionTime <- c(as.numeric(ExecutionDetails$ExecutionTime[1]),
                                       ExecutionTimeUnits)
   
   ###########################
@@ -89,6 +89,10 @@ readNULISAseq <- function(xml_file,
                                     'ParseableMatch', 
                                     'Unparseable',
                                     'Balancers')], unlist)
+  RunSummary <- lapply(RunSummary[c('TotalReads',
+                                    'Parseable',
+                                    'ParseableMatch',
+                                    'Unparseable')], as.numeric)
   names(RunSummary$Balancers) <- BalancerNames
   
   ###########################
