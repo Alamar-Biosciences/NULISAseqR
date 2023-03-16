@@ -97,7 +97,7 @@ QC2XML <- function(input, QCNode, sample=F, combined=F){
 #'
 #' @export
 QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL){
-  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode", "type")
+  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode", "sampleType")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
   if(is.null(well_order)){
     well_order <- 1:length(raw[1,])
