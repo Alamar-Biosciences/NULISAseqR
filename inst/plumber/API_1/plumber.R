@@ -11,6 +11,19 @@ normXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeControl"
   })
 }
 
+#* @param in_xml:file Character string. Path and name of the file.
+#* @serializer text
+#* @post /xml2doc
+xml2doc <- function(in_xml){
+  future_promise({
+    return(rmarkdown::render('skeleton.Rmd', params=list(
+                                                         xmlFiles=in_xml,
+                                                         dataDir=".",
+                                                         type="webapp"
+                                                         )))
+  })
+}
+
 #* To check the health of the API server, do nothing -> Returns Ok
 #*
 #* @get /healthCheck
