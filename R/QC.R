@@ -97,7 +97,7 @@ QC2XML <- function(input, QCNode, sample=F, combined=F){
 #'
 #' @export
 QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL){
-  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode", "type")
+  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode", "sampleType", "QCthreshold")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
   if(is.null(well_order)){
     well_order <- 1:length(raw[1,])
@@ -126,7 +126,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
     }else if (i %in% IPCs){
       type <- "IPC"
     }
-    QCFlagReturn <- rbind(QCFlagReturn, c(names(medVals)[i], "IC_Median", "raw", set, medVals[i], "", samples$sampleBarcode[i], type))
+    QCFlagReturn <- rbind(QCFlagReturn, c(names(medVals)[i], "IC_Median", "raw", set, medVals[i], "", samples$sampleBarcode[i], type, MIN_IC_MEDIAN))
 
   }
   # Minimim fraction (Target_Detectability): # Targets with reads above LOD
@@ -150,7 +150,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
     }else if (i %in% IPCs){
       type <- "IPC"
     }
-    QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "Detectability", "IC", set, perc_tar[i], "", samples$sampleBarcode[i], type))
+    QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "Detectability", "IC", set, perc_tar[i], "", samples$sampleBarcode[i], type, MIN_FRAC_DETECTABILITY))
   }
 
   
@@ -166,7 +166,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
     }else if (i %in% IPCs){
       type <- "IPC"
     }
-    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[i], type))
+    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[i], type, MIN_IC_READS_PER_SAMPLE))
   }
 
   # Minimum number (NumReads) of reads within a sample
@@ -188,9 +188,11 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
     }else if (i %in% IPCs){
       type <- "IPC"
     }
-    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], "", barNames[i], type))
+    QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], "", barNames[i], type, MIN_NUM_READS_PER_SAMPLE))
   }
   colnames(QCFlagReturn) <- columns
+  QCFlagReturn$val <- as.numeric(QCFlagReturn$val)
+  QCFlagReturn$QCthreshold <- as.numeric(QCFlagReturn$QCthreshold)
   return(QCFlagReturn)
 }
 
@@ -251,7 +253,8 @@ QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=
   nReads <- sum(raw, na.rm=T)
   set <- if(nReads < MIN_READS) "T" else "F"
   QCFlagReturn <- rbind(QCFlagReturn, c("MinReads", "raw", set, nReads, MIN_READS))
-
   colnames(QCFlagReturn) <- columns
+  QCFlagReturn$val <- as.numeric(QCFlagReturn$val)
+  QCFlagReturn$QCthreshold <- as.numeric(QCFlagReturn$QCthreshold)
   return(QCFlagReturn)
 }

@@ -33,7 +33,7 @@ readNULISAseq <- function(xml_file,
   # if we need to save the Execution Time units
   ExecutionTimeUnits <- attributes(ExecutionDetails$ExecutionTime)
   ExecutionDetails <- lapply(ExecutionDetails, unlist)
-  ExecutionDetails$ExecutionTime <- c(ExecutionDetails$ExecutionTime[1],
+  ExecutionDetails$ExecutionTime <- c(as.numeric(ExecutionDetails$ExecutionTime[1]),
                                       ExecutionTimeUnits)
   
   ###########################
@@ -89,6 +89,10 @@ readNULISAseq <- function(xml_file,
                                     'ParseableMatch', 
                                     'Unparseable',
                                     'Balancers')], unlist)
+  RunSummary <- lapply(RunSummary[c('TotalReads',
+                                    'Parseable',
+                                    'ParseableMatch',
+                                    'Unparseable')], as.numeric)
   names(RunSummary$Balancers) <- BalancerNames
   
   ###########################
@@ -221,4 +225,26 @@ loadNULISAseq <- function(file,IPC, ...){
   raw$qcPlate <- QCFlagPlate(raw$Data, raw$normed$normData, raw$targets, raw$samples)
   raw$qcSample <- QCFlagSample(raw$Data, raw$normed$normData, raw$samples, raw$targets)
   return(raw)
+}
+
+#' Read Covariate file and add to NULISAseq object
+#'
+#' Reads NULISAseq covariate file and adds new covariates to list object. Merge based on plateID, row, col and sampleName. 
+#' Fails if plateID is not set AND more than one entry in list
+#'
+#' @param txt_file Character string. File containing covariates (columns with name not already existing
+#' @param NULISAseqRuns List of NULISAseq run objects 
+#'
+#' @return List of lists, data frames, and matrices.
+#'
+#' @export
+#'
+readCovariateFile <- function(txt_file, NULISAseqRuns){
+  newInfo <- read.table(txt_file, header=T, sep="\t")
+  for(i in 1:length(NULISAseqRuns)){
+    NULISAseqRuns[[i]]$samples <- merge(runs[[i]]$samples, newInfo, nodups=T, all.x=T,
+                              by.x=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"), 
+                              by.y=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"))
+  }
+  return(NULISAseqRuns)
 }

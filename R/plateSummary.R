@@ -192,7 +192,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   }
   Bridgeinds <- if(!is.null(Bridges)) Bridges else which(plate_data$samples$sampleType == "Bridge")
   if(length(Bridgeinds)>0){
-    Bridge_table <- typeSummary(Bridges, plate_data, total_plate_reads)
+    Bridge_table <- typeSummary(Bridgeinds, plate_data, total_plate_reads)
     output <- if (is.list(output)==TRUE) c(output, list(Bridge_table=Bridge_table)) else list(readsTable=output, Bridge_table=Bridge_table)
   }
   
