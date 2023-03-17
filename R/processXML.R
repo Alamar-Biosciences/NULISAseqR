@@ -140,8 +140,7 @@ NCBkgdLevels_XML <- function(Data, targets, ICs, NCs){
 #'
 #' @export
 processXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeControl"), IC=c("mCherry"), barcodeB="", out_XML=""){
-  val <- readNULISAseq(in_xml,
-                  plateID="",
+  val <- readNULISAseq(in_xml,IPC=IPC, NC=NC, IC=IC,
                   file_type='xml_no_mismatches')
   Data <- val$Data
   RunSummary <- val$RunSummary
@@ -149,9 +148,6 @@ processXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeContr
   samples <- val$samples
   ExecutionDetails <- val$ExecutionDetails
   plateID <- val$plateID
-  IPCs <- which(grepl(paste(IPC, collapse="|"), colnames(Data)))
-  NCs <- which(grepl(paste(NC, collapse="|"), colnames(Data)))
-  ICs <- which(grepl(paste(IC, collapse="|"), rownames(Data)))
   bcodeA <- bcodeA_XML(targets)
   bcodeB <- bcodeB_XML(samples, barcodeB)
 
