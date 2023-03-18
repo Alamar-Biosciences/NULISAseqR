@@ -616,6 +616,7 @@ for( i in 1:length(runs)){
     }
     
     log <- if(names(criteria)[j] != "Detectability" && names(criteria)[j] != "IC_Median") "x" else ""
+    par(mar=c(5,6,2,2))
     dotchart(x=as.numeric(xval), xlab=xlab, 
              labels=qcSample[inds, ]$sampleName, las=1, 
              cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), color=color, log=log)
