@@ -19,7 +19,7 @@ params:
   goal_desc: "NULISAseq 200-plex Inflammation Panel"
   xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
   plateNames: !r c()
-  type: "internal"
+  type: "TAP"
 output:
   html_document:
     toc: yes
@@ -353,15 +353,16 @@ for(i in 1:length(params$xmlFiles)){
 ---
 title: `r title_var`
 ---
+```{r, results='asis', eval=params$type!="WebApp"}
+pandoc.header("Study summary", 2)
+elements <- c(paste("Goal:", params$goal_desc), paste("Sample Description:", =params$sample_desc))
+pandoc.list(elements, style="bullet")
+```
 
-## Study summary
-* **Goal:** `r params$goal_desc`.
-* **Sample description:** `r params$sample_desc`
-
----
 
 ## Plate layout
 ```{r, results='asis'}
+pandoc.p("Shows the layout of samples, controls (NC, IPC), and special wells if any (e.g. Bridge Samples, Donor Samples, etc.) on the 96-well assay plate" )
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
@@ -390,6 +391,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ## Read summary
 ```{r, results='asis'}
+pandoc.p("Summary of the number and classification of reads for the assay run") 
 knitr::kable(read_summary, caption='', 
              align='r', format.args=list(big.mark = ","), 
              table.attr="id=\"read-summary\"") %>% 
@@ -400,6 +402,7 @@ knitr::kable(read_summary, caption='',
 
 ### Internal controls (IC)
 ```{r, results='asis'}
+pandoc.p("Each sample of the assay is spiked with the same concentration of an internal control (IC). This is used both as part of a well-normalization procedure and as a method for assessing the uniformity of the assay run.") 
 if(length(ICs) == 1){
   IC_tables <- NULL
   for (i in 1:length(params$xmlFiles)){
@@ -428,8 +431,9 @@ if(length(ICs) == 1){
 ---
 
 ### Inter-plate controls (IPC)
-Note: %CV in this table does not exclude values below LOD. See [Intra-plate normalization](#intraPlateNorm) or [Inter-plate normalization](#interPlateNorm) sections for %CV (before and after normalization) that excludes values below LOD.
 ```{r, results='asis'}
+pandoc.p("IPC samples are control samples used to both normalize samples between experiments and to assess performance of the assay.")
+pandoc.p("Note: %CV in this table does not exclude values below LOD. See [Intra-plate normalization](#intraPlateNorm) or [Inter-plate normalization](#interPlateNorm) sections for %CV (before and after normalization) that excludes values below LOD.")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"IPC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
@@ -441,6 +445,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ### Negative controls (NC) 
 ```{r, results='asis'}
+pandoc.p("NC wells are reactions where no sample input is provided. These are used to assess Limit of Detetion (LOD) for each target assay and to assess run quality.")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
@@ -473,13 +478,9 @@ for(i in 1:length(params$xmlFiles)){
 ---
 
 ## Heatmaps
-```{r, include=FALSE}
-# describe heatmap scale
-heatmap_description <- if (params$heatMapRel==TRUE) "Numbers shown are percent relative to plate median." else ""
-```
-`r heatmap_description`
-
 ```{r, out.width='100%', fig.asp=0.33333*ceiling((length(ICs)+1)/2)}
+heatmap_description <- if (params$heatMapRel==TRUE) "percent relative to plate median" else "absolute normalized read count"
+pandoc.p(paste0("The heatmaps show the ", heatmap_description, " for both the total counts for each sample as well as specifically for the IC"))
 for(i in 1:length(params$xmlFiles)){
   ICs <- which(runs[[i]]$targets$targetType == "Control")
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName)
@@ -670,14 +671,14 @@ for (i in 1:length(params$xmlFiles)){
 ## Intra-plate normalization {#intraPlateNorm}
 %CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV. 
 
-### Intra-plate %CV table -- unnormalized
-```{r}
+```{r, eval=params$type=="internal"}
+pandoc.header("Intra-plate %CV table -- unnormalized", 3)
 knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-unnormalized-summary\"", 
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
-### Intra-plate %CV table -- mCherry-normalized
-```{r}
+```{r, eval=params$type=="internal"}
+pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
 knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-mCherry-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
@@ -739,8 +740,11 @@ for(i in 1:length(params$xmlFiles)){
   }
   
   plate_sample_colors <- boxplot_colors[as.numeric(as.factor(plate_sample_type))[ordering]]
-  par(mfrow=c(1,2), mar=c(4,6,2,0))
-  sampleboxplot(runs[[i]]$Data, ordering, "unnormalized", plate_sample_colors, boxplot_colors)
+  numPlots <- if(params$type == "internal") 2 else 1
+  par(mfrow=c(1,numPlots), mar=c(4,6,2,0))
+  if(params$type == "internal"){
+    sampleboxplot(runs[[i]]$Data, ordering, "unnormalized", plate_sample_colors, boxplot_colors)
+  }
   sampleboxplot(mCherry_IPC$interNormData[[i]], ordering, "mCherry + IPC", plate_sample_colors, boxplot_colors)
 }
 ```
@@ -853,7 +857,7 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ---
 
-```{r, out.width='100%', fig.asp=(0.4)+as.numeric(multipleFiles)*0.4, results='asis'}
+```{r, out.width='100%', fig.asp=(0.4)+as.numeric(multipleFiles)*0.4, results='asis', eval=params$type=="internal"}
 pandoc.header("Sample PCA", 2)
 PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
   pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
@@ -904,7 +908,8 @@ for(i in 1:length(params$xmlFiles)){
 }
 
 nRowsPCA <- if(multipleFiles) 2 else 1
-par(mfrow=c(nRowsPCA, 2))
+nCols <- 2
+par(mfrow=c(nRowsPCA, nCols))
 PCAplot(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
 PCAplot(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
 if(multipleFiles){
