@@ -105,11 +105,10 @@ bcodeB_XML <- function(samples, barcodeB=NULL){
   return(bcodeB)
 }
 
-NCBkgdLevels_XML <- function(Data, targets, ICs, NCs){
+NCBkgdLevels_XML <- function(Data, normedData, targets, NCs){
   NCmeansRad <- rowMeans(Data[, NCs], na.rm=T)
   methodRad <- newXMLNode("Method", attrs=c(name="raw"))
 
-  normedData <- intraPlateNorm(data_matrix=Data, method="IC", IC=ICs, NC_wells=NCs)
 
   NCmeansIC <-rowMeans(normedData$normData[, NCs], na.rm=T)
   methodIC <- newXMLNode("Method", attrs=c(name="IC"))
@@ -139,9 +138,8 @@ NCBkgdLevels_XML <- function(Data, targets, ICs, NCs){
 #' # writeXML('filename.xml')
 #'
 #' @export
-processXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeControl"), IC=c("mCherry"), barcodeB="", out_XML=""){
-  val <- readNULISAseq(in_xml,IPC=IPC, NC=NC, IC=IC,
-                  file_type='xml_no_mismatches')
+processXML <- function(in_xml, IPCs=c("InterProcessControl"), NCs=c("NegativeControl"), ICs=c("mCherry"), barcodeB="", out_XML=""){
+  val <- readNULISAseq(in_xml, IPC=IPCs, NC=NCs, IC=ICs, file_type='xml_no_mismatches')
   Data <- val$Data
   RunSummary <- val$RunSummary
   targets <- val$targets
@@ -152,13 +150,13 @@ processXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeContr
   bcodeB <- bcodeB_XML(samples, barcodeB)
 
   #NC Bkgd Levels
-  NCBkgdLevels <- NCBkgdLevels_XML(Data, targets, ICs, NCs)
-  normedData <- intraPlateNorm(data_matrix=Data, method="IC", IC=ICs)
+  normedData <- intraPlateNorm(data_matrix=Data, method="IC", IC=val$IC)
+  NCBkgdLevels <- NCBkgdLevels_XML(Data, normedData, targets, val$NC)
   base <- base_XML(ExecutionDetails, bcodeA, bcodeB, RunSummary)  
   data <- newXMLNode("Data")
   addChildren(base, addChildren(data, NCBkgdLevels))
-  qcPlate <- QCFlagPlate(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs)
-  qcSample <- QCFlagSample(Data, normedData$normData, IC=ICs, NC=NCs, IPC=IPCs, samples)
+  qcPlate <- QCFlagPlate(Data, normedData$normData, targets, samples)
+  qcSample <- QCFlagSample(Data, normedData$normData, samples, targets)
   plateNode <- newXMLNode("PlateQC")
   QC2XML(qcPlate, plateNode, sample=F)
   addChildren(base, plateNode)
@@ -204,31 +202,31 @@ processXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeContr
     addChildren(data, sampleNode)
 
     ## Handle combining replicates here
-    dataCombined <- if(length(ind) > 1) cbind(rowMeans(Data[, ind],na.rm=T), Data[, NCs]) else cbind(Data[, ind], Data[, NCs])
-    normCombined <- if(length(ind) > 1) cbind(rowMeans(normedData$normData[, ind]), normedData$normData[, NCs]) else cbind(normedData$normData[, ind], normedData$normData[, NCs])
-    lodData <- lod(data_matrix=dataCombined, blanks=c(2:ncol(dataCombined)), min_count=0)
-    lodNorm <- lod(data_matrix=normCombined, blanks=c(2:ncol(normCombined)), min_count=0)
+    dataCombined <- if(length(ind) > 1) cbind(rowMeans(Data[, ind],na.rm=T), Data[, val$NC]) else cbind(Data[, ind], Data[, val$NC])
+    normCombined <- if(length(ind) > 1) cbind(rowMeans(normedData$normData[, ind]), normedData$normData[, val$NC]) else cbind(normedData$normData[, ind], normedData$normData[, val$NC])
+    lodData <- lod(data_matrix=dataCombined, blanks=val$NC, min_count=0)
+    lodNorm <- lod(data_matrix=normCombined, blanks=val$NC, min_count=0)
     combRaw <- newXMLNode("Method", attrs=c(name="raw"))
     combIC  <- newXMLNode("Method", attrs=c(name="IC"))
     addChildren(combinedNode, combRaw)
     addChildren(combinedNode, combIC) 
     for (w in 1:nrow(dataCombined)){
-      val <- if (lodData$aboveLOD[w] && !is.na(lodData$aboveLOD[w])) "Y" else "N"
+      valLoD <- if (lodData$aboveLOD[w] && !is.na(lodData$aboveLOD[w])) "Y" else "N"
       barcode <- targets$targetBarcode[which(targets$targetName == rownames(dataCombined)[w])]
       addChildren(combRaw, newXMLNode("Target",
                                       attrs=c(
                                               name=barcode, #rownames(dataCombined)[w],
-                                              aboveBkgd=val
+                                              aboveBkgd=valLoD
                                               ),
                                       if(is.na(dataCombined[w, 1])) 0 else dataCombined[w, 1]
                                       )
       )
-      val <- if (lodNorm$aboveLOD[w] && !is.na(lodNorm$aboveLOD[w])) "Y" else "N"
+      valLoD <- if (lodNorm$aboveLOD[w] && !is.na(lodNorm$aboveLOD[w])) "Y" else "N"
       barcode <- targets$targetBarcode[which(targets$targetName == rownames(normCombined)[w])]
       addChildren(combIC, newXMLNode("Target",
                                       attrs=c(
                                               name=barcode,#rownames(normCombined)[w],
-                                              aboveBkgd=val
+                                              aboveBkgd=valLoD
                                               ),
                                       if(is.na(normCombined[w, 1])) 0 else normCombined[w, 1]
                                       )
