@@ -17,7 +17,8 @@ params:
   assayName: "NULISAseq 200-plex Inflammation Panel"
   sample_desc: "This is a sample description."
   goal_desc: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
+  #xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
+  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
   plateNames: !r c()
   type: "TAP"
 output:
@@ -355,7 +356,7 @@ title: `r title_var`
 ---
 ```{r, results='asis', eval=params$type!="WebApp"}
 pandoc.header("Study summary", 2)
-elements <- c(paste("Goal:", params$goal_desc), paste("Sample Description:", =params$sample_desc))
+elements <- c(paste("Goal:", params$goal_desc), paste("Sample Description:", params$sample_desc))
 pandoc.list(elements, style="bullet")
 ```
 
@@ -392,6 +393,15 @@ for(i in 1:length(params$xmlFiles)){
 ## Read summary
 ```{r, results='asis'}
 pandoc.p("Summary of the number and classification of reads for the assay run") 
+pandoc.list(c("Parseable - ",
+              "Parseable Match - ",
+              "Parseable Non-match - ",
+              "Unparseable - ",
+              "Total samples - ",
+              "Total targets - ",
+              "Total sammples * targets - ",
+              "Zero values - "
+              ))
 knitr::kable(read_summary, caption='', 
              align='r', format.args=list(big.mark = ","), 
              table.attr="id=\"read-summary\"") %>% 
@@ -478,7 +488,7 @@ for(i in 1:length(params$xmlFiles)){
 ---
 
 ## Heatmaps
-```{r, out.width='100%', fig.asp=0.33333*ceiling((length(ICs)+1)/2)}
+```{r, out.width='100%', fig.asp=0.33333*ceiling((length(ICs)+1)/2), results='asis'}
 heatmap_description <- if (params$heatMapRel==TRUE) "percent relative to plate median" else "absolute normalized read count"
 pandoc.p(paste0("The heatmaps show the ", heatmap_description, " for both the total counts for each sample as well as specifically for the IC"))
 for(i in 1:length(params$xmlFiles)){
@@ -511,7 +521,16 @@ for(i in 1:length(params$xmlFiles)){
 ## Quality control
 
 ### Plate QC
+
 ```{r, results='asis'}
+pandoc.p("Plate-specific QC criteria:")
+pandoc.list(c("ICRead_CV - ",
+              "IPCRead_CV - ",
+              "IPCTarget_CV - ",
+              "Detectability - ",
+              "MinReads - "
+              ))
+
 for( i in 1:length(runs)){
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
   table.attr <- paste0("id=\"QCFlagPlate-summary", i, "\"")
@@ -533,7 +552,14 @@ for( i in 1:length(runs)){
 
 ### Sample QC 
 #### Sample QC summary table
-```{r, out.width='100%', fig.asp=2}
+```{r, out.width='100%', fig.asp=2, results='asis'}
+pandoc.p("Sample-specific QC criteria:")
+pandoc.list(c("Detectability - ",
+              "ICReads - ",
+              "NumReads - ",
+              "IC_Median - "
+              ))
+
 rmin <- rmax <- val <- list()
 criteria <- QCSampleCriteria()
 rowNameQC <- c()
@@ -658,7 +684,8 @@ kable_styling(knitr::kable(detectability_targets, caption='Target Detectability 
               bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) 
 
 # Target Boxplot
-
+pandoc.header("Target Detectability Boxplot", 3)
+pandoc.p("The Target Detectability Boxplot...")
 par(mfrow=c(ceiling(length(params$xmlFiles)/2),2), mar=c(4,6,2,0))
 for (i in 1:length(params$xmlFiles)){
   NCs <- which(runs[[i]]$samples$sampleType == "NC")
@@ -702,7 +729,8 @@ abline(v=c(0:200*5), col='grey', lty=3)
 ---
 
 ## Sample boxplots
-```{r, out.width='100%', fig.asp=1}
+```{r, out.width='100%', fig.asp=1, results='asis'}
+pandoc.p("Sample boxplots show ...")
 sampleboxplot <- function( data, ordering, label, plate_sample_colors, boxplot_colors){
   boxplot(log2(data[,ordering]+0.01),
           las=1, yaxt='n',
@@ -753,6 +781,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ## Sample correlation
 ```{r, out.width='100%', fig.asp=1, results='asis'}
+pandoc.p("Sample correlation plot shows the correlation between samples as measured by Pearson correlation on the expression of targets")
 wellcolors <- function(data, well_types, boxplot_colors){
   # all labels black by default
   colors <- rep("black", ncol(data))
@@ -794,6 +823,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ## Sample and target clustering 
 ```{r, out.width='100%', fig.asp=1, results='asis'}
+pandoc.p("Hierarchical clustering of both samples and targets using a Euclidean distance metric, and complete linkage")
 # define colors
 paletteLength <- 50
 heatmapColors <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
@@ -839,7 +869,15 @@ cat("%CV was calculated for each target (excluding internal controls) for the sa
 
 ```{r eval=multipleFiles, results='asis'}
 pandoc.header("Inter-plate %CV", 3)
-knitr::kable(interCV_summary_table, caption='', 
+if(params$type != "internal"){
+  remove <- "mCherry + IN"
+  interCV_summary_table2 <- interCV_summary_table[!(rownames(interCV_summary_table) %in% remove),]
+  interCV_results2 <- interCV_results[, !(colnames(interCV_results) %in% remove)]
+}else{
+  interCV_summary_table2 <- interCV_summary_table
+  interCV_results2 <- interCV_results
+}
+knitr::kable(interCV_summary_table2, caption='', 
              align='r', 
              table.attr="id=\"inter-plateCV-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% 
@@ -849,8 +887,8 @@ knitr::kable(interCV_summary_table, caption='',
 ```{r out.width='100%', fig.asp=0.5, eval=multipleFiles, results='asis'}
 pandoc.header("Inter-plate %CV boxplot", 3)
 par(mar=c(5,12,1,1))
-boxplot(interCV_results, las=1, xlab='inter-plate CV (%)',
-        ylim=c(0, max(interCV_results, na.rm=TRUE)), 
+boxplot(interCV_results2, las=1, xlab='inter-plate CV (%)',
+        ylim=c(0, max(interCV_results2, na.rm=TRUE)), 
         col=alamarColorPalette(5), horizontal=TRUE)
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
@@ -914,6 +952,8 @@ PCAplot(dataPCA_unnorm, plateID, scale=TRUE, center=TRUE, title="Unnormalized")
 PCAplot(dataPCA_mCherry, plateID, scale=TRUE, center=TRUE, title="mCherry")
 if(multipleFiles){
   PCAplot(dataPCA_mCherryIPC, plateID, scale=TRUE, center=TRUE, title="mCherry + IPC")
-  PCAplot(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
+  if(params$type == "internal"){
+    PCAplot(dataPCA_mCherryIN, plateID, scale=TRUE, center=TRUE, title="mCherry + IN")
+  }
 }
 ```

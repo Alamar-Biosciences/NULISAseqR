@@ -92,7 +92,8 @@ readNULISAseq <- function(xml_file,
   RunSummary <- lapply(RunSummary[c('TotalReads',
                                     'Parseable',
                                     'ParseableMatch',
-                                    'Unparseable')], as.numeric)
+                                    'Unparseable',
+                                    'Balancers')], as.numeric)
   names(RunSummary$Balancers) <- BalancerNames
   
   ###########################
