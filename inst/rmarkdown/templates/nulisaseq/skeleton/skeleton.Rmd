@@ -397,14 +397,13 @@ for(i in 1:length(params$xmlFiles)){
 ## Read summary
 ```{r, results='asis'}
 pandoc.p("Summary of the number and classification of reads for the assay run") 
-pandoc.list(c("Parseable - ",
-              "Parseable Match - ",
-              "Parseable Non-match - ",
-              "Unparseable - ",
-              "Total samples - ",
-              "Total targets - ",
-              "Total sammples * targets - ",
-              "Zero values - "
+pandoc.list(c("Parseable - Valid NGS read (assay signal or background)",
+              "Parseable Match - Valid NGS read (assay signal)",
+              "Parseable Non-match - Vaild NGS read (assay background)",
+              "Unparseable - Sequencing background",
+              "Total samples - Total number of samples on plate",
+              "Total targets - Total number of assay targets",
+              "Zero values - Number of targets * samples which had no assay signal"
               ))
 knitr::kable(read_summary, caption='', 
              align='r', format.args=list(big.mark = ","), 
@@ -528,11 +527,11 @@ for(i in 1:length(params$xmlFiles)){
 
 ```{r, results='asis'}
 pandoc.p("Plate-specific QC criteria:")
-pandoc.list(c("ICRead_CV - ",
-              "IPCRead_CV - ",
-              "IPCTarget_CV - ",
-              "Detectability - ",
-              "MinReads - "
+pandoc.list(c("ICRead_CV - Coefficient of Varation of Internal control signal across all samples",
+              "IPCRead_CV - Coefficient of Variation of the total assay signal across all samples",
+              "IPCTarget_CV - Median of Coefficient of Variation of all IPC targets",
+              "Detectability - Target-wise detectability (target is considered detected if >50% samples have signal > LOD",
+              "MinReads - Minimum number of reads (signal) for the experiment"
               ))
 
 for( i in 1:length(runs)){
@@ -548,7 +547,9 @@ for( i in 1:length(runs)){
                    caption=paste0("Plate ", as.character(i), ": Plate QC Flag Summary"), 
                    align='r', 
                    format.args=list(big.mark = ",", digits=2),
-                   table.attr=table.attr) %>%
+                   table.attr=table.attr,
+                   col.names = c("Flag Name", "Normalization", "QC Status", "QC Value", "QC Threshold"
+                                 )) %>%
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
         row_spec(which(qcPlate$status == "Fail"), bold=T, color="white", background="red"))
 }
@@ -558,10 +559,10 @@ for( i in 1:length(runs)){
 #### Sample QC summary table
 ```{r, out.width='100%', fig.asp=2, results='asis'}
 pandoc.p("Sample-specific QC criteria:")
-pandoc.list(c("Detectability - ",
-              "ICReads - ",
-              "NumReads - ",
-              "IC_Median - "
+pandoc.list(c("Detectability - Target detectability for the a sample",
+              "ICReads - Minimum number of IC reads for a sample",
+              "NumReads - Minimum number of total reads",
+              "IC_Median - Number of IC reads between -30% and +30% of plate median"
               ))
 
 rmin <- rmax <- val <- list()
