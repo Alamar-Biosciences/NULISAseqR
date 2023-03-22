@@ -458,7 +458,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ### Negative controls (NC) 
 ```{r, results='asis'}
-pandoc.p("NC wells are reactions where no sample input is provided. These are used to assess Limit of Detetion (LOD) for each target assay and to assess run quality.")
+pandoc.p("NC wells are reactions where no sample input is provided. These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality.")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
@@ -671,8 +671,7 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
-Target detectability is calculated as the percentage of samples that are above the limit of detection for that target. 
-In the Detectability summary, for the  "# of detectable targets", a target is considered detectable if it is above limit of detection in at least 50% of samples 
+Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in at least 50% of samples 
 ```{r, results='asis', out.width='100%', fig.asp=1.5}
 # Detectability summary
 kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', 
@@ -693,8 +692,14 @@ pandoc.header("Target Detectability Boxplot", 3)
 pandoc.p("The Target Detectability Boxplot...")
 par(mfrow=c(ceiling(length(params$xmlFiles)/2),2), mar=c(4,6,2,0))
 for (i in 1:length(params$xmlFiles)){
-  NCs <- which(runs[[i]]$samples$sampleType == "NC")
-  targetBoxplot(runs[[i]]$Data, title=PlateNames[i], subtractLOD=T, blanks=NCs, horizontal=T, cex.targets=0.25)
+  targetBoxplot(runs[[i]]$Data, 
+                title=PlateNames[i], 
+                subtractLOD=TRUE, 
+                blanks=runs[[i]]$NC, 
+                horizontal=TRUE, 
+                cex.targets=0.25, 
+                excludeTargets=runs[[i]]$IC, 
+                excludeSamples=c(runs[[i]]$IPC, runs[[i]]$NC, runs[[i]]$SC))
 }
 ```
 
