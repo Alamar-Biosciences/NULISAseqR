@@ -18,7 +18,7 @@ params:
   sample_desc: "This is a sample description."
   goal_desc: "NULISAseq 200-plex Inflammation Panel"
   xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
-  #xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
+#  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
   plateNames: !r c()
   type: "TAP"
 output:
@@ -512,7 +512,7 @@ for(i in 1:length(params$xmlFiles)){
     val <- vals
     val[which(!is.na(vals))] <- runs[[i]]$Data[ICs[j],][well_order]
     plateHeatmap(as.numeric(val), 
-                 title=paste0("Plate ", as.character(i),": ",  ICs[j]), 
+                 title=paste0("Plate ", as.character(i),": ",  params$IC[j]), 
                  cex=0.5, digits=digitsmCherry, 
                  relative=params$heatMapRel, cex.axis=0.5)
   }
