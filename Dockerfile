@@ -8,7 +8,7 @@ COPY . /workingDir/NULISAseqR/.
 
 RUN chmod 755 /workingDir/NULISAseqR/R/*.R
 RUN apk add --no-cache make libc-dev libxml2-dev libxext libxt g++
-RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages(c('future','XML','fields', 'xml2')); install.packages('/workingDir/NULISAseqR', repos=NULL, type='source')"
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages(c('future','uuid','XML','fields', 'xml2')); install.packages('/workingDir/NULISAseqR', repos=NULL, type='source')"
 ENV PATH "/workingDir:$PATH"
 COPY main.R /workingDir/.
 

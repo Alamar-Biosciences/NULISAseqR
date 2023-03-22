@@ -88,9 +88,13 @@ title_var <- paste(params$study_name, params$assayName, sep='<br>')
 # define sample specific boxplot colors for use in plots
 boxplot_colors <- unlist(lapply(alamarColorPalette(n=5, tint='light', nReps=5), function(x) x[4]))
 # set data directory
-knitr::opts_knit$set(root.dir=params$dataDir)
-# save xml file path
-xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
+if(is.null(params$dataDir)){
+  xmlFilesPath <- params$xmlFiles
+}else{
+  knitr::opts_knit$set(root.dir=params$dataDir)
+  # save xml file path
+  xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
+}
 # define variables to store results
 runs <- vector('list', length(params$xmlFiles))
 runSummaries <- vector('list', length(params$xmlFiles))
