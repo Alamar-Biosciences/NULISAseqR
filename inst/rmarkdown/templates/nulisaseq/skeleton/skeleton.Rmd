@@ -17,10 +17,10 @@ params:
   assayName: "NULISAseq 200-plex Inflammation Panel"
   sample_desc: "This is a sample description."
   goal_desc: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
-  #xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
+#  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
+  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
   plateNames: !r c()
-  type: "TAP"
+  type: "WebApp"
 output:
   html_document:
     toc: yes
@@ -88,9 +88,13 @@ title_var <- paste(params$study_name, params$assayName, sep='<br>')
 # define sample specific boxplot colors for use in plots
 boxplot_colors <- unlist(lapply(alamarColorPalette(n=5, tint='light', nReps=5), function(x) x[4]))
 # set data directory
-knitr::opts_knit$set(root.dir=params$dataDir)
-# save xml file path
-xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
+if(is.null(params$dataDir)){
+  xmlFilesPath <- params$xmlFiles
+}else{
+  knitr::opts_knit$set(root.dir=params$dataDir)
+  # save xml file path
+  xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
+}
 # define variables to store results
 runs <- vector('list', length(params$xmlFiles))
 runSummaries <- vector('list', length(params$xmlFiles))
@@ -393,14 +397,13 @@ for(i in 1:length(params$xmlFiles)){
 ## Read summary
 ```{r, results='asis'}
 pandoc.p("Summary of the number and classification of reads for the assay run") 
-pandoc.list(c("Parseable - ",
-              "Parseable Match - ",
-              "Parseable Non-match - ",
-              "Unparseable - ",
-              "Total samples - ",
-              "Total targets - ",
-              "Total sammples * targets - ",
-              "Zero values - "
+pandoc.list(c("Parseable - Valid NGS read (assay signal or background)",
+              "Parseable Match - Valid NGS read (assay signal)",
+              "Parseable Non-match - Vaild NGS read (assay background)",
+              "Unparseable - Sequencing background",
+              "Total samples - Total number of samples on plate",
+              "Total targets - Total number of assay targets",
+              "Zero values - Number of targets * samples which had no assay signal"
               ))
 knitr::kable(read_summary, caption='', 
              align='r', format.args=list(big.mark = ","), 
@@ -455,7 +458,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ### Negative controls (NC) 
 ```{r, results='asis'}
-pandoc.p("NC wells are reactions where no sample input is provided. These are used to assess Limit of Detetion (LOD) for each target assay and to assess run quality.")
+pandoc.p("NC wells are reactions where no sample input is provided. These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality.")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
@@ -509,7 +512,7 @@ for(i in 1:length(params$xmlFiles)){
     val <- vals
     val[which(!is.na(vals))] <- runs[[i]]$Data[ICs[j],][well_order]
     plateHeatmap(as.numeric(val), 
-                 title=paste0("Plate ", as.character(i),": ",  ICs[j]), 
+                 title=paste0("Plate ", as.character(i),": ",  params$IC[j]), 
                  cex=0.5, digits=digitsmCherry, 
                  relative=params$heatMapRel, cex.axis=0.5)
   }
@@ -524,11 +527,11 @@ for(i in 1:length(params$xmlFiles)){
 
 ```{r, results='asis'}
 pandoc.p("Plate-specific QC criteria:")
-pandoc.list(c("ICRead_CV - ",
-              "IPCRead_CV - ",
-              "IPCTarget_CV - ",
-              "Detectability - ",
-              "MinReads - "
+pandoc.list(c("ICRead_CV - Coefficient of Varation of Internal control signal across all samples",
+              "IPCRead_CV - Coefficient of Variation of the total assay signal across all samples",
+              "IPCTarget_CV - Median of Coefficient of Variation of all IPC targets",
+              "Detectability - Target-wise detectability (target is considered detected if >50% samples have signal > LOD",
+              "MinReads - Minimum number of reads (signal) for the experiment"
               ))
 
 for( i in 1:length(runs)){
@@ -544,7 +547,9 @@ for( i in 1:length(runs)){
                    caption=paste0("Plate ", as.character(i), ": Plate QC Flag Summary"), 
                    align='r', 
                    format.args=list(big.mark = ",", digits=2),
-                   table.attr=table.attr) %>%
+                   table.attr=table.attr,
+                   col.names = c("Flag Name", "Normalization", "QC Status", "QC Value", "QC Threshold"
+                                 )) %>%
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
         row_spec(which(qcPlate$status == "Fail"), bold=T, color="white", background="red"))
 }
@@ -554,10 +559,10 @@ for( i in 1:length(runs)){
 #### Sample QC summary table
 ```{r, out.width='100%', fig.asp=2, results='asis'}
 pandoc.p("Sample-specific QC criteria:")
-pandoc.list(c("Detectability - ",
-              "ICReads - ",
-              "NumReads - ",
-              "IC_Median - "
+pandoc.list(c("Detectability - Target detectability for the a sample",
+              "ICReads - Minimum number of IC reads for a sample",
+              "NumReads - Minimum number of total reads",
+              "IC_Median - Number of IC reads between -30% and +30% of plate median"
               ))
 
 rmin <- rmax <- val <- list()
@@ -666,8 +671,7 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
-Target detectability is calculated as the percentage of samples that are above the limit of detection for that target. 
-In the Detectability summary, for the  "# of detectable targets", a target is considered detectable if it is above limit of detection in at least 50% of samples 
+Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in at least 50% of samples 
 ```{r, results='asis', out.width='100%', fig.asp=1.5}
 # Detectability summary
 kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', 
@@ -688,8 +692,14 @@ pandoc.header("Target Detectability Boxplot", 3)
 pandoc.p("The Target Detectability Boxplot...")
 par(mfrow=c(ceiling(length(params$xmlFiles)/2),2), mar=c(4,6,2,0))
 for (i in 1:length(params$xmlFiles)){
-  NCs <- which(runs[[i]]$samples$sampleType == "NC")
-  targetBoxplot(runs[[i]]$Data, title=PlateNames[i], subtractLOD=T, blanks=NCs, horizontal=T, cex.targets=0.25)
+  targetBoxplot(runs[[i]]$Data, 
+                title=PlateNames[i], 
+                subtractLOD=TRUE, 
+                blanks=runs[[i]]$NC, 
+                horizontal=TRUE, 
+                cex.targets=0.25, 
+                excludeTargets=runs[[i]]$IC, 
+                excludeSamples=c(runs[[i]]$IPC, runs[[i]]$NC, runs[[i]]$SC))
 }
 ```
 
