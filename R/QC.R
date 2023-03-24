@@ -13,7 +13,16 @@ MIN_IC_MEDIAN <- 0.3 # +/- of sample IC read count about the median
 #'
 #' @export
 QCSampleCriteria <- function(){
-  return (c(Detectability=MIN_FRAC_DETECTABILITY,ICReads=MIN_IC_READS_PER_SAMPLE, NumReads=MIN_NUM_READS_PER_SAMPLE, IC_Median=MIN_IC_MEDIAN)) 
+  retVal <- NULL
+  retVal$thresholds <-c(Detectability=as.numeric(MIN_FRAC_DETECTABILITY),
+                        ICReads=as.numeric(MIN_IC_READS_PER_SAMPLE), 
+                        NumReads=as.numeric(MIN_NUM_READS_PER_SAMPLE), 
+                        IC_Median=paste0(-MIN_IC_MEDIAN, ",", MIN_IC_MEDIAN))
+  retVal$operators <-c(Detectability=">",
+                       ICReads=">", 
+                       NumReads=">", 
+                       IC_Median="><")
+  return(retVal)
 }
 
 # Plate QC criteria
@@ -32,7 +41,14 @@ MIN_READS <- 5e5                # (MinReads) Minimum number of reads
 #'
 #' @export
 QCPlateCriteria <- function(){
-  return (c(ICRead_CV=MAX_IC_CV,IPCRead_CV=MAX_IPC_CV, IPCTarget_CV=MAX_MEDIAN_IPC_TARGET_CV, Detectability=DETECTABILITY_FRAC, MinReads=MIN_READS)) 
+  retVal <- NULL
+  retVal$thresholds <- c(ICRead_CV=as.numeric(MAX_IC_CV),
+                         IPCRead_CV=as.numeric(MAX_IPC_CV), 
+                         IPCTarget_CV=as.numeric(MAX_MEDIAN_IPC_TARGET_CV), 
+                         Detectability=as.numeric(DETECTABILITY_FRAC), 
+                         MinReads=as.numeric(MIN_READS))
+  retVal$operator <- c(ICRead_CV=">",IPCRead_CV=">", IPCTarget_CV=">", Detectability=">", MinReads=">")
+  return(retVal)
 }
 
 
@@ -213,7 +229,7 @@ QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=
   ICs  <- if(!is.null(ICs))   ICs else which(targets$targetType == "Control")
   IPCs <- if(!is.null(IPCs)) IPCs else which(samples$sampleType == "IPC")
   NCs  <- if(!is.null(NCs))   NCs else which(samples$sampleType == "NC")
-  columns <- c("flagName", "normMethod", "status", "val", "QCthreshold")
+  columns <- c("flagName", "normMethod", "status", "val", "QCthreshold", "QCoperator")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
 
   # Calculate Plate-wide QC vals
@@ -222,7 +238,7 @@ QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=
   ICvals[is.na(ICvals)] <- 0
   IC_CV <- sd(ICvals, na.rm=T) / mean(ICvals, na.rm=T)
   set <- if(IC_CV > MAX_IC_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("ICRead_CV", "raw", set, IC_CV, MAX_IC_CV))
+  QCFlagReturn <- rbind(QCFlagReturn, c("ICRead_CV", "raw", set, IC_CV, MAX_IC_CV, ">"))
 
   ## MAX_IPC_CV (I)
   IPCvals <- raw[, IPCs]
@@ -230,14 +246,14 @@ QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=
   IPCvals2 <- colMeans(IPCvals, na.rm=T)
   IPC_CV <- sd(IPCvals2, na.rm=T) / mean(IPCvals2, na.rm=T)
   set <- if(IPC_CV > MAX_IPC_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("IPCRead_CV", "raw", set, IPC_CV, MAX_IPC_CV))
+  QCFlagReturn <- rbind(QCFlagReturn, c("IPCRead_CV", "raw", set, IPC_CV, MAX_IPC_CV, ">"))
 
   ## MAX_MEDIAN_IPC_TARGET_CV (P)
   IPCnormvals <- normed[, IPCs]
   IPCnormvals[is.na(IPCvals)] <- 0
   median_IPC_targetCV <- median(apply(IPCnormvals, 1, sd) / rowMeans(IPCnormvals, na.rm=T), na.rm=T) 
   set <- if(median_IPC_targetCV > MAX_MEDIAN_IPC_TARGET_CV) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("IPCTarget_CV", "IC", set, median_IPC_targetCV, MAX_MEDIAN_IPC_TARGET_CV))
+  QCFlagReturn <- rbind(QCFlagReturn, c("IPCTarget_CV", "IC", set, median_IPC_targetCV, MAX_MEDIAN_IPC_TARGET_CV, ">"))
 
   ## Detectability fraction (D)
   normed2 <- normed
@@ -247,12 +263,12 @@ QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=
   perc_tar <- rowSums(lod$aboveLOD == TRUE)/ ncol(lod$aboveLOD)
   perc_all <- length(which(perc_tar > 0.5))/ nrow(lod$aboveLOD)
   set <- if(perc_all < DETECTABILITY_FRAC) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("Detectability", "IC", set, perc_all, DETECTABILITY_FRAC))
+  QCFlagReturn <- rbind(QCFlagReturn, c("Detectability", "IC", set, perc_all, DETECTABILITY_FRAC, ">"))
 
   ## Min number of reads (R)
   nReads <- sum(raw, na.rm=T)
   set <- if(nReads < MIN_READS) "T" else "F"
-  QCFlagReturn <- rbind(QCFlagReturn, c("MinReads", "raw", set, nReads, MIN_READS))
+  QCFlagReturn <- rbind(QCFlagReturn, c("MinReads", "raw", set, nReads, MIN_READS, ">"))
   colnames(QCFlagReturn) <- columns
   QCFlagReturn$val <- as.numeric(QCFlagReturn$val)
   QCFlagReturn$QCthreshold <- as.numeric(QCFlagReturn$QCthreshold)
