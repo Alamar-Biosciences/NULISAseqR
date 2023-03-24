@@ -6,25 +6,25 @@
 \usage{
 processXML(
   in_xml,
-  IPC = c("InterProcessControl"),
-  NC = c("NegativeControl"),
-  IC = c("mCherry"),
+  IPCs = c("InterProcessControl"),
+  NCs = c("NegativeControl"),
+  ICs = c("mCherry"),
   barcodeB = "",
   out_XML = ""
 )
 }
 \arguments{
-\item{IPC}{Name to search for Interprocess control (IPC) samples}
-
-\item{NC}{Name to search for Negative control (NC) samples}
-
-\item{IC}{Name to search for Internal Control (IC) targets}
-
 \item{barcodeB}{optional BarcodeB file}
 
 \item{out_XML}{optional output XML to write to}
 
 \item{xml_file:[file]}{Character string. Path and name of the file.}
+
+\item{IPC}{Name to search for Interprocess control (IPC) samples}
+
+\item{NC}{Name to search for Negative control (NC) samples}
+
+\item{IC}{Name to search for Internal Control (IC) targets}
 }
 \description{
 Writes NULISAseq XML file with unnormalized / normalized data and QC flags
