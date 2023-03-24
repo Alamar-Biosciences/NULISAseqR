@@ -123,6 +123,22 @@ NCBkgdLevels_XML <- function(Data, normedData, targets, NCs){
                       )))
 }
 
+QCThresholds_XML <- function(){
+  QCthresh <- newXMLNode("QCThresholds")
+  QCsample <- QCSampleCriteria()
+  QCplate <- QCPlateCriteria()
+  sample <- newXMLNode("Sample")
+  plate <- newXMLNode("Plate")
+  for (i in 1:length(QCsample$thresholds)){
+    addChildren(sample, newXMLNode("Threshold", attrs=c(name=names(QCsample$thresholds[i]), value=QCsample$thresholds[[i]], operator=QCsample$operator[[i]])))
+  }
+  for (i in 1:length(QCplate$thresholds)){
+    addChildren(plate, newXMLNode("Threshold", attrs=c(name=names(QCplate$thresholds[i]), value=QCplate$thresholds[[i]], operator=QCplate$operator[[i]])))
+  }
+  addChildren(QCthresh, sample)
+  addChildren(QCthresh, plate)
+}
+
 #' Write Processed NULISAseq XML
 #'
 #' Writes NULISAseq XML file with unnormalized / normalized data and QC flags
@@ -154,6 +170,8 @@ processXML <- function(in_xml, IPCs=c("InterProcessControl"), NCs=c("NegativeCon
   NCBkgdLevels <- NCBkgdLevels_XML(Data, normedData, targets, val$NC)
   base <- base_XML(ExecutionDetails, bcodeA, bcodeB, RunSummary)  
   data <- newXMLNode("Data")
+  addChildren(base, QCThresholds_XML())
+
   addChildren(base, addChildren(data, NCBkgdLevels))
   qcPlate <- QCFlagPlate(Data, normedData$normData, targets, samples)
   qcSample <- QCFlagSample(Data, normedData$normData, samples, targets)
