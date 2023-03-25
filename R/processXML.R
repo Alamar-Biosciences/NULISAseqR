@@ -182,7 +182,7 @@ processXML <- function(in_xml, IPCs=c("InterProcessControl"), NCs=c("NegativeCon
   for( i in 1:length(uniqSampleNames)){
     ind <- which(samples$sampleName == uniqSampleNames[i])
     sampleNode <- newXMLNode("Sample", attrs=c(name=uniqSampleNames[i], replicates=length(ind)))
-    combinedNode <- newXMLNode("Combined", attrs=c(name=uniqSampleNames[i], replicates=length(ind)))
+#    combinedNode <- newXMLNode("Combined", attrs=c(name=uniqSampleNames[i], replicates=length(ind)))
 
     for (j in 1:length(ind)){
       rep <- newXMLNode("Replicate", attrs=c(
@@ -194,13 +194,13 @@ processXML <- function(in_xml, IPCs=c("InterProcessControl"), NCs=c("NegativeCon
       
       for (q in 1:length(indQC)){
         QC2XML(qcSample[indQC[q],], rep, sample=T)
-        QC2XML(qcSample[indQC[q],], combinedNode, sample=T, combined=T)
+#        QC2XML(qcSample[indQC[q],], combinedNode, sample=T, combined=T)
       }
-      for (k in 1:2){
+      for (k in 2:2){
         name <- if(k == 1) "raw" else "IC"
         method <- newXMLNode("Method", attrs=c(name=name))
         vals <- if (k == 1) Data[, ind[j]] else normedData$normData[, ind[j]]
-        lod <- if (k == 1) lod(data_matrix=Data, blanks=NCs, min_count=0) else lod(data_matrix=normedData$normData, blanks=NCs, min_count=0)
+        lod <- if (k == 1) lod(data_matrix=Data, blanks=val$NC, min_count=0) else lod(data_matrix=normedData$normData, blanks=val$NC, min_count=0)
         for (m in 1:length(vals)){
           name <- targets$targetBarcode[which(names(vals[m]) == targets$targetName)]
           aboveLODval <- if(!lod$aboveLOD[m, ind[j]] || is.na(lod$aboveLOD[m, ind[j]])) "N" else "Y"
@@ -220,37 +220,37 @@ processXML <- function(in_xml, IPCs=c("InterProcessControl"), NCs=c("NegativeCon
     addChildren(data, sampleNode)
 
     ## Handle combining replicates here
-    dataCombined <- if(length(ind) > 1) cbind(rowMeans(Data[, ind],na.rm=T), Data[, val$NC]) else cbind(Data[, ind], Data[, val$NC])
-    normCombined <- if(length(ind) > 1) cbind(rowMeans(normedData$normData[, ind]), normedData$normData[, val$NC]) else cbind(normedData$normData[, ind], normedData$normData[, val$NC])
-    lodData <- lod(data_matrix=dataCombined, blanks=val$NC, min_count=0)
-    lodNorm <- lod(data_matrix=normCombined, blanks=val$NC, min_count=0)
-    combRaw <- newXMLNode("Method", attrs=c(name="raw"))
-    combIC  <- newXMLNode("Method", attrs=c(name="IC"))
-    addChildren(combinedNode, combRaw)
-    addChildren(combinedNode, combIC) 
-    for (w in 1:nrow(dataCombined)){
-      valLoD <- if (lodData$aboveLOD[w] && !is.na(lodData$aboveLOD[w])) "Y" else "N"
-      barcode <- targets$targetBarcode[which(targets$targetName == rownames(dataCombined)[w])]
-      addChildren(combRaw, newXMLNode("Target",
-                                      attrs=c(
-                                              name=barcode, #rownames(dataCombined)[w],
-                                              aboveBkgd=valLoD
-                                              ),
-                                      if(is.na(dataCombined[w, 1])) 0 else dataCombined[w, 1]
-                                      )
-      )
-      valLoD <- if (lodNorm$aboveLOD[w] && !is.na(lodNorm$aboveLOD[w])) "Y" else "N"
-      barcode <- targets$targetBarcode[which(targets$targetName == rownames(normCombined)[w])]
-      addChildren(combIC, newXMLNode("Target",
-                                      attrs=c(
-                                              name=barcode,#rownames(normCombined)[w],
-                                              aboveBkgd=valLoD
-                                              ),
-                                      if(is.na(normCombined[w, 1])) 0 else normCombined[w, 1]
-                                      )
-      )
-    }
-    addChildren(sampleNode, combinedNode)
+#    dataCombined <- if(length(ind) > 1) cbind(rowMeans(Data[, ind],na.rm=T), Data[, val$NC]) else cbind(Data[, ind], Data[, val$NC])
+#    normCombined <- if(length(ind) > 1) cbind(rowMeans(normedData$normData[, ind]), normedData$normData[, val$NC]) else cbind(normedData$normData[, ind], normedData$normData[, val$NC])
+#    lodData <- lod(data_matrix=dataCombined, blanks=val$NC, min_count=0)
+#    lodNorm <- lod(data_matrix=normCombined, blanks=val$NC, min_count=0)
+#    combRaw <- newXMLNode("Method", attrs=c(name="raw"))
+#    combIC  <- newXMLNode("Method", attrs=c(name="IC"))
+#    addChildren(combinedNode, combRaw)
+#    addChildren(combinedNode, combIC) 
+#    for (w in 1:nrow(dataCombined)){
+#      valLoD <- if (lodData$aboveLOD[w] && !is.na(lodData$aboveLOD[w])) "Y" else "N"
+#      barcode <- targets$targetBarcode[which(targets$targetName == rownames(dataCombined)[w])]
+#      addChildren(combRaw, newXMLNode("Target",
+#                                      attrs=c(
+#                                              name=barcode, #rownames(dataCombined)[w],
+#                                              aboveBkgd=valLoD
+#                                              ),
+#                                      if(is.na(dataCombined[w, 1])) 0 else dataCombined[w, 1]
+#                                      )
+#      )
+#      valLoD <- if (lodNorm$aboveLOD[w] && !is.na(lodNorm$aboveLOD[w])) "Y" else "N"
+#      barcode <- targets$targetBarcode[which(targets$targetName == rownames(normCombined)[w])]
+#      addChildren(combIC, newXMLNode("Target",
+#                                      attrs=c(
+#                                              name=barcode,#rownames(normCombined)[w],
+#                                              aboveBkgd=valLoD
+#                                              ),
+#                                      if(is.na(normCombined[w, 1])) 0 else normCombined[w, 1]
+#                                      )
+#      )
+#    }
+#    addChildren(sampleNode, combinedNode)
   }
   if(!is.null(out_XML) && out_XML != ""){
     cat(saveXML(base, indent=TRUE, prefix='<?xml version="1.0" encoding="UTF-8"?>\n'), file=out_XML)
