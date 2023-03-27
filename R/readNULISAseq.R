@@ -140,10 +140,15 @@ readNULISAseq <- function(xml_file,
   if (replaceNA==TRUE){
     DataMatrix[is.na(DataMatrix)] <- 0
   }
- 
-  # add well type information
+
   val <- if(is.null(NC) && is.null(IPC) && is.null(SC) && is.null(Bridge)) NA else "Sample"
   sampleType <- rep(val, length(samples$sampleName))
+  if(!is.null(samples$type)){
+    sampleType <- unlist(lapply(samples$type, FUN=function(t) gsub(pattern="sample", replacement="Sample", x=t, fixed=T)))
+    samples$type <- NULL
+  } 
+
+  # add well type information
   if(!is.null(NC)){     sampleType[grep(paste(NC, collapse="|"), samples$sampleName)]  <- "NC" }
   if(!is.null(SC)){     sampleType[grep(paste(SC, collapse="|"), samples$sampleName)] <- "SC" }
   if(!is.null(IPC)){    sampleType[grep(paste(IPC, collapse="|"), samples$sampleName)] <- "IPC" }
