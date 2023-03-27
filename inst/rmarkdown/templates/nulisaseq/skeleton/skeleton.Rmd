@@ -543,7 +543,7 @@ for( i in 1:length(runs)){
   qcPlate$QCthreshold[nrow(qcPlate)] <- format(as.numeric(qcPlate$QCthreshold[nrow(qcPlate)]), big.mark=",")
   qcPlate$val[1:nrow(qcPlate)-1] <- paste0(format(as.numeric(qcPlate$val[1:nrow(qcPlate)-1])*100, digits=2), "%")
   qcPlate$val[nrow(qcPlate)] <- format(as.numeric(qcPlate$val[nrow(qcPlate)]), big.mark=",")
-  cat(knitr::kable(qcPlate, 
+  cat(knitr::kable(qcPlate[,1:ncol(qcPlate)-1], 
                    caption=paste0("Plate ", as.character(i), ": Plate QC Flag Summary"), 
                    align='r', 
                    format.args=list(big.mark = ",", digits=2),
@@ -568,36 +568,37 @@ pandoc.list(c("Detectability - Target detectability for the a sample",
 rmin <- rmax <- val <- list()
 criteria <- QCSampleCriteria()
 rowNameQC <- c()
-QCSummary <- matrix(nrow=length(runs)+1, ncol=length(criteria)+1)
+QCSummary <- matrix(nrow=length(runs)+1, ncol=length(criteria$thresholds)+1)
 for (i in 1:length(runs)){
   QCSummary[i, 1] <- ncol(runs[[i]]$Data)
   rowNameQC <- c(rowNameQC,  paste0("Plate ", as.character(i))) 
 }
 
-for (j in 1:length(criteria)){
+for (j in 1:length(criteria$thresholds)){
   for (i in 1:length(runs)){
     qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
-    inds <- which(qcSample$flagName == names(criteria)[j])
-    val[j] <- if(names(criteria)[j] == "Detectability" || names(criteria)[j] == "IC_Median") criteria[j]*100 else criteria[j]
-    if(names(criteria)[j] == "Detectability"){
+    inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
+    val[j] <- if(names(criteria$thresholds)[j] == "Detectability") as.numeric(criteria$thresholds[j])*100 else criteria$thresholds[j]
+    if(names(criteria$thresholds)[j] == "Detectability"){
       xval <- as.numeric(qcSample[inds, ]$val)*100
       rmax[j] <- 100.0
-      rmin[j] <- min(val[[j]], as.numeric(xval), na.rm=T) 
-    }else if (names(criteria)[j] == "IC_Median"){
+      rmin[j] <- min(as.numeric(val[[j]]), as.numeric(xval), na.rm=T) 
+    }else if (names(criteria$thresholds)[j] == "IC_Median"){
       xval <- as.numeric(qcSample[inds, ]$val)*100
-      rmin[j] <- min(-val[[j]], as.numeric(xval), na.rm=T)
-      rmax[j] <- max(val[[j]], as.numeric(xval), na.rm=T)
+      minmaxVal <- unlist(strsplit(val[[j]], ","))
+      rmin[j] <- min(as.numeric(minmaxVal[1])*100, as.numeric(xval), na.rm=T)
+      rmax[j] <- max(as.numeric(minmaxVal[2])*100, as.numeric(xval), na.rm=T)
     }else{
       xval <- as.numeric(qcSample[inds, ]$val)
-      rmin[j] <- min(val[[j]], as.numeric(xval), na.rm=T)
-      rmax[j] <- max(val[[j]], as.numeric(xval), na.rm=T)
+      rmin[j] <- min(as.numeric(val[[j]]), as.numeric(xval), na.rm=T)
+      rmax[j] <- max(as.numeric(val[[j]]), as.numeric(xval), na.rm=T)
     }
     QCSummary[i, j+1] <- length(which(qcSample[inds,]$status == "T"))
   }
 }
 QCSummary[i+1, ] <- colSums(QCSummary, na.rm=T) 
 rownames(QCSummary) <- c(rowNameQC, "Total")
-colnames(QCSummary) <- c("# of Samples", names(criteria))
+colnames(QCSummary) <- c("# of Samples", names(criteria$thresholds))
 knitr::kable(QCSummary, caption='', 
              align='r', 
              table.attr="id=\"QC-summary-table\"",
@@ -617,17 +618,16 @@ for( i in 1:length(runs)){
     inds <- which(grepl(paste(params$Bridge, collapse="|"), qcSample$sampleName))
     qcSample[inds, ]$sampleType <- "Bridge"
   }
-  par(mfrow=c(ceiling(length(criteria)/2), 2), mar=c(5,6,2,2))
-  criteria <- QCSampleCriteria()
-  for(j in 1:length(names(criteria))){
-    inds <- which(qcSample$flagName == names(criteria)[j])
+  par(mfrow=c(ceiling(length(criteria$thresholds)/2), 2), mar=c(5,6,2,2))
+  for(j in 1:length(names(criteria$thresholds))){
+    inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
     color <- rep("black", length(inds))
     xlab <- ""
     xval <- NULL
-    if(names(criteria)[j] == "Detectability"){
+    if(names(criteria$thresholds)[j] == "Detectability"){
       xlab <- "Detectability %"
       xval <- as.numeric(qcSample[inds, ]$val)*100
-    }else if(names(criteria)[j] == "IC_Median"){
+    }else if(names(criteria$thresholds)[j] == "IC_Median"){
       xlab <- "% of mCherry Median"
       xval <- as.numeric(qcSample[inds, ]$val)*100
     }else{
@@ -647,7 +647,7 @@ for( i in 1:length(runs)){
       color[which(qcSample[inds,]$sampleType == "Bridge")] <- boxplot_colors[5]
     }
     
-    log <- if(names(criteria)[j] != "Detectability" && names(criteria)[j] != "IC_Median") "x" else ""
+    log <- if(names(criteria$thresholds)[j] != "Detectability" && names(criteria$thresholds)[j] != "IC_Median") "x" else ""
     par(mar=c(5,6,2,2))
     dotchart(x=as.numeric(xval), xlab=xlab, 
              labels=qcSample[inds, ]$sampleName, las=1, 
@@ -658,12 +658,15 @@ for( i in 1:length(runs)){
     xvalPass[which(qcSample[inds,]$status != "F")] <- NA
     points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
     points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
-    abline(v=val[[j]], col='brown')
-    if(names(criteria)[j] == "IC_Median"){
-      abline(v=-val[[j]], col='brown')
+    if(names(criteria$thresholds)[j] == "IC_Median"){
+      minmaxVal <- unlist(strsplit(val[[j]], ","))
+      abline(v=as.numeric(minmaxVal[[1]])*100, col='brown')
+      abline(v=as.numeric(minmaxVal[[2]])*100, col='brown')
+    }else{
+      abline(v=val[[j]], col='brown')
     }
     legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), pch=19, cex=0.4, bty='n', inset=c(0,1), xpd=T,horiz=T)
-    title(main=paste0("Plate ", as.character(i), ": ", names(criteria)[j]))
+    title(main=paste0("Plate ", as.character(i), ": ", names(criteria$thresholds)[j]))
   } 
 }
 ```
