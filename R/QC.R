@@ -21,7 +21,7 @@ QCSampleCriteria <- function(){
   retVal$operators <-c(Detectability=">",
                        ICReads=">", 
                        NumReads=">", 
-                       IC_Median="><")
+                       IC_Median=">,<")
   return(retVal)
 }
 
