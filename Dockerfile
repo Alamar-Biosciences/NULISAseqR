@@ -7,8 +7,14 @@ RUN mkdir -p /workingDir/NULISAseqR
 COPY . /workingDir/NULISAseqR/.
 
 RUN chmod 755 /workingDir/NULISAseqR/R/*.R
-RUN apk add --no-cache make libc-dev libxml2-dev libxext libxt g++
-RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages(c('future','pagedown','uuid','XML','fields', 'xml2')); install.packages('/workingDir/NULISAseqR', repos=NULL, type='source')"
+RUN apk add --no-cache openssl-dev make libc-dev libxml2-dev libxext libxt g++
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('future')";
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('pagedown')";
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('uuid')";
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('XML')";
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('xml2')";
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('fields')"; 
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('/workingDir/NULISAseqR', repos=NULL, type='source')";
 ENV PATH "/workingDir:$PATH"
 COPY main.R /workingDir/.
 
