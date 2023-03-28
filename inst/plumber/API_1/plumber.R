@@ -28,7 +28,7 @@ xml2html <- function(res, in_xml, IPC=c("InterProcessControl"), NC=c("NegativeCo
                                       params=list(
                                                   xmlFiles=toString(in_xml),
                                                   dataDir=NULL,
-                                                  type="WebApp",
+                                                  reportType="WebApp",
                                                   IPC=IPC, 
                                                   NC=NC, 
                                                   IC=IC
@@ -56,7 +56,7 @@ xml2pdf <- function(res, in_xml, IPC=c("InterProcessControl"), NC=c("NegativeCon
                                       params=list(
                                                   xmlFiles=toString(in_xml),
                                                   dataDir=NULL,
-                                                  type="WebApp",
+                                                  reportType="WebApp",
                                                   IPC=IPC, 
                                                   NC=NC, 
                                                   IC=IC
