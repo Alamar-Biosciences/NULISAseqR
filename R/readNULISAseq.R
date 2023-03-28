@@ -198,8 +198,15 @@ readNULISAseq <- function(xml_file,
       sum(is.na(samples), na.rm=T) == length(samples) || # all NA (e.g. NULL)
       is.null(samples)) TRUE else FALSE)  # check if the covariate is NULL
   }
-  samples[, which(lapply(samples, rEmpty) == TRUE)] <- NULL
-  targets[, which(lapply(targets, rEmpty) == TRUE)] <- NULL
+  inds <- which(lapply(samples, rEmpty) == TRUE)
+  if(length(inds) > 0){
+    samples[, inds] <- NULL
+  }
+
+  inds <- which(lapply(targets, rEmpty) == TRUE)
+  if(length(inds) > 0){
+    targets[, inds] <- NULL
+  }
 
   ###########################
   # return the output
