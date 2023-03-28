@@ -191,7 +191,16 @@ readNULISAseq <- function(xml_file,
       samples$plateID <- samples$AUTO_PLATE
     }
   }
-  
+
+  # Remove empty sample / target covariates
+  rEmpty <- function(samples){
+    return (if( sum(samples == "NA", na.rm=T) == length(samples) || # all "NA"
+      sum(is.na(samples), na.rm=T) == length(samples) || # all NA (e.g. NULL)
+      is.null(samples)) TRUE else FALSE)  # check if the covariate is NULL
+  }
+  samples[, which(lapply(samples, rEmpty) == TRUE)] <- NULL
+  targets[, which(lapply(targets, rEmpty) == TRUE)] <- NULL
+
   ###########################
   # return the output
   ###########################
