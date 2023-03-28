@@ -11,7 +11,10 @@ Imports:
     future,
     promises,
     fields,
+    XML,
     xml2,
+    pagedown,
+    uuid
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
