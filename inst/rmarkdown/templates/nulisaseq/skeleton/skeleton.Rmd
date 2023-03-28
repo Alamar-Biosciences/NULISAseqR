@@ -381,7 +381,7 @@ pandoc.list(elements, style="bullet")
 
 ## Plate layout
 ```{r, results='asis'}
-pandoc.p("Shows the layout of samples, controls (NC, IPC), and special wells if any (e.g. Bridge Samples, Donor Samples, etc.) on the 96-well assay plate" )
+pandoc.p("Shows the layout of samples, controls (NC, IPC), and special wells if any (e.g. sample controls (SC), bridge samples) on the 96-well assay plate" )
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
@@ -411,12 +411,12 @@ for(i in 1:length(params$xmlFiles)){
 ## Read summary
 ```{r, results='asis'}
 pandoc.p("Summary of the number and classification of reads for the assay run") 
-pandoc.list(c("Parseable - Valid NGS read (assay signal or background)",
+pandoc.list(c("Parseable - Valid next generation sequencing (NGS) read (assay signal or background)",
               "Parseable Match - Valid NGS read (assay signal)",
               "Parseable Non-match - Vaild NGS read (assay background)",
               "Unparseable - Sequencing background",
-              "Total samples - Total number of samples on plate",
-              "Total targets - Total number of assay targets",
+              "Total samples - Total number of samples on plate (including controls)",
+              "Total targets - Total number of assay targets (including internal controls)",
               "Zero values - Number of targets * samples which had no assay signal"
               ))
 knitr::kable(read_summary, caption='', 
@@ -459,7 +459,7 @@ if(length(ICs) == 1){
 
 ### Inter-plate controls (IPC)
 ```{r, results='asis'}
-pandoc.p("IPC samples are control samples used to both normalize samples between experiments and to assess performance of the assay.")
+pandoc.p("IPC samples are pooled plasma controls used both to normalize samples between experiments and to assess performance (e.g., precision) of the assay.")
 pandoc.p("Note: %CV in this table does not exclude values below LOD. See [Intra-plate normalization](#intraPlateNorm) or [Inter-plate normalization](#interPlateNorm) sections for %CV (before and after normalization) that excludes values below LOD.")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"IPC-summary", i, "\"")
@@ -472,7 +472,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ### Negative controls (NC) 
 ```{r, results='asis'}
-pandoc.p("NC wells are reactions where no sample input is provided. These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality.")
+pandoc.p("NC wells are reactions where no sample input is provided. These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality (e.g., background levels).")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
@@ -484,6 +484,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ```{r eval=indicatorSC, results='asis'}
 pandoc.header("Sample controls (SC)", 3)
+pandoc.p("SC samples are pooled plasma controls from an independent pooled plasma source that is different from IPCs. They could be a pooled sample derived from all study samples, for example. They should be from the same source across all plates that will be analysed together. SCs are used for calculating intra- and inter-plate coefficient of variation (CV). They are necessary for obtaining an unbiased measure of inter-plate CV when IPC normalization is used.")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"SC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$SC_table, caption=paste0("Plate ", as.character(i), ": SC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
@@ -494,7 +495,8 @@ for(i in 1:length(params$xmlFiles)){
 ---
 
 ```{r eval=indicatorBridge, results='asis'}
-pandoc.header("Bridge Samples (Bridge)", 3)
+pandoc.header("Bridge samples (Bridge)", 3)
+pandoc.p("Bridge samples can be used for inter-plate normalization.")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"Bridge-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$Bridge_table, caption=paste0("Plate ", as.character(i), ": Bridge summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
@@ -507,7 +509,7 @@ for(i in 1:length(params$xmlFiles)){
 ## Heatmaps
 ```{r, out.width='100%', fig.asp=0.33333*ceiling((length(ICs)+1)/2), results='asis'}
 heatmap_description <- if (params$heatMapRel==TRUE) "percent relative to plate median" else "absolute normalized read count"
-pandoc.p(paste0("The heatmaps show the ", heatmap_description, " for both the total counts for each sample as well as specifically for the IC"))
+pandoc.p(paste0("Heatmaps show the ", heatmap_description, " for log2(total counts) and the specified internal control."))
 for(i in 1:length(params$xmlFiles)){
   ICs <- which(runs[[i]]$targets$targetType == "Control")
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName)
@@ -541,10 +543,10 @@ for(i in 1:length(params$xmlFiles)){
 
 ```{r, results='asis'}
 pandoc.p("Plate-specific QC criteria:")
-pandoc.list(c("ICRead_CV - Coefficient of Varation of Internal control signal across all samples",
+pandoc.list(c("ICRead_CV - Coefficient of Varation of internal control signal across all samples",
               "IPCRead_CV - Coefficient of Variation of the total assay signal across all samples",
               "IPCTarget_CV - Median of Coefficient of Variation of all IPC targets",
-              "Detectability - Target-wise detectability (target is considered detected if >50% samples have signal > LOD",
+              "Detectability - Target-wise detectability (target is considered detectable if > 50% samples have signal > LOD",
               "MinReads - Minimum number of reads (signal) for the experiment"
               ))
 
