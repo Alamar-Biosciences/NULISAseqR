@@ -1,26 +1,40 @@
 ---
 params:
+  ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
   IC: !r c("mCherry")
+  ## string that denotes inter-plate controls
   IPC: !r c("IPC")
+  ## string that denotes negative controls
   NC: !r c("NC")
-  SC: !r NULL
+  ## string that denotes sample controls
+  SC: !r c("SC")
+  ## string that denotes bridge samples
   Bridge: !r NULL
+  ## directory where xml files are located
   dataDir: "/Users/jbeer/github/TAP-COVID/data"
+  ## variables in XML that indicate row, column, and plate ID
   rowAnnotName: "AUTO_WELLROW"
   colAnnotName: "AUTO_WELLCOL"
   plateAnnotName: "AUTO_PLATE"
-#  rowAnnotName: "Annot2"
-#  colAnnotName: "Annot3"
-#  plateAnnotName: "Annot1"
+  # rowAnnotName: "Annot2"
+  # colAnnotName: "Annot3"
+  # plateAnnotName: "Annot1"
+  ## should heatmaps show % median units?
   heatMapRel: !r TRUE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
   sample_desc: "This is a sample description."
   goal_desc: "NULISAseq 200-plex Inflammation Panel"
-#  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
+  # xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
   xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
+  ## manually set plate ID, otherwise plate ID will be 
+  ## "Plate 1", "Plate 2", ... according to order of filenames 
   plateNames: !r c()
-  type: "WebApp"
+  ## type of report
+  ## options:
+  ## internal
+  ## WebApp
+  reportType: "internal"
 output:
   html_document:
     toc: yes
@@ -358,7 +372,7 @@ for(i in 1:length(params$xmlFiles)){
 ---
 title: `r title_var`
 ---
-```{r, results='asis', eval=params$type!="WebApp"}
+```{r, results='asis', eval=params$reportType!="WebApp"}
 pandoc.header("Study summary", 2)
 elements <- c(paste("Goal:", params$goal_desc), paste("Sample Description:", params$sample_desc))
 pandoc.list(elements, style="bullet")
@@ -711,13 +725,13 @@ for (i in 1:length(params$xmlFiles)){
 ## Intra-plate normalization {#intraPlateNorm}
 %CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV. 
 
-```{r, eval=params$type=="internal"}
+```{r, eval=params$reportType=="internal"}
 pandoc.header("Intra-plate %CV table -- unnormalized", 3)
 knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-unnormalized-summary\"", 
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
-```{r, eval=params$type=="internal"}
+```{r, eval=params$reportType=="internal"}
 pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
 knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-mCherry-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
@@ -908,7 +922,7 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ---
 
-```{r, out.width='100%', fig.asp=(0.4)+as.numeric(multipleFiles)*0.4, results='asis', eval=params$type=="internal"}
+```{r, out.width='100%', fig.asp=(0.4)+as.numeric(multipleFiles)*0.4, results='asis', eval=params$reportType=="internal"}
 pandoc.header("Sample PCA", 2)
 PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
   pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
