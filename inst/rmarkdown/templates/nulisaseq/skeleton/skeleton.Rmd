@@ -473,7 +473,7 @@ pandoc.list(elements, style="bullet")
 
 ## Plate layout
 ```{r, results='asis'}
-pandoc.p("Shows the layout of samples, controls (NC, IPC), and special wells if any (e.g. sample controls (SC), bridge samples) on the 96-well assay plate" )
+pandoc.p("Shows the layout of samples, controls (NC, IPC), and special wells if any (e.g. sample controls (SC), bridge samples) on the 96 well assay plate" )
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
@@ -486,7 +486,7 @@ for(i in 1:length(params$xmlFiles)){
       val[inds] <- cell_spec(val[inds], "html", background=boxplot_colors[j+1])
     }
   }
-  val <- gsub('_', ' ', val) # replace underscore with space
+  val <- gsub('_', ' ', val) # replace underscore with space for text wrapping
   table.attr <- paste0("id=\"plate-summary", i, "\"")
   cat(knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate Layout"), 
                    align="c", escape=FALSE, table.attr=table.attr) %>%
@@ -521,7 +521,7 @@ knitr::kable(read_summary, caption='',
 
 ### Internal controls (IC)
 ```{r, results='asis'}
-pandoc.p("Each sample of the assay is spiked with the same concentration of an internal control (IC). This is used both as part of a well-normalization procedure and as a method for assessing the uniformity of the assay run.") 
+pandoc.p("Each sample of the assay is spiked with the same concentration of an internal control (IC). This is used both as part of a well normalization procedure and as a method for assessing the uniformity of the assay run.") 
 if(length(ICs) == 1){
   IC_tables <- NULL
   for (i in 1:length(params$xmlFiles)){
@@ -564,7 +564,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ### Negative controls (NC) 
 ```{r, results='asis'}
-pandoc.p("NC wells are reactions where no sample input is provided. These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality (e.g., background levels).")
+pandoc.p("NC wells are reactions where no sample input is provided (i.e., buffer only). These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality (e.g., background levels).")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
@@ -588,7 +588,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ```{r eval=indicatorBridge, results='asis'}
 pandoc.header("Bridge samples (Bridge)", 3)
-pandoc.p("Bridge samples can be used for inter-plate normalization.")
+pandoc.p("Bridge samples can be used for inter-plate normalization. Bridge sample normalization uses the bridge sample subset to estimate plate- and target-specific medians, and then uses these medians to normalize all samples in a manner similar to intensity normalization.")
 for(i in 1:length(params$xmlFiles)){
   table.attr <- paste0("id=\"Bridge-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$Bridge_table, caption=paste0("Plate ", as.character(i), ": Bridge summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
@@ -635,12 +635,13 @@ for(i in 1:length(params$xmlFiles)){
 
 ```{r, results='asis'}
 pandoc.p("Plate-specific QC criteria:")
-pandoc.list(c("ICRead_CV - Coefficient of Varation of internal control signal across all samples",
+pandoc.list(c("ICRead_CV - Coefficient of Variation of internal control signal across all samples",
               "IPCRead_CV - Coefficient of Variation of the total assay signal across all samples",
-              "IPCTarget_CV - Median of Coefficient of Variation of all IPC targets",
-              "Detectability - Target-wise detectability (target is considered detectable if > 50% samples have signal > LOD",
-              "MinReads - Minimum number of reads (signal) for the experiment"
+              "IPCTarget_CV - Median Coefficient of Variation of all IPC targets",
+              "Detectability - Percentage of targets that are detectable (target is considered detectable if > 50% samples have signal > LOD)",
+              "MinReads - Minimum number of total Parseable Match reads (signal) for the experiment"
 ))
+pandoc.p("QC Criteria are assessed either on unnormalized (raw) or IC-normalized (IC) data")
 
 for( i in 1:length(runs)){
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
