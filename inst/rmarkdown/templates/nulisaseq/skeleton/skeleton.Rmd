@@ -473,7 +473,7 @@ pandoc.list(elements, style="bullet")
 
 ## Plate layout
 ```{r, results='asis'}
-pandoc.p("Shows the layout of samples, controls (NC, IPC), and special wells if any (e.g. sample controls (SC), bridge samples) on the 96 well assay plate" )
+pandoc.p("Shows the layout of samples, controls (e.g., negative controls (NC), inter-plate controls (IPC)), and special wells if any (e.g., sample controls (SC), bridge samples) on the 96 well assay plate." )
 for(i in 1:length(params$xmlFiles)){
   val <- matrixify(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName, plate=TRUE)
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
@@ -641,7 +641,7 @@ pandoc.list(c(paste0("ICRead_CV - Coefficient of Variation of internal control s
               paste0("Detectability - Percentage of targets that are detectable (target is considered detectable if > 50% samples have signal > LOD) (minimum = ",  QCPlateCriteria()$thresholds['Detectability']*100,"%)"),
               paste0("MinReads - Number of total Parseable Match reads (signal) for the experiment (minimum = ", QCPlateCriteria()$thresholds['MinReads'],")"
               )))
-pandoc.p("QC criteria are assessed either on unnormalized (raw) or IC-normalized (IC) data")
+pandoc.p("QC criteria are assessed either on unnormalized (raw) or IC-normalized (IC) data.")
 
 for( i in 1:length(runs)){
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
@@ -711,7 +711,7 @@ rownames(QCSummary) <- c(rowNameQC, "Total")
 colnames(QCSummary) <- c("# of Samples", names(criteria$thresholds))
 
 # print sample QC summary table
-knitr::kable(QCSummary, caption='', 
+knitr::kable(QCSummary, caption='Number of samples that fail each QC Flag', 
              align='r', 
              table.attr="id=\"QC-summary-table\"",
              format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
@@ -785,7 +785,7 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
-Target detectability is the percentage of samples that are above the limit of detection for that target. Target detectability reported here excludes IPCs, SCs, and bridge samples. A target is considered "detectable" if it is above limit of detection in at least 50% of samples. "Overall" detectability is the overall percentage of samples across all plates that are above LOD for a given target. 
+Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in at least 50% of samples. "Overall" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes IPCs, SCs, NCs, and bridge samples. 
 ```{r, echo=FALSE}
 # calculate fig.asp for detectability plots
 detect_fig_asp <- 2*ceiling(length(params$xmlFiles)/2)
@@ -808,7 +808,7 @@ kable_styling(knitr::kable(detectability_targets, caption='Target Detectability 
 
 # Target Boxplot
 pandoc.header("Target Detectability Boxplot", 3)
-pandoc.p("Shows target mCherry-normalized count distributions relative to LOD.")
+pandoc.p("Plot shows target mCherry-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for mCherry-normalized data.")
 par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,2,2,1))
 for (i in 1:length(params$xmlFiles)){
   targetBoxplot(runs[[i]]$Data, 
@@ -994,7 +994,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ## Sample and target clustering 
 ```{r, out.width='100%', fig.asp=1, results='asis'}
-pandoc.p("Hierarchical clustering of both samples and targets using a Euclidean distance metric and complete linkage. Data is log2 and mCherry-normalized; targets are centered and scaled.")
+pandoc.p("Hierarchical clustering of both samples and targets was done using a Euclidean distance metric and complete linkage. Data is log2 and mCherry-normalized; targets are centered and scaled.")
 # define colors
 paletteLength <- 50
 heatmapColors <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
