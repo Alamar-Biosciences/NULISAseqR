@@ -11,7 +11,7 @@ params:
   ## string that denotes bridge samples
   Bridge: !r NULL
   ## directory where xml files are located
-  dataDir: "/Users/jbeer/github/TAP-COVID/data"
+  dataDir: "/Users/jbeer/github/TAP-Bonn-COVID/data"
   ## variables in XML that indicate row, column, and plate ID
   rowAnnotName: "AUTO_WELLROW"
   colAnnotName: "AUTO_WELLCOL"
@@ -86,11 +86,6 @@ matrixify <- function(runSamples, rowAnnotName, colAnnotName, plate=FALSE){
 ```
 
 ```{r, include=FALSE}
-# define plateIDs
-xmlFilePlateNames <- c()
-if(length(params$plateNames) == 0){
-  xmlFilePlateNames <- rep("", times=length(params$xmlFiles))
-}
 # set multiple file indicator
 multipleFiles <- if(length(params$xmlFiles) > 1) TRUE else FALSE
 # set SC indicator
@@ -104,7 +99,7 @@ boxplot_colors <- unlist(lapply(alamarColorPalette(n=5, tint='light', nReps=5), 
 # set data directory
 if(is.null(params$dataDir)){
   xmlFilesPath <- params$xmlFiles
-}else{
+} else {
   knitr::opts_knit$set(root.dir=params$dataDir)
   # save xml file path
   xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
@@ -113,19 +108,22 @@ if(is.null(params$dataDir)){
 runs <- vector('list', length(params$xmlFiles))
 runSummaries <- vector('list', length(params$xmlFiles))
 read_summary <- PlateNames <- NULL
+# define plateIDs / plate names
+if(length(params$plateNames) == 0){
+  PlateNames <- paste0('Plate', 1:length(params$xmlFiles))
+} else {
+  PlateNames <- params$plateNames
+}
+# read in XML files
 for(i in 1:length(params$xmlFiles)){
-  # read each run
-  runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=xmlFilePlateNames[i], NC=params$NC, SC=params$SC, IC=params$IC, IPC=params$IPC, Bridge=params$Bridge)
+  runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=PlateNames[i], 
+                             NC=params$NC, SC=params$SC, IC=params$IC, 
+                             IPC=params$IPC, Bridge=params$Bridge)
   # summarize each plate
   runSummaries[[i]] <- plateSummary(runs[[i]])
   read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
-  # create plate names
-  PlateNames <- c(PlateNames, paste("Plate", i, sep=" "))
-  if (xmlFilePlateNames[i] != ""){
-    PlateNames[i] <- paste0(PlateNames[i], "(", xmlFilePlateNames[i], ")")
-  }
 }
-names(runs) <- names(runSummaries) <- xmlFilePlateNames
+names(runs) <- names(runSummaries) <- PlateNames
 colnames(read_summary) <- PlateNames
 # transpose read summary
 read_summary <- t(read_summary)
@@ -135,12 +133,11 @@ read_summary <- t(read_summary)
 # do intra-plate normalization
 intraPlateNormData <- vector("list", length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
-  ICs <- which(runs[[i]]$targets$targetType == "Control")
   intraPlateNormData[[i]] <- vector("list", length(ICs))
   for (j in 1:length(ICs)){
     intraPlateNormData[[i]][[j]] <- intraPlateNorm(data_matrix=runs[[i]]$Data,
                                                    method="IC",
-                                                   IC=ICs[j])
+                                                   IC=runs[[i]]$IC[j])
   }
   names(intraPlateNormData[[i]]) <- runs[[i]]$targets$targetName[ICs]
 }
