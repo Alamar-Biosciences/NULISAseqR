@@ -16,12 +16,12 @@ params:
   ## directory where xml files are located
   dataDir: "/Users/jbeer/github/TAP-Bonn-COVID/data"
   ## variables in XML that indicate row, column, and plate ID
-  rowAnnotName: "AUTO_WELLROW"
-  colAnnotName: "AUTO_WELLCOL"
-  plateAnnotName: "AUTO_PLATE"
-  # rowAnnotName: "Annot2"
-  # colAnnotName: "Annot3"
-  # plateAnnotName: "Annot1"
+  # rowAnnotName: "AUTO_WELLROW"
+  # colAnnotName: "AUTO_WELLCOL"
+  # plateAnnotName: "AUTO_PLATE"
+  rowAnnotName: "Annot2"
+  colAnnotName: "Annot3"
+  plateAnnotName: "Annot1"
   ## should heatmaps show % median units?
   heatMapRel: !r TRUE
   study_name: "Study Name"
@@ -635,13 +635,13 @@ for(i in 1:length(params$xmlFiles)){
 
 ```{r, results='asis'}
 pandoc.p("Plate-specific QC criteria:")
-pandoc.list(c("ICRead_CV - Coefficient of Variation of internal control signal across all samples",
-              "IPCRead_CV - Coefficient of Variation of the total assay signal across all samples",
-              "IPCTarget_CV - Median Coefficient of Variation of all IPC targets",
-              "Detectability - Percentage of targets that are detectable (target is considered detectable if > 50% samples have signal > LOD)",
-              "MinReads - Minimum number of total Parseable Match reads (signal) for the experiment"
-))
-pandoc.p("QC Criteria are assessed either on unnormalized (raw) or IC-normalized (IC) data")
+pandoc.list(c(paste0("ICRead_CV - Coefficient of Variation of internal control signal across all samples (maximum = ", QCPlateCriteria()$thresholds['ICRead_CV']*100,"%)"),
+              paste0("IPCRead_CV - Coefficient of Variation of the total assay signal across all IPCs (maximum = ", QCPlateCriteria()$thresholds['IPCRead_CV']*100,"%)"),
+              paste0("IPCTarget_CV - Median Coefficient of Variation of all IPC targets (maximum = ", QCPlateCriteria()$thresholds['IPCTarget_CV']*100,"%)"),
+              paste0("Detectability - Percentage of targets that are detectable (target is considered detectable if > 50% samples have signal > LOD) (minimum = ",  QCPlateCriteria()$thresholds['Detectability']*100,"%)"),
+              paste0("MinReads - Number of total Parseable Match reads (signal) for the experiment (minimum = ", QCPlateCriteria()$thresholds['MinReads'],")"
+)))
+pandoc.p("QC criteria are assessed either on unnormalized (raw) or IC-normalized (IC) data")
 
 for( i in 1:length(runs)){
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
@@ -668,10 +668,10 @@ for( i in 1:length(runs)){
 #### Sample QC summary table
 ```{r, out.width='100%', fig.asp=2, results='asis'}
 pandoc.p("Sample-specific QC criteria:")
-pandoc.list(c("Detectability - Target detectability for the a sample",
-              "ICReads - Minimum number of IC reads for a sample",
-              "NumReads - Minimum number of total reads",
-              "IC_Median - Number of IC reads between -30% and +30% of plate median"
+pandoc.list(c(paste0("Detectability - Percentage of targets above LOD for a sample (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability'])*100,"%)"),
+              paste0("ICReads - Number of IC reads for a sample (minimum = ", QCSampleCriteria()$thresholds['ICReads'],")"),
+              paste0("NumReads - Number of total Parseable Match (signal) reads for a sample (minimum = ", QCSampleCriteria()$thresholds['NumReads'],")"),
+              paste0("IC_Median - % deviation from the overall plate median IC reads (within +/-", as.numeric(unlist(strsplit(QCSampleCriteria()$thresholds['IC_Median'], ',')))[2]*100, "% of plate median)")
 ))
 
 rmin <- rmax <- val <- list()
