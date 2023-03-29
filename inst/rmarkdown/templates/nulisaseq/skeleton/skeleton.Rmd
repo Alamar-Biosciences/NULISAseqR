@@ -59,10 +59,13 @@ library(dplyr)
 
 ```{r, include=FALSE}
 # function for colorizing wells in heatmap
+# sampleTypeFactor should have levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC')
 wellorder <- function(samples, sampleTypeFactor=NULL){
-  inds <- if(is.null(sampleTypeFactor))
-            sort(samples$AUTO_WELLCOL, index.return=TRUE)
-            else sort(paste0(as.numeric(sampleTypeFactor), samples$AUTO_WELLROW), index.return=TRUE)
+  cols <- formatC(as.numeric(samples$AUTO_WELLCOL), width=2, flag=0)
+  rows <- samples$AUTO_WELLROW
+  inds <- if(is.null(sampleTypeFactor)){
+    sort(paste0(rows, cols), index.return=TRUE)
+  } else sort(paste0(as.numeric(sampleTypeFactor), rows, cols), index.return=TRUE)
   return(inds$ix)
 }
 
@@ -1266,7 +1269,7 @@ for(i in 1:length(params$xmlFiles)){
   dataPCA_mCherry <- cbind(dataPCA_mCherry, removeTargetsSamples(intraPlateNormData[[i]][[1]]$normData, runs[[i]]$NC, runs[[i]]$IC))
   dataPCA_mCherryIPC <- cbind(dataPCA_mCherryIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], runs[[i]]$NC, runs[[i]]$IC))
   dataPCA_mCherryIN <- cbind(dataPCA_mCherryIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], runs[[i]]$NC, runs[[i]]$IC))
-  plateID <- c(plateID, rep(paste0("Plate",i), ncol(dataPCA_unnorm)))
+  plateID <- c(plateID, rep(paste0("Plate",i), ncol(removeTargetsSamples(runs[[i]]$Data, runs[[i]]$NC, runs[[i]]$IC))))
 }
 
 nRowsPCA <- if(multipleFiles) 2 else 1
