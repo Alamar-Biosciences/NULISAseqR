@@ -161,18 +161,11 @@ for (i in 1:length(params$xmlFiles)){
 # save mCherry-normalized data in a list
 normData <- lapply(intraPlateNormData, function(x) x[[1]]$normData)
 
-# save IPCs, NCs wells for each plate
-IPC_wells <- NC_wells <- SC_wells <- Bridge_wells <- vector('list', length(params$xmlFiles))
-for (i in 1:length(params$xmlFiles)){
-  IPC_wells[[i]] <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType=="IPC")]
-  NC_wells[[i]]  <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType=="NC")]
-  if(indicatorSC){
-    SC_wells[[i]] <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType=="SC")]
-  }
-  if(indicatorBridge){
-    Bridge_wells[[i]]  <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType=="Bridge")]
-  }
-} 
+# save IPC, NC, etc wells for each plate
+IPC_wells <- lapply(runs, function(x) x$IPC)
+NC_wells <- lapply(runs, function(x) x$NC)
+SC_wells <- lapply(runs, function(x) x$SC)
+Bridge_wells <- lapply(runs, function(x) x$Bridge)
 
 # mCherry + IPC
 mCherry_IPC <- interPlateNorm(data_list=normData,
@@ -185,6 +178,12 @@ mCherry_IN <- interPlateNorm(data_list=normData,
                              IPC=FALSE, IN=TRUE,
                              IPC_wells=IPC_wells,
                              NC_wells=NC_wells)
+
+if(indicatorBridge==TRUE){
+  mCherry_Bridge <- interPlateNorm(data_list=normData,
+                                   IPC=FALSE, IN=TRUE,
+                                   IN_samples=Bridge_wells)
+}
 ```
 
 ```{r, include=FALSE}
