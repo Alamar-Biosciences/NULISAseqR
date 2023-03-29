@@ -4,11 +4,13 @@ params:
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
   ## string that denotes inter-plate controls
-  IPC: !r c("IPC")
+  # IPC: !r c("IPC")
+  IPC: !r c("IPC_rep01", "IPC_rep02")
   ## string that denotes negative controls
   NC: !r c("NC")
   ## string that denotes sample controls
-  SC: !r c("SC")
+  # SC: !r c("SC")
+  SC: !r c("IPC_rep03", "IPC_rep04")
   ## string that denotes bridge samples
   Bridge: !r NULL
   ## directory where xml files are located
@@ -245,83 +247,139 @@ column_summary_stats <- function(x, rowNames=colnames(x)){
 
 # create CV summary tables
 IPC_intraCV_unnorm_summary_table <- column_summary_stats(IPC_intraCV_unnorm)
-IPC_intraCV_mCherry_summary_table <- column_summary_stats(IPC_intraCV_unnorm)
+IPC_intraCV_mCherry_summary_table <- column_summary_stats(IPC_intraCV_mCherry)
 if(indicatorSC==TRUE){
   SC_intraCV_unnorm_summary_table <- column_summary_stats(SC_intraCV_unnorm)
-  SC_intraCV_mCherry_summary_table <- column_summary_stats(SC_intraCV_unnorm)
+  SC_intraCV_mCherry_summary_table <- column_summary_stats(SC_intraCV_mCherry)
 }
 
 ```
 
 ```{r, include=FALSE}
-# calculate inter-plate CVs using sample controls
-sampleControlList <- plateData <- aboveLOD <- exclude_targets <- plate_mCherry <- vector("list", length(params$xmlFiles))
-for(i in 1:length(params$xmlFiles)){
-  # define sample control vector
-  sample_controls <- rep(NA, nrow(runs[[i]]$samples))
-  SCval <- if (!is.null(params$SC)) "SC" else "IPC"
-  sample_controls[which(runs[[i]]$samples$sampleType == SCval) ]<- "SC"
-  sampleControlList[[i]] <- sample_controls
-  plateData[[i]] <- runs[[i]]$Data
-  plate_mCherry[[i]] <- intraPlateNormData[[i]]$mCherry$normData
-  aboveLOD[[i]] <- plate_lod[[i]]$aboveLOD
-  exclude_targets[[i]] <- which(runs[[i]]$targets$targetType == "Control")
-}
+# calculate inter-plate CVs on unnormalized, mCherry normalized,
+# and inter-plate normalized data
+# using IPCs and SCs (sample controls) if present
+
+# get input data lists
+IPC_SC_samples_list <- lapply(runs, function(x) {
+  # define IPC / SC vector
+  IPC_SC_samples <- rep(NA, nrow(x$samples))
+  IPC_SC_samples[colnames(x$Data) %in% x$IPC] <- 'IPC'
+  if(indicatorSC==TRUE){
+    IPC_SC_samples[colnames(x$Data) %in% x$SC] <- 'SC'
+  }
+  return(IPC_SC_samples)
+})
+plateData <- lapply(runs, function(x) x$Data)
+plate_mCherry <- lapply(intraPlateNormData, function(x) x$mCherry$normData)
+aboveLOD <- lapply(plate_lod, function(x) x$aboveLOD)
+exclude_targets <- lapply(runs, function(x) x$IC)
 
 # unnormalized interCV
 interCV_unnorm <- interCV(data_list=plateData,
-                          samples=sampleControlList,
+                          samples=IPC_SC_samples_list,
                           aboveLOD=aboveLOD,
                           exclude_targets=exclude_targets,
                           useMean=FALSE)
 
 # mCherry interCV
 interCV_mCherry <- interCV(data_list=plate_mCherry,
-                           samples=sampleControlList,
+                           samples=IPC_SC_samples_list,
                            aboveLOD=aboveLOD,
                            exclude_targets=exclude_targets,
                            useMean=FALSE)
 
 # mCherry + IPC interCV
 interCV_mCherry_IPC <- interCV(data_list=mCherry_IPC$interNormData,
-                               samples=sampleControlList,
+                               samples=IPC_SC_samples_list,
                                aboveLOD=aboveLOD,
                                exclude_targets=exclude_targets,
                                useMean=FALSE)
 
 # mCherry + IN interCV
 interCV_mCherry_IN <- interCV(data_list=mCherry_IN$interNormData,
-                              samples=sampleControlList,
+                              samples=IPC_SC_samples_list,
                               aboveLOD=aboveLOD,
                               exclude_targets=exclude_targets,
                               useMean=FALSE)
 
-# combine results into one matrix
-interCV_results <- cbind(interCV_unnorm,
-                         interCV_mCherry,
-                         interCV_mCherry_IPC,
-                         interCV_mCherry_IN)
-colnames(interCV_results) <- c('unnorm',
-                               'mCherry',
-                               'mCherry + IPC',
-                               'mCherry + IN')
 
-# create inter-plate CV table
-interCV_summary_table <- cbind(colMeans(interCV_results, na.rm=TRUE),
-                               apply(interCV_results, 2, sd, na.rm=TRUE),
-                               apply(interCV_results, 2, median, na.rm=TRUE),
-                               apply(interCV_results, 2, min, na.rm=TRUE),
-                               apply(interCV_results, 2, max, na.rm=TRUE),
-                               apply(interCV_results, 2, function(x){
-                                 sum(is.na(x))
-                               }))
-
-rownames(interCV_summary_table) <- c('unnorm',
+if(indicatorBridge==FALSE){
+  # combine results into one matrix
+  IPC_interCV_results <- cbind(interCV_unnorm[,'IPC'],
+                               interCV_mCherry[,'IPC'],
+                               interCV_mCherry_IPC[,'IPC'],
+                               interCV_mCherry_IN[,'IPC'])
+  
+  colnames(IPC_interCV_results) <- c('unnorm',
                                      'mCherry',
                                      'mCherry + IPC',
                                      'mCherry + IN')
+  
+  # create IPC inter-plate CV summary table
+  IPC_interCV_summary_table <- column_summary_stats(IPC_interCV_results)
+  
+  if(indicatorSC==TRUE){
+    # combine results into one matrix
+    SC_interCV_results <- cbind(interCV_unnorm[,'SC'],
+                                interCV_mCherry[,'SC'],
+                                interCV_mCherry_IPC[,'SC'],
+                                interCV_mCherry_IN[,'SC'])
+    
+    colnames(SC_interCV_results) <- c('unnorm',
+                                      'mCherry',
+                                      'mCherry + IPC',
+                                      'mCherry + IN')
+    
+    # create SC inter-plate CV summary table
+    SC_interCV_summary_table <- column_summary_stats(SC_interCV_results)
+  }
+}
 
-colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
+
+if(indicatorBridge==TRUE){
+  # mCherry + Bridge
+  interCV_mCherry_Bridge <- interCV(data_list=mCherry_Bridge$interNormData,
+                                    samples=IPC_SC_samples_list,
+                                    aboveLOD=aboveLOD,
+                                    exclude_targets=exclude_targets,
+                                    useMean=FALSE)
+  # combine results into one matrix
+  IPC_interCV_results <- cbind(interCV_unnorm[,'IPC'],
+                               interCV_mCherry[,'IPC'],
+                               interCV_mCherry_IPC[,'IPC'],
+                               interCV_mCherry_IN[,'IPC'],
+                               interCV_mCherry_Bridge[,'IPC'])
+  
+  colnames(interCV_results) <- c('unnorm',
+                                 'mCherry',
+                                 'mCherry + IPC',
+                                 'mCherry + IN',
+                                 'mCherry + Bridge')
+  
+  # create IPC inter-plate CV summary table
+  IPC_interCV_summary_table <- column_summary_stats(IPC_interCV_results)
+  
+  if(indicatorSC==TRUE){
+    # combine results into one matrix
+    SC_interCV_results <- cbind(interCV_unnorm[,'SC'],
+                                interCV_mCherry[,'SC'],
+                                interCV_mCherry_IPC[,'SC'],
+                                interCV_mCherry_IN[,'SC'],
+                                interCV_mCherry_Bridge[,'SC'])
+    
+    colnames(SC_interCV_results) <- c('unnorm',
+                                      'mCherry',
+                                      'mCherry + IPC',
+                                      'mCherry + IN',
+                                      'mCherry + Bridge')
+    
+    # create SC inter-plate CV summary table
+    SC_interCV_summary_table <- column_summary_stats(SC_interCV_results)
+  }
+}
+
+
 ```
 
 ```{r, include=FALSE}
