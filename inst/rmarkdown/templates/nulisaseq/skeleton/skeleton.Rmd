@@ -997,16 +997,16 @@ cat("%CV was calculated for each target (excluding internal controls) for the sa
 ```
 
 ```{r eval=multipleFiles, results='asis'}
-pandoc.header("Inter-plate %CV", 3)
+pandoc.header("SC Inter-plate %CV", 3)
 if(params$reportType != "internal"){
   remove <- "mCherry + IN"
-  interCV_summary_table2 <- interCV_summary_table[!(rownames(interCV_summary_table) %in% remove),]
-  interCV_results2 <- interCV_results[, !(colnames(interCV_results) %in% remove)]
+  SC_interCV_summary_table2 <- SC_interCV_summary_table[!(rownames(SC_interCV_summary_table) %in% remove),]
+  SC_interCV_results2 <- SC_interCV_results[, !(colnames(SC_interCV_results) %in% remove)]
 }else{
-  interCV_summary_table2 <- interCV_summary_table
-  interCV_results2 <- interCV_results
+  SC_interCV_summary_table2 <- SC_interCV_summary_table
+  SC_interCV_results2 <- SC_interCV_results
 }
-knitr::kable(interCV_summary_table2, caption='', 
+knitr::kable(SC_interCV_summary_table2, caption='', 
              align='r', 
              table.attr="id=\"inter-plateCV-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% 
@@ -1014,11 +1014,11 @@ knitr::kable(interCV_summary_table2, caption='',
 ```
 
 ```{r out.width='100%', fig.asp=0.5, eval=multipleFiles, results='asis'}
-pandoc.header("Inter-plate %CV boxplot", 3)
+pandoc.header("SC Inter-plate %CV boxplot", 3)
 par(mar=c(5,12,1,1))
-boxplot(interCV_results2, las=1, xlab='inter-plate CV (%)',
-        ylim=c(0, max(interCV_results2, na.rm=TRUE)), 
-        col=alamarColorPalette(5), horizontal=TRUE)
+boxplot(SC_interCV_results2[,ncol(SC_interCV_results2):1], las=1, xlab='inter-plate CV (%)',
+        ylim=c(0, max(SC_interCV_results2, na.rm=TRUE)), 
+        col=rev(alamarColorPalette(ncol(SC_interCV_results2))), horizontal=TRUE)
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
