@@ -807,7 +807,7 @@ kable_styling(knitr::kable(detectability_targets, caption='Target Detectability 
               bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) 
 
 # Target Boxplot
-pandoc.header("Target Detectability Boxplot", 3)
+pandoc.header("Target detectability boxplot", 3)
 pandoc.p("Plot shows target mCherry-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for mCherry-normalized data.")
 par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,2,2,1))
 for (i in 1:length(params$xmlFiles)){
