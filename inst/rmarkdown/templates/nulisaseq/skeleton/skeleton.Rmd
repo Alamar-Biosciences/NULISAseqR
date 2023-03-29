@@ -785,7 +785,7 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
-Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in at least 50% of samples 
+Target detectability is the percentage of samples that are above the limit of detection for that target. Target detectability reported here excludes IPCs, SCs, and bridge samples. A target is considered "detectable" if it is above limit of detection in at least 50% of samples. "Overall" detectability is the total number of samples across all plates that are above LOD for a given target. 
 ```{r, echo=FALSE}
 # calculate fig.asp for detectability plots
 detect_fig_asp <- 2*ceiling(length(params$xmlFiles)/2)
