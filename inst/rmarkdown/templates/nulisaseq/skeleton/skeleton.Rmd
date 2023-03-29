@@ -26,8 +26,8 @@ params:
   assayName: "NULISAseq 200-plex Inflammation Panel"
   sample_desc: "This is a sample description."
   goal_desc: "NULISAseq 200-plex Inflammation Panel"
-  # xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
-  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
+  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
+  # xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
   plateNames: !r c()
@@ -134,15 +134,15 @@ read_summary <- t(read_summary)
 # do intra-plate normalization
 intraPlateNormData <- vector("list", length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
-  intraPlateNormData[[i]] <- vector("list", length(ICs))
-  for (j in 1:length(ICs)){
+  intraPlateNormData[[i]] <- vector("list", length(params$IC))
+  for (j in 1:length(params$IC)){
     intraPlateNormData[[i]][[j]] <- intraPlateNorm(data_matrix=runs[[i]]$Data,
                                                    method="IC",
                                                    IC=runs[[i]]$IC[j])
   }
-  names(intraPlateNormData[[i]]) <- runs[[i]]$targets$targetName[ICs]
+  names(intraPlateNormData[[i]]) <- params$IC[j]
 }
-names(intraPlateNormData) <- xmlFilePlateNames
+names(intraPlateNormData) <- PlateNames
 ```
 
 ```{r, include=FALSE}
