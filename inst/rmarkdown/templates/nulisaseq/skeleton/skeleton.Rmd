@@ -87,12 +87,6 @@ matrixify <- function(runSamples, rowAnnotName, colAnnotName, plate=FALSE){
 ```
 
 ```{r, include=FALSE}
-# set multiple file indicator
-multipleFiles <- if(length(params$xmlFiles) > 1) TRUE else FALSE
-# set SC indicator
-indicatorSC <- if(is.null(params$SC)) FALSE else TRUE
-# set Bridge indicator
-indicatorBridge <- if(is.null(params$Bridge)) FALSE else TRUE
 # define title
 title_var <- paste(params$study_name, params$assayName, sep='<br>')
 # define sample specific boxplot colors for use in plots
@@ -108,7 +102,7 @@ if(is.null(params$dataDir)){
 # define variables to store results
 runs <- vector('list', length(params$xmlFiles))
 runSummaries <- vector('list', length(params$xmlFiles))
-read_summary <- PlateNames <- NULL
+read_summary <- NULL
 # define plateIDs / plate names
 if(length(params$plateNames) == 0){
   PlateNames <- paste0('Plate ', 1:length(params$xmlFiles))
@@ -128,6 +122,12 @@ names(runs) <- names(runSummaries) <- PlateNames
 colnames(read_summary) <- PlateNames
 # transpose read summary
 read_summary <- t(read_summary)
+# set multiple file indicator
+multipleFiles <- if(length(params$xmlFiles) > 1) TRUE else FALSE
+# set SC indicator
+indicatorSC <- if(is.null(params$SC) | sum(sapply(runs, function(x) length(x$SC)))==0) FALSE else TRUE
+# set Bridge indicator
+indicatorBridge <- if(is.null(params$Bridge) | sum(sapply(runs, function(x) length(x$Bridge)))==0) FALSE else TRUE
 ```
 
 ```{r, include=FALSE}
@@ -151,7 +151,7 @@ names(intraPlateNormData) <- PlateNames
 plate_lod <- vector('list', length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
   plate_lod[[i]] <- lod(data_matrix=intraPlateNormData[[i]][[1]]$normData, 
-                        blanks=rund[[i]]$NC, 
+                        blanks=runs[[i]]$NC, 
                         min_count=0)
 }
 ```
@@ -187,57 +187,70 @@ if(indicatorBridge==TRUE){
 ```
 
 ```{r, include=FALSE}
-# calculate intra-plate CVs using sample controls
-intraCV_unnorm <- intraCV_mCherry <- NULL
+# calculate intra-plate CVs on unnormalized and mCherry normalized data
+# using IPCs and SCs (sample controls) if present
+IPC_intraCV_unnorm <- IPC_intraCV_mCherry <- NULL
+if(indicatorSC==TRUE){
+  SC_intraCV_unnorm <- SC_intraCV_mCherry <- NULL
+}
+# loop through plates and calculate CVs
 for (i in 1:length(params$xmlFiles)){
-  ICs <- which(runs[[i]]$targets$targetType == "Control")
-  # define sample control vector
-  sample_controls <- rep(NA, nrow(runs[[i]]$samples))
-  SCval <- if (!is.null(params$SC)) "SC" else "IPC"
-  sample_controls[which(runs[[i]]$samples$sampleType == SCval) ]<- "SC"
+  # define IPC / SC vector
+  IPC_SC_samples <- rep(NA, nrow(runs[[i]]$samples))
+  IPC_SC_samples[colnames(runs[[i]]$Data) %in% runs[[i]]$IPC] <- 'IPC'
+  if(indicatorSC==TRUE){
+    IPC_SC_samples[colnames(runs[[i]]$Data) %in% runs[[i]]$SC] <- 'SC'
+  }
   # unnormalized intraCV
   plate_unnorm_intraCV <- intraCV(data_matrix=runs[[i]]$Data,
-                                  samples=sample_controls,
+                                  samples=IPC_SC_samples,
                                   aboveLOD=plate_lod[[i]]$aboveLOD,
-                                  exclude_targets=ICs)
+                                  exclude_targets=runs[[i]]$IC)
   # combine plates into one matrix
-  intraCV_unnorm <- cbind(intraCV_unnorm, plate_unnorm_intraCV) 
+  IPC_intraCV_unnorm <- cbind(IPC_intraCV_unnorm, plate_unnorm_intraCV[,'IPC']) 
+  if(indicatorSC==TRUE){
+    SC_intraCV_unnorm <- cbind(SC_intraCV_unnorm, plate_unnorm_intraCV[,'SC'])
+  }
   # mCherry intraCV
   plate_mCherry_intraCV <- intraCV(data_matrix=intraPlateNormData[[i]]$mCherry$normData,
-                                   samples=sample_controls,
+                                   samples=IPC_SC_samples,
                                    aboveLOD=plate_lod[[i]]$aboveLOD,
-                                   exclude_targets=ICs)
+                                   exclude_targets=runs[[i]]$IC)
   # combine plates into one matrix
-  intraCV_mCherry <- cbind(intraCV_mCherry, plate_mCherry_intraCV)
+  IPC_intraCV_mCherry <- cbind(IPC_intraCV_mCherry, plate_mCherry_intraCV[,'IPC'])
+  if(indicatorSC==TRUE){
+    SC_intraCV_mCherry <- cbind(SC_intraCV_mCherry, plate_mCherry_intraCV[,'SC'])
+  }
 }
 
-colnames(intraCV_unnorm) <- colnames(intraCV_mCherry) <- PlateNames
+colnames(IPC_intraCV_unnorm) <- colnames(IPC_intraCV_mCherry) <- PlateNames
+if(indicatorSC==TRUE){
+  colnames(SC_intraCV_unnorm) <- colnames(SC_intraCV_mCherry) <- PlateNames
+}
 
-# create intra-plate CV table -- unnormalized
-intraCV_unnorm_summary_table <- cbind(colMeans(intraCV_unnorm, na.rm=TRUE),
-                                      apply(intraCV_unnorm, 2, sd, na.rm=TRUE),
-                                      apply(intraCV_unnorm, 2, median, na.rm=TRUE),
-                                      apply(intraCV_unnorm, 2, min, na.rm=TRUE),
-                                      apply(intraCV_unnorm, 2, max, na.rm=TRUE),
-                                      apply(intraCV_unnorm, 2, function(x){
-                                        sum(is.na(x))
-                                      }))
+# function to summarize columns of a matrix
+column_summary_stats <- function(x, rowNames=colnames(x)){
+  output <- cbind(colMeans(x, na.rm=TRUE),
+                  apply(x, 2, sd, na.rm=TRUE),
+                  apply(x, 2, median, na.rm=TRUE),
+                  apply(x, 2, min, na.rm=TRUE),
+                  apply(x, 2, max, na.rm=TRUE),
+                  apply(x, 2, function(y){
+                    sum(is.na(y))
+                  }))
+  colnames(output) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
+  rownames(output) <- rowNames
+  return(output)
+}
 
-rownames(intraCV_unnorm_summary_table) <- PlateNames
-colnames(intraCV_unnorm_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
+# create CV summary tables
+IPC_intraCV_unnorm_summary_table <- column_summary_stats(IPC_intraCV_unnorm)
+IPC_intraCV_mCherry_summary_table <- column_summary_stats(IPC_intraCV_unnorm)
+if(indicatorSC==TRUE){
+  SC_intraCV_unnorm_summary_table <- column_summary_stats(SC_intraCV_unnorm)
+  SC_intraCV_mCherry_summary_table <- column_summary_stats(SC_intraCV_unnorm)
+}
 
-# create intra-plate CV table -- mCherry
-intraCV_mCherry_summary_table <- cbind(colMeans(intraCV_mCherry, na.rm=TRUE),
-                                       apply(intraCV_mCherry, 2, sd, na.rm=TRUE),
-                                       apply(intraCV_mCherry, 2, median, na.rm=TRUE),
-                                       apply(intraCV_mCherry, 2, min, na.rm=TRUE),
-                                       apply(intraCV_mCherry, 2, max, na.rm=TRUE),
-                                       apply(intraCV_mCherry, 2, function(x){
-                                         sum(is.na(x))
-                                       }))
-
-rownames(intraCV_mCherry_summary_table) <- PlateNames
-colnames(intraCV_mCherry_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
 ```
 
 ```{r, include=FALSE}
@@ -284,14 +297,14 @@ interCV_mCherry_IN <- interCV(data_list=mCherry_IN$interNormData,
                               useMean=FALSE)
 
 # combine results into one matrix
-  interCV_results <- cbind(interCV_unnorm,
-                           interCV_mCherry,
-                           interCV_mCherry_IPC,
-                           interCV_mCherry_IN)
-  colnames(interCV_results) <- c('unnorm',
-                                 'mCherry',
-                                 'mCherry + IPC',
-                                 'mCherry + IN')
+interCV_results <- cbind(interCV_unnorm,
+                         interCV_mCherry,
+                         interCV_mCherry_IPC,
+                         interCV_mCherry_IN)
+colnames(interCV_results) <- c('unnorm',
+                               'mCherry',
+                               'mCherry + IPC',
+                               'mCherry + IN')
 
 # create inter-plate CV table
 interCV_summary_table <- cbind(colMeans(interCV_results, na.rm=TRUE),
@@ -304,9 +317,9 @@ interCV_summary_table <- cbind(colMeans(interCV_results, na.rm=TRUE),
                                }))
 
 rownames(interCV_summary_table) <- c('unnorm',
-                                       'mCherry',
-                                       'mCherry + IPC',
-                                       'mCherry + IN')
+                                     'mCherry',
+                                     'mCherry + IPC',
+                                     'mCherry + IN')
 
 colnames(interCV_summary_table) <- c('mean', 'sd', 'median', 'min', 'max', 'missing')
 ```
@@ -326,7 +339,7 @@ for (i in 1:length(params$xmlFiles)){
   if(indicatorBridge){
     detect_samples <- detect_samples[!grepl(paste(params$Bridge, collapse="|"), detect_samples)]
   }
-
+  
   plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
                                 sample_subset=detect_samples,
                                 exclude_targets=ICs)
@@ -385,7 +398,7 @@ for(i in 1:length(params$xmlFiles)){
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
   if(indicatorSC){      well_types <- append(well_types, list(SC_wells[[i]]))}
   if(indicatorBridge){  well_types <- append(well_types, list(Bridge_wells[[i]]))}
-
+  
   for (j in 1:length(well_types)){
     inds <- which(grepl(paste0(well_types[[j]], collapse="|"), val))
     if(length(inds) > 0){
@@ -416,7 +429,7 @@ pandoc.list(c("Parseable - Valid next generation sequencing (NGS) read (assay si
               "Total samples - Total number of samples on plate (including controls)",
               "Total targets - Total number of assay targets (including internal controls)",
               "Zero values - Number of targets * samples which had no assay signal"
-              ))
+))
 knitr::kable(read_summary, caption='', 
              align='r', format.args=list(big.mark = ","), 
              table.attr="id=\"read-summary\"") %>% 
@@ -546,7 +559,7 @@ pandoc.list(c("ICRead_CV - Coefficient of Varation of internal control signal ac
               "IPCTarget_CV - Median of Coefficient of Variation of all IPC targets",
               "Detectability - Target-wise detectability (target is considered detectable if > 50% samples have signal > LOD",
               "MinReads - Minimum number of reads (signal) for the experiment"
-              ))
+))
 
 for( i in 1:length(runs)){
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
@@ -563,7 +576,7 @@ for( i in 1:length(runs)){
                    format.args=list(big.mark = ",", digits=2),
                    table.attr=table.attr,
                    col.names = c("Flag Name", "Normalization", "QC Status", "QC Value", "QC Threshold"
-                                 )) %>%
+                   )) %>%
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
         row_spec(which(qcPlate$status == "Fail"), bold=T, color="white", background="red"))
 }
@@ -577,7 +590,7 @@ pandoc.list(c("Detectability - Target detectability for the a sample",
               "ICReads - Minimum number of IC reads for a sample",
               "NumReads - Minimum number of total reads",
               "IC_Median - Number of IC reads between -30% and +30% of plate median"
-              ))
+))
 
 rmin <- rmax <- val <- list()
 criteria <- QCSampleCriteria()
@@ -828,7 +841,7 @@ for(i in 1:length(params$xmlFiles)){
   corrvals <- corrplot(cor(intraPlateNormData[[i]]$mCherry$normData), 
                        order='hclust') 
   dev.off()
-
+  
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
   if(indicatorSC){ well_types <- append(well_types, list(SC_wells[[i]]))}
   if(indicatorBridge){ well_types <- append(well_types, list(Bridge_wells[[i]]))}
@@ -872,11 +885,11 @@ for(i in 1:length(params$xmlFiles)){
   data_mCherry_log2_scaled2$label_colors <- label_colors
   # generate heatmap for plate i
   heatmap_i <- pheatmap(data_mCherry_log2_scaled2[,1:(ncol(data_mCherry_log2_scaled2) - 1)],
-                main = paste("Plate", i), 
-                fontsize=5,
-                color=heatmapColors,
-                breaks=breaks,
-                show_colnames=FALSE, silent=TRUE)
+                        main = paste("Plate", i), 
+                        fontsize=5,
+                        color=heatmapColors,
+                        breaks=breaks,
+                        show_colnames=FALSE, silent=TRUE)
   # put colors in order
   label_colors_ordered <- data_mCherry_log2_scaled2[order(match(rownames(data_mCherry_log2_scaled2), heatmap_i$gtable$grobs[[5]]$label)),]$label_colors
   # add label colors to plot
