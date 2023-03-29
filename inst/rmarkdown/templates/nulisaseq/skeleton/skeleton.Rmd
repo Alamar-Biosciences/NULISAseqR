@@ -1035,16 +1035,23 @@ PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
   point_shapes <- rep(1, ncol(data))
   point_shapes[IPC_samples] <- 8
   legendText <- c(levels(plateID), 'Sample', 'IPCs')
-  if(indicatorSC){
+  legend_point_shapes <- rep(1, (length(levels(plateID)) + 1))
+  legend_point_shapes <- c(legend_point_shapes, 8)
+  if(indicatorSC==TRUE){
     SC_samples <- grep(paste(params$SC, collapse="|"), colnames(data))
     point_shapes[SC_samples] <- 9
     legendText <- c(legendText, "SCs")
+    legend_point_shapes <- c(legend_point_shapes, 9)
   }
-  if(indicatorBridge){
+  if(indicatorBridge==TRUE){
     Bridge_samples <- grep(paste(params$Bridge, collapse="|"), colnames(data))
     point_shapes[Bridge_samples] <- 10
-    legendText <- c(legendText, "Bridges")
+    legendText <- c(legendText, "Bridge")
+    legend_point_shapes <- c(legend_point_shapes, 10)
   }
+  
+  legend_colors <- c(colors, rep('black', (length(legend_point_shapes) - length(colors))))
+  
   plot(pca$x[,1], pca$x[,2],
        col=colors[as.integer(plateID)],
        pch=point_shapes,
@@ -1055,8 +1062,8 @@ PCAplot <- function(data, plateID, scale=TRUE, center=TRUE, title=NULL){
        main=title, las=1, cex=0.5)
   legend(par('usr')[2], par('usr')[4], 
          legendText,
-         col=c(colors, 'black', 'black', 'black', 'black'), xpd=NA,
-         pch=c(1,1,1,8,9,10), cex=0.75, bty='n')
+         col=legend_colors, xpd=NA,
+         pch=legend_point_shapes, cex=0.75, bty='n')
 }
 
 removeTargetsSamples <- function(data, NC){
