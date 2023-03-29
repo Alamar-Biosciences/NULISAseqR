@@ -809,7 +809,7 @@ kable_styling(knitr::kable(detectability_targets, caption='Target Detectability 
 # Target Boxplot
 pandoc.header("Target Detectability Boxplot", 3)
 pandoc.p("Shows target mCherry-normalized count distributions relative to LOD.")
-par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,6,2,0))
+par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,3,2,2))
 for (i in 1:length(params$xmlFiles)){
   targetBoxplot(runs[[i]]$Data, 
                 title=PlateNames[i], 
@@ -859,34 +859,54 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ## Sample boxplots
 ```{r, out.width='100%', fig.asp=1, results='asis'}
-pandoc.p("Sample boxplots show ...")
-sampleboxplot <- function( data, ordering, label, plate_sample_colors, boxplot_colors){
+pandoc.p("Sample boxplots show distributions of the log2 counts for each sample, unnormalized and after mCherry + IPC normalization.")
+
+# function to draw boxplot
+sampleboxplot <- function(data, ordering, label, plate_sample_colors, boxplot_colors){
+  par(mar=c(2,6,2,0.5))
   boxplot(log2(data[,ordering]+0.01),
-          las=1, yaxt='n',
+          las=1, 
+          yaxt='n',
+          xaxt='n',
           ylab='',
           main=paste0("Plate ", as.character(i), ": ", label),
           outcex=0.5,
-          col=plate_sample_colors, horizontal=TRUE, cex=0.5)
+          col=plate_sample_colors, 
+          horizontal=TRUE, 
+          cex=0.5,
+          cex.main=0.75,
+          cex.lab=0.75)
   for (j in 1:ncol(data)){
     color <- if(plate_sample_colors[j] == boxplot_colors[1]) "black" else plate_sample_colors[j]
-    axis(2, at=j, labels=colnames(data)[ordering[j]], cex.axis=0.3, las=2, col.axis=color, tck=-0.01)
+    axis(2, at=j, labels=FALSE, cex.axis=0.3, las=2, col.axis=color, tck=-0.01)
+    axis(2, at=j, labels=colnames(data)[ordering[j]], cex.axis=0.3, las=2, col.axis=color, tick=FALSE, line=-0.75)
   }
-  lines(cbind(log2(data['mCherry',ordering]+0.01), 1:ncol(data)), col='red', las=1)
-  mtext('log2(count + 0.01)', side=1, line=2)
+  axis(side=1, labels=FALSE, tck=-0.01)
+  axis(side=1, labels=TRUE, cex.axis=0.5, line=-1, tick=FALSE)
+  # add mCherry line
+  lines(cbind(log2(data['mCherry', ordering]+0.01), 1:ncol(data)), col='red', las=1)
+  mtext('log2(count + 0.01)', side=1, line=0.75, cex=0.5)
   legend('topleft', 'mCherry', col='red', lty=1, cex=0.4, bty='n')
   abline(v=c(-50:50*5), col='grey', lty=3)
-  return(NULL)
 }
 
 for(i in 1:length(params$xmlFiles)){
-  plate_sample_type <- rep("1_sample",ncol(runs[[i]]$Data))
+  plate_sample_type <- rep("1_sample", ncol(runs[[i]]$Data))
   plate_sample_type[grepl(paste0(IPC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '3_IPC'
-  plate_sample_type[grepl(paste0(NC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '4_NC'
+  # put NCs last
+  plate_sample_type[grepl(paste0(NC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '6_NC'
+  # put colors in order 
+  boxplot_colors2 <- boxplot_colors[c(1,2,3)]
   if(indicatorSC){
-    plate_sample_type[grepl(paste0(SC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '5_SC'
+    plate_sample_type[grepl(paste0(SC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '4_SC'
+    boxplot_colors2 <- boxplot_colors[c(1,2,4,3)]
   }
   if(indicatorBridge){
-    plate_sample_type[grepl(paste0(Bridge_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '6_Bridge'
+    plate_sample_type[grepl(paste0(Bridge_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '5_Bridge'
+    boxplot_colors2 <- boxplot_colors[c(1,2,5,3)]
+  }
+  if(indicatorSC & indicatorBridge){
+    boxplot_colors2 <- boxplot_colors[c(1,2,4,5,3)]
   }
   ordering2 <- wellorder(runs[[i]]$samples, params$rowAnnotName, params$colAnnotName) 
   ordering <- NULL
@@ -895,14 +915,15 @@ for(i in 1:length(params$xmlFiles)){
     inds <- which(plate_sample_type[ordering2] == types[j])
     ordering <- c(ordering, ordering2[inds])
   }
-  
-  plate_sample_colors <- boxplot_colors[as.numeric(as.factor(plate_sample_type))[ordering]]
+  # reverse ordering so special wells are at the bottom
+  ordering <- rev(ordering)
+  plate_sample_colors <- boxplot_colors2[as.numeric(as.factor(plate_sample_type))[ordering]]
   numPlots <- if(params$reportType == "internal") 2 else 1
   par(mfrow=c(1,numPlots), mar=c(4,6,2,0))
   if(params$reportType == "internal"){
-    sampleboxplot(runs[[i]]$Data, ordering, "unnormalized", plate_sample_colors, boxplot_colors)
+    sampleboxplot(runs[[i]]$Data, ordering, "unnormalized", plate_sample_colors, boxplot_colors2)
   }
-  sampleboxplot(mCherry_IPC$interNormData[[i]], ordering, "mCherry + IPC", plate_sample_colors, boxplot_colors)
+  sampleboxplot(mCherry_IPC$interNormData[[i]], ordering, "mCherry + IPC", plate_sample_colors, boxplot_colors2)
 }
 ```
 
@@ -910,7 +931,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ## Sample correlation
 ```{r, out.width='100%', fig.asp=1, results='asis'}
-pandoc.p("Sample correlation plot shows the correlation between samples as measured by Pearson correlation on the expression of targets")
+pandoc.p("Plot shows the Pearson correlation between samples. Heirarchical clustering is done using complete linkage.")
 wellcolors <- function(data, well_types, boxplot_colors){
   # all labels black by default
   colors <- rep("black", ncol(data))
