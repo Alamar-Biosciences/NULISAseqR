@@ -150,8 +150,9 @@ names(intraPlateNormData) <- PlateNames
 # use 1st IC as the primary IC (should be mCherry)
 plate_lod <- vector('list', length(params$xmlFiles))
 for (i in 1:length(params$xmlFiles)){
-  NCs <- runs[[i]]$samples$sampleName[which(runs[[i]]$samples$sampleType == "NC")]
-  plate_lod[[i]] <- lod(data_matrix=intraPlateNormData[[i]][[1]]$normData, blanks=NCs, min_count=0)
+  plate_lod[[i]] <- lod(data_matrix=intraPlateNormData[[i]][[1]]$normData, 
+                        blanks=rund[[i]]$NC, 
+                        min_count=0)
 }
 ```
 
