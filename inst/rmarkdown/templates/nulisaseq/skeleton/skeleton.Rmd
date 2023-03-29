@@ -383,25 +383,15 @@ if(indicatorBridge==TRUE){
 ```
 
 ```{r, include=FALSE}
-# calculate detectability
+# calculate detectability on regular samples only
+# NOTE: we may also want to add detectability_summary for IPCs, SCs, and Bridge samples
 detectability_summary <- detectability_targets <- NULL
 for (i in 1:length(params$xmlFiles)){
-  ICs <- which(runs[[i]]$targets$targetType == "Control")
-  detect_samples <- colnames(intraPlateNormData[[i]]$mCherry$normData)
-  # remove IPCs, NCs, and SCs
-  detect_samples <- detect_samples[!grepl(paste(params$IPC, collapse="|"), detect_samples)]
-  detect_samples <- detect_samples[!grepl(paste(params$NC, collapse="|"), detect_samples)]
-  if(indicatorSC){
-    detect_samples <- detect_samples[!grepl(paste(params$SC, collapse="|"), detect_samples)]
-  }
-  if(indicatorBridge){
-    detect_samples <- detect_samples[!grepl(paste(params$Bridge, collapse="|"), detect_samples)]
-  }
-  
   plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
-                                sample_subset=detect_samples,
-                                exclude_targets=ICs)
-  detectability <- cbind(format(round(mean(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
+                                sample_subset=runs[[i]]$SampleNames,
+                                exclude_targets=runs[[i]]$IC)
+  detectability <- cbind(length(runs[[i]]$SampleNames),
+                         format(round(mean(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
                          format(round(sd(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
                          formatC(median(plate_detect$detectability, na.rm=TRUE), width=2),
                          formatC(min(plate_detect$detectability, na.rm=TRUE), width=2),
@@ -410,7 +400,8 @@ for (i in 1:length(params$xmlFiles)){
                                 ' (',
                                 format(round(sum(plate_detect$detectability > 50)/length(plate_detect$detectability) * 100, 1), nsmall=1),
                                 '%)'))
-  colnames(detectability) <- c('mean',
+  colnames(detectability) <- c('# samples', 
+                               'mean',
                                'sd',
                                'median',
                                'min',
@@ -421,6 +412,38 @@ for (i in 1:length(params$xmlFiles)){
 }
 
 rownames(detectability_summary) <- colnames(detectability_targets) <- PlateNames
+
+# if more than one plate, summarize across plates using weighted average
+if(ncol(detectability_targets > 1)){
+  plate_sample_size <- sapply(runs, function(x) length(x$SampleNames))
+  plate_weights <- plate_sample_size / sum(plate_sample_size)
+  detectability_targets <- cbind(detectability_targets,
+                                 Overall=apply(detectability_targets, 1, function(x){
+                                   sum(x*plate_weights)
+                                 }))
+  detectability_overall <- cbind(sum(plate_sample_size),
+                                 format(round(mean(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1),
+                                 format(round(sd(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1),
+                                 formatC(median(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
+                                 formatC(min(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
+                                 formatC(max(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
+                                 paste0(sum(detectability_targets[,'Overall'] >= 50),
+                                        ' (',
+                                        format(round(sum(detectability_targets[,'Overall'] > 50)/length(detectability_targets[,'Overall']) * 100, 1), nsmall=1),
+                                        '%)'))
+  colnames(detectability_overall) <- c('# samples', 
+                               'mean',
+                               'sd',
+                               'median',
+                               'min',
+                               'max',
+                               '# of detectable targets (%)')
+  rownames(detectability_overall) <- 'Overall'
+  detectability_summary <- rbind(detectability_summary, detectability_overall)
+  
+}
+
+
 ```
 
 ```{r, include=FALSE}
@@ -432,7 +455,7 @@ for(i in 1:length(params$xmlFiles)){
   data_mCherry <- data_mCherry[,!grepl(paste(params$NC, collapse="|"), colnames(data_mCherry))]
   # remove ICs
   data_mCherry <- data_mCherry[!grepl(paste(params$IC, collapse="|"), rownames(data_mCherry)),]
-  # log transform and scale
+  # log transform and scale targets (need to transpose matrix to scale and transpose back)
   data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry+0.01)),
                                            center=TRUE, scale=TRUE))
 }
