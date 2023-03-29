@@ -432,12 +432,12 @@ if(ncol(detectability_targets > 1)){
                                         format(round(sum(detectability_targets[,'Overall'] > 50)/length(detectability_targets[,'Overall']) * 100, 1), nsmall=1),
                                         '%)'))
   colnames(detectability_overall) <- c('# samples', 
-                               'mean',
-                               'sd',
-                               'median',
-                               'min',
-                               'max',
-                               '# of detectable targets (%)')
+                                       'mean',
+                                       'sd',
+                                       'median',
+                                       'min',
+                                       'max',
+                                       '# of detectable targets (%)')
   rownames(detectability_overall) <- 'Overall'
   detectability_summary <- rbind(detectability_summary, detectability_overall)
   
@@ -522,7 +522,7 @@ knitr::kable(read_summary, caption='',
 ### Internal controls (IC)
 ```{r, results='asis'}
 pandoc.p("Each sample of the assay is spiked with the same concentration of an internal control (IC). This is used both as part of a well normalization procedure and as a method for assessing the uniformity of the assay run.") 
-if(length(ICs) == 1){
+if(length(params$IC) == 1){
   IC_tables <- NULL
   for (i in 1:length(params$xmlFiles)){
     IC_tables <- rbind(IC_tables, runSummaries[[i]]$IC_table)
@@ -599,7 +599,7 @@ for(i in 1:length(params$xmlFiles)){
 ---
 
 ## Heatmaps
-```{r, out.width='100%', fig.asp=0.33333*ceiling((length(ICs)+1)/2), results='asis'}
+```{r, out.width='100%', fig.asp=0.33333*ceiling((length(params$IC)+1)/2), results='asis'}
 heatmap_description <- if (params$heatMapRel==TRUE) "percent relative to plate median" else "absolute normalized read count"
 pandoc.p(paste0("Heatmaps show the ", heatmap_description, " for log2(total counts) and the specified internal control."))
 for(i in 1:length(params$xmlFiles)){
@@ -640,7 +640,7 @@ pandoc.list(c(paste0("ICRead_CV - Coefficient of Variation of internal control s
               paste0("IPCTarget_CV - Median Coefficient of Variation of all IPC targets (maximum = ", QCPlateCriteria()$thresholds['IPCTarget_CV']*100,"%)"),
               paste0("Detectability - Percentage of targets that are detectable (target is considered detectable if > 50% samples have signal > LOD) (minimum = ",  QCPlateCriteria()$thresholds['Detectability']*100,"%)"),
               paste0("MinReads - Number of total Parseable Match reads (signal) for the experiment (minimum = ", QCPlateCriteria()$thresholds['MinReads'],")"
-)))
+              )))
 pandoc.p("QC criteria are assessed either on unnormalized (raw) or IC-normalized (IC) data")
 
 for( i in 1:length(runs)){
@@ -685,6 +685,7 @@ for (i in 1:length(runs)){
 
 for (j in 1:length(criteria$thresholds)){
   for (i in 1:length(runs)){
+    well_order <- wellorder(runs[[i]]$sample, params$rowAnnotName, params$colAnnotName)
     qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
     inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
     val[j] <- if(names(criteria$thresholds)[j] == "Detectability") as.numeric(criteria$thresholds[j])*100 else criteria$thresholds[j]
@@ -708,6 +709,8 @@ for (j in 1:length(criteria$thresholds)){
 QCSummary[i+1, ] <- colSums(QCSummary, na.rm=T) 
 rownames(QCSummary) <- c(rowNameQC, "Total")
 colnames(QCSummary) <- c("# of Samples", names(criteria$thresholds))
+
+# print sample QC summary table
 knitr::kable(QCSummary, caption='', 
              align='r', 
              table.attr="id=\"QC-summary-table\"",
@@ -716,7 +719,6 @@ knitr::kable(QCSummary, caption='',
 
 for( i in 1:length(runs)){
   well_order <- wellorder(runs[[i]]$sample, params$rowAnnotName, params$colAnnotName)
-  
   # Sample QC
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
   if(indicatorSC){
@@ -784,7 +786,12 @@ for( i in 1:length(runs)){
 
 ## Detectability
 Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in at least 50% of samples 
-```{r, results='asis', out.width='100%', fig.asp=1.5}
+```{r, echo=FALSE}
+# calculate fig.asp for detectability plots
+detect_fig_asp <- 2*ceiling(length(params$xmlFiles)/2)
+```
+
+```{r, results='asis', out.width='100%', fig.asp=detect_fig_asp}
 # Detectability summary
 kable_styling(knitr::kable(detectability_summary, caption='Detectability Summary', 
                            align='r', 
@@ -801,8 +808,8 @@ kable_styling(knitr::kable(detectability_targets, caption='Target Detectability 
 
 # Target Boxplot
 pandoc.header("Target Detectability Boxplot", 3)
-pandoc.p("The Target Detectability Boxplot...")
-par(mfrow=c(ceiling(length(params$xmlFiles)/2),2), mar=c(4,6,2,0))
+pandoc.p("Shows target mCherry-normalized count distributions relative to LOD.")
+par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,6,2,0))
 for (i in 1:length(params$xmlFiles)){
   targetBoxplot(runs[[i]]$Data, 
                 title=PlateNames[i], 
@@ -818,31 +825,31 @@ for (i in 1:length(params$xmlFiles)){
 ---
 
 ## Intra-plate normalization {#intraPlateNorm}
-%CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV. 
+%CV was calculated for each target (excluding internal controls) for the IPC and / or sample control replicates. Only values above LOD were used to calculate %CV. 
 
-```{r, eval=params$reportType=="internal"}
-pandoc.header("Intra-plate %CV table -- unnormalized", 3)
-knitr::kable(intraCV_unnorm_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-unnormalized-summary\"", 
+```{r, eval=(params$reportType=="internal" & indicatorSC==TRUE)}
+pandoc.header("SC Intra-plate %CV table -- unnormalized", 3)
+knitr::kable(SC_intraCV_unnorm_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-unnormalized-summary\"", 
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
-```{r, eval=params$reportType=="internal"}
-pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
-knitr::kable(intraCV_mCherry_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-mCherry-summary\"",
+```{r, eval=params$reportType=="internal" & indicatorSC==TRUE}
+pandoc.header("SC Intra-plate %CV table -- mCherry-normalized", 3)
+knitr::kable(SC_intraCV_mCherry_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-mCherry-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
 ### Intra-plate %CV boxplots by plate
-```{r, out.width='100%', fig.asp=0.5}
-intraCV_unnorm2 <- intraCV_unnorm
-colnames(intraCV_unnorm2) <- paste0(colnames(intraCV_mCherry), ' unnormalized')
-intraCV_mCherry2 <- intraCV_mCherry
-colnames(intraCV_mCherry2) <- paste0(colnames(intraCV_mCherry), ' mCherry-normalized')
-intraCV_vals <- t(interleave(t(intraCV_unnorm2), t(intraCV_mCherry2), drop=FALSE))
-col <- unlist(alamarColorPalette(ceiling(length(intraCV_vals[1,])/2), nReps=2))
+```{r, out.width='100%', fig.asp=0.25*length(runs)}
+SC_intraCV_unnorm2 <- SC_intraCV_unnorm
+colnames(SC_intraCV_unnorm2) <- paste0(colnames(SC_intraCV_mCherry), ' unnormalized')
+SC_intraCV_mCherry2 <- SC_intraCV_mCherry
+colnames(SC_intraCV_mCherry2) <- paste0(colnames(SC_intraCV_mCherry), ' mCherry-normalized')
+SC_intraCV_vals <- t(interleave(t(SC_intraCV_unnorm2), t(SC_intraCV_mCherry2), drop=FALSE))
+col <- rev(unlist(alamarColorPalette(ceiling(length(SC_intraCV_vals[1,])/2), nReps=2)))
 par(mar=c(5, 7, 2, 1))
-boxplot(intraCV_vals, las=1, xlab='intra-plate CV (%)',
-        ylim=c(0, max(c(intraCV_vals), na.rm=TRUE)),
+boxplot(SC_intraCV_vals[,ncol(SC_intraCV_vals):1], las=1, xlab='intra-plate CV (%)',
+        ylim=c(0, max(c(SC_intraCV_vals), na.rm=TRUE)),
         main='Intra-plate CV', horizontal=T, cex.axis=0.5, lex.order=T,
         col=col)
 abline(v=c(0:200*5), col='grey', lty=3)
