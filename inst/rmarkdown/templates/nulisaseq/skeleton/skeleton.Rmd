@@ -1,6 +1,7 @@
 ---
 params:
   ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
+  # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
   ## string that denotes inter-plate controls
   IPC: !r c("IPC")
@@ -110,7 +111,7 @@ runSummaries <- vector('list', length(params$xmlFiles))
 read_summary <- PlateNames <- NULL
 # define plateIDs / plate names
 if(length(params$plateNames) == 0){
-  PlateNames <- paste0('Plate', 1:length(params$xmlFiles))
+  PlateNames <- paste0('Plate ', 1:length(params$xmlFiles))
 } else {
   PlateNames <- params$plateNames
 }
