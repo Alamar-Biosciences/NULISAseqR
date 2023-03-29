@@ -785,7 +785,7 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
-Target detectability is the percentage of samples that are above the limit of detection for that target. Target detectability reported here excludes IPCs, SCs, and bridge samples. A target is considered "detectable" if it is above limit of detection in at least 50% of samples. "Overall" detectability is the total number of samples across all plates that are above LOD for a given target. 
+Target detectability is the percentage of samples that are above the limit of detection for that target. Target detectability reported here excludes IPCs, SCs, and bridge samples. A target is considered "detectable" if it is above limit of detection in at least 50% of samples. "Overall" detectability is the overall percentage of samples across all plates that are above LOD for a given target. 
 ```{r, echo=FALSE}
 # calculate fig.asp for detectability plots
 detect_fig_asp <- 2*ceiling(length(params$xmlFiles)/2)
@@ -809,7 +809,7 @@ kable_styling(knitr::kable(detectability_targets, caption='Target Detectability 
 # Target Boxplot
 pandoc.header("Target Detectability Boxplot", 3)
 pandoc.p("Shows target mCherry-normalized count distributions relative to LOD.")
-par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,3,2,2))
+par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,2,2,1))
 for (i in 1:length(params$xmlFiles)){
   targetBoxplot(runs[[i]]$Data, 
                 title=PlateNames[i], 
@@ -825,22 +825,28 @@ for (i in 1:length(params$xmlFiles)){
 ---
 
 ## Intra-plate normalization {#intraPlateNorm}
-%CV was calculated for each target (excluding internal controls) for the IPC and / or sample control replicates. Only values above LOD were used to calculate %CV. 
+%CV was calculated for each target (excluding internal controls) for the sample control replicates (if given) and IPCs. Only values above LOD were used to calculate %CV. 
 
-```{r, eval=(params$reportType=="internal" & indicatorSC==TRUE)}
-pandoc.header("SC Intra-plate %CV table -- unnormalized", 3)
-knitr::kable(SC_intraCV_unnorm_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-unnormalized-summary\"", 
+
+```{r, eval=(params$reportType=="internal" & indicatorSC==TRUE), results='asis'}
+pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
+knitr::kable(SC_intraCV_mCherry_summary_table, caption='SC intra-plate %CV', align='r', table.attr="id=\"SC-intra-plateCV-mCherry-summary\"",
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+
+knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV', align='r', table.attr="id=\"IPC-intra-plateCV-mCherry-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
-```{r, eval=params$reportType=="internal" & indicatorSC==TRUE}
-pandoc.header("SC Intra-plate %CV table -- mCherry-normalized", 3)
-knitr::kable(SC_intraCV_mCherry_summary_table, caption='', align='r', table.attr="id=\"intra-plateCV-mCherry-summary\"",
+
+```{r, eval=(params$reportType=="internal" & indicatorSC==FALSE), results='asis'}
+pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
+knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV', align='r', table.attr="id=\"intra-plateCV-mCherry-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
+
 
 ### Intra-plate %CV boxplots by plate
-```{r, out.width='100%', fig.asp=0.25*length(runs)}
+```{r, out.width='100%', fig.asp=0.25*length(runs), eval=indicatorSC}
 SC_intraCV_unnorm2 <- SC_intraCV_unnorm
 colnames(SC_intraCV_unnorm2) <- paste0(colnames(SC_intraCV_mCherry), ' unnormalized')
 SC_intraCV_mCherry2 <- SC_intraCV_mCherry
@@ -850,7 +856,22 @@ col <- rev(unlist(alamarColorPalette(ceiling(length(SC_intraCV_vals[1,])/2), nRe
 par(mar=c(5, 7, 2, 1))
 boxplot(SC_intraCV_vals[,ncol(SC_intraCV_vals):1], las=1, xlab='intra-plate CV (%)',
         ylim=c(0, max(c(SC_intraCV_vals), na.rm=TRUE)),
-        main='Intra-plate CV', horizontal=T, cex.axis=0.5, lex.order=T,
+        main='SC Intra-plate CV', horizontal=T, cex.axis=0.5, lex.order=T,
+        col=col)
+abline(v=c(0:200*5), col='grey', lty=3)
+```
+
+```{r, out.width='100%', fig.asp=0.25*length(runs)}
+IPC_intraCV_unnorm2 <- IPC_intraCV_unnorm
+colnames(IPC_intraCV_unnorm2) <- paste0(colnames(IPC_intraCV_mCherry), ' unnormalized')
+IPC_intraCV_mCherry2 <- IPC_intraCV_mCherry
+colnames(IPC_intraCV_mCherry2) <- paste0(colnames(IPC_intraCV_mCherry), ' mCherry-normalized')
+IPC_intraCV_vals <- t(interleave(t(IPC_intraCV_unnorm2), t(IPC_intraCV_mCherry2), drop=FALSE))
+col <- rev(unlist(alamarColorPalette(ceiling(length(IPC_intraCV_vals[1,])/2), nReps=2)))
+par(mar=c(5, 7, 2, 1))
+boxplot(IPC_intraCV_vals[,ncol(IPC_intraCV_vals):1], las=1, xlab='intra-plate CV (%)',
+        ylim=c(0, max(c(IPC_intraCV_vals), na.rm=TRUE)),
+        main='IPC Intra-plate CV', horizontal=T, cex.axis=0.5, lex.order=T,
         col=col)
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
@@ -1018,28 +1039,62 @@ cat("%CV was calculated for each target (excluding internal controls) for the sa
 ```
 
 ```{r eval=multipleFiles, results='asis'}
-pandoc.header("SC Inter-plate %CV", 3)
+pandoc.header("Inter-plate %CV", 3)
+
 if(params$reportType != "internal"){
   remove <- "mCherry + IN"
-  SC_interCV_summary_table2 <- SC_interCV_summary_table[!(rownames(SC_interCV_summary_table) %in% remove),]
-  SC_interCV_results2 <- SC_interCV_results[, !(colnames(SC_interCV_results) %in% remove)]
-}else{
-  SC_interCV_summary_table2 <- SC_interCV_summary_table
-  SC_interCV_results2 <- SC_interCV_results
+  if(indicatorSC==TRUE){
+    SC_interCV_summary_table2 <- SC_interCV_summary_table[!(rownames(SC_interCV_summary_table) %in% remove),]
+    SC_interCV_results2 <- SC_interCV_results[, !(colnames(SC_interCV_results) %in% remove)]
+  }
+  IPC_interCV_summary_table2 <- IPC_interCV_summary_table[!(rownames(IPC_interCV_summary_table) %in% remove),]
+  IPC_interCV_results2 <- IPC_interCV_results[, !(colnames(IPC_interCV_results) %in% remove)]
+} else {
+  if(indicatorSC==TRUE){
+    SC_interCV_summary_table2 <- SC_interCV_summary_table
+    SC_interCV_results2 <- SC_interCV_results
+  }
+  IPC_interCV_summary_table2 <- IPC_interCV_summary_table
+  IPC_interCV_results2 <- IPC_interCV_results
 }
-knitr::kable(SC_interCV_summary_table2, caption='', 
+
+if(indicatorSC==TRUE){
+  knitr::kable(SC_interCV_summary_table2, 
+               caption='SC inter-plate %CV', 
+               align='r', 
+               table.attr="id=\"SC-inter-plateCV-summary\"",
+               format.args=list(big.mark = ",", digits=3)) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+}
+
+knitr::kable(IPC_interCV_summary_table2, 
+             caption='IPC inter-plate %CV', 
              align='r', 
-             table.attr="id=\"inter-plateCV-summary\"",
+             table.attr="id=\"IPC-inter-plateCV-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
-```{r out.width='100%', fig.asp=0.5, eval=multipleFiles, results='asis'}
-pandoc.header("SC Inter-plate %CV boxplot", 3)
-par(mar=c(5,12,1,1))
-boxplot(SC_interCV_results2[,ncol(SC_interCV_results2):1], las=1, xlab='inter-plate CV (%)',
+
+```{r out.width='100%', fig.asp=0.5, eval=(multipleFiles & indicatorSC), results='asis'}
+pandoc.header("Inter-plate %CV boxplot", 3)
+
+par(mar=c(5,12,2,1))
+boxplot(SC_interCV_results2[,ncol(SC_interCV_results2):1], las=1, 
+        xlab='inter-plate CV (%)',
         ylim=c(0, max(SC_interCV_results2, na.rm=TRUE)), 
+        main='SC Inter-plate CV',
         col=rev(alamarColorPalette(ncol(SC_interCV_results2))), horizontal=TRUE)
+abline(v=c(0:200*5), col='grey', lty=3)
+```
+
+```{r out.width='100%', fig.asp=0.5, eval=(multipleFiles & indicatorSC), results='asis'}
+par(mar=c(5,12,2,1))
+boxplot(IPC_interCV_results2[,ncol(IPC_interCV_results2):1], las=1, 
+        xlab='inter-plate CV (%)',
+        ylim=c(0, max(IPC_interCV_results2, na.rm=TRUE)), 
+        main='IPC Inter-plate CV',
+        col=rev(alamarColorPalette(ncol(IPC_interCV_results2))), horizontal=TRUE)
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
