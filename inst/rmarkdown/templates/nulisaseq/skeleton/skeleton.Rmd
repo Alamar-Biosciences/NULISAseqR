@@ -952,7 +952,7 @@ for(i in 1:length(params$xmlFiles)){
 
 ## Sample and target clustering 
 ```{r, out.width='100%', fig.asp=1, results='asis'}
-pandoc.p("Hierarchical clustering of both samples and targets using a Euclidean distance metric, and complete linkage")
+pandoc.p("Hierarchical clustering of both samples and targets using a Euclidean distance metric and complete linkage. Data is log2 and mCherry-normalized; targets are centered and scaled.")
 # define colors
 paletteLength <- 50
 heatmapColors <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
