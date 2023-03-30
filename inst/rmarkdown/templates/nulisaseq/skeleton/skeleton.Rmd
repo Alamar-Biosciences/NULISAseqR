@@ -425,7 +425,7 @@ for (i in 1:length(params$xmlFiles)){
 rownames(detectability_summary) <- colnames(detectability_targets) <- PlateNames
 
 # if more than one plate, summarize across plates using weighted average
-if(ncol(detectability_targets > 1)){
+if(length(params$xmlFiles) > 1){
   plate_sample_size <- sapply(runs, function(x) length(x$SampleNames))
   plate_weights <- plate_sample_size / sum(plate_sample_size)
   detectability_targets <- cbind(detectability_targets,
@@ -721,11 +721,15 @@ for (i in 1:length(runs)){
       rmax[j] <- max(as.numeric(val[[j]]), as.numeric(xval), na.rm=TRUE)
     }
     # add a small amount of padding to x axis limits
-    # still need to fix for NumReads and ICReads 
-    # chenge delta so it makes sense on log scale
-    rlim_delta <- rmax[[j]][1] - rmin[[j]][1]
-    rmin[[j]][1] <- rmin[[j]][1] - 0.025 * rlim_delta
-    rmax[[j]][1] <- rmax[[j]][1] + 0.025 * rlim_delta
+    if(names(criteria$thresholds)[j] %in% c("ICReads", "NumReads")){
+      rlim_delta <- log10(rmax[[j]][1]) - log10(rmin[[j]][1])
+      rmin[[j]][1] <- 10^(log10(rmin[[j]][1]) - 0.025 * rlim_delta)
+      rmax[[j]][1] <- 10^(log10(rmax[[j]][1]) + 0.025 * rlim_delta)
+    } else {
+      rlim_delta <- rmax[[j]][1] - rmin[[j]][1]
+      rmin[[j]][1] <- rmin[[j]][1] - 0.025 * rlim_delta
+      rmax[[j]][1] <- rmax[[j]][1] + 0.025 * rlim_delta
+    }
     # count how many samples fail QC (excludes controls)
     QCSummary[i, j+1] <- sum(QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]$status == "T")
   }
@@ -744,6 +748,7 @@ knitr::kable(QCSummary, caption='Number of samples that fail each QC Flag (exclu
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
+
 ```{r, out.width='100%', results='asis'}
 # table to show which specific samples fail each QC flag
 QC_sample_fail <- vector(mode='list', length=length(names(criteria$thresholds)))
@@ -755,6 +760,8 @@ for (i in 1:length(runs)){
     QC_criterion_j_data <- qcSample[qcSample$flagName == names(criteria$thresholds)[j], ]
     QC_criterion_j_data_samples <- QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]
     QC_fail_samples_j <- QC_criterion_j_data_samples$sampleName[QC_criterion_j_data_samples$status=='T']
+    # reverse so they are sorted A1 - H12 
+    QC_fail_samples_j <- rev(QC_fail_samples_j)
     if(length(QC_fail_samples_j) > 0){
       QC_sample_fail[[j]] <- rbind(QC_sample_fail[[j]], data.frame(Plate=PlateNames[i], QC_fail_samples=QC_fail_samples_j))
     }
