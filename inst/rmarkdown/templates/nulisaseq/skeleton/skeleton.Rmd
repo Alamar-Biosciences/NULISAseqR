@@ -425,7 +425,7 @@ for (i in 1:length(params$xmlFiles)){
 rownames(detectability_summary) <- colnames(detectability_targets) <- PlateNames
 
 # if more than one plate, summarize across plates using weighted average
-if(ncol(detectability_targets > 1)){
+if(length(params$xmlFiles) > 1){
   plate_sample_size <- sapply(runs, function(x) length(x$SampleNames))
   plate_weights <- plate_sample_size / sum(plate_sample_size)
   detectability_targets <- cbind(detectability_targets,
