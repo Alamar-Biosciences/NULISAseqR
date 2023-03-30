@@ -678,7 +678,7 @@ for( i in 1:length(runs)){
 ```
 
 ### Sample QC 
-#### Sample QC summary table
+#### Sample QC summary tables
 ```{r, out.width='100%', results='asis'}
 pandoc.p("Sample-specific QC criteria:")
 pandoc.list(c(paste0("Detectability - Percentage of targets above LOD for a sample (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability'])*100,"%)"),
@@ -744,6 +744,36 @@ knitr::kable(QCSummary, caption='Number of samples that fail each QC Flag (exclu
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
+```{r, out.width='100%', results='asis'}
+# table to show which specific samples fail each QC flag
+QC_sample_fail <- vector(mode='list', length=length(names(criteria$thresholds)))
+names(QC_sample_fail) <- names(criteria$thresholds)
+QC_sample_fail <- lapply(QC_sample_fail, function(x) x <- data.frame(Plate=character(0), QC_fail_samples=character(0)))
+for (i in 1:length(runs)){
+  qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
+  for (j in 1:length(criteria$thresholds)){
+    QC_criterion_j_data <- qcSample[qcSample$flagName == names(criteria$thresholds)[j], ]
+    QC_criterion_j_data_samples <- QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]
+    QC_fail_samples_j <- QC_criterion_j_data_samples$sampleName[QC_criterion_j_data_samples$status=='T']
+    if(length(QC_fail_samples_j) > 0){
+      QC_sample_fail[[j]] <- rbind(QC_sample_fail[[j]], data.frame(Plate=PlateNames[i], QC_fail_samples=QC_fail_samples_j))
+    }
+  }
+}
+
+# print QC fail tables
+# need to fix table.attr
+for(i in 1:length(names(criteria$thresholds))){
+  if(nrow(QC_sample_fail[[i]]) > 0){
+    cat(knitr::kable(QC_sample_fail[[i]], caption=paste0('Samples that fail ', names(criteria$thresholds)[i]), 
+                     align='r', 
+                     table.attr="id=\"sample-QC-summary-table\"",
+                     format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
+  }
+}
+```
+
 
 #### Sample QC plots
 ```{r, out.width='100%', fig.asp=1, results='asis'}
@@ -764,7 +794,7 @@ for( i in 1:length(runs)){
     inds <- which(grepl(paste(runs[[i]]$Bridge, collapse="|"), qcSample$sampleName))
     qcSample[inds, ]$sampleType <- "Bridge"
   }
-
+  
   # define label colors
   color <- rep('black', length(sampleType_factor))
   color[which(sampleType_factor[well_order] == "IPC")] <- boxplot_colors[2]
