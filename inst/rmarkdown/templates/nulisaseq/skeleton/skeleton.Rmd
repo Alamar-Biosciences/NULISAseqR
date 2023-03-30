@@ -1217,32 +1217,31 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ```{r, out.width='100%', fig.asp=(0.4)+as.numeric(multipleFiles)*0.4, results='asis', eval=params$reportType=="internal"}
 pandoc.header("Sample PCA", 2)
-PCAplot <- function(data, plateID, IPC, SC, Bridge, scale=TRUE, center=TRUE, title=NULL){
+# function to make PCA plot
+PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scale=TRUE, center=TRUE, title=NULL){
   pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
-  par(mar=c(4,4,2,5))
   plateID <- factor(plateID)
   colors <- alamarColorPalette(length(levels(plateID)))
-  IPC_samples <- IPC
   point_shapes <- rep(1, ncol(data))
-  point_shapes[IPC_samples] <- 8
+  point_shapes[colnames(data) %in% IPC_samples] <- 8
   legendText <- c(levels(plateID), 'Sample', 'IPCs')
   legend_point_shapes <- rep(1, (length(levels(plateID)) + 1))
   legend_point_shapes <- c(legend_point_shapes, 8)
   if(indicatorSC==TRUE){
-    SC_samples <- SC
-    point_shapes[SC_samples] <- 9
+    point_shapes[colnames(data) %in% SC_samples] <- 9
     legendText <- c(legendText, "SCs")
     legend_point_shapes <- c(legend_point_shapes, 9)
   }
   if(indicatorBridge==TRUE){
-    Bridge_samples <- Bridge
-    point_shapes[Bridge_samples] <- 10
+    point_shapes[colnames(data) %in% Bridge_samples] <- 10
     legendText <- c(legendText, "Bridge")
     legend_point_shapes <- c(legend_point_shapes, 10)
   }
   
   legend_colors <- c(colors, rep('black', (length(legend_point_shapes) - length(colors))))
   
+  # make plot
+  par(mar=c(4,4,2,5))
   plot(pca$x[,1], pca$x[,2],
        col=colors[as.integer(plateID)],
        pch=point_shapes,
@@ -1257,12 +1256,14 @@ PCAplot <- function(data, plateID, IPC, SC, Bridge, scale=TRUE, center=TRUE, tit
          pch=legend_point_shapes, cex=0.75, bty='n')
 }
 
+# function to remove targets and samples
 removeTargetsSamples <- function(data, NC, IC){
   data <- data[-which(grepl(paste(IC, collapse="|"), rownames(data))),]
   data <- data[,-which(grepl(paste(NC, collapse="|"), colnames(data)))]
   return(data)
 }
 
+# merge data across plates for PCA
 dataPCA_unnorm <- dataPCA_mCherry <- dataPCA_mCherryIPC <- dataPCA_mCherryIN <- plateID <- NULL
 for(i in 1:length(params$xmlFiles)){
   dataPCA_unnorm <- cbind(dataPCA_unnorm, removeTargetsSamples(runs[[i]]$Data, runs[[i]]$NC, runs[[i]]$IC))
@@ -1271,19 +1272,22 @@ for(i in 1:length(params$xmlFiles)){
   dataPCA_mCherryIN <- cbind(dataPCA_mCherryIN, removeTargetsSamples(mCherry_IN$interNormData[[i]], runs[[i]]$NC, runs[[i]]$IC))
   plateID <- c(plateID, rep(paste0("Plate",i), ncol(removeTargetsSamples(runs[[i]]$Data, runs[[i]]$NC, runs[[i]]$IC))))
 }
-
-nRowsPCA <- if(multipleFiles) 2 else 1
-nCols <- 2
 IPC_all <- unlist(lapply(runs, function(x) x$IPC))
 SC_all <- unlist(lapply(runs, function(x) x$SC))
 Bridge_all <- unlist(lapply(runs, function(x) x$Bridge))
+
+# set plot layout params
+nRowsPCA <- if(multipleFiles) 2 else 1
+nCols <- 2
+
+# draw plots
 par(mfrow=c(nRowsPCA, nCols))
-PCAplot(dataPCA_unnorm, plateID, IPC=IPC_all, SC=SC_all, Bridge=Bridge_all, scale=TRUE, center=TRUE, title="Unnormalized")
-PCAplot(dataPCA_mCherry, plateID, IPC=IPC_all, SC=SC_all, Bridge=Bridge_all,scale=TRUE, center=TRUE, title="mCherry")
+PCAplot(dataPCA_unnorm, plateID, IPC_samples=IPC_all, SC_samples=SC_all, Bridge_samples=Bridge_all, scale=TRUE, center=TRUE, title="Unnormalized")
+PCAplot(dataPCA_mCherry, plateID, IPC_samples=IPC_all, SC_samples=SC_all, Bridge_samples=Bridge_all,scale=TRUE, center=TRUE, title="mCherry")
 if(multipleFiles){
-  PCAplot(dataPCA_mCherryIPC, plateID, IPC=IPC_all, SC=SC_all, Bridge=Bridge_all,scale=TRUE, center=TRUE, title="mCherry + IPC")
+  PCAplot(dataPCA_mCherryIPC, plateID, IPC_samples=IPC_all, SC_samples=SC_all, Bridge_samples=Bridge_all, scale=TRUE, center=TRUE, title="mCherry + IPC")
   if(params$reportType == "internal"){
-    PCAplot(dataPCA_mCherryIN, plateID, IPC=IPC_all, SC=SC_all, Bridge=Bridge_all,scale=TRUE, center=TRUE, title="mCherry + IN")
+    PCAplot(dataPCA_mCherryIN, plateID, IPC_samples=IPC_all, SC_samples=SC_all, Bridge_samples=Bridge_all, scale=TRUE, center=TRUE, title="mCherry + IN")
   }
 }
 ```
