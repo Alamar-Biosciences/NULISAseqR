@@ -721,11 +721,15 @@ for (i in 1:length(runs)){
       rmax[j] <- max(as.numeric(val[[j]]), as.numeric(xval), na.rm=TRUE)
     }
     # add a small amount of padding to x axis limits
-    # still need to fix for NumReads and ICReads 
-    # chenge delta so it makes sense on log scale
-    rlim_delta <- rmax[[j]][1] - rmin[[j]][1]
-    rmin[[j]][1] <- rmin[[j]][1] - 0.025 * rlim_delta
-    rmax[[j]][1] <- rmax[[j]][1] + 0.025 * rlim_delta
+    if(names(criteria$thresholds)[j] %in% c("ICReads", "NumReads")){
+      rlim_delta <- log10(rmax[[j]][1]) - log10(rmin[[j]][1])
+      rmin[[j]][1] <- 10^(log10(rmin[[j]][1]) - 0.025 * rlim_delta)
+      rmax[[j]][1] <- 10^(log10(rmax[[j]][1]) + 0.025 * rlim_delta)
+    } else {
+      rlim_delta <- rmax[[j]][1] - rmin[[j]][1]
+      rmin[[j]][1] <- rmin[[j]][1] - 0.025 * rlim_delta
+      rmax[[j]][1] <- rmax[[j]][1] + 0.025 * rlim_delta
+    }
     # count how many samples fail QC (excludes controls)
     QCSummary[i, j+1] <- sum(QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]$status == "T")
   }
