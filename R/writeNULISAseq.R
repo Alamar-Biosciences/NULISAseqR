@@ -52,13 +52,18 @@
 #' XML files), AlamarTargetID, UniProtID, and ProteinName. Only targets in the 
 #' target_info_file will be output in the CSV file.
 #' @param sample_info_file Optional. Path and filename for the sample annotation CSV file. 
-#' One column should be "sampleName" which corresponds to the column names 
-#' of the readNULISAseq Data matrix and the sampleName in the readNULISAseq 
+#' Must include columns "plateID" and "sampleName" which correspond to the 
+#' plateID (matching the plateIDs input to this function) and sampleName in the readNULISAseq 
 #' samples data.frame.
 #' @param sample_info_file_variables Subset of column names in 
 #' sample_info_file that will be included in data file output. Other columns 
 #' will be excluded. Otherwise, if NULL (default), all columns will be included.
 #' @param output_filename Filename for output CSV file. 
+#' @param Panel Name of multi-plex panel. Default is '200-plex Inflammation v1'
+#' @param PanelLotNumber The panel lot number.
+#' @param plateIDs A vector of plate IDs. If NULL, default is to number plates from 01 to 
+#' total number of plates based on the order of xml_files. Passed to readNULISAseq() function
+#' and output as a column in the data file. 
 #' @param ICs vector of string(s). Internal control names. Default is "mCherry". 
 #' First IC in vector will be used in intra-plate IC-normalization (usually mCherry). 
 #' ICs will be omitted from CSV output by default. 
@@ -76,11 +81,6 @@
 #' @param include_SC Logical. Should SC samples be included in output? Default is TRUE.
 #' @param include_Bridge Logical. Should Bridge samples be included in output? Default is TRUE.
 #' @param include_NC Logical. Should NC samples be included in output? Default is FALSE.
-#' @param Panel Name of multi-plex panel. Default is '200-plex Inflammation v1'
-#' @param PanelLotNumber The panel lot number.
-#' @param plateIDs A vector of plate IDs. If NULL, default is to number plates from 01 to 
-#' total number of plates based on the order of xml_files. Passed to readNULISAseq() function
-#' and output as a column in the data file. 
 #' @param intraPlateNorm_method intra-plate normalization method passed to 
 #' intraPlateNorm() function. Default is 'IC' (internal control). Other option is
 #' 'TC' (total count), but this method is not currently implemented.
@@ -119,7 +119,10 @@ writeNULISAseq <- function(xml_files,
                            sample_info_file=NULL,
                            sample_info_file_variables=NULL,
                            output_filename,
-                           ICs=c('mCherry'),
+                           Panel='200-plex Inflammation v1',
+                           PanelLotNumber='',
+                           plateIDs=NULL,
+                           ICs='mCherry',
                            IPC_string='IPC',
                            SC_string='SC',
                            Bridge_string='Bridge',
@@ -128,9 +131,6 @@ writeNULISAseq <- function(xml_files,
                            include_SC=TRUE,
                            include_Bridge=TRUE,
                            include_NC=FALSE,
-                           Panel='200-plex Inflammation v1',
-                           PanelLotNumber='',
-                           plateIDs=NULL,
                            intraPlateNorm_method='IC',
                            intraPlateNorm_scaleFactor=1,
                            interPlateNorm_method='IPC',
@@ -171,14 +171,14 @@ writeNULISAseq <- function(xml_files,
     sample_info <- read.csv(file.path(dataDir, sample_info_file))
     # get subset of sample metadata to merge
     if (!is.null(sample_info_file_variables)){
-      sample_info <- sample_info[,c('sampleName', sample_info_file_variables)]
+      sample_info <- sample_info[,c('plateID', 'sampleName', sample_info_file_variables)]
     } else {
       sample_info_file_variables <- colnames(sample_info_file)
-      sample_info_file_variables <- sample_info_file_variables[!(sample_info_file_variables=='sampleName')]
+      sample_info_file_variables <- sample_info_file_variables[!(sample_info_file_variables %in% c('plateID', 'sampleName'))]
     }
     # merge sample annotations with sample data from readNULISAseq
     sample_data <- merge(sample_data, sample_info, 
-                         by='sampleName', 
+                         by=c('plateID', 'sampleName'), 
                          all.x=TRUE, all.y=FALSE)
   }
   
@@ -231,6 +231,7 @@ writeNULISAseq <- function(xml_files,
                      blanks=runs[[i]]$NC,
                      min_count=0)$LOD
   }
+  if(verbose==TRUE) cat('LOD calculation completed.\n')
   
   # sample QC
   # check if mCherry within +/- 30% of median
@@ -249,6 +250,7 @@ writeNULISAseq <- function(xml_files,
   }
   sample_data$SampleQC <- 'PASS'
   sample_data$SampleQC[sample_data$sampleName %in% unlist(sampleQC_IC_Median)] <- 'WARN'
+  if(verbose==TRUE) cat('Sample QC completed.\n')
   
   
   # samples to include
@@ -258,7 +260,8 @@ writeNULISAseq <- function(xml_files,
     if(include_SC==TRUE & !is.null(x$SC)) samples <- c(samples, x$SC)
     if(include_Bridge==TRUE & !is.null(x$Bridge)) samples <- c(samples, x$Bridge)
     if(include_NC==TRUE & !is.null(x$NC)) samples <- c(samples, x$NC)
-    return(samples)
+    plateID <- rep(x$plateID, length(samples))
+    return(list(samples=samples, plateID=plateID))
   })
   
   # transform to long format for each target
@@ -267,12 +270,14 @@ writeNULISAseq <- function(xml_files,
   long_data <- vector('list', length=length(targets))
   for (i in 1:length(targets)){
     target <- targets[i]
-    SampleInfo <- data.frame(SampleName=unlist(sampleNames_output))
+    SampleInfo <- data.frame(SampleName=unlist(lapply(sampleNames_output, function(x) x$samples)),
+                             plateID=unlist(lapply(sampleNames_output, function(x) x$plateID)))
     SampleInfo <- merge(SampleInfo, 
                         sample_data[,c("plateID","sampleName","sampleType",sample_info_file_variables,'SampleQC')],
-                        by.x='SampleName', by.y='sampleName',
+                        by.x=c('plateID', 'SampleName'), by.y=c('plateID', 'sampleName'),
                         all.x=TRUE, all.y=FALSE)
     colnames(SampleInfo)[colnames(SampleInfo)=="sampleType"] <- "SampleType"
+    colnames(SampleInfo)[colnames(SampleInfo)=="plateID"] <- "PlateID"
     # get target specific data
     AlamarTargetID <- all_targets$AlamarTargetID[all_targets$TargetName==target]
     UniProtID <- all_targets$UniProtID[all_targets$TargetName==target]
@@ -298,9 +303,11 @@ writeNULISAseq <- function(xml_files,
     target_data <- do.call(rbind, target_data)
     
     
-    target_data <- merge(SampleInfo, target_data, all.x=TRUE, all.y=FALSE)
-    target_data <- target_data[order(target_data$plateID),]
-    target_data <- target_data[,c("Panel","PanelLotNumber","plateID",
+    target_data <- merge(SampleInfo, target_data, all.x=TRUE, all.y=FALSE,
+                         by=c('PlateID', 'SampleName'))
+    target_data$SampleType <- factor(target_data$SampleType, levels=c("Sample", "IPC", "SC", "Bridge", "NC"))
+    target_data <- target_data[order(target_data$PlateID, target_data$SampleType, target_data$SampleName),]
+    target_data <- target_data[,c("Panel","PanelLotNumber","PlateID",
                                   "SampleName","SampleType",
                                   sample_info_file_variables,"Target",
                                   "AlamarTargetID","UniProtID","ProteinName",
@@ -319,21 +326,4 @@ writeNULISAseq <- function(xml_files,
   
   if(verbose==TRUE) cat('writeNULISAseq completed.')
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
