@@ -11,7 +11,10 @@ writeNULISAseq(
   sample_info_file = NULL,
   sample_info_file_variables = NULL,
   output_filename,
-  ICs = c("mCherry"),
+  Panel = "200-plex Inflammation v1",
+  PanelLotNumber = "",
+  plateIDs = NULL,
+  ICs = "mCherry",
   IPC_string = "IPC",
   SC_string = "SC",
   Bridge_string = "Bridge",
@@ -20,9 +23,6 @@ writeNULISAseq(
   include_SC = TRUE,
   include_Bridge = TRUE,
   include_NC = FALSE,
-  Panel = "200-plex Inflammation v1",
-  PanelLotNumber = "",
-  plateIDs = NULL,
   intraPlateNorm_method = "IC",
   intraPlateNorm_scaleFactor = 1,
   interPlateNorm_method = "IPC",
@@ -48,8 +48,8 @@ XML files), AlamarTargetID, UniProtID, and ProteinName. Only targets in the
 target_info_file will be output in the CSV file.}
 
 \item{sample_info_file}{Optional. Path and filename for the sample annotation CSV file. 
-One column should be "sampleName" which corresponds to the column names 
-of the readNULISAseq Data matrix and the sampleName in the readNULISAseq 
+Must include columns "plateID" and "sampleName" which correspond to the 
+plateID (matching the plateIDs input to this function) and sampleName in the readNULISAseq 
 samples data.frame.}
 
 \item{sample_info_file_variables}{Subset of column names in 
@@ -57,6 +57,14 @@ sample_info_file that will be included in data file output. Other columns
 will be excluded. Otherwise, if NULL (default), all columns will be included.}
 
 \item{output_filename}{Filename for output CSV file.}
+
+\item{Panel}{Name of multi-plex panel. Default is '200-plex Inflammation v1'}
+
+\item{PanelLotNumber}{The panel lot number.}
+
+\item{plateIDs}{A vector of plate IDs. If NULL, default is to number plates from 01 to 
+total number of plates based on the order of xml_files. Passed to readNULISAseq() function
+and output as a column in the data file.}
 
 \item{ICs}{vector of string(s). Internal control names. Default is "mCherry". 
 First IC in vector will be used in intra-plate IC-normalization (usually mCherry). 
@@ -83,14 +91,6 @@ column names (e.g. 'NC').}
 \item{include_Bridge}{Logical. Should Bridge samples be included in output? Default is TRUE.}
 
 \item{include_NC}{Logical. Should NC samples be included in output? Default is FALSE.}
-
-\item{Panel}{Name of multi-plex panel. Default is '200-plex Inflammation v1'}
-
-\item{PanelLotNumber}{The panel lot number.}
-
-\item{plateIDs}{A vector of plate IDs. If NULL, default is to number plates from 01 to 
-total number of plates based on the order of xml_files. Passed to readNULISAseq() function
-and output as a column in the data file.}
 
 \item{intraPlateNorm_method}{intra-plate normalization method passed to 
 intraPlateNorm() function. Default is 'IC' (internal control). Other option is
