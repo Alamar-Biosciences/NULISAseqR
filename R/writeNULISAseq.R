@@ -269,9 +269,10 @@ writeNULISAseq <- function(xml_files,
     target <- targets[i]
     SampleInfo <- data.frame(SampleName=unlist(sampleNames_output))
     SampleInfo <- merge(SampleInfo, 
-                        sample_data[,c("plateID","sampleName",sample_info_file_variables,'SampleQC')],
+                        sample_data[,c("plateID","sampleName","sampleType",sample_info_file_variables,'SampleQC')],
                         by.x='SampleName', by.y='sampleName',
                         all.x=TRUE, all.y=FALSE)
+    colnames(SampleInfo)[colnames(SampleInfo)=="sampleType"] <- "SampleType"
     # get target specific data
     AlamarTargetID <- all_targets$AlamarTargetID[all_targets$TargetName==target]
     UniProtID <- all_targets$UniProtID[all_targets$TargetName==target]
@@ -298,9 +299,10 @@ writeNULISAseq <- function(xml_files,
     
     
     target_data <- merge(SampleInfo, target_data, all.x=TRUE, all.y=FALSE)
-    target_data <- target_data[order(target_data$PlateID),]
+    target_data <- target_data[order(target_data$plateID),]
     target_data <- target_data[,c("Panel","PanelLotNumber","plateID",
-                                  "SampleName",sample_info_file_variables,"Target",
+                                  "SampleName","SampleType",
+                                  sample_info_file_variables,"Target",
                                   "AlamarTargetID","UniProtID","ProteinName",
                                   "SampleQC","LOD","log2NormalizedCount")]
     
