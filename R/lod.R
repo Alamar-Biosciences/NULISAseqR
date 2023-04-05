@@ -18,8 +18,6 @@
 #' @param aboveLOD Logical matrix indicating whether counts are 
 #' above or below LoD for that target.
 #'
-#' @examples
-#' 
 #'
 #' @export
 #' 

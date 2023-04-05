@@ -23,8 +23,6 @@
 #' detectability is above 50% for that target. 
 #' Names correspond to target row names.
 #'
-#' @examples
-#' 
 #'
 #' @export
 #' 
