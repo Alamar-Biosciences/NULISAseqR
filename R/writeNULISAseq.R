@@ -81,6 +81,9 @@
 #' @param include_SC Logical. Should SC samples be included in output? Default is TRUE.
 #' @param include_Bridge Logical. Should Bridge samples be included in output? Default is TRUE.
 #' @param include_NC Logical. Should NC samples be included in output? Default is FALSE.
+#' @param excludeSamples List of character string vectors that give sample names to be
+#' excluded from the output file. List should be in order of xml files. If 
+#' no sample is to be excluded from a plate, use NULL in the list for that plate.
 #' @param intraPlateNorm_method intra-plate normalization method passed to 
 #' intraPlateNorm() function. Default is 'IC' (internal control). Other option is
 #' 'TC' (total count), but this method is not currently implemented.
@@ -131,6 +134,7 @@ writeNULISAseq <- function(xml_files,
                            include_SC=TRUE,
                            include_Bridge=TRUE,
                            include_NC=FALSE,
+                           excludeSamples=NULL,
                            intraPlateNorm_method='IC',
                            intraPlateNorm_scaleFactor=1,
                            interPlateNorm_method='IPC',
@@ -153,6 +157,12 @@ writeNULISAseq <- function(xml_files,
                                Bridge=Bridge_string,
                                replaceNA=replaceNA,
                                IC=ICs)
+    # exclude samples if listed
+    if (!is.null(excludeSamples[[i]])){
+      runs[[i]]$Data <- runs[[i]]$Data[,!(colnames(runs[[i]]$Data) %in% excludeSamples[[i]])]
+      runs[[i]]$samples <- runs[[i]]$samples[!(runs[[i]]$samples$sampleName %in% excludeSamples[[i]]),]
+      runs[[i]]$SampleNames <- runs[[i]]$SampleNames[!(runs[[i]]$SampleNames %in% excludeSamples[[i]])]
+    }
   }
   names(runs) <- plateIDs
   if(verbose==TRUE) cat(paste0(n_plates, ' XML files were read.\n'))
