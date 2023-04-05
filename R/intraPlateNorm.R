@@ -41,7 +41,6 @@
 #' @param normFactor A vector of the normalization factors used for 
 #' each sample (column) in the data matrix.
 #'
-#' @examples
 #' 
 #'
 #' @export
