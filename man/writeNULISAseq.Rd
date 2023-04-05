@@ -23,6 +23,7 @@ writeNULISAseq(
   include_SC = TRUE,
   include_Bridge = TRUE,
   include_NC = FALSE,
+  excludeSamples = NULL,
   intraPlateNorm_method = "IC",
   intraPlateNorm_scaleFactor = 1,
   interPlateNorm_method = "IPC",
@@ -91,6 +92,10 @@ column names (e.g. 'NC').}
 \item{include_Bridge}{Logical. Should Bridge samples be included in output? Default is TRUE.}
 
 \item{include_NC}{Logical. Should NC samples be included in output? Default is FALSE.}
+
+\item{excludeSamples}{List of character string vectors that give sample names to be
+excluded from the output file. List should be in order of xml files. If 
+no sample is to be excluded from a plate, use NULL in the list for that plate.}
 
 \item{intraPlateNorm_method}{intra-plate normalization method passed to 
 intraPlateNorm() function. Default is 'IC' (internal control). Other option is
