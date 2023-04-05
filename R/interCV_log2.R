@@ -36,7 +36,6 @@
 #'
 #' @return matrix with inter-plate %CV values for each target for each sample.
 #'
-#' @examples
 #' 
 #'
 #' @export
