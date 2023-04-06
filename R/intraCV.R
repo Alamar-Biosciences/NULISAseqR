@@ -26,7 +26,6 @@
 #' @param cv_matrix matrix with %CV values for each target for each 
 #' multiple-replicate sample.
 #'
-#' @examples
 #' 
 #'
 #' @export
