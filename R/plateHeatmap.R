@@ -19,7 +19,6 @@
 #'
 #' @return Draws a heatmap.
 #'
-#' @examples
 #' 
 #'
 #' @export
