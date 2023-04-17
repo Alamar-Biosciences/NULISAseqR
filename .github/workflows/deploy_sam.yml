@@ -13,7 +13,6 @@ on:
 jobs:
 
   deploy-sam:
-    name: Deploy SAM
     runs-on: ubuntu-latest
 
     steps:
