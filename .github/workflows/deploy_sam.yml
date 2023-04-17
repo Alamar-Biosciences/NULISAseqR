@@ -8,7 +8,9 @@ on:
 
   workflow_dispatch:
 
-deploy-sam:
+jobs:
+
+  deploy-sam:
     runs-on: ubuntu-latest
 
     steps:
