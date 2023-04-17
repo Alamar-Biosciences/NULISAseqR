@@ -8,6 +8,8 @@ on:
 
   workflow_dispatch:
 
+  workflow_call:
+
 jobs:
 
   deploy-sam:
