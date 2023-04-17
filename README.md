@@ -1,7 +1,7 @@
 # NULISAseqR
 
 ![AWS CodeBuild](https://codebuild.us-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoib045RnFOTFB4Wmo5OHBDTGJySnNJK3dtN2I3a0MwQm96UVZyMnp1anl3cGZtMWs5dVowMVl5TVlLUEw4RnNiZWlscnNTdE5KV2xQSlVyN3YrZUVvYTZRPSIsIml2UGFyYW1ldGVyU3BlYyI6InNtclNBUGloQjJEdytnMUQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
-[![Deploy SAM](https://github.com/Alamar-Biosciences/NULISAseqR/actions/workflows/deploy_sam.yml/badge.svg)](https://github.com/Alamar-Biosciences/NULISAseqR/actions/workflows/deploy_sam.yml)
+[![Deploy SAM](https://github.com/Alamar-Biosciences/NULISAseqR/actions/workflows/Deploy-SAM/badge.svg)](https://github.com/Alamar-Biosciences/NULISAseqR/actions/workflows/deploy_sam.yml)
 
 NULISAseq R package
 
