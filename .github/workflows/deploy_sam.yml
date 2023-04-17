@@ -1,0 +1,23 @@
+name: Deploy SAM
+
+on:
+
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+deploy-sam:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger SAM deployment
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: Alamar-Biosciences
+          repo: Secondary-Analysis-Module
+          github_token: ${{ secrets.UTILITY_ACCESS_TOKEN }}
+          ref: main
+          workflow_file_name: build.yml
+          wait_workflow: false
