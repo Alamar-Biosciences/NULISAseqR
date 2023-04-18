@@ -30,6 +30,11 @@
 #' @param useMean A logical TRUE / FALSE that indicates whether or not 
 #' to calculate inter-CV using the intra-plate means of replicates (TRUE, default), 
 #' or to use the pooled replicate data (FALSE). 
+#' @param method Use "count" (default) for unnormalized or 
+#' normalized count data. Calculates CV using the formula 
+#' \code{cv = sd / mean}. Use "log2" for log2 transformed data. Calculates CV using 
+#' the formula \code{sigma = sd(x) log(2)} and 
+#' \code{cv = 100 sqrt(exp(sigma^2)-1)}.
 #'
 #' @return matrix with inter-plate %CV values for each target for each sample.
 #'
@@ -41,7 +46,8 @@ interCV <- function(data_list,
                     samples,
                     aboveLOD=NULL,
                     exclude_targets=NULL,
-                    useMean=TRUE){
+                    useMean=TRUE,
+                    method='count'){
   # replace values below LOD with NA
   for (i in 1:length(data_list)){
     data_list[[i]][aboveLOD[[i]]==FALSE] <- NA
@@ -78,19 +84,38 @@ interCV <- function(data_list,
   cv_matrix <- matrix(nrow=length(matching_targets), ncol=length(unique_samples))
   rownames(cv_matrix) <- matching_targets
   colnames(cv_matrix) <- unique_samples
-  for (i in 1:length(unique_samples)){
-    sample_data <- list()
-    for (j in 1:length(data_list)){
-      sample_data[[j]] <- data_list[[j]][,samples[[j]]==unique_samples[i] & !is.na(samples[[j]])]
+  if(method=='count'){
+    for (i in 1:length(unique_samples)){
+      sample_data <- list()
+      for (j in 1:length(data_list)){
+        sample_data[[j]] <- data_list[[j]][,samples[[j]]==unique_samples[i] & !is.na(samples[[j]])]
+      }
+      if (useMean==TRUE){
+        sample_data <- lapply(sample_data, rowMeans, na.rm=TRUE)
+      } 
+      sample_data <- do.call(cbind, sample_data)
+      sample_means <- rowMeans(sample_data, na.rm=TRUE)
+      sample_sds <- apply(sample_data, 1, sd, na.rm=TRUE)
+      sample_cv <- sample_sds/sample_means*100
+      cv_matrix[,i] <- sample_cv
     }
-    if (useMean==TRUE){
-      sample_data <- lapply(sample_data, rowMeans, na.rm=TRUE)
-    } 
-    sample_data <- do.call(cbind, sample_data)
-    sample_means <- rowMeans(sample_data, na.rm=TRUE)
-    sample_sds <- apply(sample_data, 1, sd, na.rm=TRUE)
-    sample_cv <- sample_sds/sample_means*100
-    cv_matrix[,i] <- sample_cv
+  } else if(method=='log2'){
+    # cv formula
+    cv_formula <- function(x){
+      sigma <- apply(x, 1, function(x) sd(x, na.rm=TRUE)*log(2))
+      100*sqrt(exp(sigma^2)-1)
+    }
+    for (i in 1:length(unique_samples)){
+      sample_data <- list()
+      for (j in 1:length(data_list)){
+        sample_data[[j]] <- data_list[[j]][,samples[[j]]==unique_samples[i] & !is.na(samples[[j]])]
+      }
+      if (useMean==TRUE){
+        sample_data <- lapply(sample_data, rowMeans, na.rm=TRUE)
+      } 
+      sample_data <- do.call(cbind, sample_data)
+      cv_matrix[,i] <- cv_formula(sample_data)
+    }
   }
   return(cv_matrix)
 }
