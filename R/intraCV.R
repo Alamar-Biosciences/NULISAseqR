@@ -20,6 +20,11 @@
 #' targets that should be excluded from intra-plate CV calculation. For example,
 #' one might want to exclude internal controls. Default is NULL, which includes
 #' all targets in the data_matrix.
+#' @param method Use "count" (default) for unnormalized or 
+#' normalized count data. Calculates CV using the formula 
+#' \code{cv = sd / mean}. Use "log2" for log2 transformed data. Calculates CV using 
+#' the formula \code{sigma = sd(x) log(2)} and 
+#' \code{cv = 100 sqrt(exp(sigma^2)-1)}.
 #'
 #'
 #' @return A list.
@@ -33,7 +38,8 @@
 intraCV <- function(data_matrix, 
                     samples,
                     aboveLOD=NULL,
-                    exclude_targets=NULL){
+                    exclude_targets=NULL,
+                    method='count'){
   # replace values below LOD with NA
   data_matrix[aboveLOD==FALSE] <- NA
   # remove excluded targets
@@ -48,12 +54,24 @@ intraCV <- function(data_matrix,
   cv_matrix <- matrix(nrow=nrow(data_matrix), ncol=length(unique_samples))
   rownames(cv_matrix) <- rownames(data_matrix)
   colnames(cv_matrix) <- unique_samples
-  for (i in 1:length(unique_samples)){
-    sample_data <- data_matrix[,!is.na(samples) & samples==unique_samples[i]]
-    sample_means <- rowMeans(sample_data, na.rm=TRUE)
-    sample_sds <- apply(sample_data, 1, sd, na.rm=TRUE)
-    sample_cv <- sample_sds/sample_means*100
-    cv_matrix[,i] <- sample_cv
+  if(method=='count'){
+    for (i in 1:length(unique_samples)){
+      sample_data <- data_matrix[,!is.na(samples) & samples==unique_samples[i]]
+      sample_means <- rowMeans(sample_data, na.rm=TRUE)
+      sample_sds <- apply(sample_data, 1, sd, na.rm=TRUE)
+      sample_cv <- sample_sds/sample_means*100
+      cv_matrix[,i] <- sample_cv
+    }
+  } else if(method=='log2'){
+    # cv formula
+    cv_formula <- function(x){
+      sigma <- apply(x, 1, function(x) sd(x, na.rm=TRUE)*log(2))
+      100*sqrt(exp(sigma^2)-1)
+    }
+    for (i in 1:length(unique_samples)){
+      sample_data <- data_matrix[,!is.na(samples) & samples==unique_samples[i]]
+      cv_matrix[,i] <- cv_formula(sample_data)
+    }
   }
   return(cv_matrix)
 }
