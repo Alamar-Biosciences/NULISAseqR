@@ -4,7 +4,13 @@
 \alias{intraCV}
 \title{Calculate Intra-plate Coefficients of Variation}
 \usage{
-intraCV(data_matrix, samples, aboveLOD = NULL, exclude_targets = NULL)
+intraCV(
+  data_matrix,
+  samples,
+  aboveLOD = NULL,
+  exclude_targets = NULL,
+  method = "count"
+)
 }
 \arguments{
 \item{data_matrix}{The Data matrix output from readNULISAseq.R
@@ -27,6 +33,12 @@ Default is NULL, which includes all values in CV calculation.}
 targets that should be excluded from intra-plate CV calculation. For example,
 one might want to exclude internal controls. Default is NULL, which includes
 all targets in the data_matrix.}
+
+\item{method}{Use "count" (default) for unnormalized or 
+normalized count data. Calculates CV using the formula 
+\code{cv = sd / mean}. Use "log2" for log2 transformed data. Calculates CV using 
+the formula \code{sigma = sd(x) log(2)} and 
+\code{cv = 100 sqrt(exp(sigma^2)-1)}.}
 
 \item{cv_matrix}{matrix with %CV values for each target for each 
 multiple-replicate sample.}
