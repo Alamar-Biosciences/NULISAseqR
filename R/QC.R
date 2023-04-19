@@ -18,10 +18,14 @@ QCSampleCriteria <- function(){
                         ICReads=as.numeric(MIN_IC_READS_PER_SAMPLE), 
                         NumReads=as.numeric(MIN_NUM_READS_PER_SAMPLE), 
                         IC_Median=paste0(-MIN_IC_MEDIAN, ",", MIN_IC_MEDIAN))
-  retVal$operators <-c(Detectability=">",
-                       ICReads=">", 
-                       NumReads=">", 
+  retVal$operators <-c(Detectability="<",
+                       ICReads="<", 
+                       NumReads="<", 
                        IC_Median=">,<")
+  retVal$format <- c(Detectability="percentage",
+                       ICReads="integer", 
+                       NumReads="integer", 
+                       IC_Median="percentage")
   return(retVal)
 }
 
@@ -47,7 +51,8 @@ QCPlateCriteria <- function(){
                          IPCTarget_CV=as.numeric(MAX_MEDIAN_IPC_TARGET_CV), 
                          Detectability=as.numeric(DETECTABILITY_FRAC), 
                          MinReads=as.numeric(MIN_READS))
-  retVal$operator <- c(ICRead_CV=">",IPCRead_CV=">", IPCTarget_CV=">", Detectability=">", MinReads=">")
+  retVal$operator <- c(ICRead_CV=">",IPCRead_CV=">", IPCTarget_CV=">", Detectability="<", MinReads="<")
+  retVal$operator <- c(ICRead_CV="percentage",IPCRead_CV="percentage", IPCTarget_CV="percentage", Detectability="percentage", MinReads="integer")
   return(retVal)
 }
 
