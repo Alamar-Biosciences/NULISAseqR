@@ -9,7 +9,8 @@ interCV(
   samples,
   aboveLOD = NULL,
   exclude_targets = NULL,
-  useMean = TRUE
+  useMean = TRUE,
+  method = "count"
 )
 }
 \arguments{
@@ -40,6 +41,12 @@ all common targets in the data_list matrices.}
 \item{useMean}{A logical TRUE / FALSE that indicates whether or not 
 to calculate inter-CV using the intra-plate means of replicates (TRUE, default), 
 or to use the pooled replicate data (FALSE).}
+
+\item{method}{Use "count" (default) for unnormalized or 
+normalized count data. Calculates CV using the formula 
+\code{cv = sd / mean}. Use "log2" for log2 transformed data. Calculates CV using 
+the formula \code{sigma = sd(x) log(2)} and 
+\code{cv = 100 sqrt(exp(sigma^2)-1)}.}
 }
 \value{
 matrix with inter-plate %CV values for each target for each sample.
