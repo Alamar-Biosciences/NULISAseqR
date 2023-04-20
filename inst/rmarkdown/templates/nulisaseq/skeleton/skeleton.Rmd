@@ -817,7 +817,7 @@ for( i in 1:length(runs)){
            cex=0.45)
   title(main=PlateNames[i])
   
-
+  
   for(j in 1:length(names(criteria$thresholds))){
     inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
     xlab <- ""
@@ -858,15 +858,15 @@ for( i in 1:length(runs)){
     }
     dotchart(x=as.numeric(xval), 
              xlab=xlab, 
-            labels=rep('', length(xval)), las=1, 
-            cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), 
-            color=color, log=log)
+             labels=rep('', length(xval)), las=1, 
+             cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), 
+             color=color, log=log)
     if(j==1){
       # need to loop over labels and color individuals
       for (k in 1:length(xval)){
         axis(side=2, at=k, 
-           labels=labels[k], col.axis=color[k], las=1,
-           cex.axis=0.5)
+             labels=labels[k], col.axis=color[k], las=1,
+             cex.axis=0.5)
       }
     }
     # color points green if PASS, red if FAIL
@@ -881,6 +881,7 @@ for( i in 1:length(runs)){
       minmaxVal <- unlist(strsplit(val[[j]], ","))
       abline(v=as.numeric(minmaxVal[[1]])*100, col='brown')
       abline(v=as.numeric(minmaxVal[[2]])*100, col='brown')
+      abline(v=0, col='brown', lty=2)
     }else{
       value <- if(criteria$format[j] == "percentage") as.numeric(val[[j]])*100 else as.numeric(val[[j]])
       abline(v=value, col='brown')
