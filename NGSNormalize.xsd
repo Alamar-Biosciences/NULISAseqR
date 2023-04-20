@@ -173,6 +173,7 @@
                                   <xs:attribute name="name" type="xs:string"/>
                                   <xs:attribute name="set" type="xs:string"/>
                                   <xs:attribute name="method" type="xs:string"/>
+                                  <xs:attribute name="format" type="xs:string"/>
                                 </xs:extension>
                               </xs:simpleContent>
                             </xs:complexType>
@@ -212,6 +213,7 @@
                                   <xs:attribute name="set" type="xs:string"/>
                                   <xs:attribute name="rep" type="xs:string"/>
                                   <xs:attribute name="method" type="xs:string"/>
+                                  <xs:attribute name="format" type="xs:string"/>
                                 </xs:extension>
                               </xs:simpleContent>
                             </xs:complexType>
@@ -256,6 +258,7 @@
                       <xs:attribute name="name" type="xs:string"/>
                       <xs:attribute name="method" type="xs:string"/>
                       <xs:attribute name="set" type="xs:string"/>
+                      <xs:attribute name="format" type="xs:string"/>
                     </xs:extension>
                   </xs:simpleContent>
                 </xs:complexType>

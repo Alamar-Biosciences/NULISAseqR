@@ -164,7 +164,7 @@ targetBoxplot <- function(data_matrix,
     }
     
     # calculate detectability
-    detect <- detectability(aboveLOD_matrix = LOD$aboveLOD)$detectability
+    detect <- detectability(aboveLOD_matrix = LOD$aboveLOD[,!(colnames(LOD$aboveLOD) %in% excludeSamples)])$detectability
     
     # log2 transform
     if(log2transform==TRUE){
@@ -175,11 +175,11 @@ targetBoxplot <- function(data_matrix,
         # replace zero LOD_count_scale with zero
         LOD$LOD[LOD_count_scale == 0] <- 0
       }
-      if(axis_lab_normalized==FALSE) axis_label <- 'log2(count)'
-      else if (axis_lab_normalized==TRUE) axis_label <- 'log2(normalized count)'
+      if(axis_lab_normalized==FALSE) axis_label <- 'log2(count) - LOD'
+      else if (axis_lab_normalized==TRUE) axis_label <- 'log2(normalized count) - LOD'
     } else if(log2transform==FALSE){
-      if(axis_lab_normalized==FALSE) axis_label <- 'count'
-      else if (axis_lab_normalized==TRUE) axis_label <- 'normalized count'
+      if(axis_lab_normalized==FALSE) axis_label <- 'count - LOD'
+      else if (axis_lab_normalized==TRUE) axis_label <- 'normalized count - LOD'
     }
     
     # subtract the LODs from data
