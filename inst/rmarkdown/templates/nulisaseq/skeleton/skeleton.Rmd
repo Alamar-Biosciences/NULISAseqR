@@ -731,7 +731,7 @@ for (i in 1:length(runs)){
       rmax[[j]][1] <- rmax[[j]][1] + 0.025 * rlim_delta
     }
     # count how many samples fail QC (excludes controls)
-    QCSummary[i, j+1] <- sum(QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]$status == "T")
+    QCSummary[i, j+1] <- length(which(QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]$status=="TRUE"))
   }
 }
 

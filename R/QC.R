@@ -153,12 +153,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
   format <- criteria$format[which(criteria$thresholdNames=="MIN_IC_MEDIAN")]
   for(j in 1:length(medVals)){
     i <- well_order[j]
-    set <- NULL
-    if(is.na(medVals[i])){
-      set <- "T"
-    }else{
-      set <- evalCriterion("IC_Median", medVals[i], op, MIN_IC_MEDIAN)
-    }
+    set <- if(is.na(medVals[i])) "T" else evalCriterion("IC_Median", medVals[i], op, MIN_IC_MEDIAN)
     type <- "Sample"
     if(i %in% NCs){
       type <- "NC"
@@ -180,12 +175,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
   format <- criteria$format[which(criteria$thresholdNames=="MIN_FRAC_DETECTABILITY")]
   for (j in 1:length(perc_tar)){
     i <- well_order[j]
-    set <- NULL
-    if(is.na(perc_tar[i])){
-      set <- NA
-    }else{
-      set <- evalCriterion("Detectability", perc_tar[i], op,  MIN_FRAC_DETECTABILITY)
-    }
+    set <- if(is.na(perc_tar[i])) NA else evalCriterion("Detectability", perc_tar[i], op,  MIN_FRAC_DETECTABILITY)
     type <- "Sample"
     if(i %in% NCs){
       type <- "NC"
