@@ -12,6 +12,8 @@ targetBoxplot(
   blanks = NULL,
   horizontal = FALSE,
   log2transform = TRUE,
+  replace_zero_LOD = FALSE,
+  axis_lab_normalized = TRUE,
   excludeTargets = NULL,
   excludeSamples = NULL,
   colors = NULL,
@@ -45,6 +47,15 @@ y-axis)? Default is `FALSE` (target names along x-axis).}
 \item{log2transform}{If TRUE (default), each value `x` will be transformed 
 by `log2(x + 0.01)`. LOD values will also be transformed when 
 `subtractLOD = TRUE`.}
+
+\item{replace_zero_LOD}{If TRUE (default is FALSE), will replace LODs of zero 
+on the unlogged scale with zeros on the log scale. Probably only makes sense 
+to use this option when using unnormalized data, because in this case LODs of 
+zero become negative and when subtracted will cause shift upwards for the set 
+of targets with LOD = 0. This option is only used when log2transform is TRUE.}
+
+\item{axis_lab_normalized}{If TRUE (default), will use "normalized count" for axis
+label. If FALSE, will use "count" for axis label.}
 
 \item{excludeTargets}{Vector of names of any targets to exclude from the plots 
 (such as internal controls).}
