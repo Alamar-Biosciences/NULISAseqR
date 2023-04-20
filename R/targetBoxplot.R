@@ -22,6 +22,13 @@
 #' @param log2transform If TRUE (default), each value `x` will be transformed 
 #' by `log2(x + 0.01)`. LOD values will also be transformed when 
 #' `subtractLOD = TRUE`.
+#' @param replace_zero_LOD If TRUE (default is FALSE), will replace LODs of zero 
+#' on the unlogged scale with zeros on the log scale. Probably only makes sense 
+#' to use this option when using unnormalized data, because in this case LODs of 
+#' zero become negative and when subtracted will cause shift upwards for the set 
+#' of targets with LOD = 0. This option is only used when log2transform is TRUE.
+#' @param axis_lab_normalized If TRUE (default), will use "normalized count" for axis
+#' label. If FALSE, will use "count" for axis label.
 #' @param excludeTargets Vector of names of any targets to exclude from the plots 
 #' (such as internal controls).
 #' @param excludeSamples Vector of names of samples to exclude from plots. These 
@@ -54,6 +61,8 @@ targetBoxplot <- function(data_matrix,
                           blanks=NULL,
                           horizontal=FALSE,
                           log2transform=TRUE,
+                          replace_zero_LOD=FALSE,
+                          axis_lab_normalized=TRUE,
                           excludeTargets=NULL,
                           excludeSamples=NULL,
                           colors=NULL,
@@ -61,7 +70,6 @@ targetBoxplot <- function(data_matrix,
                           detectLowColor='blue',
                           showLegend=TRUE,
                           cex.targets=0.4){
-  
   # exclude targets
   if(!is.null(excludeTargets)){
     data_matrix <- data_matrix[!(rownames(data_matrix) %in% excludeTargets),]
@@ -83,9 +91,11 @@ targetBoxplot <- function(data_matrix,
     # log2 transform
     if(log2transform==TRUE){
       data_matrix <- log2(data_matrix + 0.01)
-      axis_label <- 'log2(normalized count)'
+      if(axis_lab_normalized==FALSE) axis_label <- 'log2(count)'
+      else if (axis_lab_normalized==TRUE) axis_label <- 'log2(normalized count)'
     } else if(log2transform==FALSE){
-      axis_label <- 'normalized count'
+      if(axis_lab_normalized==FALSE) axis_label <- 'count'
+      else if (axis_lab_normalized==TRUE) axis_label <- 'normalized count'
     }
     
     # sort targets
@@ -159,12 +169,17 @@ targetBoxplot <- function(data_matrix,
     # log2 transform
     if(log2transform==TRUE){
       data_matrix <- log2(data_matrix + 0.01)
+      LOD_count_scale <- LOD$LOD
       LOD$LOD <- log2(LOD$LOD + 0.01)
-      # replace negative log2(LOD) with zero
-      LOD$LOD[LOD$LOD < 0] <- 0
-      axis_label <- 'log2(normalized count)'
+      if(replace_zero_LOD==TRUE){
+        # replace zero LOD_count_scale with zero
+        LOD$LOD[LOD_count_scale == 0] <- 0
+      }
+      if(axis_lab_normalized==FALSE) axis_label <- 'log2(count)'
+      else if (axis_lab_normalized==TRUE) axis_label <- 'log2(normalized count)'
     } else if(log2transform==FALSE){
-      axis_label <- 'normalized count'
+      if(axis_lab_normalized==FALSE) axis_label <- 'count'
+      else if (axis_lab_normalized==TRUE) axis_label <- 'normalized count'
     }
     
     # subtract the LODs from data
