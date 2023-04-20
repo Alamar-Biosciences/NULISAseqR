@@ -935,11 +935,13 @@ pandoc.header("Target detectability boxplot", 3)
 pandoc.p("Plot shows target mCherry-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for mCherry-normalized data.")
 par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,2,2,1))
 for (i in 1:length(params$xmlFiles)){
-  targetBoxplot(runs[[i]]$Data, 
+  targetBoxplot(intraPlateNormData[[i]][[1]]$normData, 
                 title=PlateNames[i], 
                 subtractLOD=TRUE, 
                 blanks=runs[[i]]$NC, 
                 horizontal=TRUE, 
+                replace_zero_LOD=FALSE,
+                axis_lab_normalized=TRUE,
                 cex.targets=0.25, 
                 excludeTargets=runs[[i]]$IC, 
                 excludeSamples=c(runs[[i]]$IPC, runs[[i]]$NC, runs[[i]]$SC))
