@@ -802,18 +802,6 @@ for( i in 1:length(runs)){
     qcSample[inds, ]$sampleType <- "Bridge"
   }
   
-  # define label colors
-  color <- rep('black', length(sampleType_factor))
-  color[which(sampleType_factor[well_order] == "IPC")] <- boxplot_colors[2]
-  color[which(sampleType_factor[well_order] == "NC")] <- boxplot_colors[3]
-  if (length(which(sampleType_factor[well_order] == "SC")) > 0 ){
-    color[which(sampleType_factor[well_order] == "SC")] <- boxplot_colors[4]
-  }
-  if (length(which(sampleType_factor[well_order] == "Bridge")) > 0 ){
-    color[which(sampleType_factor[well_order] == "Bridge")] <- boxplot_colors[5]
-  }
-  color <- rev(color)
-  
   # make plots
   par(mfcol=c(1, length(criteria$thresholds)+1), mar=c(5,0.05,2,0.05))
   # empty plot 
@@ -821,7 +809,7 @@ for( i in 1:length(runs)){
            xlab='',
            xlim=c(50, 100),
            labels=qcSample[inds, ]$sampleName,
-           color='white', 
+           color="white", 
            lcolor='white',
            gcolor='black',
            xaxt='n', frame.plot=FALSE,
@@ -829,9 +817,9 @@ for( i in 1:length(runs)){
            cex=0.45)
   title(main=PlateNames[i])
   
+
   for(j in 1:length(names(criteria$thresholds))){
     inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
-    color <- rep("black", length(inds))
     xlab <- ""
     xval <- NULL
     # define xlabels
@@ -849,15 +837,6 @@ for( i in 1:length(runs)){
         xval[zs] <- xval[zs]+1
       }
     }
-    # define colors
-    color[which(qcSample[inds,]$sampleType == "IPC")] <- boxplot_colors[2]
-    color[which(qcSample[inds,]$sampleType == "NC")] <- boxplot_colors[3]
-    if (length(which(qcSample[inds,]$sampleType == "SC")) > 0 ){
-      color[which(qcSample[inds,]$sampleType == "SC")] <- boxplot_colors[4]
-    }
-    if (length(which(qcSample[inds,]$sampleType == "Bridge")) > 0 ){
-      color[which(qcSample[inds,]$sampleType == "Bridge")] <- boxplot_colors[5]
-    }
     
     # use log scale for number of reads
     log <- if(names(criteria$thresholds)[j] != "Detectability" && names(criteria$thresholds)[j] != "IC_Median") "x" else ""
@@ -867,6 +846,16 @@ for( i in 1:length(runs)){
     } else {
       labels <- rep('', length(xval))
     }
+    # define colors
+    color <- rep("black", length(inds))
+    color[which(qcSample[inds,]$sampleType == "IPC")] <- boxplot_colors[2]
+    color[which(qcSample[inds,]$sampleType == "NC")] <- boxplot_colors[3]
+    if (length(which(qcSample[inds,]$sampleType == "SC")) > 0 ){
+      color[which(qcSample[inds,]$sampleType == "SC")] <- boxplot_colors[4]
+    }
+    if (length(which(qcSample[inds,]$sampleType == "Bridge")) > 0 ){
+      color[which(qcSample[inds,]$sampleType == "Bridge")] <- boxplot_colors[5]
+    }
     dotchart(x=as.numeric(xval), 
              xlab=xlab, 
             labels=rep('', length(xval)), las=1, 
@@ -874,18 +863,20 @@ for( i in 1:length(runs)){
             color=color, log=log)
     if(j==1){
       # need to loop over labels and color individuals
-      axis(side=2, at=1:length(xval), 
-           labels=qcSample[inds, ]$sampleName, col.axis='black', las=1,
+      for (k in 1:length(xval)){
+        axis(side=2, at=k, 
+           labels=labels[k], col.axis=color[k], las=1,
            cex.axis=0.5)
+      }
     }
-    
     # color points green if PASS, red if FAIL
     xvalFail <- xval
-    xvalFail[which(qcSample[inds,]$status != "T")] <- NA
+    xvalFail[which(qcSample[inds,]$status != TRUE)] <- NA
     xvalPass <- xval
-    xvalPass[which(qcSample[inds,]$status != "F")] <- NA
+    xvalPass[which(qcSample[inds,]$status != FALSE)] <- NA
     points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
     points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
+    
     if(names(criteria$thresholds)[j] == "IC_Median"){
       minmaxVal <- unlist(strsplit(val[[j]], ","))
       abline(v=as.numeric(minmaxVal[[1]])*100, col='brown')
