@@ -882,7 +882,8 @@ for( i in 1:length(runs)){
       abline(v=as.numeric(minmaxVal[[1]])*100, col='brown')
       abline(v=as.numeric(minmaxVal[[2]])*100, col='brown')
     }else{
-      abline(v=val[[j]], col='brown')
+      value <- if(criteria$format[j] == "percentage") as.numeric(val[[j]])*100 else as.numeric(val[[j]])
+      abline(v=value, col='brown')
     }
     legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), pch=19, cex=0.4, bty='n', inset=c(0,1), xpd=T,horiz=T)
     title(main=names(criteria$thresholds)[j], cex.main=1)
