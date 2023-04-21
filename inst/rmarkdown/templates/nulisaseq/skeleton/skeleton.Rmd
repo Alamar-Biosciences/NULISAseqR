@@ -4,32 +4,28 @@ params:
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
   ## string that denotes inter-plate controls
-  # IPC: !r c("IPC")
-  IPC: !r c("IPC_rep01", "IPC_rep02")
+  IPC: !r c("IPC")
   ## string that denotes negative controls
   NC: !r c("NC")
   ## string that denotes sample controls
-  # SC: !r c("SC")
-  SC: !r c("IPC_rep03", "IPC_rep04")
+  SC: !r c("SC")
   ## string that denotes bridge samples
   Bridge: !r NULL
   ## directory where xml files are located
   dataDir: "/Users/jbeer/github/TAP-Bonn-COVID/data"
   ## variables in XML that indicate row, column, and plate ID
-  # rowAnnotName: "AUTO_WELLROW"
-  # colAnnotName: "AUTO_WELLCOL"
-  # plateAnnotName: "AUTO_PLATE"
-  rowAnnotName: "Annot2"
-  colAnnotName: "Annot3"
-  plateAnnotName: "Annot1"
+  rowAnnotName: "AUTO_WELLROW"
+  colAnnotName: "AUTO_WELLCOL"
+  plateAnnotName: "AUTO_PLATE"
+  ## older version names for row, column, plate ID variables 
+  # rowAnnotName: "Annot2"
+  # colAnnotName: "Annot3"
+  # plateAnnotName: "Annot1"
   ## should heatmaps show % median units?
   heatMapRel: !r TRUE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
-  sample_desc: "This is a sample description."
-  goal_desc: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
-  # xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
+  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate01_nononmatch_XML.xml", "20230109_TAP_covid_plate02_nononmatch_XML.xml")
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
   plateNames: !r c()
@@ -459,29 +455,28 @@ if(length(params$xmlFiles) > 1){
 
 ```{r, include=FALSE}
 # log transform and scale data for clustered heatmap
+# and sample correlation plot
 data_mCherry_log2_scaled <- list()
+data_mCherry_log2_no_NC_scaled <- list()
 for(i in 1:length(params$xmlFiles)){
-  # remove negative controls
   data_mCherry <- intraPlateNormData[[i]]$mCherry$normData
-  data_mCherry <- data_mCherry[,!grepl(paste(runs[[i]]$NC, collapse="|"), colnames(data_mCherry))]
-  # remove ICs
+    # remove ICs
   data_mCherry <- data_mCherry[!grepl(paste(runs[[i]]$IC, collapse="|"), rownames(data_mCherry)),]
-  # log transform and scale targets (need to transpose matrix to scale and transpose back)
-  data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry+0.01)),
+  # remove NCs to calculate center and scale (so NCs don't skew the scale parameters)
+  data_mCherry_no_NC <- data_mCherry[,!grepl(paste(runs[[i]]$NC, collapse="|"), colnames(data_mCherry))]
+  data_mCherry_log2_no_NC_scaled[[i]] <- t(scale(t(log2(data_mCherry_no_NC + 0.01)),
                                            center=TRUE, scale=TRUE))
+  # log transform and scale targets
+  data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry + 0.01)),
+                                           center=attributes(data_mCherry_log2_no_NC_scaled[[i]])$`scaled:center`, 
+                                           scale=attributes(data_mCherry_log2_no_NC_scaled[[i]])$`scaled:scale`))
 }
 ```
 
 ---
 title: `r title_var`
 ---
-```{r, results='asis', eval=params$reportType!="WebApp"}
-pandoc.header("Study summary", 2)
-elements <- c(paste("Goal:", params$goal_desc), paste("Sample Description:", params$sample_desc))
-pandoc.list(elements, style="bullet")
-```
 
----
 
 ## Plate layout
 ```{r, results='asis'}
@@ -759,7 +754,7 @@ for (i in 1:length(runs)){
   for (j in 1:length(criteria$thresholds)){
     QC_criterion_j_data <- qcSample[qcSample$flagName == names(criteria$thresholds)[j], ]
     QC_criterion_j_data_samples <- QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]
-    QC_fail_samples_j <- QC_criterion_j_data_samples$sampleName[QC_criterion_j_data_samples$status=='T']
+    QC_fail_samples_j <- QC_criterion_j_data_samples$sampleName[QC_criterion_j_data_samples$status==TRUE]
     # reverse so they are sorted A1 - H12 
     QC_fail_samples_j <- rev(QC_fail_samples_j)
     if(length(QC_fail_samples_j) > 0){
@@ -817,7 +812,7 @@ for( i in 1:length(runs)){
            cex=0.45)
   title(main=PlateNames[i])
   
-
+  
   for(j in 1:length(names(criteria$thresholds))){
     inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
     xlab <- ""
@@ -858,15 +853,15 @@ for( i in 1:length(runs)){
     }
     dotchart(x=as.numeric(xval), 
              xlab=xlab, 
-            labels=rep('', length(xval)), las=1, 
-            cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), 
-            color=color, log=log)
+             labels=rep('', length(xval)), las=1, 
+             cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), 
+             color=color, log=log)
     if(j==1){
       # need to loop over labels and color individuals
       for (k in 1:length(xval)){
         axis(side=2, at=k, 
-           labels=labels[k], col.axis=color[k], las=1,
-           cex.axis=0.5)
+             labels=labels[k], col.axis=color[k], las=1,
+             cex.axis=0.5)
       }
     }
     # color points green if PASS, red if FAIL
@@ -881,6 +876,7 @@ for( i in 1:length(runs)){
       minmaxVal <- unlist(strsplit(val[[j]], ","))
       abline(v=as.numeric(minmaxVal[[1]])*100, col='brown')
       abline(v=as.numeric(minmaxVal[[2]])*100, col='brown')
+      abline(v=0, col='brown', lty=2)
     }else{
       value <- if(criteria$format[j] == "percentage") as.numeric(val[[j]])*100 else as.numeric(val[[j]])
       abline(v=value, col='brown')
@@ -946,24 +942,35 @@ for (i in 1:length(params$xmlFiles)){
 
 
 ```{r, eval=(params$reportType=="internal" & indicatorSC==TRUE), results='asis'}
-pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
-knitr::kable(SC_intraCV_mCherry_summary_table, caption='SC intra-plate %CV', align='r', table.attr="id=\"SC-intra-plateCV-mCherry-summary\"",
+pandoc.header("Intra-plate %CV table -- unnormalized", 3)
+knitr::kable(SC_intraCV_unnorm_summary_table, caption='SC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"SC-intra-plateCV-unnorm-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 
-knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV', align='r', table.attr="id=\"IPC-intra-plateCV-mCherry-summary\"",
+knitr::kable(IPC_intraCV_unnorm_summary_table, caption='IPC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"IPC-intra-plateCV-unnorm-summary\"",
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+
+pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
+knitr::kable(SC_intraCV_mCherry_summary_table, caption='SC intra-plate %CV -- mCherry-normalized', align='r', table.attr="id=\"SC-intra-plateCV-mCherry-summary\"",
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+
+knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV -- mCherry-normalized', align='r', table.attr="id=\"IPC-intra-plateCV-mCherry-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
 
 ```{r, eval=(params$reportType=="internal" & indicatorSC==FALSE), results='asis'}
+pandoc.header("Intra-plate %CV table -- unnormalized", 3)
+knitr::kable(IPC_intraCV_unnorm_summary_table, caption='IPC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"IPC-intra-plateCV-unnorm-summary\"",
+             format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+
 pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
-knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV', align='r', table.attr="id=\"intra-plateCV-mCherry-summary\"",
+knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV -- mCherry-normalized', align='r', table.attr="id=\"intra-plateCV-mCherry-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
 
 ### Intra-plate %CV boxplots by plate
-```{r, out.width='100%', fig.asp=0.25*length(runs), eval=indicatorSC}
+```{r, out.width='100%', fig.asp=(0.2*length(runs) + 0.15), eval=indicatorSC}
 SC_intraCV_unnorm2 <- SC_intraCV_unnorm
 colnames(SC_intraCV_unnorm2) <- paste0(colnames(SC_intraCV_mCherry), ' unnormalized')
 SC_intraCV_mCherry2 <- SC_intraCV_mCherry
@@ -978,7 +985,7 @@ boxplot(SC_intraCV_vals[,ncol(SC_intraCV_vals):1], las=1, xlab='intra-plate CV (
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
-```{r, out.width='100%', fig.asp=0.25*length(runs)}
+```{r, out.width='100%', fig.asp=(0.2*length(runs) + 0.15)}
 IPC_intraCV_unnorm2 <- IPC_intraCV_unnorm
 colnames(IPC_intraCV_unnorm2) <- paste0(colnames(IPC_intraCV_mCherry), ' unnormalized')
 IPC_intraCV_mCherry2 <- IPC_intraCV_mCherry
@@ -1086,7 +1093,7 @@ wellcolors <- function(data, well_types, boxplot_colors){
 
 for(i in 1:length(params$xmlFiles)){
   pdf(file=NULL)
-  corrvals <- corrplot(cor(intraPlateNormData[[i]]$mCherry$normData), 
+  corrvals <- corrplot(cor(data_mCherry_log2_scaled[[i]]), 
                        order='hclust') 
   dev.off()
   
@@ -1125,7 +1132,8 @@ for(i in 1:length(params$xmlFiles)){
                              well_types=well_types, 
                              boxplot_colors=boxplot_colors)
   # define color scale breaks
-  breaks <- c(seq(min(data_mCherry_log2_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
+  # omit NCs for determining min
+  breaks <- c(seq(min(data_mCherry_log2_no_NC_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
               seq(max(data_mCherry_log2_scaled[[i]])/paletteLength, 
                   max(data_mCherry_log2_scaled[[i]]), length.out=floor(paletteLength/2)))
   # transpose and add color variable
