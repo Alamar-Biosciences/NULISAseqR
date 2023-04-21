@@ -28,7 +28,7 @@ params:
   assayName: "NULISAseq 200-plex Inflammation Panel"
   sample_desc: "This is a sample description."
   goal_desc: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate02_nononmatch_XML.xml")
+  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate01_nononmatch_XML.xml", "20230109_TAP_covid_plate02_nononmatch_XML.xml")
   # xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
@@ -969,7 +969,7 @@ knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV', a
 
 
 ### Intra-plate %CV boxplots by plate
-```{r, out.width='100%', fig.asp=0.25*length(runs), eval=indicatorSC}
+```{r, out.width='100%', fig.asp=(0.2*length(runs) + 0.15), eval=indicatorSC}
 SC_intraCV_unnorm2 <- SC_intraCV_unnorm
 colnames(SC_intraCV_unnorm2) <- paste0(colnames(SC_intraCV_mCherry), ' unnormalized')
 SC_intraCV_mCherry2 <- SC_intraCV_mCherry
@@ -984,7 +984,7 @@ boxplot(SC_intraCV_vals[,ncol(SC_intraCV_vals):1], las=1, xlab='intra-plate CV (
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
-```{r, out.width='100%', fig.asp=0.25*length(runs)}
+```{r, out.width='100%', fig.asp=(0.2*length(runs) + 0.15)}
 IPC_intraCV_unnorm2 <- IPC_intraCV_unnorm
 colnames(IPC_intraCV_unnorm2) <- paste0(colnames(IPC_intraCV_mCherry), ' unnormalized')
 IPC_intraCV_mCherry2 <- IPC_intraCV_mCherry
