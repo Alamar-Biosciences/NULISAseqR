@@ -764,7 +764,7 @@ for (i in 1:length(runs)){
   for (j in 1:length(criteria$thresholds)){
     QC_criterion_j_data <- qcSample[qcSample$flagName == names(criteria$thresholds)[j], ]
     QC_criterion_j_data_samples <- QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]
-    QC_fail_samples_j <- QC_criterion_j_data_samples$sampleName[QC_criterion_j_data_samples$status=='T']
+    QC_fail_samples_j <- QC_criterion_j_data_samples$sampleName[QC_criterion_j_data_samples$status==TRUE]
     # reverse so they are sorted A1 - H12 
     QC_fail_samples_j <- rev(QC_fail_samples_j)
     if(length(QC_fail_samples_j) > 0){
