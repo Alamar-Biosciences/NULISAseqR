@@ -459,16 +459,21 @@ if(length(params$xmlFiles) > 1){
 
 ```{r, include=FALSE}
 # log transform and scale data for clustered heatmap
+# and sample correlation plot
 data_mCherry_log2_scaled <- list()
+data_mCherry_log2_no_NC_scaled <- list()
 for(i in 1:length(params$xmlFiles)){
-  # remove negative controls
   data_mCherry <- intraPlateNormData[[i]]$mCherry$normData
-  data_mCherry <- data_mCherry[,!grepl(paste(runs[[i]]$NC, collapse="|"), colnames(data_mCherry))]
-  # remove ICs
+    # remove ICs
   data_mCherry <- data_mCherry[!grepl(paste(runs[[i]]$IC, collapse="|"), rownames(data_mCherry)),]
-  # log transform and scale targets (need to transpose matrix to scale and transpose back)
-  data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry+0.01)),
+  # remove NCs to calculate center and scale (so NCs don't skew the scale parameters)
+  data_mCherry_no_NC <- data_mCherry[,!grepl(paste(runs[[i]]$NC, collapse="|"), colnames(data_mCherry))]
+  data_mCherry_log2_no_NC_scaled[[i]] <- t(scale(t(log2(data_mCherry_no_NC + 0.01)),
                                            center=TRUE, scale=TRUE))
+  # log transform and scale targets
+  data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry + 0.01)),
+                                           center=attributes(data_mCherry_log2_no_NC_scaled[[i]])$`scaled:center`, 
+                                           scale=attributes(data_mCherry_log2_no_NC_scaled[[i]])$`scaled:scale`))
 }
 ```
 
@@ -1087,7 +1092,7 @@ wellcolors <- function(data, well_types, boxplot_colors){
 
 for(i in 1:length(params$xmlFiles)){
   pdf(file=NULL)
-  corrvals <- corrplot(cor(intraPlateNormData[[i]]$mCherry$normData), 
+  corrvals <- corrplot(cor(data_mCherry_log2_scaled[[i]]), 
                        order='hclust') 
   dev.off()
   
@@ -1126,7 +1131,8 @@ for(i in 1:length(params$xmlFiles)){
                              well_types=well_types, 
                              boxplot_colors=boxplot_colors)
   # define color scale breaks
-  breaks <- c(seq(min(data_mCherry_log2_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
+  # omit NCs for determining min
+  breaks <- c(seq(min(data_mCherry_log2_no_NC_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
               seq(max(data_mCherry_log2_scaled[[i]])/paletteLength, 
                   max(data_mCherry_log2_scaled[[i]]), length.out=floor(paletteLength/2)))
   # transpose and add color variable
