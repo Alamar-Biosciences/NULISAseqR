@@ -946,7 +946,7 @@ pandoc.header("Intra-plate %CV table -- unnormalized", 3)
 knitr::kable(SC_intraCV_unnorm_summary_table, caption='SC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"SC-intra-plateCV-unnorm-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 
-knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"IPC-intra-plateCV-unnorm-summary\"",
+knitr::kable(IPC_intraCV_unnorm_summary_table, caption='IPC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"IPC-intra-plateCV-unnorm-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 
 pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
@@ -960,7 +960,7 @@ knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV -- 
 
 ```{r, eval=(params$reportType=="internal" & indicatorSC==FALSE), results='asis'}
 pandoc.header("Intra-plate %CV table -- unnormalized", 3)
-knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"IPC-intra-plateCV-unnorm-summary\"",
+knitr::kable(IPC_intraCV_unnorm_summary_table, caption='IPC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"IPC-intra-plateCV-unnorm-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 
 pandoc.header("Intra-plate %CV table -- mCherry-normalized", 3)
