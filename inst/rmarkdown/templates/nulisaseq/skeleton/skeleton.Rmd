@@ -4,32 +4,28 @@ params:
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
   ## string that denotes inter-plate controls
-  # IPC: !r c("IPC")
-  IPC: !r c("IPC_rep01", "IPC_rep02")
+  IPC: !r c("IPC")
   ## string that denotes negative controls
   NC: !r c("NC")
   ## string that denotes sample controls
-  # SC: !r c("SC")
-  SC: !r c("IPC_rep03", "IPC_rep04")
+  SC: !r c("SC")
   ## string that denotes bridge samples
   Bridge: !r NULL
   ## directory where xml files are located
   dataDir: "/Users/jbeer/github/TAP-Bonn-COVID/data"
   ## variables in XML that indicate row, column, and plate ID
-  # rowAnnotName: "AUTO_WELLROW"
-  # colAnnotName: "AUTO_WELLCOL"
-  # plateAnnotName: "AUTO_PLATE"
-  rowAnnotName: "Annot2"
-  colAnnotName: "Annot3"
-  plateAnnotName: "Annot1"
+  rowAnnotName: "AUTO_WELLROW"
+  colAnnotName: "AUTO_WELLCOL"
+  plateAnnotName: "AUTO_PLATE"
+  ## older version names for row, column, plate ID variables 
+  # rowAnnotName: "Annot2"
+  # colAnnotName: "Annot3"
+  # plateAnnotName: "Annot1"
   ## should heatmaps show % median units?
   heatMapRel: !r TRUE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
-  sample_desc: "This is a sample description."
-  goal_desc: "NULISAseq 200-plex Inflammation Panel"
   xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate01_nononmatch_XML.xml", "20230109_TAP_covid_plate02_nononmatch_XML.xml")
-  # xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml")
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
   plateNames: !r c()
@@ -480,13 +476,7 @@ for(i in 1:length(params$xmlFiles)){
 ---
 title: `r title_var`
 ---
-```{r, results='asis', eval=params$reportType!="WebApp"}
-pandoc.header("Study summary", 2)
-elements <- c(paste("Goal:", params$goal_desc), paste("Sample Description:", params$sample_desc))
-pandoc.list(elements, style="bullet")
-```
 
----
 
 ## Plate layout
 ```{r, results='asis'}
