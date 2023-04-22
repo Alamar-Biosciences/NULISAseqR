@@ -110,8 +110,8 @@ lmNULISAseq <- function(data,
                             p_vals=p_vals)
   }
   # format output
-  coef <- do.call(rbind, lapply(stats_list, function(x) x$p_vals))
-  t_val <- do.call(rbind, lapply(stats_list, function(x) x$p_vals))
+  coef <- do.call(rbind, lapply(stats_list, function(x) x$coefs))
+  t_val <- do.call(rbind, lapply(stats_list, function(x) x$t_vals))
   p_val <- do.call(rbind, lapply(stats_list, function(x) x$p_vals))
   p_val_FDR <- apply(p_val, 2, p.adjust, method='BH')
   p_val_bonf <- apply(p_val, 2, p.adjust, method='bonferroni')
@@ -148,7 +148,7 @@ lmNULISAseq <- function(data,
     Fstats$Ftest_pval_bonf <- p.adjust(Fstats$Ftest_pval, method='bonferroni')
   }
   if(return_model_fits==FALSE & is.null(reduced_modelFormula)){
-    output <- modelStats
+    output <- list(modelStats=modelStats)
   } else if(return_model_fits==TRUE & is.null(reduced_modelFormula)){
     output <- list(modelStats=modelStats,
                    modelFits=modelFits)
