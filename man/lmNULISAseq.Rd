@@ -9,12 +9,11 @@ lmNULISAseq(
   sampleInfo,
   sampleName_var,
   modelFormula,
-  reduced_modelFormula,
+  reduced_modelFormula = NULL,
   exclude_targets = NULL,
   exclude_samples = NULL,
   target_subset = NULL,
   sample_subset = NULL,
-  order_by_p_value = FALSE,
   return_model_fits = FALSE
 )
 }
@@ -44,6 +43,12 @@ by disease group, adjusted for age, sex, and plate. \code{modelFormula =
 "disease * age + sex + plate"} includes both main and interaction 
 effects for disease and age. See \code{?lm()}.}
 
+\item{reduced_modelFormula}{Optional reduced model formula 
+that contains only a subset of the terms in modelFormula. 
+The reduced model serves as null model for an F-test using \code{anova()}. 
+This could be useful for testing the overall significance of factor 
+variables with more than 2 levels.}
+
 \item{exclude_targets}{A vector of target names for targets that will be 
 excluded from the differential expression analysis. Internal control targets, 
 for example, should probably always be excluded.}
@@ -58,23 +63,13 @@ for targets that will be included in differential expression analysis.}
 \item{sample_subset}{Overrides exclude_samples. A vector of sample names 
 for samples that will be included in differential expression analysis.}
 
-\item{order_by_p_value}{Logical \code{TRUE} or \code{FALSE} (default).
-Should the stats (and Fstats) result rows be ordered from smallest to largest 
-unadjusted p-value?}
-
 \item{return_model_fits}{Logical \code{TRUE} or \code{FALSE} (default).
 Should a list of the model fits be returned? Might be useful for more 
 detailed analyses and plotting. However, also requires using more memory.}
-
-\item{reduced_ModelFormula}{Optional list of reduced model formulas 
-that contain only a subset of the terms in modelFormula. 
-The reduced model(s) serve as null model(s) for an F-test using \code{anova()}. 
-This could be useful for testing the significance of factor variables with more than 
-2 levels.}
 }
 \value{
 A list including the following:
-\item{stats}{A data frame with rows corresponding to targets and columns 
+\item{modelStats}{A data frame with rows corresponding to targets and columns 
 corresponding to estimated model coefficients, unadjusted p-values, 
 Bonferroni adjusted p-values, and Benjamini-Hochberg false discovery rate
 adjusted p-values (see \code{?p.adjust()})}
