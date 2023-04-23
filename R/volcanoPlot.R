@@ -1,7 +1,7 @@
 #' Volcano plot for NULISAseq differential expression test
 #'
 #' Draws a volcano plot for a set of coefficients and p-values. Uses ggplot
-#' for plotting and ggrepel package for labels. By default, labeling
+#' for plotting and ggrepel package for labels. By default, plot labeling
 #' assumes FDR-corrected p-values. 
 #'
 #' @param coefs Vector of coefficients.
