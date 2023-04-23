@@ -20,8 +20,8 @@ lmNULISAseq(
 \arguments{
 \item{data}{A matrix with targets in rows, samples in columns. 
 Row names should be the target names, and column names are the sample names.
-For NULISAseq data \code{x}, it is assumed that data has already been transformed
-using \code{log2(x + 0.01)}.}
+It is assumed that data has already been transformed
+using \code{log2(x + 0.01)} for each NULISAseq normalized count value \code{x}.}
 
 \item{sampleInfo}{A data frame with sample metadata. Rows are samples, 
 columns are sample metadata variables. Differential expression analysis will 
