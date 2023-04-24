@@ -4,7 +4,8 @@
 #' Outputs coefficients, t-statistics, unadjusted and adjusted p-values.
 #' Uses \code{lme4} and \code{lmerTest} packages.
 #'
-#' @param data A matrix with targets in rows, samples in columns. 
+#' @param data A matrix of normalized NULISAseq data
+#' with targets in rows, samples in columns. 
 #' Row names should be the target names, and column names are the sample names.
 #' It is assumed that data has already been transformed
 #' using \code{log2(x + 0.01)} for each NULISAseq normalized count value \code{x}.
