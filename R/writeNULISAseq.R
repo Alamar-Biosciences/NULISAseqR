@@ -149,7 +149,7 @@ writeNULISAseq <- function(xml_files,
   # read in NULISAseq data
   runs <- vector(mode="list", length=n_plates)
   for (i in 1:n_plates){
-    runs[[i]] <- readNULISAseq(xml_file=file.path(dataDir, xml_files[i]),
+    runs[[i]] <- readNULISAseq(file=file.path(dataDir, xml_files[i]),
                                plateID=plateIDs[i],
                                IPC=IPC_string,
                                SC=SC_string,
