@@ -130,10 +130,10 @@ QCThresholds_XML <- function(){
   sample <- newXMLNode("Sample")
   plate <- newXMLNode("Plate")
   for (i in 1:length(QCsample$thresholds)){
-    addChildren(sample, newXMLNode("Threshold", attrs=c(name=names(QCsample$thresholds[i]), value=QCsample$thresholds[[i]], operator=QCsample$operator[[i]])))
+    addChildren(sample, newXMLNode("Threshold", attrs=c(name=names(QCsample$thresholds[i]), value=QCsample$thresholds[[i]], operator=QCsample$operators[[i]])))
   }
   for (i in 1:length(QCplate$thresholds)){
-    addChildren(plate, newXMLNode("Threshold", attrs=c(name=names(QCplate$thresholds[i]), value=QCplate$thresholds[[i]], operator=QCplate$operator[[i]])))
+    addChildren(plate, newXMLNode("Threshold", attrs=c(name=names(QCplate$thresholds[i]), value=QCplate$thresholds[[i]], operator=QCplate$operators[[i]])))
   }
   addChildren(QCthresh, sample)
   addChildren(QCthresh, plate)
