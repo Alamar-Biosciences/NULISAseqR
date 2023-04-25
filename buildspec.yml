@@ -24,6 +24,7 @@ phases:
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo Build and tagging complete with no errors!
       - echo Running tests ...
+      - rm -rf $HOME/.cache
       - docker-compose -f $DOCKER_COMPOSE_YML -p nulisaseqr up -d
       - docker logs -f nulisaseqr_sut_1
       - exit_code=$(docker wait nulisaseqr_sut_1)
