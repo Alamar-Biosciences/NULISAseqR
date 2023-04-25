@@ -4,5 +4,6 @@ EXPOSE 8000
 
 WORKDIR /workingDir
 COPY ./tests/ /workingDir/tests/
+RUN install.r testthat
 
 CMD ["bash"]
