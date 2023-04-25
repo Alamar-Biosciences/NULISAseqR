@@ -1,0 +1,14 @@
+FROM nulisaseq_r:latest
+
+EXPOSE 8000
+
+RUN apk update && \
+    apk --no-cache --update-cache add libgit2-dev harfbuzz-dev fribidi-dev freetype-dev libpng-dev tiff-dev jpeg-dev && \
+    rm -rf /var/cache/apk/*
+
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('devtools', dependencies = TRUE)"
+
+WORKDIR /workingDir
+COPY ./tests/ /workingDir/tests/
+
+CMD ["bash"]
