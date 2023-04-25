@@ -14,6 +14,8 @@ phases:
     commands:
       - echo Logging in to Amazon ECR ...
       - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_DEFAULT_REGION) $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo Cloning the NULISAseqR git repo ...
+      - git clone https://.:$GH_PAT@github.com/Alamar-Biosciences/NULISAseqR.git
 
   build:
     on-failure: ABORT
