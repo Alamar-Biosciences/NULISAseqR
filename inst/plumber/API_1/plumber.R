@@ -35,11 +35,19 @@ normXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeControl"
 #* @param IPC Name to search for Interprocess control (IPC) samples
 #* @param NC Name to search for Negative control (NC) samples
 #* @param IC Name to search for Internal Control (IC) targets
+#* @param study_name Name of the study
+#* @param assayName Name of the assay
 #* @serializer html
 #* @post /xml2html
-xml2html <- function(res, in_xml, IPC=c("InterProcessControl"), NC=c("NegativeControl"), IC=c("mCherry")){
-  future_promise({
-    UUID <- UUIDgenerate()
+xml2html <- function(res,
+                     in_xml,
+                     IPC = c("InterProcessControl"),
+                     NC = c("NegativeControl"),
+                     IC = c("mCherry"),
+                     study_name = "Study Name",
+                     assayName = "NULISAseq 200-plex Inflammation Panel") {
+  promises::future_promise({
+    UUID <- uuid::UUIDgenerate()
     tempFile <- paste0(UUID, '.Rmd')
     outFile <- paste0(UUID, ".html")
     file.copy(rmd_path, tempFile)
@@ -48,18 +56,19 @@ xml2html <- function(res, in_xml, IPC=c("InterProcessControl"), NC=c("NegativeCo
     xml_files_list <- lapply(in_xml, toString)
     xml_files_vec <- as.character(unlist(xml_files_list))
 
-    rmarkdown::render(tempFile, output_format="html_document",
-                                      output_file=outFile,
-                                      params=list(
-                                                  xmlFiles=xml_files_vec,
-                                                  dataDir=NULL,
-                                                  reportType="WebApp",
-                                                  IPC=IPC,
-                                                  NC=NC,
-                                                  IC=IC
-                                                  ))
+    rmarkdown::render(tempFile,
+                      output_format = "html_document",
+                      output_file = outFile,
+                      params = list(xmlFiles = xml_files_vec,
+                                    dataDir = NULL,
+                                    reportType = "WebApp",
+                                    IPC = IPC,
+                                    NC = NC,
+                                    IC = IC,
+                                    study_name = study_name,
+                                    assayName = assayName))
     unlink(tempFile)
-    readBin(outFile, "raw", n=file.info(outFile)$size)
+    readBin(outFile, "raw", n = file.info(outFile)$size)
   })
 }
 
