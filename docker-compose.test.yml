@@ -1,6 +1,4 @@
 sut:
-  build:
-    context: .
-    dockerfile: Dockerfile.test
-  container_name: nulisaseqr-test
+  build: .
+  dockerfile: Dockerfile.test.ecr
   command: Rscript --vanilla -e "testthat::test_dir('/workingDir/tests/testthat/')"
