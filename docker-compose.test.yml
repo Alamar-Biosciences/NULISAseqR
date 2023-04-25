@@ -1,4 +1,4 @@
 sut:
   build: .
-  dockerfile: Dockerfile.test.ecr
+  dockerfile: Dockerfile.test
   command: Rscript --vanilla -e "testthat::test_dir('/workingDir/tests/testthat/')"
