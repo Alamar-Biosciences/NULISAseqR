@@ -1,9 +1,11 @@
 #' Linear regression model for NULISAseq differential expression test
 #'
-#' Fits linear regression model to each target in the NULISAseq data set. 
+#' Fits linear mixed effects model to each target in the NULISAseq data set. 
 #' Outputs coefficients, t-statistics, unadjusted and adjusted p-values.
+#' Uses \code{lme4} and \code{lmerTest} packages.
 #'
-#' @param data A matrix with targets in rows, samples in columns. 
+#' @param data A matrix of normalized NULISAseq data
+#' with targets in rows, samples in columns. 
 #' Row names should be the target names, and column names are the sample names.
 #' It is assumed that data has already been transformed
 #' using \code{log2(x + 0.01)} for each NULISAseq normalized count value \code{x}.
@@ -12,23 +14,37 @@
 #' only be done on the samples in sampleInfo, or a subset of those samples as 
 #' specified using arguments \code{exclude_samples} or \code{sample_subset}. 
 #' \code{sampleInfo} should have a column for each 
-#' variable included in the linear regression models. String variables will 
+#' variable included in the linear mixed effect models. String variables will 
 #' be automatically treated as factors, and numeric variables will be 
 #' treated as numeric.
 #' @param sampleName_var The name of the column of sampleInfo that matches
 #' the column names of \code{data}. This variable will be used to merge the 
 #' target expression data with the sample metadata. 
-#' @param modelFormula A string that represents the right hand side of the model 
-#' formula (everything after the \code{~}) used for the linear model. For example \code{modelFormula = 
-#' "disease + age + sex + plate"} test for differences in target expression 
+#' @param modelFormula_fixed A string that represents the fixed effects part of the model 
+#' formula on the used for the linear mixed effects model. 
+#' For example \code{modelFormula_fixed = 
+#' "disease + age + sex + plate"} tests for differences in target expression 
 #' by disease group, adjusted for age, sex, and plate. \code{modelFormula = 
 #' "disease * age + sex + plate"} includes both main and interaction 
-#' effects for disease and age. See \code{?lm()}.
-#' @param reduced_modelFormula Optional reduced model formula 
-#' that contains only a subset of the terms in modelFormula. 
-#' The reduced model serves as null model for an F-test using \code{anova()}. 
+#' effects for disease and age. See \code{?lmer()}.
+#' @param modelFormula_random A string that represents the random effects part of the model 
+#' formula on the used for the linear mixed effects model. This includes everything
+#' inside the \code{()} For example \code{modelFormula_random = "1|participant_ID"} 
+#' creates a subject specific random intercept, where the variable 
+#' \code{participant_ID} (a column in \code{sampleInfo} data frame) denotes 
+#' repeated measures on the same subject. For subject-specific random intercept and 
+#' slopes (not recommended when time is categorical), 
+#' use \code{modelFormula_random = "1 + time|participant_ID"}.
+#' See \code{?lmer()}.
+#' @param reduced_modelFormula_fixed Optional reduced model formula 
+#' for fixed effects that contains only a subset of the terms in modelFormula. 
+#' This could be an empty string if the full model contains only one term.
+#' The reduced model serves as null model for a likelihood ratio test 
+#' (LRT, which is a Chi-square test) using \code{anova()}. 
 #' This could be useful for testing the overall significance of factor 
-#' variables with more than 2 levels. 
+#' variables with more than 2 levels, for example, testing the overall significance 
+#' of a categorical time effect. The reduced model uses the same random effects 
+#' as specified in \code{modelFormula_random}.
 #' @param exclude_targets A vector of target names for targets that will be 
 #' excluded from the differential expression analysis. Internal control targets, 
 #' for example, should probably always be excluded.
@@ -51,22 +67,24 @@
 #' \item{modelFits}{A list of length equal to number of targets containing
 #' the model fit output from \code{lm()}. Only returned when 
 #' \code{return_model_fits=TRUE}.}
-#' \item{Fstats}{A data frame with rows corresponding to targets and columns }
+#' \item{LRTstats}{A data frame with rows corresponding to targets and columns }
 #'
 #' 
 #'
 #' @export
 #'
-lmNULISAseq <- function(data, 
-                        sampleInfo,
-                        sampleName_var,
-                        modelFormula,
-                        reduced_modelFormula=NULL,
-                        exclude_targets=NULL,
-                        exclude_samples=NULL,
-                        target_subset=NULL,
-                        sample_subset=NULL,
-                        return_model_fits=FALSE){
+lmerNULISAseq <- function(data, 
+                          sampleInfo,
+                          sampleName_var,
+                          modelFormula_fixed,
+                          modelFormula_random,
+                          reduced_modelFormula_fixed=NULL,
+                          reduced_modelFormula_random=NULL,
+                          exclude_targets=NULL,
+                          exclude_samples=NULL,
+                          target_subset=NULL,
+                          sample_subset=NULL,
+                          return_model_fits=FALSE){
   # get data target subset
   if(!is.null(exclude_targets) & is.null(target_subset)){
     data <- data[!(rownames(data) %in% exclude_targets),]
@@ -98,12 +116,14 @@ lmNULISAseq <- function(data,
     model_data <- merge(sampleInfo, target_data,
                         all.x=TRUE, all.y=FALSE,
                         by.x=sampleName_var, by.y='sampleName')
-    model_formula <- as.formula(paste0('target_data ~ ', modelFormula))
-    model_fit <- lm(model_formula, data=model_data)
+    model_formula <- as.formula(paste0('target_data ~ ', 
+                                       modelFormula_fixed, ' + (', 
+                                       modelFormula_random, ')'))
+    model_fit <- lmerTest::lmer(model_formula, data=model_data)
     coef_table <- summary(model_fit)$coefficients
     coefs <- coef_table[2:nrow(coef_table),1]
-    t_vals <- coef_table[2:nrow(coef_table),3]
-    p_vals <- coef_table[2:nrow(coef_table),4]
+    t_vals <- coef_table[2:nrow(coef_table),4]
+    p_vals <- coef_table[2:nrow(coef_table),5]
     modelFits[[i]] <- model_fit
     stats_list[[i]] <- list(coefs=coefs,
                             t_vals=t_vals,
@@ -123,10 +143,10 @@ lmNULISAseq <- function(data,
   column_order <- c(rbind(colnames(coef), colnames(t_val), colnames(p_val), colnames(p_val_FDR), colnames(p_val_bonf)))
   modelStats <- cbind(coef, t_val, p_val, p_val_FDR, p_val_bonf)[,column_order]
   modelStats <- data.frame(target=rownames(modelStats), modelStats)
-  # do Ftest if specified
-  if(!is.null(reduced_modelFormula)){
-    Fstats_list <- vector(mode='list', length=length(targets))
-    names(Fstats_list) <- targets
+  # do likelihood ratio test (LRT) if specified
+  if(!is.null(reduced_modelFormula_fixed)){
+    LRTstats_list <- vector(mode='list', length=length(targets))
+    names(LRTstats_list) <- targets
     for(i in 1:length(targets)){
       target <- targets[i]
       target_data <- data.frame(sampleName=colnames(data),
@@ -134,30 +154,32 @@ lmNULISAseq <- function(data,
       model_data <- merge(sampleInfo, target_data,
                           all.x=TRUE, all.y=FALSE,
                           by.x=sampleName_var, by.y='sampleName')
-      model_formula <- as.formula(paste0('target_data ~ ', reduced_modelFormula))
-      model_fit <- lm(model_formula, data=model_data)
-      anova_test <- anova(model_fit, modelFits[[i]])
-      Fstats_list[[i]] <- c(Fstat=anova_test$F[2], 
+      model_formula <- as.formula(paste0('target_data ~ ', 
+                                         reduced_modelFormula_fixed, ' + (', 
+                                         modelFormula_random, ')'))
+      model_fit <- lmerTest::lmer(model_formula, data=model_data)
+      anova_test <- suppressMessages(anova(model_fit, modelFits[[i]]))
+      LRTstats_list[[i]] <- c(Chisq_stat=anova_test$Chisq[2], 
                             Df=anova_test$Df[2],
-                            Ftest_pval=anova_test$`Pr(>F)`[2])
+                            Chisq_test_pval=anova_test$`Pr(>Chisq)`[2])
     }
     # format output
-    Fstats <- do.call(rbind, Fstats_list)
-    Fstats <- data.frame(target=rownames(Fstats), Fstats)
-    Fstats$Ftest_pval_FDR <- p.adjust(Fstats$Ftest_pval, method='BH')
-    Fstats$Ftest_pval_bonf <- p.adjust(Fstats$Ftest_pval, method='bonferroni')
+    LRTstats <- do.call(rbind, LRTstats_list)
+    LRTstats <- data.frame(target=rownames(LRTstats), LRTstats)
+    LRTstats$Chisq_test_pval_FDR <- p.adjust(LRTstats$Chisq_test_pval, method='BH')
+    LRTstats$Chisq_test_pval_bonf <- p.adjust(LRTstats$Chisq_test_pval, method='bonferroni')
   }
-  if(return_model_fits==FALSE & is.null(reduced_modelFormula)){
+  if(return_model_fits==FALSE & is.null(reduced_modelFormula_fixed)){
     output <- list(modelStats=modelStats)
-  } else if(return_model_fits==TRUE & is.null(reduced_modelFormula)){
+  } else if(return_model_fits==TRUE & is.null(reduced_modelFormula_fixed)){
     output <- list(modelStats=modelStats,
                    modelFits=modelFits)
-  } else if(return_model_fits==FALSE & !is.null(reduced_modelFormula)){
+  } else if(return_model_fits==FALSE & !is.null(reduced_modelFormula_fixed)){
     output <- list(modelStats=modelStats,
-                   Fstats=Fstats)
-  } else if(return_model_fits==TRUE & !is.null(reduced_modelFormula)){
+                   LRTstats=LRTstats)
+  } else if(return_model_fits==TRUE & !is.null(reduced_modelFormula_fixed)){
     output <- list(modelStats=modelStats,
-                   Fstats=Fstats,
+                   LRTstats=LRTstats,
                    modelFits=modelFits)
   }
   return(output)

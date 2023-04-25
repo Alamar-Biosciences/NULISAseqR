@@ -15,6 +15,7 @@ RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/')));
 RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('uuid')";
 RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('XML')";
 RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('xml2')";
+RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('ggrepel')"; 
 RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('fields')"; 
 RUN R --no-save -e "options(repos=structure(c(CRAN='https://cran.wustl.edu/'))); install.packages('/workingDir/NULISAseqR', repos=NULL, type='source')" && \
     Rscript -e "library(methods); if (!requireNamespace('NULISAseqR', quietly = TRUE)) stop('Package NULISAseqR not installed')"
