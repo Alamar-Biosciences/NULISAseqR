@@ -1,7 +1,6 @@
-services:
-  sut:
-    build:
-      context: .
-      dockerfile: Dockerfile.test
-    container_name: nulisaseqr-test
-    command: Rscript --vanilla -e "testthat::test_dir('/workingDir/tests/testthat/')"
+sut:
+  build:
+    context: .
+    dockerfile: Dockerfile.test
+  container_name: nulisaseqr-test
+  command: Rscript --vanilla -e "testthat::test_dir('/workingDir/tests/testthat/')"
