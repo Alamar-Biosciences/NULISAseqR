@@ -1,3 +1,21 @@
+##################
+# NULISAseqR API #
+##################
+
+#* @apiTitle NULISAseqR Reporting
+#* @apiDescription RESTful API for NULISAseqR data analysis, reporting and related operations
+#* @apiVersion 1.0.0
+
+#* Print a log message
+#*
+#* @filter logger
+function(req) {
+    cat(as.character(Sys.time()), "-", req$REQUEST_METHOD, req$PATH_INFO, "-",
+        req$HTTP_USER_AGENT, "@", req$REMOTE_ADDR, "\n")
+    plumber::forward()
+}
+
+# Define Rmarkdown file path for endpoints
 rmd_path <- "/workingDir/NULISAseqR/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"
 
 #* @param in_xml:file Character string. Path and name of the file.
