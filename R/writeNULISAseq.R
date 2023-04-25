@@ -130,7 +130,7 @@ writeNULISAseq <- function(xml_files,
                            SC_string='SC',
                            Bridge_string='Bridge',
                            NC_string='NC',
-                           include_IPC=TRUE,
+                           include_IPC=FALSE,
                            include_SC=TRUE,
                            include_Bridge=TRUE,
                            include_NC=FALSE,
@@ -183,7 +183,7 @@ writeNULISAseq <- function(xml_files,
     if (!is.null(sample_info_file_variables)){
       sample_info <- sample_info[,c('plateID', 'sampleName', sample_info_file_variables)]
     } else {
-      sample_info_file_variables <- colnames(sample_info_file)
+      sample_info_file_variables <- colnames(sample_info)
       sample_info_file_variables <- sample_info_file_variables[!(sample_info_file_variables %in% c('plateID', 'sampleName'))]
     }
     # merge sample annotations with sample data from readNULISAseq
