@@ -1,3 +1,5 @@
+rmd_path <- "/workingDir/NULISAseqR/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"
+
 #* @param in_xml:file Character string. Path and name of the file.
 #* @param IPC Name to search for Interprocess control (IPC) samples
 #* @param NC Name to search for Negative control (NC) samples
@@ -11,7 +13,7 @@ normXML <- function(in_xml, IPC=c("InterProcessControl"), NC=c("NegativeControl"
   })
 }
 
-#* @param in_xml:file Character string. Path and name of the file.
+#* @param in_xml:[file] Character string vector. Path(s) and name(s) of the file(s).
 #* @param IPC Name to search for Interprocess control (IPC) samples
 #* @param NC Name to search for Negative control (NC) samples
 #* @param IC Name to search for Internal Control (IC) targets
@@ -22,15 +24,20 @@ xml2html <- function(res, in_xml, IPC=c("InterProcessControl"), NC=c("NegativeCo
     UUID <- UUIDgenerate()
     tempFile <- paste0(UUID, '.Rmd')
     outFile <- paste0(UUID, ".html")
-    file.copy('skeleton.Rmd', tempFile)
-    rmarkdown::render(tempFile, output_format="html_document", 
+    file.copy(rmd_path, tempFile)
+
+    # Handle multiple XML inputs
+    xml_files_list <- lapply(in_xml, toString)
+    xml_files_vec <- as.character(unlist(xml_files_list))
+
+    rmarkdown::render(tempFile, output_format="html_document",
                                       output_file=outFile,
                                       params=list(
-                                                  xmlFiles=toString(in_xml),
+                                                  xmlFiles=xml_files_vec,
                                                   dataDir=NULL,
                                                   reportType="WebApp",
-                                                  IPC=IPC, 
-                                                  NC=NC, 
+                                                  IPC=IPC,
+                                                  NC=NC,
                                                   IC=IC
                                                   ))
     unlink(tempFile)
@@ -50,7 +57,7 @@ xml2pdf <- function(res, in_xml, IPC=c("InterProcessControl"), NC=c("NegativeCon
     tempFile <- paste0(UUID, '.Rmd')
     outFile <- paste0(UUID, ".html")
     outFilePDF <- paste0(UUID, ".pdf")
-    file.copy('skeleton.Rmd', tempFile)
+    file.copy(rmd_path, tempFile)
     rmarkdown::render(tempFile, output_format="html_document", 
                                       output_file=outFile,
                                       params=list(
