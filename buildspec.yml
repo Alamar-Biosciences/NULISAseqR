@@ -6,6 +6,7 @@ env:
     IMAGE_REPO_NAME: "nulisaseq_r"
     IMAGE_TAG: "latest"
     DOCKERHUB_REPO: "alamarbiosciences/nulisaseq_r"
+    DOCKER_COMPOSE_YML: "docker-compose.test.yml"
 
 phases:
 
@@ -22,6 +23,18 @@ phases:
       - echo Tagging the built Docker image ...
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo Build and tagging complete with no errors!
+      - echo Running tests ...
+      - docker-compose -f $DOCKER_COMPOSE_YML -p nulisaseqr up -d
+      - docker logs -f nulisaseqr-test
+      - exit_code=$(docker wait nulisaseqr-test)
+      - |
+        if [ $exit_code -ne 0 ]; then
+          echo "Error: One or more tests failed!"
+          (exit 1)
+        else
+          echo "Tests complete with exit code 0. Ready to push!"
+        fi
+      - docker-compose -f $DOCKER_COMPOSE_YML down
 
   post_build:
     commands:
