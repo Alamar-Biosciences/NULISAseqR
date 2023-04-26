@@ -14,13 +14,6 @@ phases:
     commands:
       - echo Logging in to Amazon ECR ...
       - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_DEFAULT_REGION) $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - |
-        if [ "${CODEBUILD_WEBHOOK_EVENT}" == "PULL_REQUEST_CREATED" ] || [ "${CODEBUILD_WEBHOOK_EVENT}" == "PULL_REQUEST_UPDATED" ]; then
-          echo "Fetching pull request head branch ..."
-          git fetch origin pull/${CODEBUILD_SOURCE_VERSION}/head:${CODEBUILD_SOURCE_VERSION}
-          git checkout ${CODEBUILD_SOURCE_VERSION}
-          echo $(ls)
-        fi
 
   build:
     on-failure: ABORT
