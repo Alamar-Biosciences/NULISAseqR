@@ -274,10 +274,10 @@ readNULISAseq <- function(file,
     LOD <- unique(Data[,c('PlateID', 'Target', 'LOD')])
     # reformat the log2NormalizedCount data
     # reformat into wide, targets in columns
-    Data <- reshape(Data[,c('sampleName', 'Target', 'log2NormalizedCount')],
+    Data <- reshape(Data[,c('SampleName', 'Target', 'log2NormalizedCount')],
                     direction= 'wide',
                     idvar = 'Target',
-                    timevar='sampleName')
+                    timevar='SampleName')
     
     rownames(Data) <- Data$Target
     Data <- Data[,2:ncol(Data)]
