@@ -8,7 +8,7 @@ Read NULISAseq XML, perform normalization, and QC}
 loadNULISAseq(file, IPC, ...)
 }
 \arguments{
-\item{xml_file}{Character string. Path and name of the file.}
+\item{file}{Character string. Path and name of the file.}
 
 \item{plateID}{Character string that denotes plate ID.}
 

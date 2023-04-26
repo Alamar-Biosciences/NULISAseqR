@@ -12,7 +12,7 @@ params:
   ## string that denotes bridge samples
   Bridge: !r NULL
   ## directory where xml files are located
-  dataDir: "/Users/jbeer/github/TAP-Bonn-COVID/data"
+  dataDir: "/Users/jbeer/github/TAP-Qatar-COVID/data"
   ## variables in XML that indicate row, column, and plate ID
   rowAnnotName: "AUTO_WELLROW"
   colAnnotName: "AUTO_WELLCOL"
@@ -25,7 +25,7 @@ params:
   heatMapRel: !r TRUE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230109_TAP_covid_plate01_nononmatch_XML.xml","20230109_TAP_covid_plate01_nononmatch_XML.xml", "20230109_TAP_covid_plate02_nononmatch_XML.xml")
+  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml", "20230328_TAP_Qatar_plate03_no_nonmatching.xml")
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
   plateNames: !r c()

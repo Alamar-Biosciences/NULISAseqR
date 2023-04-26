@@ -5,25 +5,61 @@
 \title{Read NULISAseq XML}
 \usage{
 readNULISAseq(
-  xml_file,
+  file,
   plateID = NULL,
   file_type = "xml_no_mismatches",
-  replaceNA = TRUE,
-  IPC = NULL,
-  IC = NULL,
-  NC = NULL,
+  target_column_names = NULL,
+  sample_column_names = NULL,
+  IC = "mCherry",
+  IPC = "IPC",
+  SC = "SC",
+  NC = "NC",
   Bridge = NULL,
-  SC = NULL
+  replaceNA = TRUE
 )
 }
 \arguments{
-\item{xml_file}{Character string. Path and name of the file.}
+\item{file}{Character string. Path and name of the file.}
 
 \item{plateID}{Character string that denotes plate ID.}
 
-\item{file_type}{Character string. Type of input file, as output from Galaxy. Options include
-xml_full_output, xml_no_mismatches (default) (both from NULISAseq tool),
-or xml_normalization (from NULISAseq Normalization tool).}
+\item{file_type}{Character string. Type of input file.
+Options include \code{xml_no_mismatches} (default, output from Galaxy NULISAseq tool),
+\code{xml_full_output} (output from Galaxy NULISAseq tool, not currently implemented),
+or \code{csv_long} (output from \code{writeNULISAseq()} function).}
+
+\item{target_column_names}{A vector of column names for target-specific data
+that will appear in the target data frame output. 
+Only used for \code{csv_long} format, and only needed when target column names
+are different from the default, which are \code{c('Target', 'AlamarTargetID', 
+'UniProtID', 'ProteinName')}.}
+
+\item{sample_column_names}{A vector of column names for sample-specific data
+that will appear in the sample data frame output. 
+Only used for \code{csv_long} format, and only needed when sample column names
+are different from the default. Default includes all column names in the csv except 
+for the target column names, given above (either the default or whatever is specified), 
+and the following: \code{c('Panel', 'PanelLotNumber', 'LOD', 'log2NormalizedCount')}. 
+The sample-specific data
+will include by default \code{c('PlateID', 'SampleName', 'SampleType', 'SampleQC')}.
+In addition, by default, it will include any other variables in the dataset.
+If \code{sample_column_names} is specified, however, it will only include
+those variables in the sample data frame output.}
+
+\item{IC}{string(s) that represents the names of internal control targets. 
+Default is \code{'mCherry'}.Only used for xml file formats.}
+
+\item{IPC}{string(s) that represent the inter-plate control wells. 
+For example, \code{'IPC'} (default). Set to \code{NULL} if there are no IPCs.
+Only used for xml file formats.}
+
+\item{NC}{string(s) that represent the negative control wells. 
+For example, \code{'NC'} (default). Set to \code{NULL} if there are no NCs.
+Only used for xml file formats.}
+
+\item{Bridge}{string(s) that represent the bridge sample wells. 
+Set to \code{NULL} if there are no bridge samples (default).
+Only used for xml file formats.}
 
 \item{replaceNA}{Logical. If TRUE (default), will replace missing counts with 
 zeros.}
