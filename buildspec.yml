@@ -14,8 +14,12 @@ phases:
     commands:
       - echo Logging in to Amazon ECR ...
       - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_DEFAULT_REGION) $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - echo Cloning the NULISAseqR git repo ...
-      - git clone https://.:$GH_PAT@github.com/Alamar-Biosciences/NULISAseqR.git
+      - |
+        if [ "${CODEBUILD_WEBHOOK_EVENT}" == "pull_request" ]; then
+          echo "Fetching pull request head branch"
+          git fetch origin pull/${CODEBUILD_SOURCE_VERSION}/head:${CODEBUILD_SOURCE_VERSION}
+          git checkout ${CODEBUILD_SOURCE_VERSION}
+        fi
 
   build:
     on-failure: ABORT
