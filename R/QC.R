@@ -18,7 +18,7 @@ QCSampleCriteria <- function(){
                         ICReads=MIN_IC_READS_PER_SAMPLE, 
                         NumReads=MIN_NUM_READS_PER_SAMPLE, 
                         IC_Median=MIN_IC_MEDIAN)
-  retVal$operator <-c(Detectability="<",
+  retVal$operators <-c(Detectability="<",
                        ICReads="<", 
                        NumReads="<", 
                        IC_Median="<,>")
@@ -55,7 +55,7 @@ QCPlateCriteria <- function(){
                          IPCTarget_CV=as.numeric(MAX_MEDIAN_IPC_TARGET_CV), 
                          Detectability=as.numeric(DETECTABILITY_FRAC), 
                          MinReads=as.numeric(MIN_READS))
-  retVal$operator <- c(ICRead_CV=">",IPCRead_CV=">", IPCTarget_CV=">", Detectability="<", MinReads="<")
+  retVal$operators <- c(ICRead_CV=">",IPCRead_CV=">", IPCTarget_CV=">", Detectability="<", MinReads="<")
   retVal$format <- c(ICRead_CV="percentage",IPCRead_CV="percentage", IPCTarget_CV="percentage", Detectability="percentage", MinReads="integer")
   retVal$thresholdNames<-c(IC_Read_CV="MAX_IC_CV",
                          IPCRead_CV="MAX_IPC_CV", 
@@ -149,7 +149,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
   medianMin30 <- mCherry_median - mCherry_median * abs(as.numeric(min_ic_median[0]))
   medianMax30 <- mCherry_median + mCherry_median * abs(as.numeric(min_ic_median[1]))
   medVals <- (raw[ICs, ] - mCherry_median ) / mCherry_median 
-  op <- criteria$operator[which(criteria$thresholdNames=="MIN_IC_MEDIAN")]
+  op <- criteria$operators[which(criteria$thresholdNames=="MIN_IC_MEDIAN")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_IC_MEDIAN")]
   for(j in 1:length(medVals)){
     i <- well_order[j]
@@ -171,7 +171,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
   lod$aboveLOD[which(is.na(lod$aboveLOD))] <- FALSE
   perc_tar <- colSums(lod$aboveLOD == TRUE)/ nrow(lod$aboveLOD)
   perc_tar[NCs] <-NA
-  op <- criteria$operator[which(criteria$thresholdNames=="MIN_FRAC_DETECTABILITY")]
+  op <- criteria$operators[which(criteria$thresholdNames=="MIN_FRAC_DETECTABILITY")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_FRAC_DETECTABILITY")]
   for (j in 1:length(perc_tar)){
     i <- well_order[j]
@@ -190,7 +190,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
   # Minimum number (ICReads) of IC reads within a sample
   ICvals <- raw[ICs, ]
   ICvals[is.na(ICvals)] <- 0
-  op <- criteria$operator[which(criteria$thresholdNames=="MIN_IC_READS_PER_SAMPLE")]
+  op <- criteria$operators[which(criteria$thresholdNames=="MIN_IC_READS_PER_SAMPLE")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_IC_READS_PER_SAMPLE")]
   for (j in 1:length(ICvals)){
     i <- well_order[j]
@@ -209,7 +209,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
   raw2 <- raw
   barNames <- samples$sampleBarcode
   val <- colSums(raw2, na.rm=T)
-  op <- criteria$operator[which(criteria$thresholdNames=="MIN_NUM_READS_PER_SAMPLE")]
+  op <- criteria$operators[which(criteria$thresholdNames=="MIN_NUM_READS_PER_SAMPLE")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_NUM_READS_PER_SAMPLE")]
   for(j in 1:length(val)){
     i <- well_order[j]
@@ -274,7 +274,7 @@ QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=
   ICvals <- raw[ICs,]
   ICvals[is.na(ICvals)] <- 0
   IC_CV <- sd(ICvals, na.rm=T) / mean(ICvals, na.rm=T)
-  op <- criteria$operator[which(criteria$thresholdNames=="MAX_IC_CV")]
+  op <- criteria$operators[which(criteria$thresholdNames=="MAX_IC_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_IC_CV")]
   set <- evalCriterion("ICRead_CV", IC_CV, op, MAX_IC_CV)
   QCFlagReturn <- rbind(QCFlagReturn, c("ICRead_CV", "raw", set, IC_CV, MAX_IC_CV, op, format))
@@ -284,7 +284,7 @@ QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=
   IPCvals[is.na(IPCvals)] <- 0
   IPCvals2 <- colMeans(IPCvals, na.rm=T)
   IPC_CV <- sd(IPCvals2, na.rm=T) / mean(IPCvals2, na.rm=T)
-  op <- criteria$operator[which(criteria$thresholdNames=="MAX_IPC_CV")]
+  op <- criteria$operators[which(criteria$thresholdNames=="MAX_IPC_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_IPC_CV")]
   set <- evalCriterion("IPCRead_CV", IPC_CV, op, MAX_IPC_CV)
   QCFlagReturn <- rbind(QCFlagReturn, c("IPCRead_CV", "raw", set, IPC_CV, MAX_IPC_CV, op, format))
@@ -293,7 +293,7 @@ QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=
   IPCnormvals <- normed[, IPCs]
   IPCnormvals[is.na(IPCvals)] <- 0
   median_IPC_targetCV <- median(apply(IPCnormvals, 1, sd) / rowMeans(IPCnormvals, na.rm=T), na.rm=T) 
-  op <- criteria$operator[which(criteria$thresholdNames=="MAX_MEDIAN_IPC_TARGET_CV")]
+  op <- criteria$operators[which(criteria$thresholdNames=="MAX_MEDIAN_IPC_TARGET_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_MEDIAN_IPC_TARGET_CV")]
   set <- evalCriterion("IPCTarget_CV", median_IPC_targetCV, op, MAX_MEDIAN_IPC_TARGET_CV)
   QCFlagReturn <- rbind(QCFlagReturn, c("IPCTarget_CV", "IC", set, median_IPC_targetCV, MAX_MEDIAN_IPC_TARGET_CV, op, format))
@@ -305,14 +305,14 @@ QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=
   lod$aboveLOD[which(is.na(lod$aboveLOD))] <- FALSE
   perc_tar <- rowSums(lod$aboveLOD == TRUE)/ ncol(lod$aboveLOD)
   perc_all <- length(which(perc_tar > 0.5))/ nrow(lod$aboveLOD)
-  op <- criteria$operator[which(criteria$thresholdNames=="DETECTABILITY_FRAC")]
+  op <- criteria$operators[which(criteria$thresholdNames=="DETECTABILITY_FRAC")]
   format <- criteria$format[which(criteria$thresholdNames=="DETECTABILITY_FRAC")]
   set <- evalCriterion("Detectability", perc_all, op, DETECTABILITY_FRAC)
   QCFlagReturn <- rbind(QCFlagReturn, c("Detectability", "IC", set, perc_all, DETECTABILITY_FRAC, op, format))
 
   ## Min number of reads (R)
   nReads <- sum(raw, na.rm=T)
-  op <- criteria$operator[which(criteria$thresholdNames=="MIN_READS")]
+  op <- criteria$operators[which(criteria$thresholdNames=="MIN_READS")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_READS")]
   set <- evalCriterion("MinReads", nReads, op, MIN_READS)
   QCFlagReturn <- rbind(QCFlagReturn, c("MinReads", "raw", set, nReads, MIN_READS, op, format))

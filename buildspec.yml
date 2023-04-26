@@ -6,6 +6,7 @@ env:
     IMAGE_REPO_NAME: "nulisaseq_r"
     IMAGE_TAG: "latest"
     DOCKERHUB_REPO: "alamarbiosciences/nulisaseq_r"
+    DOCKER_COMPOSE_YML: "docker-compose.test.yml"
 
 phases:
 
@@ -13,6 +14,13 @@ phases:
     commands:
       - echo Logging in to Amazon ECR ...
       - docker login -u AWS -p $(aws ecr get-login-password --region $AWS_DEFAULT_REGION) $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - |
+        if [ "${CODEBUILD_WEBHOOK_EVENT}" == "PULL_REQUEST_CREATED" ] || [ "${CODEBUILD_WEBHOOK_EVENT}" == "PULL_REQUEST_UPDATED" ]; then
+          echo "Fetching pull request head branch ..."
+          git fetch origin pull/${CODEBUILD_SOURCE_VERSION}/head:${CODEBUILD_SOURCE_VERSION}
+          git checkout ${CODEBUILD_SOURCE_VERSION}
+          echo $(ls)
+        fi
 
   build:
     on-failure: ABORT
@@ -22,6 +30,19 @@ phases:
       - echo Tagging the built Docker image ...
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo Build and tagging complete with no errors!
+      - echo Running tests ...
+      - rm -rf $HOME/.cache
+      - docker-compose -f $DOCKER_COMPOSE_YML -p nulisaseqr up -d
+      - docker logs -f nulisaseqr_sut_1
+      - exit_code=$(docker wait nulisaseqr_sut_1)
+      - |
+        if [ $exit_code -ne 0 ]; then
+          echo "Error: One or more tests failed!"
+          (exit 1)
+        else
+          echo "Tests complete with exit code 0. Ready to push!"
+        fi
+      - docker-compose -f $DOCKER_COMPOSE_YML down
 
   post_build:
     commands:
