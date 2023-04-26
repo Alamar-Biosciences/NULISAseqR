@@ -85,7 +85,7 @@ can be used for inter-plate normalization (not currently implemented).}
 \item{NC_string}{Required (or NC wells). Vector of character string(s) that represents NCs in the 
 column names (e.g. 'NC').}
 
-\item{include_IPC}{Logical. Should IPC samples be included in output? Default is TRUE.}
+\item{include_IPC}{Logical. Should IPC samples be included in output? Default is FALSE.}
 
 \item{include_SC}{Logical. Should SC samples be included in output? Default is TRUE.}
 
