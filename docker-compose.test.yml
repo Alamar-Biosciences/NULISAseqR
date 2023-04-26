@@ -1,0 +1,4 @@
+sut:
+  build: .
+  dockerfile: Dockerfile.test
+  command: Rscript --vanilla -e "library(NULISAseqR); testthat::test_dir('/workingDir/tests/testthat/')"

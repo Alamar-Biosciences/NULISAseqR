@@ -19,7 +19,7 @@ writeNULISAseq(
   SC_string = "SC",
   Bridge_string = "Bridge",
   NC_string = "NC",
-  include_IPC = TRUE,
+  include_IPC = FALSE,
   include_SC = TRUE,
   include_Bridge = TRUE,
   include_NC = FALSE,

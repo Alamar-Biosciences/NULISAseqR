@@ -1,0 +1,8 @@
+FROM nulisaseq_r:latest
+
+EXPOSE 8000
+
+WORKDIR /workingDir
+COPY ./tests/ /workingDir/tests/
+
+CMD ["bash"]
