@@ -1,7 +1,7 @@
 # Define a test for QCSampleCriteria
 test_that("QCSampleCriteria returns expected output", {
   expected_thresholds <- c(Detectability=0.8, ICReads=1000, NumReads=500000, IC_Median="-0.3,0.3")
-  expected_operators <- c(Detectability=">", ICReads=">", NumReads=">", IC_Median=">,<")
+  expected_operators <- c(Detectability="<", ICReads="<", NumReads="<", IC_Median="<,>")
   
   qc_criteria <- QCSampleCriteria()
   
