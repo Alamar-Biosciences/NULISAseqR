@@ -418,7 +418,7 @@ for (i in 1:length(params$xmlFiles)){
                          formatC(median(plate_detect$detectability, na.rm=TRUE), width=2),
                          formatC(min(plate_detect$detectability, na.rm=TRUE), width=2),
                          formatC(max(plate_detect$detectability, na.rm=TRUE), width=2),
-                         paste0(sum(plate_detect$detectability >= 50),
+                         paste0(sum(plate_detect$detectability > 50),
                                 ' (',
                                 format(round(sum(plate_detect$detectability > 50)/length(plate_detect$detectability) * 100, 1), nsmall=1),
                                 '%)'))
@@ -449,7 +449,7 @@ if(length(params$xmlFiles) > 1){
                                  formatC(median(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
                                  formatC(min(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
                                  formatC(max(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
-                                 paste0(sum(detectability_targets[,'Overall'] >= 50),
+                                 paste0(sum(detectability_targets[,'Overall'] > 50),
                                         ' (',
                                         format(round(sum(detectability_targets[,'Overall'] > 50)/length(detectability_targets[,'Overall']) * 100, 1), nsmall=1),
                                         '%)'))
@@ -906,7 +906,7 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
-Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in at least 50% of samples. "Overall" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes IPCs, SCs, NCs, and bridge samples. 
+Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in greater than 50% of samples. "Overall" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes IPCs, SCs, NCs, and bridge samples. 
 ```{r, echo=FALSE}
 # calculate fig.asp for detectability plots
 detect_fig_asp <- 2*ceiling(length(params$xmlFiles)/2)
