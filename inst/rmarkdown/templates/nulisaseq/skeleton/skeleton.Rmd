@@ -33,6 +33,9 @@ params:
   ## options:
   ## internal
   ## WebApp
+  # list of names of samples to exclude
+  # excludeSamples: !r list(c('A_01_C001 P3', 'A_02_C044 P1'), c('A_01_C040 P1'))
+  excludeSamples: !r NULL
   reportType: "internal"
 output:
   html_document:
@@ -137,6 +140,18 @@ multipleFiles <- if(length(params$xmlFiles) > 1) TRUE else FALSE
 indicatorSC <- if(sum(sapply(runs, function(x) length(x$SC)))==0) FALSE else TRUE
 # set Bridge indicator
 indicatorBridge <- if(sum(sapply(runs, function(x) length(x$Bridge)))==0) FALSE else TRUE
+```
+
+```{r, include=FALSE}
+# exclude samples if specified
+if(!is.null(params$excludeSamples)){
+  for(i in 1:length(params$xmlFiles)){
+    exclude_samples <- params$excludeSamples[[i]]
+    runs[[i]]$samples <- runs[[i]]$samples[!(runs[[i]]$samples$sampleName %in% exclude_samples),]
+    runs[[i]]$SampleNames <- runs[[i]]$SampleNames[!(runs[[i]]$SampleNames %in% exclude_samples)]
+    runs[[i]]$Data <- runs[[i]]$Data[,!(colnames(runs[[i]]$Data) %in% exclude_samples)]
+  }
+}
 ```
 
 ```{r, include=FALSE}
@@ -403,7 +418,7 @@ for (i in 1:length(params$xmlFiles)){
                          formatC(median(plate_detect$detectability, na.rm=TRUE), width=2),
                          formatC(min(plate_detect$detectability, na.rm=TRUE), width=2),
                          formatC(max(plate_detect$detectability, na.rm=TRUE), width=2),
-                         paste0(sum(plate_detect$detectability >= 50),
+                         paste0(sum(plate_detect$detectability > 50),
                                 ' (',
                                 format(round(sum(plate_detect$detectability > 50)/length(plate_detect$detectability) * 100, 1), nsmall=1),
                                 '%)'))
@@ -434,7 +449,7 @@ if(length(params$xmlFiles) > 1){
                                  formatC(median(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
                                  formatC(min(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
                                  formatC(max(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
-                                 paste0(sum(detectability_targets[,'Overall'] >= 50),
+                                 paste0(sum(detectability_targets[,'Overall'] > 50),
                                         ' (',
                                         format(round(sum(detectability_targets[,'Overall'] > 50)/length(detectability_targets[,'Overall']) * 100, 1), nsmall=1),
                                         '%)'))
@@ -460,12 +475,12 @@ data_mCherry_log2_scaled <- list()
 data_mCherry_log2_no_NC_scaled <- list()
 for(i in 1:length(params$xmlFiles)){
   data_mCherry <- intraPlateNormData[[i]]$mCherry$normData
-    # remove ICs
+  # remove ICs
   data_mCherry <- data_mCherry[!grepl(paste(runs[[i]]$IC, collapse="|"), rownames(data_mCherry)),]
   # remove NCs to calculate center and scale (so NCs don't skew the scale parameters)
   data_mCherry_no_NC <- data_mCherry[,!grepl(paste(runs[[i]]$NC, collapse="|"), colnames(data_mCherry))]
   data_mCherry_log2_no_NC_scaled[[i]] <- t(scale(t(log2(data_mCherry_no_NC + 0.01)),
-                                           center=TRUE, scale=TRUE))
+                                                 center=TRUE, scale=TRUE))
   # log transform and scale targets
   data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry + 0.01)),
                                            center=attributes(data_mCherry_log2_no_NC_scaled[[i]])$`scaled:center`, 
@@ -750,6 +765,7 @@ QC_sample_fail <- vector(mode='list', length=length(names(criteria$thresholds)))
 names(QC_sample_fail) <- names(criteria$thresholds)
 QC_sample_fail <- lapply(QC_sample_fail, function(x) x <- data.frame(Plate=character(0), QC_fail_samples=character(0)))
 for (i in 1:length(runs)){
+  well_order <- wellorder(runs[[i]]$samples)
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
   for (j in 1:length(criteria$thresholds)){
     QC_criterion_j_data <- qcSample[qcSample$flagName == names(criteria$thresholds)[j], ]
@@ -890,7 +906,7 @@ for( i in 1:length(runs)){
 ---
 
 ## Detectability
-Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in at least 50% of samples. "Overall" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes IPCs, SCs, NCs, and bridge samples. 
+Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in greater than 50% of samples. "Overall" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes IPCs, SCs, NCs, and bridge samples. 
 ```{r, echo=FALSE}
 # calculate fig.asp for detectability plots
 detect_fig_asp <- 2*ceiling(length(params$xmlFiles)/2)
