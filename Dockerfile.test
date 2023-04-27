@@ -5,6 +5,7 @@ EXPOSE 8000
 WORKDIR /workingDir
 COPY ./tests/ /workingDir/tests/
 COPY ./inst /workingDir/inst/
+COPY NGSNormalize.xsd /workingDir/
 
 RUN set -eu; \
   install.r withr \
