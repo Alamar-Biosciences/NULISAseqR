@@ -76,7 +76,7 @@ lmNULISAseq <- function(data,
   }
   # get sample subset
   if(!is.null(exclude_samples) & is.null(sample_subset)){
-    data <- data[,!(rownames(data) %in% exclude_samples)]
+    data <- data[,!(colnames(data) %in% exclude_samples)]
     sampleInfo <- sampleInfo[!(sampleInfo[,sampleName_var] %in% exclude_samples),]
   } 
   if(!is.null(sample_subset)){

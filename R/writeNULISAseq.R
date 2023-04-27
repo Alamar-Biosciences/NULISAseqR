@@ -77,7 +77,7 @@
 #' can be used for inter-plate normalization (not currently implemented).
 #' @param NC_string Required (or NC wells). Vector of character string(s) that represents NCs in the 
 #' column names (e.g. 'NC'). 
-#' @param include_IPC Logical. Should IPC samples be included in output? Default is TRUE.
+#' @param include_IPC Logical. Should IPC samples be included in output? Default is FALSE.
 #' @param include_SC Logical. Should SC samples be included in output? Default is TRUE.
 #' @param include_Bridge Logical. Should Bridge samples be included in output? Default is TRUE.
 #' @param include_NC Logical. Should NC samples be included in output? Default is FALSE.
