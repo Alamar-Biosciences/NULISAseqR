@@ -7,6 +7,32 @@ params:
   ## XML file names
   xmlFiles: !r c("20230522_NULISAseq_Data_etr_H4htpaIE_output_xml.xml","20230522_NULISAseq_Data_etr_rZ2fRDqC_output_xml.xml")
   dataRuns: NULL 
+  ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
+  # first IC will be used for LOD calculations (should typically be mCherry)
+  IC: !r c("mCherry")
+  ## string that denotes inter-plate controls
+  IPC: !r c("IPC")
+  ## string that denotes negative controls
+  NC: !r c("NC")
+  ## string that denotes sample controls
+  SC: !r c("SC")
+  ## string that denotes bridge samples
+  Bridge: !r NULL
+  ## directory where xml files are located
+  dataDir: "."
+  ## variables in XML that indicate row, column, and plate ID
+  rowAnnotName: "AUTO_WELLROW"
+  colAnnotName: "AUTO_WELLCOL"
+  plateAnnotName: "AUTO_PLATE"
+  ## older version names for row, column, plate ID variables 
+  # rowAnnotName: "Annot2"
+  # colAnnotName: "Annot3"
+  # plateAnnotName: "Annot1"
+  ## should heatmaps show % median units?
+  heatMapRel: !r TRUE
+  study_name: "Study Name"
+  assayName: "NULISAseq 200-plex Inflammation Panel"
+  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
   plateNames: !r c()
