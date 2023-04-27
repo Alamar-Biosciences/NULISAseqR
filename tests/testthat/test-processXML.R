@@ -8,8 +8,8 @@ test_that("", {
   input2 <- paste0(test_path, "20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
   val <- withr::with_tempfile("file1", {
     out <- processXML(in_xml=input1, out_XML=file1)
-    schema <- read_xml(schema_file, package="xml2")
-    input <- read_xml(file1, package="xml2")
+    schema <- xml2::read_xml(schema_file, package="xml2")
+    input <- xml2::read_xml(file1, package="xml2")
     xml_validate(input, schema)
   })
   expect_equal(val[1], TRUE)
