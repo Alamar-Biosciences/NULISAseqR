@@ -10,7 +10,7 @@ test_that("", {
     out <- processXML(in_xml=input1, out_XML=file1)
     schema <- xml2::read_xml(schema_file, package="xml2")
     input <- xml2::read_xml(file1, package="xml2")
-    xml_validate(input, schema)
+    xml2::xml_validate(input, schema)
   })
   expect_equal(val[1], TRUE)
 })
