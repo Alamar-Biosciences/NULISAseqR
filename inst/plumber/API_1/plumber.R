@@ -110,10 +110,10 @@ xml2html <- function(res,
                      study_name = "Study Name",
                      assayName = "NULISAseq 200-plex Inflammation Panel") {
    promises::future_promise({
-#     UUID <- uuid::UUIDgenerate()
-#     tempFile <- paste0(UUID, ".Rmd")
-#     outFile <- paste0(UUID, ".html")
-#     outFilePDF <- paste0(UUID, ".pdf")
+     UUID <- uuid::UUIDgenerate()
+     tempFile <- paste0(UUID, ".Rmd")
+     outFile <- paste0(UUID, ".html")
+     outFilePDF <- paste0(UUID, ".pdf")
 #     file.copy(rmd_path, tempFile)
 
 #     # Handle multiple XML inputs
