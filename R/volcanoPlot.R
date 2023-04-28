@@ -92,8 +92,8 @@ volcanoPlot <- function(coefs,
                                                label=target_labels)) + 
     ggplot2::xlim(xlimits) +
     ggplot2::ylim(ylimits) +
-    ggplot2::geom_vline(xintercept = 0) +
-    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::geom_vline(xintercept = 0, color='grey') +
+    ggplot2::geom_hline(yintercept = 0, color='grey') +
     ggplot2::geom_point(shape=20, ggplot2::aes(color=target_point_colors)) +
     ggplot2::scale_color_manual(values=colors) +
     ggplot2::xlab(xlabel) +
