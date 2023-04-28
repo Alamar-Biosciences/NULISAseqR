@@ -94,26 +94,26 @@ xml2html <- function(res,
   })
 }
 
-# #* @param in_xml:[file] Character string. Path and name of the file.
-# #* @param IPC Name to search for Interprocess control (IPC) samples
-# #* @param NC Name to search for Negative control (NC) samples
-# #* @param IC Name to search for Internal Control (IC) targets
-# #* @param study_name Name of the study
-# #* @param assayName Name of the assay
-# #* @serializer contentType list(type="application/pdf")
-# #* @post /xml2pdf
-# xml2pdf <- function(res,
-#                     in_xml,
-#                     IPC = c("InterProcessControl"),
-#                     NC = c("NegativeControl"),
-#                     IC = c("mCherry"),
-#                     study_name = "Study Name",
-#                     assayName = "NULISAseq 200-plex Inflammation Panel") {
-#   promises::future_promise({
-#     UUID <- uuid::UUIDgenerate()
-#     tempFile <- paste0(UUID, ".Rmd")
-#     outFile <- paste0(UUID, ".html")
-#     outFilePDF <- paste0(UUID, ".pdf")
+#* @param in_xml:[file] Character string. Path and name of the file.
+#* @param IPC Name to search for Interprocess control (IPC) samples
+#* @param NC Name to search for Negative control (NC) samples
+#* @param IC Name to search for Internal Control (IC) targets
+#* @param study_name Name of the study
+#* @param assayName Name of the assay
+#* @serializer contentType list(type="application/pdf")
+#* @post /xml2pdf
+xml2pdf <- function(res,
+                     in_xml,
+                     IPC = c("InterProcessControl"),
+                     NC = c("NegativeControl"),
+                     IC = c("mCherry"),
+                     study_name = "Study Name",
+                     assayName = "NULISAseq 200-plex Inflammation Panel") {
+   promises::future_promise({
+     UUID <- uuid::UUIDgenerate()
+     tempFile <- paste0(UUID, ".Rmd")
+     outFile <- paste0(UUID, ".html")
+     outFilePDF <- paste0(UUID, ".pdf")
 #     file.copy(rmd_path, tempFile)
 
 #     # Handle multiple XML inputs
@@ -135,6 +135,9 @@ xml2html <- function(res,
 #     chrome_path <- Sys.which("chromium-browser")
 #     pagedown::chrome_print(outFile, outFilePDF, extra_args = c("--no-sandbox", "--disable-gpu"), browser = chrome_path, verbose = 2) # nolint
 #     unlink(outFile)
-#     readBin(outFilePDF, "raw", n = file.info(outFilePDF)$size)
-#   })
-# }
+     pdf(outFilePDF)
+     plot(c(1,2,3,4,5,6,7,8))
+     dev.off()
+     readBin(outFilePDF, "raw", n = file.info(outFilePDF)$size)
+   })
+ }
