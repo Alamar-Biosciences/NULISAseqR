@@ -102,14 +102,14 @@ xml2html <- function(res,
 # #* @param assayName Name of the assay
 # #* @serializer contentType list(type="application/pdf")
 # #* @post /xml2pdf
-# xml2pdf <- function(res,
-#                     in_xml,
-#                     IPC = c("InterProcessControl"),
-#                     NC = c("NegativeControl"),
-#                     IC = c("mCherry"),
-#                     study_name = "Study Name",
-#                     assayName = "NULISAseq 200-plex Inflammation Panel") {
-#   promises::future_promise({
+ xml2pdf <- function(res,
+                     in_xml,
+                     IPC = c("InterProcessControl"),
+                     NC = c("NegativeControl"),
+                     IC = c("mCherry"),
+                     study_name = "Study Name",
+                     assayName = "NULISAseq 200-plex Inflammation Panel") {
+   promises::future_promise({
 #     UUID <- uuid::UUIDgenerate()
 #     tempFile <- paste0(UUID, ".Rmd")
 #     outFile <- paste0(UUID, ".html")
@@ -135,6 +135,9 @@ xml2html <- function(res,
 #     chrome_path <- Sys.which("chromium-browser")
 #     pagedown::chrome_print(outFile, outFilePDF, extra_args = c("--no-sandbox", "--disable-gpu"), browser = chrome_path, verbose = 2) # nolint
 #     unlink(outFile)
-#     readBin(outFilePDF, "raw", n = file.info(outFilePDF)$size)
-#   })
-# }
+     pdf(outFilePDF)
+     plot(c(1,2,3,4,5,6,7,8))
+     dev.off()
+     readBin(outFilePDF, "raw", n = file.info(outFilePDF)$size)
+   })
+ }
