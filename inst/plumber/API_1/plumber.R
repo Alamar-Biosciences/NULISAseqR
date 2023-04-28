@@ -59,6 +59,7 @@ normXML <- function(in_xml,
 #* @param IC Name to search for Internal Control (IC) targets
 #* @param study_name Name of the study
 #* @param assayName Name of the assay
+#* @param excludeSamples Sample barcodes to be excluded from analysis
 #* @serializer html
 #* @post /xml2html
 xml2html <- function(res,
@@ -67,7 +68,8 @@ xml2html <- function(res,
                      NC = c("NegativeControl"),
                      IC = c("mCherry"),
                      study_name = "Study Name",
-                     assayName = "NULISAseq 200-plex Inflammation Panel") {
+                     assayName = "NULISAseq 200-plex Inflammation Panel",
+                     excludeSamples = NULL) {
   promises::future_promise({
     UUID <- uuid::UUIDgenerate()
     tempFile <- paste0(UUID, ".Rmd")
@@ -88,7 +90,8 @@ xml2html <- function(res,
                                     NC = NC,
                                     IC = IC,
                                     study_name = study_name,
-                                    assayName = assayName))
+                                    assayName = assayName,
+                                    excludeSamples = excludeSamples))
     unlink(tempFile)
     readBin(outFile, "raw", n = file.info(outFile)$size)
   })
