@@ -94,15 +94,15 @@ xml2html <- function(res,
   })
 }
 
-# #* @param in_xml:[file] Character string. Path and name of the file.
-# #* @param IPC Name to search for Interprocess control (IPC) samples
-# #* @param NC Name to search for Negative control (NC) samples
-# #* @param IC Name to search for Internal Control (IC) targets
-# #* @param study_name Name of the study
-# #* @param assayName Name of the assay
-# #* @serializer contentType list(type="application/pdf")
-# #* @post /xml2pdf
- xml2pdf <- function(res,
+#* @param in_xml:[file] Character string. Path and name of the file.
+#* @param IPC Name to search for Interprocess control (IPC) samples
+#* @param NC Name to search for Negative control (NC) samples
+#* @param IC Name to search for Internal Control (IC) targets
+#* @param study_name Name of the study
+#* @param assayName Name of the assay
+#* @serializer contentType list(type="application/pdf")
+#* @post /xml2pdf
+xml2pdf <- function(res,
                      in_xml,
                      IPC = c("InterProcessControl"),
                      NC = c("NegativeControl"),
