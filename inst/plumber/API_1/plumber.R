@@ -8,7 +8,7 @@
 ##################
 
 # Define global vars and other options
-rmd_path <- "./inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"
+rmd_path <- "/workingDir/NULISAseqR/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"
 options(pagedown.remote.maxattempts = 40)
 options(pagedown.remote.sleeptime = 2)
 
