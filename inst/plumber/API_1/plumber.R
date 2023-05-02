@@ -151,6 +151,7 @@ xml2pdf <- function(res,
 #* @param PanelLotNumber Panel lot number
 #* @param panel Name of the panel. Defaults to "200-plex Inflammation v1".
 #* @param ICs Vector of string(s). Internal control names. Default is "mCherry".
+#* @param SC_string Vector of character string(s) that represents SCs in the column. Default is "SC".
 #* @param excludeSamples Sample barcodes to be excluded from analysis.
 #* @serializer contentType list(type="text/csv")
 #* @post /xml2counts
@@ -161,11 +162,14 @@ xml2counts <- function(res,
                        PanelLotNumber,
                        panel = "200-plex Inflammation v1",
                        ICs = "mCherry",
+                       SC_string = "SC",
                        excludeSamples = NULL) {
   promises::future_promise({
     # Temp output csv file
     UUID <- uuid::UUIDgenerate()
     outFile <- paste0(UUID, ".csv")
+
+    print(excludeSamples)
 
     # Write XML content to temporary files
     xml_files <- NULL
@@ -189,7 +193,7 @@ xml2counts <- function(res,
                                Panel = panel,
                                PanelLotNumber = PanelLotNumber,
                                ICs = ICs,
-                               SC_string = "SC",
+                               SC_string = SC_string,
                                excludeSamples = excludeSamples)
     bin <- readBin(outFile, "raw", n = file.info(outFile)$size)
 
