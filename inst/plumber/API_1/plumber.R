@@ -8,7 +8,7 @@
 ##################
 
 # Define global vars and other options
-rmd_path <- "/workingDir/NULISAseqR/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"
+rmd_path <- "./inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"
 options(pagedown.remote.maxattempts = 40)
 options(pagedown.remote.sleeptime = 2)
 
@@ -77,7 +77,7 @@ xml2html <- function(res,
     file.copy(rmd_path, tempFile)
 
     # Convert to vectors: If a comma-separated string encounters
-    excludeSamples <- unlist(strsplit(excludeSamples, "\\s*,\\s*"))
+    excludeSamples <- if (!is.null(excludeSamples)) unlist(strsplit(excludeSamples, "\\s*,\\s*"))
     IPC <- unlist(strsplit(IPC, "\\s*,\\s*"))
     NC <- unlist(strsplit(NC, "\\s*,\\s*"))
     IC <- unlist(strsplit(IC, "\\s*,\\s*"))
@@ -176,9 +176,9 @@ xml2counts <- function(res,
     # Temp output csv file
     UUID <- uuid::UUIDgenerate()
     outFile <- paste0(UUID, ".csv")
-    
+
     # Convert to vectors: If a comma-separated string encounters
-    excludeSamples <- unlist(strsplit(excludeSamples, "\\s*,\\s*"))
+    excludeSamples <- if (!is.null(excludeSamples)) unlist(strsplit(excludeSamples, "\\s*,\\s*"))
     ICs <- unlist(strsplit(ICs, "\\s*,\\s*"))
     SC_string <- unlist(strsplit(SC_string, "\\s*,\\s*"))
 
