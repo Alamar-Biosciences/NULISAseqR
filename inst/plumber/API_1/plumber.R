@@ -98,8 +98,10 @@ xml2html <- function(res,
                                     study_name = study_name,
                                     assayName = assayName,
                                     excludeSamples = excludeSamples))
-    unlink(tempFile)
-    readBin(outFile, "raw", n = file.info(outFile)$size)
+    bin <- readBin(outFile, "raw", n = file.info(outFile)$size)
+    unlink(c(tempFile, outFile))
+
+    return(bin)
   })
 }
 
