@@ -76,6 +76,12 @@ xml2html <- function(res,
     outFile <- paste0(UUID, ".html")
     file.copy(rmd_path, tempFile)
 
+    # Convert to vectors: If a comma-separated string encounters
+    excludeSamples <- unlist(strsplit(excludeSamples, "\\s*,\\s*"))
+    IPC <- unlist(strsplit(IPC, "\\s*,\\s*"))
+    NC <- unlist(strsplit(NC, "\\s*,\\s*"))
+    IC <- unlist(strsplit(IC, "\\s*,\\s*"))
+
     # Handle multiple XML inputs
     xml_files_list <- lapply(in_xml, toString)
     xml_files_vec <- as.character(unlist(xml_files_list))
@@ -161,15 +167,18 @@ xml2counts <- function(res,
                        sample_info_file,
                        PanelLotNumber,
                        panel = "200-plex Inflammation v1",
-                       ICs = "mCherry",
-                       SC_string = "SC",
-                       excludeSamples = NULL) {
+                       ICs = c("mCherry"),
+                       SC_string = c("SC"),
+                       excludeSamples = c(NULL)) {
   promises::future_promise({
     # Temp output csv file
     UUID <- uuid::UUIDgenerate()
     outFile <- paste0(UUID, ".csv")
-
-    print(excludeSamples)
+    
+    # Convert to vectors: If a comma-separated string encounters
+    excludeSamples <- unlist(strsplit(excludeSamples, "\\s*,\\s*"))
+    ICs <- unlist(strsplit(ICs, "\\s*,\\s*"))
+    SC_string <- unlist(strsplit(SC_string, "\\s*,\\s*"))
 
     # Write XML content to temporary files
     xml_files <- NULL
