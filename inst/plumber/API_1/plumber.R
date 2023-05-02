@@ -209,10 +209,7 @@ xml2counts <- function(res,
     bin <- readBin(outFile, "raw", n = file.info(outFile)$size)
 
     # Clean the workspace
-    all_temp_files <- NULL
-    all_temp_files <- c(all_temp_files, xml_files,
-                        target_info_file_local, sample_info_file_local, outFile)
-    unlink(all_temp_files)
+    unlink(c(xml_files, target_info_file_local, sample_info_file_local, outFile))
 
     return(bin)
   })
