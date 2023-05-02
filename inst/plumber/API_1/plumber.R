@@ -76,6 +76,12 @@ xml2html <- function(res,
     outFile <- paste0(UUID, ".html")
     file.copy(rmd_path, tempFile)
 
+    # Convert to vectors: If a comma-separated string encounters
+    excludeSamples <- if (!is.null(excludeSamples)) unlist(strsplit(excludeSamples, "\\s*,\\s*"))
+    IPC <- unlist(strsplit(IPC, "\\s*,\\s*"))
+    NC <- unlist(strsplit(NC, "\\s*,\\s*"))
+    IC <- unlist(strsplit(IC, "\\s*,\\s*"))
+
     # Handle multiple XML inputs
     xml_files_list <- lapply(in_xml, toString)
     xml_files_vec <- as.character(unlist(xml_files_list))
@@ -92,8 +98,10 @@ xml2html <- function(res,
                                     study_name = study_name,
                                     assayName = assayName,
                                     excludeSamples = excludeSamples))
-    unlink(tempFile)
-    readBin(outFile, "raw", n = file.info(outFile)$size)
+    bin <- readBin(outFile, "raw", n = file.info(outFile)$size)
+    unlink(c(tempFile, outFile))
+
+    return(bin)
   })
 }
 
@@ -144,3 +152,65 @@ xml2pdf <- function(res,
      readBin(outFilePDF, "raw", n = file.info(outFilePDF)$size)
    })
  }
+
+#* @param in_xml:[file] Character string vector. Path(s) and name(s) of the file(s).
+#* @param target_info_file:file Target information file. Note that this is version specific!
+#* @param sample_info_file:file Sample information file. Note that this is experiment specific and has sampleName and plateID columns! # nolint
+#* @param PanelLotNumber Panel lot number
+#* @param panel Name of the panel. Defaults to "200-plex Inflammation v1".
+#* @param ICs Vector of string(s). Internal control names. Default is "mCherry".
+#* @param SC_string Vector of character string(s) that represents SCs in the column. Default is "SC".
+#* @param excludeSamples Sample barcodes to be excluded from analysis.
+#* @serializer contentType list(type="text/csv")
+#* @post /xml2counts
+xml2counts <- function(res,
+                       in_xml,
+                       target_info_file,
+                       sample_info_file,
+                       PanelLotNumber,
+                       panel = "200-plex Inflammation v1",
+                       ICs = c("mCherry"),
+                       SC_string = c("SC"),
+                       excludeSamples = c(NULL)) {
+  promises::future_promise({
+    # Temp output csv file
+    UUID <- uuid::UUIDgenerate()
+    outFile <- paste0(UUID, ".csv")
+
+    # Convert to vectors: If a comma-separated string encounters
+    excludeSamples <- if (!is.null(excludeSamples)) unlist(strsplit(excludeSamples, "\\s*,\\s*"))
+    ICs <- unlist(strsplit(ICs, "\\s*,\\s*"))
+    SC_string <- unlist(strsplit(SC_string, "\\s*,\\s*"))
+
+    # Write XML content to temporary files
+    xml_files <- NULL
+    for (i in seq_along(in_xml)) {
+      xml_files[i] <- tempfile(tmpdir = ".", fileext = ".xml")
+      writeLines(in_xml[[i]], xml_files[i])
+    }
+
+    # Write target information and sample information files to temp files
+    target_info_file_local <- tempfile(tmpdir = ".", fileext = ".csv")
+    writeLines(toString(target_info_file), target_info_file_local)
+    sample_info_file_local <- tempfile(tmpdir = ".", fileext = ".csv")
+    writeLines(toString(sample_info_file), sample_info_file_local)
+
+    # Generate counts output file
+    NULISAseqR::writeNULISAseq(xml_files = xml_files,
+                               dataDir = ".",
+                               target_info_file = target_info_file_local,
+                               sample_info_file = sample_info_file_local,
+                               output_filename = outFile,
+                               Panel = panel,
+                               PanelLotNumber = PanelLotNumber,
+                               ICs = ICs,
+                               SC_string = SC_string,
+                               excludeSamples = excludeSamples)
+    bin <- readBin(outFile, "raw", n = file.info(outFile)$size)
+
+    # Clean the workspace
+    unlink(c(xml_files, target_info_file_local, sample_info_file_local, outFile))
+
+    return(bin)
+  })
+}
