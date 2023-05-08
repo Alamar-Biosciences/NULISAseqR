@@ -24,7 +24,8 @@ volcanoPlot(
   tick_label_font_size = 12,
   target_label_size = 2,
   target_label_segment_color = "grey",
-  plot_aspect_ratio = 1
+  plot_aspect_ratio = 1,
+  log_y = TRUE
 )
 }
 \arguments{
@@ -72,6 +73,9 @@ will have labels. "Inf" (default) labels all targets.}
 \item{target_label_segment_color}{Color of line segments for target labels.}
 
 \item{plot_aspect_ratio}{Aspect ratio for plot. Default is 1 (square plot).}
+
+\item{log_y}{Logical \code{TRUE} (default) or \code{FALSE}. Should y-axis be 
+-log10 transformed? (\code{TRUE} recommended for plotting p-values.)}
 }
 \value{
 Outputs a ggplot object.
