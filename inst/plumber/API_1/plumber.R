@@ -59,7 +59,7 @@ normXML <- function(in_xml,
 #* @param IC Name to search for Internal Control (IC) targets
 #* @param study_name Name of the study
 #* @param assayName Name of the assay
-#* @param reportType Type of the report. Options: "webApp", "internal".
+#* @param reportType Type of the report. Options: "WebApp", "internal".
 #* @param excludeSamples Sample barcodes to be excluded from analysis
 #* @serializer html
 #* @post /xml2html
