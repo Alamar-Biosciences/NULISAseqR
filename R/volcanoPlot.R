@@ -29,6 +29,8 @@
 #' @param target_label_size Font size of target labels.
 #' @param target_label_segment_color Color of line segments for target labels.
 #' @param plot_aspect_ratio Aspect ratio for plot. Default is 1 (square plot).
+#' @param log_y Logical \code{TRUE} (default) or \code{FALSE}. Should y-axis be 
+#' -log10 transformed? (\code{TRUE} recommended for plotting p-values.)
 #'
 #' @return Outputs a ggplot object. 
 #'
@@ -56,7 +58,8 @@ volcanoPlot <- function(coefs,
                         tick_label_font_size=12,
                         target_label_size=2,
                         target_label_segment_color='grey',
-                        plot_aspect_ratio=1){
+                        plot_aspect_ratio=1,
+                        log_y=TRUE){
   
   if(label_all_targets==FALSE){
     # do not label insignificant targets
@@ -78,11 +81,16 @@ volcanoPlot <- function(coefs,
     xmin <- xlimits[1]
   }
   if(is.null(ylimits)){
-    ylimits <- c(0, max(-log10(p_vals)))
+    if (log_y==TRUE) ymax <- max(-log10(p_vals))
+    if (log_y==FALSE) ymax <- max(p_vals)
+    ylimits <- c(0, ymax)
   }
   # organize plot data
+  if (log_y==TRUE) y_vals <- -log10(p_vals)
+  if(log_y==FALSE) y_vals <- (p_vals)
+  
   plot_data <- data.frame(coefs=coefs,
-                          minus_log10_p_vals=-log10(p_vals),
+                          minus_log10_p_vals=y_vals,
                           target_labels=target_labels,
                           target_point_colors=target_point_colors)
   
