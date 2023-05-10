@@ -117,6 +117,10 @@ for(i in 1:length(params$xmlFiles)){
   runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=PlateNames[i], 
                              NC=params$NC, SC=params$SC, IC=params$IC, 
                              IPC=params$IPC, Bridge=params$Bridge)
+  # check if plate / row / col AnnotName match the data
+  if(!(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples))){
+    stop('plate / row / col AnnotName do not match the data. Check and update params.')
+  }
   # summarize each plate
   runSummaries[[i]] <- plateSummary(runs[[i]])
   read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
