@@ -28,13 +28,16 @@
 #' "disease * age + sex + plate"} includes both main and interaction 
 #' effects for disease and age. See \code{?lmer()}.
 #' @param modelFormula_random A string that represents the random effects part of the model 
-#' formula on the used for the linear mixed effects model. This includes everything
-#' inside the \code{()} For example \code{modelFormula_random = "1|participant_ID"} 
+#' formula on the used for the linear mixed effects model. 
+#' For example \code{modelFormula_random = "(1|participant_ID)"} 
 #' creates a subject specific random intercept, where the variable 
 #' \code{participant_ID} (a column in \code{sampleInfo} data frame) denotes 
 #' repeated measures on the same subject. For subject-specific random intercept and 
 #' slopes (not recommended when time is categorical), 
-#' use \code{modelFormula_random = "1 + time|participant_ID"}.
+#' use \code{modelFormula_random = "(1 + time|participant_ID)"}. For random 
+#' subject nested within plate (which may be useful when analyzing
+#' a large number of plates together), use \code{modelFormula_random = 
+#' "(1|plate_ID) + (1|participant_ID:plate_ID)"}.
 #' See \code{?lmer()}.
 #' @param reduced_modelFormula_fixed Optional reduced model formula 
 #' for fixed effects that contains only a subset of the terms in modelFormula. 
@@ -117,8 +120,8 @@ lmerNULISAseq <- function(data,
                         all.x=TRUE, all.y=FALSE,
                         by.x=sampleName_var, by.y='sampleName')
     model_formula <- as.formula(paste0('target_data ~ ', 
-                                       modelFormula_fixed, ' + (', 
-                                       modelFormula_random, ')'))
+                                       modelFormula_fixed, ' + ', 
+                                       modelFormula_random))
     model_fit <- lmerTest::lmer(model_formula, data=model_data)
     coef_table <- summary(model_fit)$coefficients
     coefs <- coef_table[2:nrow(coef_table),1]
@@ -155,8 +158,8 @@ lmerNULISAseq <- function(data,
                           all.x=TRUE, all.y=FALSE,
                           by.x=sampleName_var, by.y='sampleName')
       model_formula <- as.formula(paste0('target_data ~ ', 
-                                         reduced_modelFormula_fixed, ' + (', 
-                                         modelFormula_random, ')'))
+                                         reduced_modelFormula_fixed, ' + ', 
+                                         modelFormula_random))
       model_fit <- lmerTest::lmer(model_formula, data=model_data)
       anova_test <- suppressMessages(anova(model_fit, modelFits[[i]]))
       LRTstats_list[[i]] <- c(Chisq_stat=anova_test$Chisq[2], 
