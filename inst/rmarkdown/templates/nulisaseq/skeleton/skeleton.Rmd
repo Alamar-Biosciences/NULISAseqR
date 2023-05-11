@@ -1526,22 +1526,29 @@ if(multipleFiles==TRUE){
 ##########################
 # target detectability density plot
 ##########################
+if(multipleFiles==TRUE){
+  detectability_data <- detectability_targets[,'Overall']
+} else {
+  detectability_data <- detectability_targets[,1]
+}
+
+
 pdf('./figures/target_detectability_density.pdf',
     width=5, height=5)
 par(mar=c(4.5, 4.5, 2, 1))
-plot(density(detectability_targets[,'Overall'], na.rm=TRUE),
+plot(density(detectability_data, na.rm=TRUE),
      main='Target detectability (%)',
      xlab='Detectability (%)', las=1)
-x <- density(detectability_targets[,'Overall'], na.rm=TRUE)$x
+x <- density(detectability_data, na.rm=TRUE)$x
 x <- c(x[1], x, x[length(x)])
-y <- c(0, density(detectability_targets[,'Overall'], na.rm=TRUE)$y, 0)
+y <- c(0, density(detectability_data, na.rm=TRUE)$y, 0)
 polygon(x, y,
         col=colors[[1]][5],
         border=colors[[1]][2])
 abline(v=50, col=colors[[2]][2], lwd=2)
 text(50, 0.013, '50%', pos=4, col=colors[[2]][2])
-legend('topleft', c(paste0('mean = ', format(round(mean(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1)), 
-                     paste0('median = ', format(round(median(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1))),
+legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)), 
+                     paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
        lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
 dev.off()
 
