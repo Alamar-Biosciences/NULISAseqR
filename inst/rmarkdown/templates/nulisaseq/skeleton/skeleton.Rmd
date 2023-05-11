@@ -1115,7 +1115,7 @@ wellcolors <- function(data, well_types, boxplot_colors){
 
 for(i in 1:length(params$xmlFiles)){
   pdf(file=NULL)
-  corrvals <- corrplot(cor(data_mCherry_log2_scaled[[i]]), 
+  corrvals <- corrplot(cor(data_mCherry_log2_scaled[[i]], use="complete.obs"), 
                        order='hclust') 
   dev.off()
   
@@ -1155,14 +1155,16 @@ for(i in 1:length(params$xmlFiles)){
                              boxplot_colors=boxplot_colors)
   # define color scale breaks
   # omit NCs for determining min
-  breaks <- c(seq(min(data_mCherry_log2_no_NC_scaled[[i]]), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(data_mCherry_log2_scaled[[i]])/paletteLength, 
-                  max(data_mCherry_log2_scaled[[i]]), length.out=floor(paletteLength/2)))
+  breaks <- c(seq(min(data_mCherry_log2_no_NC_scaled[[i]],na.rm=TRUE), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(data_mCherry_log2_scaled[[i]], na.rm=TRUE)/paletteLength, 
+                  max(data_mCherry_log2_scaled[[i]], na.rm=TRUE), length.out=floor(paletteLength/2)))
   # transpose and add color variable
   data_mCherry_log2_scaled2 <- data.frame(t(data_mCherry_log2_scaled[[i]]))
   data_mCherry_log2_scaled2$label_colors <- label_colors
   # generate heatmap for plate i
-  heatmap_i <- pheatmap(data_mCherry_log2_scaled2[,1:(ncol(data_mCherry_log2_scaled2) - 1)],
+  vals <- data_mCherry_log2_scaled2[,1:(ncol(data_mCherry_log2_scaled2) - 1)]
+
+  heatmap_i <- pheatmap(vals[,colSums(is.na(vals))==0],
                         main = paste("Plate", i), 
                         fontsize=5,
                         color=heatmapColors,
@@ -1251,6 +1253,8 @@ abline(v=c(0:200*5), col='grey', lty=3)
 pandoc.header("Sample PCA", 2)
 # function to make PCA plot
 PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scale=TRUE, center=TRUE, title=NULL){
+  data <- data[, which(apply(data, 2, sd) != 0)] # remove columns with stdev = 0
+  data <- data[which(apply(data,1,sd) != 0),] # remove rows with stdev = 0
   pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
   plateID <- factor(plateID)
   colors <- alamarColorPalette(length(levels(plateID)))
