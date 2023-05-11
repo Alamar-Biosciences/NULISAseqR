@@ -48,13 +48,16 @@ by disease group, adjusted for age, sex, and plate. \code{modelFormula =
 effects for disease and age. See \code{?lmer()}.}
 
 \item{modelFormula_random}{A string that represents the random effects part of the model 
-formula on the used for the linear mixed effects model. This includes everything
-inside the \code{()} For example \code{modelFormula_random = "1|participant_ID"} 
+formula on the used for the linear mixed effects model. 
+For example \code{modelFormula_random = "(1|participant_ID)"} 
 creates a subject specific random intercept, where the variable 
 \code{participant_ID} (a column in \code{sampleInfo} data frame) denotes 
 repeated measures on the same subject. For subject-specific random intercept and 
 slopes (not recommended when time is categorical), 
-use \code{modelFormula_random = "1 + time|participant_ID"}.
+use \code{modelFormula_random = "(1 + time|participant_ID)"}. For random 
+subject nested within plate (which may be useful when analyzing
+a large number of plates together), use \code{modelFormula_random = 
+"(1|plate_ID) + (1|participant_ID:plate_ID)"}.
 See \code{?lmer()}.}
 
 \item{reduced_modelFormula_fixed}{Optional reduced model formula 
