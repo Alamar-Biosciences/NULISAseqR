@@ -33,10 +33,12 @@ params:
   ## options:
   ## internal
   ## WebApp
+  reportType: "internal"
   # list of names of samples to exclude
   # excludeSamples: !r list(c('A_01_C001 P3', 'A_02_C044 P1'), c('A_01_C040 P1'))
   excludeSamples: !r NULL
-  reportType: "internal"
+  ## outputPlots -- if TRUE will output a set of plots in a nice format for slides
+  outputPlots: !r FALSE
 output:
   html_document:
     toc: yes
@@ -117,6 +119,10 @@ for(i in 1:length(params$xmlFiles)){
   runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=PlateNames[i], 
                              NC=params$NC, SC=params$SC, IC=params$IC, 
                              IPC=params$IPC, Bridge=params$Bridge)
+  # check if plate / row / col AnnotName match the data
+  if(!(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples))){
+    stop('plate / row / col AnnotName do not match the data. Check and update params.')
+  }
   # summarize each plate
   runSummaries[[i]] <- plateSummary(runs[[i]])
   read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
@@ -715,7 +721,7 @@ for (i in 1:length(runs)){
   for (j in 1:length(criteria$thresholds)){
     inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
     QC_criterion_j_data <- qcSample[inds, ]
-    val[j] <- criteria$thresholds[j]#if(names(criteria$thresholds)[j] == "Detectability") as.numeric(unlist(strsplit(criteria$thresholds[j],",")))*100 else unlist(strsplit(criteria$thresholds[j],","))
+    val[j] <- criteria$thresholds[j] #if(names(criteria$thresholds)[j] == "Detectability") as.numeric(unlist(strsplit(criteria$thresholds[j],",")))*100 else unlist(strsplit(criteria$thresholds[j],","))
     if(names(criteria$thresholds)[j] == "Detectability"){
       xval <- as.numeric(QC_criterion_j_data$val)*100
       rmax[j] <- 100.0
@@ -1320,4 +1326,242 @@ if(multipleFiles){
     PCAplot(dataPCA_mCherryIN, plateID, IPC_samples=IPC_all, SC_samples=SC_all, Bridge_samples=Bridge_all, scale=TRUE, center=TRUE, title="mCherry + IN")
   }
 }
+```
+
+```{r, include=FALSE, eval=params$outputPlots==TRUE}
+# create directory for figures
+dir.create("./figures")
+
+##########################
+# plate layouts
+##########################
+for(i in 1:length(params$xmlFiles)){
+  val <- matrixify(runs[[i]]$samples, plate=TRUE)
+  well_types <- list(IPC_wells[[i]], NC_wells[[i]])
+  if(indicatorSC){      well_types <- append(well_types, list(SC_wells[[i]]))}
+  if(indicatorBridge){  well_types <- append(well_types, list(Bridge_wells[[i]]))}
+  
+  for (j in 1:length(well_types)){
+    inds <- which(grepl(paste0(well_types[[j]], collapse="|"), val))
+    if(length(inds) > 0){
+      val[inds] <- cell_spec(val[inds], "html", background=boxplot_colors[j+1])
+    }
+  }
+  val <- gsub('_', ' ', val) # replace underscore with space for text wrapping
+  table.attr <- paste0("id=\"plate-summary", i, "\"")
+  knitr::kable(val, caption=paste0("Plate ", as.character(i), ": Plate Layout"), 
+               align="c", escape=FALSE, table.attr=table.attr) %>%
+    kable_styling(font_size=9, bootstrap_options = c("striped", "hover", "condensed"), 
+                  full_width = TRUE) %>%
+    column_spec(column=1:13, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
+    row_spec(0:8, extra_css = "border-bottom: 1px solid")  %>%
+    save_kable(file=paste0('./figures/plate_layout_', i, '.pdf'))
+  
+}
+
+##########################
+# IC median QC plot
+##########################
+for(i in 1:length(runs)){
+  # sort in order: samples, IPC, SC, Bridge, NC
+  sampleType_factor <- factor(runs[[i]]$sample$sampleType,
+                              levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
+  well_order <- wellorder(runs[[i]]$samples, 
+                          sampleTypeFactor=sampleType_factor)
+  # do sample QC
+  qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
+  # define sample types
+  if(indicatorSC){
+    inds <- which(grepl(paste(runs[[i]]$SC, collapse="|"), qcSample$sampleName))
+    qcSample[inds, ]$sampleType <- "SC"
+  }
+  if(indicatorBridge){
+    inds <- which(grepl(paste(runs[[i]]$Bridge, collapse="|"), qcSample$sampleName))
+    qcSample[inds, ]$sampleType <- "Bridge"
+  }
+  # values
+  inds <- which(qcSample$flagName == 'IC_Median')
+  xval <- as.numeric(qcSample[inds, ]$val)*100
+  # define labels
+  xlab <- "% of mCherry Median"
+  labels <- qcSample[inds, ]$sampleName
+  # define colors
+  color <- rep("black", length(inds))
+  color[which(qcSample[inds,]$sampleType == "IPC")] <- boxplot_colors[2]
+  color[which(qcSample[inds,]$sampleType == "NC")] <- boxplot_colors[3]
+  if (length(which(qcSample[inds,]$sampleType == "SC")) > 0 ){
+    color[which(qcSample[inds,]$sampleType == "SC")] <- boxplot_colors[4]
+  }
+  if (length(which(qcSample[inds,]$sampleType == "Bridge")) > 0 ){
+    color[which(qcSample[inds,]$sampleType == "Bridge")] <- boxplot_colors[5]
+  }
+  # make plot
+  pdf(paste0('./figures/sample_QC_IC_median_', i, '.pdf'), width=4, height=9)
+  par(mfcol=c(1, 1), mar=c(4,9,5,1))
+  dotchart(x=as.numeric(xval), 
+           xlab=xlab, 
+           labels=rep('', length(labels)), las=1, 
+           cex=0.7, xlim=c(min(c(xval, -30)), max(c(xval, 30))), 
+           color=color)
+  # need to loop over labels and color individuals
+  for (k in 1:length(xval)){
+    axis(side=2, at=k, 
+         labels=labels[k], col.axis=color[k], las=1,
+         cex.axis=0.5)
+  }
+  # color points green if PASS, red if FAIL
+  xvalFail <- xval
+  xvalFail[which(qcSample[inds,]$status != TRUE)] <- NA
+  xvalPass <- xval
+  xvalPass[which(qcSample[inds,]$status != FALSE)] <- NA
+  points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
+  points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
+  abline(v=-30, col='brown')
+  abline(v=30, col='brown')
+  abline(v=0, col='brown', lty=2)
+  legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), 
+         pch=19, cex=0.7, bty='n', inset=c(0,1), xpd=T,horiz=T)
+  title(main=paste0(PlateNames[i], ' IC_Median'), cex.main=1)
+  dev.off()
+}
+
+
+##########################
+# sample distribution boxplots after normalization
+##########################
+for(i in 1:length(params$xmlFiles)){
+  plate_sample_type <- rep("1_sample", ncol(runs[[i]]$Data))
+  plate_sample_type[grepl(paste0(IPC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '3_IPC'
+  # put NCs last
+  plate_sample_type[grepl(paste0(NC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '6_NC'
+  # put colors in order 
+  boxplot_colors2 <- boxplot_colors[c(1,2,3)]
+  if(indicatorSC){
+    plate_sample_type[grepl(paste0(SC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '4_SC'
+    boxplot_colors2 <- boxplot_colors[c(1,2,4,3)]
+  }
+  if(indicatorBridge){
+    plate_sample_type[grepl(paste0(Bridge_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '5_Bridge'
+    boxplot_colors2 <- boxplot_colors[c(1,2,5,3)]
+  }
+  if(indicatorSC & indicatorBridge){
+    boxplot_colors2 <- boxplot_colors[c(1,2,4,5,3)]
+  }
+  ordering2 <- wellorder(runs[[i]]$samples) 
+  ordering <- NULL
+  types <- sort(unique(plate_sample_type))
+  for(j in 1:length(types)){
+    inds <- which(plate_sample_type[ordering2] == types[j])
+    ordering <- c(ordering, ordering2[inds])
+  }
+  # reverse ordering so special wells are at the bottom
+  ordering <- rev(ordering)
+  plate_sample_colors <- boxplot_colors2[as.numeric(as.factor(plate_sample_type))[ordering]]
+  # make plot
+  pdf(paste0('./figures/sample_boxplot_', i, '.pdf'), width=4, height=9)
+  par(mar=c(4,6,2,0))
+  sampleboxplot(mCherry_IPC$interNormData[[i]], ordering, "Sample distributions\nafter normalization", plate_sample_colors, boxplot_colors2)
+  dev.off()
+}
+
+
+##########################
+# intra-plate and inter-plate CV density plots
+##########################
+# intra-plate CV 
+pdf(paste0('./figures/intraCV_density.pdf'), 
+    width=5, height=5)
+colors <- alamarColorPalette(2, nReps = 5, palette = 2)
+par(mar=c(4.5, 4.5, 2, 1))
+if(indicatorSC==TRUE){
+  intraCV_mean <- rowMeans(SC_intraCV_mCherry, na.rm=TRUE)
+} else {
+  intraCV_mean <- rowMeans(IPC_intraCV_mCherry, na.rm=TRUE)
+}
+plot(density(intraCV_mean, na.rm=TRUE),
+     main='Intra-plate CV (%)',
+     xlab='CV (%)', las=1)
+x <- density(intraCV_mean, na.rm=TRUE)$x
+x <- c(x[1], x, x[length(x)])
+y <- c(0, density(intraCV_mean, na.rm=TRUE)$y, 0)
+polygon(x, y,
+        col=colors[[1]][5],
+        border=colors[[1]][2])
+abline(v=mean(intraCV_mean, na.rm=TRUE), col=colors[[1]][2], lwd=2)
+abline(v=median(intraCV_mean, na.rm=TRUE), col=colors[[1]][2], lty=2, lwd=2)
+legend('topright', c(paste0('mean CV% = ', format(round(mean(intraCV_mean, na.rm=TRUE), 1), nsmall=1)), 
+                     paste0('median CV% = ', format(round(median(intraCV_mean, na.rm=TRUE), 1), nsmall=1))),
+       lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1.25)
+dev.off()
+
+# inter-plate CV
+if(multipleFiles==TRUE){
+  pdf(paste0('./figures/interCV_density.pdf'), 
+      width=5, height=5)
+  colors <- alamarColorPalette(2, nReps = 5, palette = 2)
+  par(mar=c(4.5, 4.5, 2, 1))
+  if(indicatorSC==TRUE){
+    interCV <- interCV_mCherry_IPC[,'SC']
+  } else {
+    interCV <- interCV_mCherry_IPC[,'IPC']
+  }
+  plot(density(interCV, na.rm=TRUE),
+       main='Inter-plate CV (%)',
+       xlab='CV (%)', las=1)
+  x <- density(interCV, na.rm=TRUE)$x
+  x <- c(x[1], x, x[length(x)])
+  y <- c(0, density(interCV, na.rm=TRUE)$y, 0)
+  polygon(x, y,
+          col=colors[[1]][5],
+          border=colors[[1]][2])
+  abline(v=mean(interCV, na.rm=TRUE), col=colors[[1]][2], lwd=2)
+  abline(v=median(interCV, na.rm=TRUE), col=colors[[1]][2], lty=2, lwd=2)
+  legend('topright', c(paste0('mean CV% = ', format(round(mean(interCV, na.rm=TRUE), 1), nsmall=1)), 
+                       paste0('median CV% = ', format(round(median(interCV, na.rm=TRUE), 1), nsmall=1))),
+         lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1.25)
+  dev.off()
+}
+
+
+##########################
+# target detectability density plot
+##########################
+pdf('./figures/target_detectability_density.pdf',
+    width=5, height=5)
+par(mar=c(4.5, 4.5, 2, 1))
+plot(density(detectability_targets[,'Overall'], na.rm=TRUE),
+     main='Target detectability (%)',
+     xlab='Detectability (%)', las=1)
+x <- density(detectability_targets[,'Overall'], na.rm=TRUE)$x
+x <- c(x[1], x, x[length(x)])
+y <- c(0, density(detectability_targets[,'Overall'], na.rm=TRUE)$y, 0)
+polygon(x, y,
+        col=colors[[1]][5],
+        border=colors[[1]][2])
+abline(v=50, col=colors[[2]][2], lwd=2)
+text(50, 0.013, '50%', pos=4, col=colors[[2]][2])
+legend('topleft', c(paste0('mean = ', format(round(mean(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1)), 
+                     paste0('median = ', format(round(median(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1))),
+       lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+dev.off()
+
+
+##########################
+# target detectability boxplot
+##########################
+for(i in 1:length(params$xmlFiles)){
+  pdf(paste0('./figures/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
+  targetBoxplot(intraPlateNormData[[i]][[1]]$normData,
+                title=PlateNames[i], 
+                subtractLOD = TRUE,
+                blanks = runs[[i]]$NC, 
+                horizontal = FALSE,
+                replace_zero_LOD=FALSE,
+                axis_lab_normalized=TRUE,
+                excludeTargets=runs[[i]]$IC,
+                excludeSamples=c(runs[[i]]$IPC, runs[[i]]$NC, runs[[i]]$SC))
+  dev.off()
+}
+
+
 ```
