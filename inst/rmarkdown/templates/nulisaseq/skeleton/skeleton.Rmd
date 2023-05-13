@@ -1029,68 +1029,91 @@ abline(v=c(0:200*5), col='grey', lty=3)
 pandoc.p("Sample boxplots show distributions of the log2 counts for each sample, unnormalized and after mCherry + IPC normalization.")
 
 # function to draw boxplot
-sampleboxplot <- function(data, ordering, label, plate_sample_colors, boxplot_colors){
+sampleboxplot <- function(data, 
+                          data_order, 
+                          title, 
+                          boxplot_colors, 
+                          label_colors, 
+                          horiz=TRUE,
+                          data_axis_limits=NULL,
+                          internal_control_label='mCherry',
+                          data_axis_label='log2(count + 0.01)'){
   par(mar=c(2,6,2,0.5))
-  boxplot(log2(data[,ordering]+0.01),
+  if(horiz==TRUE){
+    sample_axis_side <- 2
+    data_axis_side <- 1
+    xlimits <- NULL
+    ylimits <- data_axis_limits
+  } else if(horiz==FALSE){
+    sample_axis_side <- 1
+    data_axis_side <- 2
+    xlimits <- NULL
+    ylimits <- data_axis_limits
+  }
+  
+  boxplot(log2(data[,data_order]+0.01),
+          xlim=xlimits,
+          ylim=ylimits,
           las=1, 
           yaxt='n',
           xaxt='n',
           ylab='',
-          main=paste0("Plate ", as.character(i), ": ", label),
+          main=title,
           outcex=0.5,
-          col=plate_sample_colors, 
-          horizontal=TRUE, 
+          col=boxplot_colors[data_order], 
+          horizontal=horiz, 
           cex=0.5,
           cex.main=0.75,
           cex.lab=0.75)
+  # draw axes
   for (j in 1:ncol(data)){
-    color <- if(plate_sample_colors[j] == boxplot_colors[1]) "black" else plate_sample_colors[j]
-    axis(2, at=j, labels=FALSE, cex.axis=0.3, las=2, col.axis=color, tck=-0.01)
-    axis(2, at=j, labels=colnames(data)[ordering[j]], cex.axis=0.3, las=2, col.axis=color, tick=FALSE, line=-0.75)
+    axis(sample_axis_side, at=j, labels=FALSE, cex.axis=0.3, las=2, col.axis=label_colors[data_order[j]], tck=-0.01)
+    axis(sample_axis_side, at=j, labels=colnames(data)[data_order[j]], 
+         cex.axis=0.3, las=2, col.axis=label_colors[data_order[j]], tick=FALSE, line=-0.75)
   }
-  axis(side=1, labels=FALSE, tck=-0.01)
-  axis(side=1, labels=TRUE, cex.axis=0.5, line=-1, tick=FALSE)
-  # add mCherry line
-  lines(cbind(log2(data['mCherry', ordering]+0.01), 1:ncol(data)), col='red', las=1)
-  mtext('log2(count + 0.01)', side=1, line=0.75, cex=0.5)
-  legend('topleft', 'mCherry', col='red', lty=1, cex=0.4, bty='n')
+  axis(side=data_axis_side, labels=FALSE, tck=-0.01)
+  axis(side=data_axis_side, labels=TRUE, cex.axis=0.5, line=-1, tick=FALSE)
+  # add internal control line
+  lines(cbind(log2(data['mCherry', data_order]+0.01), 1:ncol(data)), col='red', las=1)
+  # add data axis label
+  mtext(data_axis_label, side=1, line=0.75, cex=0.5)
+  # legend
+  legend('topleft', internal_control_label, col='red', lty=1, cex=0.4, bty='n')
+  # grid lines
   abline(v=c(-50:50*5), col='grey', lty=3)
 }
 
 for(i in 1:length(params$xmlFiles)){
-  plate_sample_type <- rep("1_sample", ncol(runs[[i]]$Data))
-  plate_sample_type[grepl(paste0(IPC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '3_IPC'
-  # put NCs last
-  plate_sample_type[grepl(paste0(NC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '6_NC'
-  # put colors in order 
-  boxplot_colors2 <- boxplot_colors[c(1,2,3)]
-  if(indicatorSC){
-    plate_sample_type[grepl(paste0(SC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '4_SC'
-    boxplot_colors2 <- boxplot_colors[c(1,2,4,3)]
-  }
-  if(indicatorBridge){
-    plate_sample_type[grepl(paste0(Bridge_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '5_Bridge'
-    boxplot_colors2 <- boxplot_colors[c(1,2,5,3)]
-  }
-  if(indicatorSC & indicatorBridge){
-    boxplot_colors2 <- boxplot_colors[c(1,2,4,5,3)]
-  }
+  sample_type <- runs[[i]]$samples$sampleType
+  sample_type <- factor(sample_type, levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
+  # make colors
+  boxplot_colors2 <- boxplot_colors[c(1,2,4,5,3)][as.numeric(sample_type)]
+  label_colors <- unlist(lapply(alamarColorPalette(n=5, nReps=5), function(x) x[2]))[c(1,2,4,5,3)]
+  label_colors[1] <- 'black'
+  label_colors2 <- label_colors[as.numeric(sample_type)]
+  # get well order
   ordering2 <- wellorder(runs[[i]]$samples) 
   ordering <- NULL
-  types <- sort(unique(plate_sample_type))
+  types <- sort(unique(sample_type))
   for(j in 1:length(types)){
-    inds <- which(plate_sample_type[ordering2] == types[j])
+    inds <- which(sample_type[ordering2] == types[j])
     ordering <- c(ordering, ordering2[inds])
   }
   # reverse ordering so special wells are at the bottom
   ordering <- rev(ordering)
-  plate_sample_colors <- boxplot_colors2[as.numeric(as.factor(plate_sample_type))[ordering]]
+  # make plots
   numPlots <- if(params$reportType == "internal") 2 else 1
   par(mfrow=c(1,numPlots), mar=c(4,6,2,0))
   if(params$reportType == "internal"){
-    sampleboxplot(runs[[i]]$Data, ordering, "unnormalized", plate_sample_colors, boxplot_colors2)
+    sampleboxplot(runs[[i]]$Data, data_order=ordering, 
+                  title=paste0(PlateNames[i], ": unnormalized"), 
+                  boxplot_colors=boxplot_colors2,
+                  label_colors=label_colors2)
   }
-  sampleboxplot(mCherry_IPC$interNormData[[i]], ordering, "mCherry + IPC", plate_sample_colors, boxplot_colors2)
+  sampleboxplot(mCherry_IPC$interNormData[[i]], data_order=ordering, 
+                title=paste0(PlateNames[i], ": mCherry + IPC"), 
+                boxplot_colors=boxplot_colors2,
+                label_colors=label_colors2)
 }
 ```
 
@@ -1163,7 +1186,7 @@ for(i in 1:length(params$xmlFiles)){
   data_mCherry_log2_scaled2$label_colors <- label_colors
   # generate heatmap for plate i
   vals <- data_mCherry_log2_scaled2[,1:(ncol(data_mCherry_log2_scaled2) - 1)]
-
+  
   heatmap_i <- pheatmap(vals[,colSums(is.na(vals))==0],
                         main = paste("Plate", i), 
                         fontsize=5,
@@ -1382,46 +1405,55 @@ for(i in 1:length(runs)){
   # values
   inds <- which(qcSample$flagName == 'IC_Median')
   xval <- as.numeric(qcSample[inds, ]$val)*100
+  # replace values < -100 or > 100 
+  xval[xval < -100] <- -100
+  xval[xval > 100] <- 100
   # define labels
-  xlab <- "% of mCherry Median"
   labels <- qcSample[inds, ]$sampleName
   # define colors
+  label_colors <- unlist(lapply(alamarColorPalette(n=5, nReps=5), function(x) x[2]))
   color <- rep("black", length(inds))
-  color[which(qcSample[inds,]$sampleType == "IPC")] <- boxplot_colors[2]
-  color[which(qcSample[inds,]$sampleType == "NC")] <- boxplot_colors[3]
+  color[which(qcSample[inds,]$sampleType == "IPC")] <- label_colors[2]
+  color[which(qcSample[inds,]$sampleType == "NC")] <- label_colors[3]
   if (length(which(qcSample[inds,]$sampleType == "SC")) > 0 ){
-    color[which(qcSample[inds,]$sampleType == "SC")] <- boxplot_colors[4]
+    color[which(qcSample[inds,]$sampleType == "SC")] <- label_colors[4]
   }
   if (length(which(qcSample[inds,]$sampleType == "Bridge")) > 0 ){
-    color[which(qcSample[inds,]$sampleType == "Bridge")] <- boxplot_colors[5]
+    color[which(qcSample[inds,]$sampleType == "Bridge")] <- label_colors[5]
   }
   # make plot
-  pdf(paste0('./figures/sample_QC_IC_median_', i, '.pdf'), width=4, height=9)
-  par(mfcol=c(1, 1), mar=c(4,9,5,1))
-  dotchart(x=as.numeric(xval), 
-           xlab=xlab, 
-           labels=rep('', length(labels)), las=1, 
-           cex=0.7, xlim=c(min(c(xval, -30)), max(c(xval, 30))), 
-           color=color)
+  pdf(paste0('./figures/sample_QC_IC_median_', i, '.pdf'), width=12, height=4)
+  par(mfcol=c(1, 1), mar=c(5,4,2,0.5))
+  plot(x=1:length(xval),
+       y=rev(as.numeric(xval)), 
+       ylab="% of Internal Control Median", 
+       xlab='',
+       xaxt='n', 
+       las=1, 
+       cex=0.7, ylim=c(-100, 100), 
+       col='white',
+       main=paste0(PlateNames[i], ' Sample QC: Internal Control Median'))
   # need to loop over labels and color individuals
+  axis(side=1, at=1:length(xval), labels=FALSE, tck=-0.01)
   for (k in 1:length(xval)){
-    axis(side=2, at=k, 
-         labels=labels[k], col.axis=color[k], las=1,
-         cex.axis=0.5)
+    text(x=k, y=par('usr')[3] - 4, 
+         labels=rev(labels)[k], xpd=NA, col=rev(color)[k],
+         srt=45, adj=1,
+         cex=0.45)
   }
+  abline(v=1:length(xval), col='lightgray', lty='dotted')
   # color points green if PASS, red if FAIL
   xvalFail <- xval
   xvalFail[which(qcSample[inds,]$status != TRUE)] <- NA
   xvalPass <- xval
   xvalPass[which(qcSample[inds,]$status != FALSE)] <- NA
-  points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
-  points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
-  abline(v=-30, col='brown')
-  abline(v=30, col='brown')
-  abline(v=0, col='brown', lty=2)
+  points(1:length(xvalPass), rev(as.numeric(xvalPass)), pch=19, col="green", cex=0.75)
+  points(1:length(xvalFail), rev(as.numeric(xvalFail)), pch=19, col="red", cex=0.75)
+  abline(h=-30, col='gray41')
+  abline(h=30, col='gray41')
+  abline(h=0, col='gray41', lty=2)
   legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), 
-         pch=19, cex=0.7, bty='n', inset=c(0,1), xpd=T,horiz=T)
-  title(main=paste0(PlateNames[i], ' IC_Median'), cex.main=1)
+         pch=19, cex=0.75, bty='n', inset=c(0,1), xpd=T,horiz=T)
   dev.off()
 }
 
@@ -1430,39 +1462,38 @@ for(i in 1:length(runs)){
 # sample distribution boxplots after normalization
 ##########################
 for(i in 1:length(params$xmlFiles)){
-  plate_sample_type <- rep("1_sample", ncol(runs[[i]]$Data))
-  plate_sample_type[grepl(paste0(IPC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '3_IPC'
-  # put NCs last
-  plate_sample_type[grepl(paste0(NC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '6_NC'
-  # put colors in order 
-  boxplot_colors2 <- boxplot_colors[c(1,2,3)]
-  if(indicatorSC){
-    plate_sample_type[grepl(paste0(SC_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '4_SC'
-    boxplot_colors2 <- boxplot_colors[c(1,2,4,3)]
-  }
-  if(indicatorBridge){
-    plate_sample_type[grepl(paste0(Bridge_wells[[i]], collapse="|"), colnames(runs[[i]]$Data))] <- '5_Bridge'
-    boxplot_colors2 <- boxplot_colors[c(1,2,5,3)]
-  }
-  if(indicatorSC & indicatorBridge){
-    boxplot_colors2 <- boxplot_colors[c(1,2,4,5,3)]
-  }
+  sample_type <- runs[[i]]$samples$sampleType
+  sample_type <- factor(sample_type, levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
+  # make colors
+  boxplot_colors2 <- boxplot_colors[c(1,2,4,5,3)][as.numeric(sample_type)]
+  label_colors <- unlist(lapply(alamarColorPalette(n=5, nReps=5), function(x) x[2]))[c(1,2,4,5,3)]
+  label_colors[1] <- 'black'
+  label_colors2 <- label_colors[as.numeric(sample_type)]
+  # get well order
   ordering2 <- wellorder(runs[[i]]$samples) 
   ordering <- NULL
-  types <- sort(unique(plate_sample_type))
+  types <- sort(unique(sample_type))
   for(j in 1:length(types)){
-    inds <- which(plate_sample_type[ordering2] == types[j])
+    inds <- which(sample_type[ordering2] == types[j])
     ordering <- c(ordering, ordering2[inds])
   }
   # reverse ordering so special wells are at the bottom
   ordering <- rev(ordering)
-  plate_sample_colors <- boxplot_colors2[as.numeric(as.factor(plate_sample_type))[ordering]]
-  # make plot
+  # make plots
   pdf(paste0('./figures/sample_boxplot_', i, '.pdf'), width=4, height=9)
   par(mar=c(4,6,2,0))
-  sampleboxplot(mCherry_IPC$interNormData[[i]], ordering, "Sample distributions\nafter normalization", plate_sample_colors, boxplot_colors2)
+  sampleboxplot(mCherry_IPC$interNormData[[i]], data_order=ordering, 
+                title=paste0(PlateNames[i], ": Sample Distributions After Normalization"), 
+                boxplot_colors=boxplot_colors2,
+                label_colors=label_colors2,
+                horiz=TRUE,
+                data_axis_label = 'log2(Normalized Count)',
+                internal_control_label = 'Internal Control')
   dev.off()
+  
 }
+
+
 
 
 ##########################
@@ -1522,26 +1553,111 @@ if(multipleFiles==TRUE){
   dev.off()
 }
 
+##########################
+# intra-plate and inter-plate CV histograms
+##########################
+# intra-plate CV 
+pdf(paste0('./figures/intraCV_histogram.pdf'), 
+    width=5, height=5)
+colors <- alamarColorPalette(2, nReps = 5, palette = 2)
+par(mar=c(4.5, 4.5, 2, 1))
+if(indicatorSC==TRUE){
+  intraCV_mean <- rowMeans(SC_intraCV_mCherry, na.rm=TRUE)
+} else {
+  intraCV_mean <- rowMeans(IPC_intraCV_mCherry, na.rm=TRUE)
+}
+hist(intraCV_mean,
+     main='Intra-plate CV (%)',
+     xlab='CV (%)', las=1, breaks=50,
+     col=colors[[1]][5],
+     border=colors[[1]][2])
+abline(v=mean(intraCV_mean, na.rm=TRUE), col=colors[[2]][3], lwd=2)
+abline(v=median(intraCV_mean, na.rm=TRUE), col=colors[[2]][3], lty=2, lwd=2)
+legend('topright', c(paste0('mean CV% = ', format(round(mean(intraCV_mean, na.rm=TRUE), 1), nsmall=1)), 
+                     paste0('median CV% = ', format(round(median(intraCV_mean, na.rm=TRUE), 1), nsmall=1))),
+       lty=c(1,2), col=colors[[2]][3], bty='n', lwd=2, cex=1.25)
+dev.off()
+
+# inter-plate CV
+if(multipleFiles==TRUE){
+  pdf(paste0('./figures/interCV_histogram.pdf'), 
+      width=5, height=5)
+  colors <- alamarColorPalette(2, nReps = 5, palette = 2)
+  par(mar=c(4.5, 4.5, 2, 1))
+  if(indicatorSC==TRUE){
+    interCV <- interCV_mCherry_IPC[,'SC']
+  } else {
+    interCV <- interCV_mCherry_IPC[,'IPC']
+  }
+  hist(interCV,
+       main='Inter-plate CV (%)',
+       xlab='CV (%)', las=1, breaks=50,
+       col=colors[[1]][5],
+       border=colors[[1]][2])
+  abline(v=mean(interCV, na.rm=TRUE), col=colors[[2]][3], lwd=2)
+  abline(v=median(interCV, na.rm=TRUE), col=colors[[2]][3], lty=2, lwd=2)
+  legend('topright', c(paste0('mean CV% = ', format(round(mean(interCV, na.rm=TRUE), 1), nsmall=1)), 
+                       paste0('median CV% = ', format(round(median(interCV, na.rm=TRUE), 1), nsmall=1))),
+         lty=c(1,2), col=colors[[2]][3], bty='n', lwd=2, cex=1.25)
+  dev.off()
+}
+
 
 ##########################
 # target detectability density plot
 ##########################
+if(multipleFiles==TRUE){
+  detectability_data <- detectability_targets[,'Overall']
+} else {
+  detectability_data <- detectability_targets[,1]
+}
+
+
 pdf('./figures/target_detectability_density.pdf',
     width=5, height=5)
 par(mar=c(4.5, 4.5, 2, 1))
-plot(density(detectability_targets[,'Overall'], na.rm=TRUE),
+plot(density(detectability_data, na.rm=TRUE),
      main='Target detectability (%)',
      xlab='Detectability (%)', las=1)
-x <- density(detectability_targets[,'Overall'], na.rm=TRUE)$x
+x <- density(detectability_data, na.rm=TRUE)$x
 x <- c(x[1], x, x[length(x)])
-y <- c(0, density(detectability_targets[,'Overall'], na.rm=TRUE)$y, 0)
+y <- c(0, density(detectability_data, na.rm=TRUE)$y, 0)
 polygon(x, y,
         col=colors[[1]][5],
         border=colors[[1]][2])
 abline(v=50, col=colors[[2]][2], lwd=2)
 text(50, 0.013, '50%', pos=4, col=colors[[2]][2])
-legend('topleft', c(paste0('mean = ', format(round(mean(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1)), 
-                     paste0('median = ', format(round(median(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1))),
+legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)), 
+                    paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
+       lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+dev.off()
+
+
+##########################
+# target detectability histogram
+##########################
+if(multipleFiles==TRUE){
+  detectability_data <- detectability_targets[,'Overall']
+} else {
+  detectability_data <- detectability_targets[,1]
+}
+
+
+pdf('./figures/target_detectability_histogram.pdf',
+    width=5, height=5)
+par(mar=c(4.5, 4.5, 2, 1))
+hist(detectability_data,
+     main='Target detectability (%)',
+     xlab='Detectability (%)', las=1, breaks=50,
+     col=colors[[1]][5],
+     border=colors[[1]][2])
+
+abline(v=50, col=colors[[2]][3], lwd=1)
+ydist <- par('usr')[4] - par('usr')[3]
+text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%', 
+     col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
+legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)), 
+                    paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
        lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
 dev.off()
 
