@@ -61,7 +61,7 @@ normXML <- function(in_xml,
 #* @param assayName Name of the assay
 #* @param reportType Type of the report. Options: "WebApp", "internal".
 #* @param excludeSamples Sample barcodes to be excluded from analysis
-#* @serializer html
+#* @param outputPlots Output HTML document and required plots for slides. Returned will be a zip file.
 #* @post /xml2html
 xml2html <- function(res,
                      in_xml,
@@ -71,11 +71,14 @@ xml2html <- function(res,
                      study_name = "Study Name",
                      assayName = "NULISAseq 200-plex Inflammation Panel",
                      reportType = "WebApp",
-                     excludeSamples = NULL) {
+                     excludeSamples = NULL,
+                     outputPlots = FALSE) {
   promises::future_promise({
     UUID <- uuid::UUIDgenerate()
+
+    # Create required files
+    out_html <- paste0(UUID, ".html")
     tempFile <- paste0(UUID, ".Rmd")
-    outFile <- paste0(UUID, ".html")
     file.copy(rmd_path, tempFile)
 
     # Convert to vectors: If a comma-separated string encounters
@@ -83,6 +86,7 @@ xml2html <- function(res,
     IPC <- unlist(strsplit(IPC, "\\s*,\\s*"))
     NC <- unlist(strsplit(NC, "\\s*,\\s*"))
     IC <- unlist(strsplit(IC, "\\s*,\\s*"))
+    outputPlots <- as.logical(outputPlots)
 
     # Handle multiple XML inputs
     xml_files_list <- lapply(in_xml, toString)
@@ -90,7 +94,7 @@ xml2html <- function(res,
 
     rmarkdown::render(tempFile,
                       output_format = "html_document",
-                      output_file = outFile,
+                      output_file = out_html,
                       params = list(xmlFiles = xml_files_vec,
                                     dataDir = NULL,
                                     reportType = reportType,
@@ -99,11 +103,40 @@ xml2html <- function(res,
                                     IC = IC,
                                     study_name = study_name,
                                     assayName = assayName,
-                                    excludeSamples = excludeSamples))
-    bin <- readBin(outFile, "raw", n = file.info(outFile)$size)
-    unlink(c(tempFile, outFile))
+                                    excludeSamples = excludeSamples,
+                                    outputPlots = outputPlots))
 
-    return(bin)
+    # Handle if output plots are also requested: Return a zip containing HTML+figures
+    if (outputPlots) {
+      out_zip <- paste0(UUID, ".zip")
+
+      # Add plots to the zip archive
+      plot_files <- list.files("./figures/", full.names = TRUE)
+      for (file in plot_files) {
+        zip(out_zip, file)
+      }
+
+      # Add HTML file to the zip archive
+      zip(out_zip, out_html)
+
+      # Process and prepare zip file to return
+      if (file.exists(out_zip)) {
+        cat(paste0("Zip file created: ", out_zip))
+        bin <- readBin(out_zip, "raw", file.info(out_zip)$size)
+        unlink(out_zip)
+      } else {
+        stop("Failed to generate the zip file!")
+      }
+
+    } else {
+      bin <- readBin(out_html, "raw", n = file.info(out_html)$size)
+    }
+
+    unlink(c(tempFile, out_html))
+
+    base64_content <- base64enc::base64encode(bin)
+
+    return(base64_content)
   })
 }
 
