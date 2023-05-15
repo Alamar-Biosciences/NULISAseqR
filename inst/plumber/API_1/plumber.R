@@ -190,8 +190,8 @@ xml2pdf <- function(res,
 
 #* @param in_xml:[file] Character string vector. Path(s) and name(s) of the file(s).
 #* @param target_info_file:file Target information file. Note that this is version specific!
-#* @param sample_info_file:file Sample information file. Note that this is experiment specific and has sampleName and plateID columns! # nolint
 #* @param PanelLotNumber Panel lot number
+#* @param sample_info_file:file Sample information file. Note that this is experiment specific and has sampleName and plateID columns! # nolint
 #* @param panel Name of the panel. Defaults to "200-plex Inflammation v1".
 #* @param ICs Vector of string(s). Internal control names. Default is "mCherry".
 #* @param SC_string Vector of character string(s) that represents SCs in the column. Default is "SC".
@@ -201,8 +201,8 @@ xml2pdf <- function(res,
 xml2counts <- function(res,
                        in_xml,
                        target_info_file,
-                       sample_info_file,
                        PanelLotNumber,
+                       sample_info_file = NULL,
                        panel = "200-plex Inflammation v1",
                        ICs = c("mCherry"),
                        SC_string = c("SC"),
@@ -227,8 +227,13 @@ xml2counts <- function(res,
     # Write target information and sample information files to temp files
     target_info_file_local <- tempfile(tmpdir = ".", fileext = ".csv")
     writeLines(toString(target_info_file), target_info_file_local)
-    sample_info_file_local <- tempfile(tmpdir = ".", fileext = ".csv")
-    writeLines(toString(sample_info_file), sample_info_file_local)
+
+    if (!is.null(sample_info_file)) {
+      sample_info_file_local <- tempfile(tmpdir = ".", fileext = ".csv")
+      writeLines(toString(sample_info_file), sample_info_file_local)
+    } else {
+      sample_info_file_local <- NULL
+    }
 
     # Generate counts output file
     NULISAseqR::writeNULISAseq(xml_files = xml_files,
