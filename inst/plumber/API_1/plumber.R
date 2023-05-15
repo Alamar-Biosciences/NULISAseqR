@@ -184,7 +184,13 @@ xml2pdf <- function(res,
      pdf(outFilePDF)
      plot(c(1,2,3,4,5,6,7,8))
      dev.off()
-     readBin(outFilePDF, "raw", n = file.info(outFilePDF)$size)
+
+     bin <- readBin(outFilePDF, "raw", n = file.info(outFilePDF)$size)
+     unlink(outFilePDF)
+
+     base64_content <- base64enc::base64encode(bin)
+
+     return(base64_content)
    })
  }
 
