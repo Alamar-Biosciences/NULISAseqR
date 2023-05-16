@@ -18,8 +18,8 @@ jobs:
       # Checkpoint: Throw an error if PR to main is originating from a branch other than dev
       - name: Test the head ref
         run: |
-          if [ "${{ github.event.pull_request.base.ref }}" == "main" ]; then
-            if [ "${{ github.event.pull_request.head.ref }}" != "dev" ]; then
+          if [ "${{ github.base_ref }}" == "main" ]; then
+            if [ "${{ github.head_ref }}" != "dev" ]; then
               echo "Error: Only 'dev' can make a direct PR to 'main'."
               exit 1
             fi
@@ -28,7 +28,7 @@ jobs:
       - name: Determine ref and workflow file
         id: get_wf_name
         run: |
-          if [ "${{ github.event.pull_request.base.ref }}" == "main" ]; then
+          if [ "${{ github.base_ref }}" == "main" ]; then
             echo "WORKFLOW_FILE=deploy_prod.yml" >> $GITHUB_OUTPUT
           else
             echo "WORKFLOW_FILE=deploy_dev.yml" >> $GITHUB_OUTPUT
@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "Deploying SAM"
           echo "============="
-          echo "Reference branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Reference branch: ${{ github.base_ref }}"
           echo "Workflow file: ${{ steps.get_wf_name.outputs.WORKFLOW_FILE }}"
 
       - name: Trigger SAM deployment
@@ -47,6 +47,6 @@ jobs:
           owner: Alamar-Biosciences
           repo: Secondary-Analysis-Module
           github_token: ${{ secrets.UTILITY_ACCESS_TOKEN }}
-          ref: ${{ github.event.pull_request.base.ref }}
+          ref: ${{ github.base_ref }}
           workflow_file_name: ${{ steps.get_wf_name.outputs.WORKFLOW_FILE }}
           wait_workflow: false
