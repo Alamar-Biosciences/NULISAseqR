@@ -40,6 +40,7 @@ jobs:
           echo "============="
           echo "Reference branch: ${{ github.base_ref }}"
           echo "Workflow file: ${{ steps.get_wf_name.outputs.WORKFLOW_FILE }}"
+          echo ${{ toJson(github) }}
 
       - name: Trigger SAM deployment
         uses: convictional/trigger-workflow-and-wait@v1.6.5
