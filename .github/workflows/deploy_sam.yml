@@ -34,6 +34,13 @@ jobs:
             echo "WORKFLOW_FILE=deploy_dev.yml" >> $GITHUB_OUTPUT
           fi
 
+      - name: Check details
+        run: |
+          echo "Deploying SAM"
+          echo "============="
+          echo "Reference branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Workflow file: ${{ steps.get_wf_name.outputs.WORKFLOW_FILE }}"
+
       - name: Trigger SAM deployment
         uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
