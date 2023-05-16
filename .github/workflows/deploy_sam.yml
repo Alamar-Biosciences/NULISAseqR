@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "Deploying SAM"
           echo "============="
-          echo "Reference branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Base branch: ${{ github.event.pull_request.base.ref }}"
           echo "Workflow file: ${{ steps.get_wf_name.outputs.WORKFLOW_FILE }}"
 
       - name: Trigger SAM deployment
