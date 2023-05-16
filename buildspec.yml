@@ -54,7 +54,6 @@ phases:
           docker push $DOCKERHUB_REPO:$IMAGE_TAG
           echo Build, test and push to both ECR and DockerHub complete!
         else
-          echo $CODEBUILD_WEBHOOK_BASE_REF
           echo "Base ref is not main. No need to push. Build and test passed!"
           (exit 0)
         fi
