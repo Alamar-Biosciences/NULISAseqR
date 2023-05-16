@@ -3,8 +3,7 @@ name: Deploy SAM
 on:
 
   push:
-    branches:
-      - main
+    branches: ["main", "dev"]
 
   workflow_dispatch:
 
@@ -16,12 +15,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkpoint: Throw an error if PR to main is originating from a branch other than dev
+      - name: Test the head ref
+        run: |
+          if [ "${{ github.event.pull_request.base.ref }}" == "main" ]; then
+            if [ "${{ github.event.pull_request.head.ref }}" != "dev" ]; then
+              echo "Error: Only 'dev' can make a direct PR to 'main'."
+              exit 1
+            fi
+          fi
+
+      - name: Determine ref and workflow file
+        id: get_wf_name
+        run: |
+          if [ "${{ github.event.pull_request.base.ref }}" == "main" ]; then
+            echo "WORKFLOW_FILE=deploy_prod.yml" >> $GITHUB_OUTPUT
+          else
+            echo "WORKFLOW_FILE=deploy_dev.yml" >> $GITHUB_OUTPUT
+          fi
+
       - name: Trigger SAM deployment
         uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: Alamar-Biosciences
           repo: Secondary-Analysis-Module
           github_token: ${{ secrets.UTILITY_ACCESS_TOKEN }}
-          ref: main
-          workflow_file_name: build.yml
+          ref: ${{ github.event.pull_request.base.ref }}
+          workflow_file_name: ${{ steps.get_wf_name.outputs.WORKFLOW_FILE }}
           wait_workflow: false
