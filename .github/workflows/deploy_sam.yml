@@ -2,8 +2,12 @@ name: Deploy SAM
 
 on:
 
-  push:
-    branches: ["main", "dev"]
+  pull_request:
+    types: closed
+    branches: ['main', 'dev']
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
 
   workflow_dispatch:
 
@@ -12,6 +16,7 @@ on:
 jobs:
 
   deploy-sam:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -38,7 +43,7 @@ jobs:
         run: |
           echo "Deploying SAM"
           echo "============="
-          echo "Reference branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Base branch: ${{ github.event.pull_request.base.ref }}"
           echo "Workflow file: ${{ steps.get_wf_name.outputs.WORKFLOW_FILE }}"
 
       - name: Trigger SAM deployment
