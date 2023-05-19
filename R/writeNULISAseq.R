@@ -208,8 +208,8 @@ writeNULISAseq <- function(xml_files,
                          all.x=TRUE, all.y=FALSE)
   }
   
-  # save unnorm data if include_unnorm_counts=TRUE
-  if(include_unnorm_counts=TRUE){
+  # save unnorm data if include_unnorm_counts==TRUE
+  if(include_unnorm_counts==TRUE){
     unnorm_data <- lapply(runs, function(x) x$Data)
   }
   
