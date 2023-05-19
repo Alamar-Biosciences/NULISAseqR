@@ -150,7 +150,6 @@ writeNULISAseq <- function(xml_files,
                            IN_samples=NULL,
                            interPlateNorm_dataScale='count',
                            interPlateNorm_scaleFactor=10^4,
-                           
                            replaceNA=TRUE,
                            verbose=TRUE){
   n_plates <- length(xml_files)
@@ -186,8 +185,10 @@ writeNULISAseq <- function(xml_files,
     IC_info <- c(TargetName=ICs[1],
                  AlamarTargetID=NA,
                  UniProtID=NA,
-                 ProteinName=NA)
-    all_targets <- cbind(all_targets, IC_info)
+                 ProteinName=NA,
+                 targetBarcode=NA,
+                 targetType=NA)
+    all_targets <- rbind(all_targets, IC_info)
   }
   # get all sample data 
   sample_data <- lapply(runs, function(x) x$samples)
