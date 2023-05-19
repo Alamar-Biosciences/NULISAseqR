@@ -24,7 +24,7 @@ lmerNULISAseq(
 with targets in rows, samples in columns. 
 Row names should be the target names, and column names are the sample names.
 It is assumed that data has already been transformed
-using \code{log2(x + 0.01)} for each NULISAseq normalized count value \code{x}.}
+using \code{log2(x + 1)} for each NULISAseq normalized count value \code{x}.}
 
 \item{sampleInfo}{A data frame with sample metadata. Rows are samples, 
 columns are sample metadata variables. Differential expression analysis will 
