@@ -16,7 +16,7 @@ plateHeatmap(
 )
 }
 \arguments{
-\item{target_data}{A numeric vector of length 96 that represents the 
+\item{target_data}{A numeric vector that represents the 
 counts that will be shown on the heatmap.}
 
 \item{well_order}{Optional. A numeric vector used to order the wells 
