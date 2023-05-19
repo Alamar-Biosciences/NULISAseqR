@@ -222,15 +222,8 @@ interPlateNorm <- function(data_list,
 }
 
 
-#' Convenience function to apply inter-plate normalizatino on a vector
-#' NULISAseq Inter-Plate Normalization
+#' Convenience function to apply inter-plate normalization on a vector
 #'
-#' Does inter-plate normalization using one of the following methods:
-#' inter-plate control (IPC; divides each target 
-#' by the median IPC count for that target), intensity normalization (IN; 
-#' sets median of each target on each plate to equal the global median). Default
-#' is to do IPC. 
-#'   
 #' Input is a list of data matrices, one for each plate. 
 #' These would typically be normData matrix from the intraPlateNorm function 
 #' or the Data matrix of `readNULISAseq.R` (if no intra-plate normalization is 
@@ -242,38 +235,7 @@ interPlateNorm <- function(data_list,
 #'
 #' @param data_list A list of data matrices, one for each plate, 
 #' to be normalized together. 
-#' @param IPC Logical TRUE/FALSE indicating whether a IPC 
-#' normalization should be done. Default is TRUE.
-#' @param IN Logical TRUE/FALSE indicating whether intensity normalization
-#' should be done. Recommended only when samples are randomized 
-#' across the plates. If targets do not match across all plates, only the 
-#' matching targets will be returned in the output. Default is FALSE.
-#' @param IPC_wells List of vectors of either the column indices (numeric) 
-#' or the column names (character string) of the inter-plate control wells 
-#' for each plate. IPC wells are omitted from the 
-#' intensity normalization median calculation. 
-#' Required for IPC normalization and recommended for IN.  
-#' @param NC_wells Recommended for intensity normalization. 
-#' List of vectors of either the row indices (numeric) or the 
-#' row names (character string) 
-#' of the negative control wells for each plate. NC wells are omitted from 
-#' intensity normalization. 
-#' @param IPC_method 'median' is the default. Other options include 
-#' 'mean' (arithmetic mean) and 'geom_mean' (geometric mean). 
-#' Determines how the counts are summarized 
-#' across the IPC wells on a given plate.
-#' @param IN_samples Optional argument. A list of column names or
-#' indices specifying which subset of samples to use for 
-#' intensity normalization step for each plate in data_list. 
-#' Will over-ride the IPC_wells and 
-#' NC_wells arguments for IN. 
-#' @param dataScale 'count' is the default and interplate 
-#' normalization is multiplicative. Use option 'log' for log-transformed
-#' data; normalization is additive on the log scale. 
-#' @param scaleFactor Optional numeric value used to rescale all data 
-#' after normalizing. Default is 1. This may be desirable to avoid
-#' normalized quantities between 0 and 1 (which will be negative
-#' in the log scale). Only useful for count scale data.
+#' @param ... Other arguments to \code{interPlateNorm}. See 
 #'
 #' @return A list.
 #' \item{interNormData}{A list of matrices of normalized count data (not 
