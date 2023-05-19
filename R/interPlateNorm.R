@@ -4,14 +4,22 @@
 #' inter-plate control (IPC; divides each target 
 #' by the median IPC count for that target), intensity normalization (IN; 
 #' sets median of each target on each plate to equal the global median). Default
-#' is to do IPC. 
+#' is to do IPC only. Any intensity normalization or bridge normalization steps
+#' should typically be done after IPC normalization.
+#' 
+#' If the IPC median for a target is zero, it is replaced with 1. Similarly, if 
+#' intensity normalization plate or global target median is zero, 
+#' it is replaced with 1.
+#' 
+#' The intensity normalization option can also be used to do bridge sample-based
+#' normalization by specifying \code{IN_samples}.
 #'   
 #' Input is a list of data matrices, one for each plate. 
-#' These would typically be normData matrix from the intraPlateNorm function 
-#' or the Data matrix of `readNULISAseq.R` (if no intra-plate normalization is 
-#' done). Other required input depends on methods used. 
+#' These would typically be normData matrix from the intraPlateNorm function. 
+#' Other required input depends on methods used. 
 #' 
-#' @description Use option dataScale = log when data is already on a log scale.
+#' @description Use option \code{dataScale = log} when data is already on 
+#' a log scale.
 #' 
 #' @description Output is a list.
 #'
@@ -46,9 +54,9 @@
 #' normalization is multiplicative. Use option 'log' for log-transformed
 #' data; normalization is additive on the log scale. 
 #' @param scaleFactor Optional numeric value used to rescale all data 
-#' after normalizing. Default is 1. This may be desirable to avoid
-#' normalized quantities between 0 and 1 (which will be negative
-#' in the log scale). Only useful for count scale data.
+#' after IPC normalization. Default is 10^4. This shifts the data distribution 
+#' to larger positive values, and helps prevent negative values after 
+#' adding 1 and log-transforming. Only useful for count scale data.
 #'
 #' @return A list.
 #' \item{interNormData}{A list of matrices of normalized count data (not 
@@ -72,7 +80,7 @@ interPlateNorm <- function(data_list,
                            IPC_method='median',
                            IN_samples=NULL,
                            dataScale='count',
-                           scaleFactor=1){
+                           scaleFactor=10^4){
   # inter-plate control normalization
   if (IPC==TRUE){
     if(is.null(IPC_wells)){
@@ -112,6 +120,8 @@ interPlateNorm <- function(data_list,
       }
     } # end loop over data list
     data_list <- data_list_IPC
+    # apply the scale factor to the data
+    data_list <- lapply(data_list, function(x) x*scaleFactor)
   } # end IPC normalization
   
   # intensity normalization
@@ -197,8 +207,6 @@ interPlateNorm <- function(data_list,
     }
   } # end intensity normalization
   
-  # apply the scale factor to the data
-  data_list <- lapply(data_list, function(x) x*scaleFactor)
   # generate the plate assignment vector
   plateNs <- unlist(lapply(data_list, ncol))
   plate <- NULL
