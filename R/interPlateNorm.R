@@ -224,18 +224,17 @@ interPlateNorm <- function(data_list,
 
 #' Convenience function to apply inter-plate normalization on a vector
 #'
-#' Input is a list of data matrices, one for each plate. 
+#' Input is a list of IC-normalized data matrices, one for each plate. 
 #' These would typically be normData matrix from the intraPlateNorm function 
 #' or the Data matrix of `readNULISAseq.R` (if no intra-plate normalization is 
 #' done). Other required input depends on methods used. 
 #' 
-#' @description Use option dataScale = log when data is already on a log scale.
 #' 
 #' @description Output is a list.
 #'
 #' @param data_list A list of data matrices, one for each plate, 
 #' to be normalized together. 
-#' @param ... Other arguments to \code{interPlateNorm}. See 
+#' @param ... Other arguments to \code{interPlateNorm}. See \code{?interPlateNorm}.
 #'
 #' @return A list.
 #' \item{interNormData}{A list of matrices of normalized count data (not 
