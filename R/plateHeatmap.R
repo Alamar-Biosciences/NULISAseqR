@@ -2,7 +2,7 @@
 #'
 #' Makes heatmap for a specified target or total counts.
 #'
-#' @param target_data A numeric vector of length 96 that represents the 
+#' @param target_data A numeric vector that represents the 
 #' counts that will be shown on the heatmap.
 #' @param well_order Optional. A numeric vector used to order the wells 
 #' from A01-A12, B01-B12, ..., H01-H12. If not provided, then 
