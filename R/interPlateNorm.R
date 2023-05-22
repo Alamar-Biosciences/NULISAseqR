@@ -214,8 +214,12 @@ interPlateNorm <- function(data_list,
     plate <- c(plate, rep(i, plateNs[i]))
   }
   
+  # log2 transform the output
+  log2_interNormData <- lapply(data_list, function(x) log2(x + 1))
+  
   # return output
   return(list(interNormData=data_list,
+              log2_interNormData=log2_interNormData,
               plate=plate,
               normFactors=normFactors,
               scaleFactor=scaleFactor))
