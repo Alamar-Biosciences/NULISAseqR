@@ -39,6 +39,10 @@ params:
   excludeSamples: !r NULL
   ## outputPlots -- if TRUE will output a set of plots in a nice format for slides
   outputPlots: !r FALSE
+  ## sampleGroupCovar -- Specify the covariate to retrieve sample group information.
+  # this information is used when determining detectability.
+  # defaults to NULL.
+  sampleGroupCovar: NULL
 output:
   html_document:
     toc: yes
@@ -118,7 +122,8 @@ if(length(params$plateNames) == 0){
 for(i in 1:length(params$xmlFiles)){
   runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=PlateNames[i], 
                              NC=params$NC, SC=params$SC, IC=params$IC, 
-                             IPC=params$IPC, Bridge=params$Bridge)
+                             IPC=params$IPC, Bridge=params$Bridge,
+                             sample_group_covar=params$sampleGroupCovar)
   # check if plate / row / col AnnotName match the data
   if(!(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples))){
     stop('plate / row / col AnnotName do not match the data. Check and update params.')
@@ -426,10 +431,17 @@ for (i in 1:length(params$xmlFiles)){
   col_names_summary <- c('type', '# samples', 'mean', 'sd', 'median',
                          'min', 'max', '# of detectable targets (%)')
   
+  # retrieve sample type group information accurately
+  if (is.null(params$sampleGroupCovar)){
+    sample_identity <- NULL
+  } else{
+    sample_identity <- runs[[i]][[params$sampleGroupCovar]]
+  }
+  
   # run detectability calculation
   plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
                                 sample_subset=runs[[i]]$SampleNames,
-                                sample_identity=runs[[i]]$SampleGroup,
+                                sample_identity=sample_identity,
                                 exclude_targets=runs[[i]]$IC)
 
   # add all sample type/identity detectability data

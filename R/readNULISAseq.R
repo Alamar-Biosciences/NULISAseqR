@@ -25,6 +25,11 @@
 #' In addition, by default, it will include any other variables in the dataset.
 #' If \code{sample_column_names} is specified, however, it will only include
 #' those variables in the sample data frame output. 
+#' @param sample_group_covar string that represents the name of the covariate
+#' that defines sample group information. Defaults to NULL. Typically, this covariate
+#' defines whether each sample is plasma, serum, csf, etc.
+#' This information can be used when reporting detectability (i.e., Report sample
+#' type group specific detectability values, etc.).
 #' @param IC string(s) that represents the names of internal control targets. 
 #' Default is \code{'mCherry'}.Only used for xml file formats.
 #' @param IPC string(s) that represent the inter-plate control wells. 
@@ -50,8 +55,9 @@ readNULISAseq <- function(file,
                           file_type='xml_no_mismatches',
                           target_column_names=NULL,
                           sample_column_names=NULL,
+                          sample_group_covar=NULL,
                           IC='mCherry', 
-                          IPC='IPC', SC='SC', NC='NC', Bridge=NULL, 
+                          IPC='IPC', SC='SC', NC='NC', Bridge=NULL,
                           replaceNA=TRUE){
   
   if(file_type == 'xml_no_mismatches'){
@@ -211,10 +217,10 @@ readNULISAseq <- function(file,
     }
     specialWellsTargets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
     
-    # add sample identity information from CONDITION_1: If not all values are NA
-    # TODO: Can we modify the barcode B template to add a pre-defined field SAMPLE_GROUP?
-    if (!all(is.na(samples$CONDITION_1) | samples$CONDITION_1 == "NA")){
-      specialWellsTargets[['SampleGroup']] <- samples$CONDITION_1[samples$sampleType=='Sample']
+    # add sample identity information
+    # users can specify the covariate with sample_group_covar parameter
+    if (length(sample_group_covar) == 1 && !is.null(sample_group_covar) && !all(is.na(samples[, sample_group_covar]) | samples[, sample_group_covar] == "NA")) {
+      specialWellsTargets[[sample_group_covar]] <- samples[,sample_group_covar][samples$sampleType=='Sample']
     }
     
     # save IC row names
