@@ -25,7 +25,7 @@ params:
   heatMapRel: !r TRUE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230519_NULISAseq_Data_etr_F2mHsrZe_output_TAP.xml", "20230519_NULISAseq_Data_etr_evhNCkFH_output_xml.xml")
+  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
   plateNames: !r c()
