@@ -39,6 +39,10 @@ params:
   excludeSamples: !r NULL
   ## outputPlots -- if TRUE will output a set of plots in a nice format for slides
   outputPlots: !r FALSE
+  ## sampleGroupCovar -- Specify the covariate to retrieve sample group information.
+  # this information is used when determining detectability.
+  # defaults to NULL.
+  sampleGroupCovar: NULL
 output:
   html_document:
     toc: yes
@@ -118,7 +122,8 @@ if(length(params$plateNames) == 0){
 for(i in 1:length(params$xmlFiles)){
   runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=PlateNames[i], 
                              NC=params$NC, SC=params$SC, IC=params$IC, 
-                             IPC=params$IPC, Bridge=params$Bridge)
+                             IPC=params$IPC, Bridge=params$Bridge,
+                             sample_group_covar=params$sampleGroupCovar)
   # check if plate / row / col AnnotName match the data
   if(!(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples))){
     stop('plate / row / col AnnotName do not match the data. Check and update params.')
@@ -413,65 +418,189 @@ if(indicatorBridge==TRUE){
 ```{r, include=FALSE}
 # calculate detectability on regular samples only
 # NOTE: we may also want to add detectability_summary for IPCs, SCs, and Bridge samples
-detectability_summary <- detectability_targets <- NULL
+
+# initialize data stores
+detectability_return_summary <- list()
+detectability_return_targets <- list()
+
 for (i in 1:length(params$xmlFiles)){
+  detectability_summary <- detectability_targets <- NULL
+  
+  # column names of return data
+  col_names_targets <- NULL
+  col_names_summary <- c('type', '# samples', 'mean', 'sd', 'median',
+                         'min', 'max', '# of detectable targets (%)')
+  
+  # retrieve sample type group information accurately
+  if (is.null(params$sampleGroupCovar)){
+    sample_identity <- NULL
+  } else{
+    sample_identity <- runs[[i]][[params$sampleGroupCovar]]
+  }
+  
+  # run detectability calculation
   plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
                                 sample_subset=runs[[i]]$SampleNames,
+                                sample_identity=sample_identity,
                                 exclude_targets=runs[[i]]$IC)
-  detectability <- cbind(length(runs[[i]]$SampleNames),
-                         format(round(mean(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
-                         format(round(sd(plate_detect$detectability, na.rm=TRUE), 1), nsmall=1),
-                         formatC(median(plate_detect$detectability, na.rm=TRUE), width=2),
-                         formatC(min(plate_detect$detectability, na.rm=TRUE), width=2),
-                         formatC(max(plate_detect$detectability, na.rm=TRUE), width=2),
-                         paste0(sum(plate_detect$detectability > 50),
-                                ' (',
-                                format(round(sum(plate_detect$detectability > 50)/length(plate_detect$detectability) * 100, 1), nsmall=1),
-                                '%)'))
-  colnames(detectability) <- c('# samples', 
-                               'mean',
-                               'sd',
-                               'median',
-                               'min',
-                               'max',
-                               '# of detectable targets (%)')
-  detectability_summary <- rbind(detectability_summary, detectability)
-  detectability_targets <- cbind(detectability_targets, plate_detect$detectability)
-}
 
-rownames(detectability_summary) <- colnames(detectability_targets) <- PlateNames
+  # add all sample type/identity detectability data
+  raw_detectability <- plate_detect$all$detectability
+  detectability <- cbind('all',
+                         plate_detect$all$sampleNumber,
+                         format(round(mean(raw_detectability, na.rm=TRUE), 1), nsmall=1),
+                         format(round(sd(raw_detectability, na.rm=TRUE), 1), nsmall=1),
+                         formatC(median(raw_detectability, na.rm=TRUE), width=2),
+                         formatC(min(raw_detectability, na.rm=TRUE), width=2),
+                         formatC(max(raw_detectability, na.rm=TRUE), width=2),
+                         paste0(sum(raw_detectability > 50),
+                                ' (',
+                                format(round(sum(raw_detectability > 50)/length(raw_detectability) * 100, 1), nsmall=1),
+                                '%)'))
+  col_names_targets <- c(col_names_targets, "all")
+  detectability_summary <- rbind(detectability_summary, detectability)
+  detectability_targets <- cbind(detectability_targets,
+                                 format(round(raw_detectability, 1), nsmall=1))
+
+  # check if both sample and all data present
+  if (length(names(plate_detect)) == 2){
+    for (j in names(plate_detect$sample$detectability)){
+      raw_detectability <- plate_detect$sample$detectability[[j]]
+      detectability <- cbind(j,
+                             plate_detect$sample$sampleNumber[[j]],
+                             format(round(mean(raw_detectability, na.rm=TRUE), 1), nsmall=1),
+                             format(round(sd(raw_detectability, na.rm=TRUE), 1), nsmall=1),
+                             formatC(median(raw_detectability, na.rm=TRUE), width=2),
+                             formatC(min(raw_detectability, na.rm=TRUE), width=2),
+                             formatC(max(raw_detectability, na.rm=TRUE), width=2),
+                             paste0(sum(raw_detectability > 50),
+                                    ' (',
+                                    format(round(sum(raw_detectability > 50)/length(raw_detectability) * 100, 1), nsmall=1),
+                                    '%)'))
+      col_names_targets <- c(col_names_targets, j)
+      detectability_summary <- rbind(detectability_summary, detectability)
+      detectability_targets <- cbind(detectability_targets,
+                                     format(round(raw_detectability, 1), nsmall=1))
+    }
+  }
+  
+  # update column names
+  colnames(detectability_summary) <- col_names_summary
+  colnames(detectability_targets) <- col_names_targets
+  
+  # update return data
+  detectability_return_summary[[paste("Plate ", i)]] <- detectability_summary
+  detectability_return_targets[[paste("Plate ", i)]] <- detectability_targets
+}
 
 # if more than one plate, summarize across plates using weighted average
+combine_detectability <- FALSE
 if(length(params$xmlFiles) > 1){
-  plate_sample_size <- sapply(runs, function(x) length(x$SampleNames))
-  plate_weights <- plate_sample_size / sum(plate_sample_size)
-  detectability_targets <- cbind(detectability_targets,
-                                 Overall=apply(detectability_targets, 1, function(x){
-                                   sum(x*plate_weights)
-                                 }))
-  detectability_overall <- cbind(sum(plate_sample_size),
-                                 format(round(mean(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1),
-                                 format(round(sd(detectability_targets[,'Overall'], na.rm=TRUE), 1), nsmall=1),
-                                 formatC(median(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
-                                 formatC(min(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
-                                 formatC(max(detectability_targets[,'Overall'], na.rm=TRUE), width=2),
-                                 paste0(sum(detectability_targets[,'Overall'] > 50),
-                                        ' (',
-                                        format(round(sum(detectability_targets[,'Overall'] > 50)/length(detectability_targets[,'Overall']) * 100, 1), nsmall=1),
-                                        '%)'))
-  colnames(detectability_overall) <- c('# samples', 
-                                       'mean',
-                                       'sd',
-                                       'median',
-                                       'min',
-                                       'max',
-                                       '# of detectable targets (%)')
-  rownames(detectability_overall) <- 'Overall'
-  detectability_summary <- rbind(detectability_summary, detectability_overall)
+  # identify all sample types and all targets
+  unique_types <- unique(unlist(lapply(detectability_return_summary, function(x) x[, "type"])))
+  all_targets <- unique(unlist(lapply(detectability_return_targets, rownames)))
   
+  # get sample specific totals
+  sample_total <- list()
+  for (i in unique_types){
+    sample_count <- sapply(detectability_return_summary, function(plate){
+      sample_type_row <- plate[plate[, "type"] == i, "# samples"]
+      if (length(sample_type_row) == 1) {as.integer(sample_type_row)} else {NA}
+    })
+    sample_total[[i]] <- sum(sample_count, na.rm = TRUE)
+  }
+  
+  # calculate sample specific weights
+  sample_weights_plate <- lapply(detectability_return_summary, function(plate){
+    sample_types <- plate[, "type"]
+    sample_counts <- as.numeric(plate[, "# samples"])
+    weights <- list()
+    for (i in seq_along(sample_types)) {
+      sample_type <- sample_types[i]
+      total <- sample_total[[sample_type]]
+      weights[[sample_type]] <- sample_counts[i] / total
+    }
+    weights
+  })
+  
+  # apply weights
+  weighted_target_detectabilities <- list()
+  for (plate_name in names(detectability_return_targets)){
+    # get plate matrix and weights
+    plate_matrix <- detectability_return_targets[[plate_name]]
+    plate_weights <- sample_weights_plate[[plate_name]]
+
+    # multiply the appropriate column with the corresponding weight
+    multiplied_matrix <- sapply(1:ncol(plate_matrix), function(col_index){
+      weight <- plate_weights[[col_index]]
+      column <- as.numeric(plate_matrix[, col_index])
+      multiplied_column <- weight * column
+      multiplied_column
+    })
+  
+    # assign the multiplied columns to the corresponding plate in the result list
+    rownames(multiplied_matrix) <- rownames(plate_matrix)
+    colnames(multiplied_matrix) <- colnames(plate_matrix)
+    
+    weighted_target_detectabilities[[plate_name]] <- multiplied_matrix
+  }
+  
+  # get the sum of weights applied matrices
+  sum_matrix <- matrix(0, nrow = nrow(weighted_target_detectabilities[[1]]),
+                       ncol = length(unique_types))
+  colnames(sum_matrix) <- unique_types
+  rownames(sum_matrix) <- unique(unlist(lapply(weighted_target_detectabilities, rownames)))
+
+  for (plate in weighted_target_detectabilities) {
+    matching_cols <- intersect(colnames(plate), unique_types)
+    sum_matrix[, matching_cols] <- sum_matrix[, matching_cols] + plate[, matching_cols]
+  }
+
+  # update target detectability data vector: add overall data
+  detectability_return_targets[["Overall"]] <- sum_matrix
+
+  # update detectability summary with overall data
+  detectability_summary_overall <- NULL
+  for (j in colnames(sum_matrix)){
+    data_col <- as.numeric(sum_matrix[, j])
+    detectability <- cbind(j,
+                           sample_total[[j]],
+                           format(round(mean(data_col, na.rm=TRUE), 1), nsmall=1),
+                           format(round(sd(data_col, na.rm=TRUE), 1), nsmall=1),
+                           formatC(round(median(data_col, na.rm=TRUE), 1), width=2),
+                           formatC(round(min(data_col, na.rm=TRUE), 1), width=2),
+                           formatC(round(max(data_col, na.rm=TRUE), 1), width=2),
+                           paste0(sum(data_col > 50),
+                                  ' (',
+                                  format(round(sum(data_col > 50)/length(data_col) * 100, 1), nsmall=1),
+                                  '%)'))
+    detectability_summary_overall <- rbind(detectability_summary_overall,
+                                           detectability)
+  }
+  colnames(detectability_summary_overall) <- col_names_summary
+  
+  # update summary detectability data vector: add overall data
+  detectability_return_summary[["Overall"]] <- detectability_summary_overall
+  
+  # present data tables better if all plates have the same sample type
+  # applicable only if sample group information is provided and/or all samples are
+  # of the same group (i.e., plasma)
+  if (length(unique_types) <= 2){
+    # summary data
+    all_rows <- lapply(detectability_return_summary,
+                       function(plate) plate[plate[, "type"] == "all", ])
+    combined_all_matrix <- do.call(rbind, all_rows)
+    detectability_return_summary[["Combined"]] <- combined_all_matrix
+
+    # detectability targets
+    all_cols <- lapply(detectability_return_targets,
+                       function(plate) plate[, "all"])
+    combined_all_matrix <- do.call(cbind, all_cols)
+    detectability_return_targets[["Combined"]] <- combined_all_matrix
+
+    combine_detectability <- TRUE
+  }
 }
-
-
 ```
 
 ```{r, include=FALSE}
@@ -921,21 +1050,49 @@ detect_fig_asp <- 2*ceiling(length(params$xmlFiles)/2)
 ```{r, results='asis', out.width='100%', fig.asp=detect_fig_asp}
 pandoc.header("Detectability summary", 3)
 # Detectability summary
-kable_styling(knitr::kable(detectability_summary, caption='', 
-                           align='r', 
-                           table.attr="id=\"detectability-summary\"",
-                           format.args=list(big.mark = ",", digits=2)), 
-              bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
+if (combine_detectability){
+  table.attr <- paste0("id=\"detectability-summary-combined", "\"")
+  cat(knitr::kable(detectability_return_summary[["Combined"]],
+                   caption=NULL, 
+                   align="r", table.attr=table.attr,
+                   format.args=list(big.mark = ",", digits=2)) %>%
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                      full_width = TRUE))
+} else{
+  for (i in names(detectability_return_summary)){
+    table.attr <- paste0("id=\"detectability-summary", i, "\"")
+    cat(knitr::kable(detectability_return_summary[[i]],
+                     caption=paste(as.character(i)), 
+                     align="r", table.attr=table.attr,
+                     format.args=list(big.mark = ",", digits=2)) %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                        full_width = TRUE))
+  }
+}
 ```
 
 ```{r, results='asis', out.width='100%', fig.asp=detect_fig_asp}
 pandoc.header("Target detectability %", 3)
 # Target detectability
-kable_styling(knitr::kable(detectability_targets, caption='', 
-                           align='r', 
-                           table.attr="id=\"detectability-indepth\"",
-                           format.args=list(big.mark = ",", digits=2)), 
-              bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) 
+if (combine_detectability){
+  table.attr <- paste0("id=\"detectability-indepth-combined", "\"")
+  cat(knitr::kable(detectability_return_targets[["Combined"]],
+                   caption=NULL, 
+                   align="r", table.attr=table.attr,
+                   format.args=list(big.mark = ",", digits=2)) %>%
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                      full_width = TRUE))
+} else{
+  for (i in names(detectability_return_targets)){
+  table.attr <- paste0("id=\"detectability-indepth", i, "\"")
+  cat(knitr::kable(detectability_return_targets[[i]],
+                   caption=paste(as.character(i)), 
+                   align="r", table.attr=table.attr,
+                   format.args=list(big.mark = ",", digits=2)) %>%
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                      full_width = TRUE))
+  }
+}
 ```
 
 ```{r, results='asis', out.width='100%', fig.asp=2*ceiling(length(params$xmlFiles)/2)}
@@ -944,15 +1101,15 @@ pandoc.header("Target detectability boxplot", 3)
 pandoc.p("Plot shows target mCherry-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for mCherry-normalized data.")
 par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,2,2,1))
 for (i in 1:length(params$xmlFiles)){
-  targetBoxplot(intraPlateNormData[[i]][[1]]$normData, 
-                title=PlateNames[i], 
-                subtractLOD=TRUE, 
-                blanks=runs[[i]]$NC, 
-                horizontal=TRUE, 
+  targetBoxplot(intraPlateNormData[[i]][[1]]$normData,
+                title=PlateNames[i],
+                subtractLOD=TRUE,
+                blanks=runs[[i]]$NC,
+                horizontal=TRUE,
                 replace_zero_LOD=FALSE,
                 axis_lab_normalized=TRUE,
-                cex.targets=0.25, 
-                excludeTargets=runs[[i]]$IC, 
+                cex.targets=0.25,
+                excludeTargets=runs[[i]]$IC,
                 excludeSamples=c(runs[[i]]$IPC, runs[[i]]$NC, runs[[i]]$SC))
 }
 ```
@@ -1607,11 +1764,10 @@ if(multipleFiles==TRUE){
 # target detectability density plot
 ##########################
 if(multipleFiles==TRUE){
-  detectability_data <- detectability_targets[,'Overall']
+  detectability_data <- as.numeric(detectability_return_targets$Overall[,'all'])
 } else {
-  detectability_data <- detectability_targets[,1]
+  detectability_data <- as.numeric(detectability_return_targets$`Plate  1`[,1])
 }
-
 
 pdf('./figures/target_detectability_density.pdf',
     width=5, height=5)
@@ -1627,7 +1783,7 @@ polygon(x, y,
         border=colors[[1]][2])
 abline(v=50, col=colors[[2]][2], lwd=2)
 text(50, 0.013, '50%', pos=4, col=colors[[2]][2])
-legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)), 
+legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
                     paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
        lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
 dev.off()
@@ -1636,12 +1792,6 @@ dev.off()
 ##########################
 # target detectability histogram
 ##########################
-if(multipleFiles==TRUE){
-  detectability_data <- detectability_targets[,'Overall']
-} else {
-  detectability_data <- detectability_targets[,1]
-}
-
 
 pdf('./figures/target_detectability_histogram.pdf',
     width=5, height=5)
@@ -1654,9 +1804,9 @@ hist(detectability_data,
 
 abline(v=50, col=colors[[2]][3], lwd=1)
 ydist <- par('usr')[4] - par('usr')[3]
-text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%', 
+text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
      col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
-legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)), 
+legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
                     paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
        lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
 dev.off()
@@ -1668,9 +1818,9 @@ dev.off()
 for(i in 1:length(params$xmlFiles)){
   pdf(paste0('./figures/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
   targetBoxplot(intraPlateNormData[[i]][[1]]$normData,
-                title=PlateNames[i], 
+                title=PlateNames[i],
                 subtractLOD = TRUE,
-                blanks = runs[[i]]$NC, 
+                blanks = runs[[i]]$NC,
                 horizontal = FALSE,
                 replace_zero_LOD=FALSE,
                 axis_lab_normalized=TRUE,
