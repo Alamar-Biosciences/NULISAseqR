@@ -164,8 +164,7 @@ targetBoxplot <- function(data_matrix,
     }
     
     # calculate detectability
-    detect <- detectability(aboveLOD_matrix = LOD$aboveLOD[,!(colnames(LOD$aboveLOD) %in% excludeSamples)])$detectability
-    
+    detect <- detectability(aboveLOD_matrix = LOD$aboveLOD[,!(colnames(LOD$aboveLOD) %in% excludeSamples)])$all$detectability
     # log2 transform
     if(log2transform==TRUE){
       data_matrix <- log2(data_matrix + 0.01)
