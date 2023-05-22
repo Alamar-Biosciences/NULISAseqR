@@ -1752,11 +1752,10 @@ if(multipleFiles==TRUE){
 # target detectability density plot
 ##########################
 if(multipleFiles==TRUE){
-  detectability_data <- detectability_return_targets$Overall[,'all']
+  detectability_data <- as.numeric(detectability_return_targets$Overall[,'all'])
 } else {
-  detectability_data <- detectability_return_targets$`Plate  1`[,1]
+  detectability_data <- as.numeric(detectability_return_targets$`Plate  1`[,1])
 }
-
 
 pdf('./figures/target_detectability_density.pdf',
     width=5, height=5)
