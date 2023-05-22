@@ -20,14 +20,17 @@
 #' all targets in the aboveLOD_matrix.
 #'
 #'
-#' @return A list.
-#' Two names: "all" and "sample". These names will report detectability data.
-#' @param sampleNumber Number of samples.
-#' @param detectability A named vector of detectability values as percentages. 
-#' Names correspond to target row names.
-#' @param detectable A named TRUE/FALSE vector that indicates whether 
-#' detectability is above 50% for that target. 
-#' Names correspond to target row names.
+#' @return A nested list containing detectability information.
+#' The list has two high-level names: "all" and "sample".
+#' The "all" name corresponds to detectability information for all samples
+#' combined as a single unit. If the \code{sample_identity} parameter is not NULL,
+#' the "sample" name provides detectability data for unique sample types.
+#' The nested list has three names to access detectability and sample information.
+#' @param sampleNumber The number of samples.
+#' @param detectability A named vector of detectability values in percentages.
+#' The names correspond to target row names.
+#' @param detectable A named logical vector indicating whether detectability is
+#' above 50% for each target. The names correspond to target row names.
 #'
 #'
 #' @export
