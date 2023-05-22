@@ -205,13 +205,13 @@ mCherry_IPC <- interPlateNorm(data_list=normData,
 
 # mCherry + IN
 mCherry_IN <- interPlateNorm(data_list=normData,
-                             IPC=FALSE, IN=TRUE,
+                             IPC=TRUE, IN=TRUE,
                              IPC_wells=IPC_wells,
                              NC_wells=NC_wells)
 
 if(indicatorBridge==TRUE){
   mCherry_Bridge <- interPlateNorm(data_list=normData,
-                                   IPC=FALSE, IN=TRUE,
+                                   IPC=TRUE, IN=TRUE,
                                    IN_samples=Bridge_wells)
 }
 ```
