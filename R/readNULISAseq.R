@@ -55,7 +55,7 @@ readNULISAseq <- function(file,
                           replaceNA=TRUE){
   
   if(file_type == 'xml_no_mismatches'){
-    
+
     # read in xml file
     xml <- xml2::read_xml(file)
     
@@ -210,6 +210,12 @@ readNULISAseq <- function(file,
       specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
     }
     specialWellsTargets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
+    
+    # add sample identity information from CONDITION_1: If not all values are NA
+    # TODO: Can we modify the barcode B template to add a pre-defined field SAMPLE_GROUP?
+    if (!all(is.na(samples$CONDITION_1) | samples$CONDITION_1 == "NA")){
+      specialWellsTargets[['SampleGroup']] <- samples$CONDITION_1[samples$sampleType=='Sample']
+    }
     
     # save IC row names
     if(!is.null(IC)) {
