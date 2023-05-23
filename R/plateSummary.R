@@ -1,8 +1,14 @@
-# helper function to summarize special well types:
-# IPCs
-# NCs
-# SCs
-# Bridge samples
+#' Well Type Summary
+#'
+#' Helper function to summarize special well types:
+#' IPCs
+#' NCs
+#' SCs
+#' Bridge samples
+#' 
+#' @export
+#' 
+#' 
 typeSummary <- function(well_type, plate_data, total_plate_reads){    
   well_type_data <- plate_data$Data[,well_type]
   # total counts and percent
@@ -81,17 +87,17 @@ typeSummary <- function(well_type, plate_data, total_plate_reads){
 #' @return A table (character matrix) or list of tables (character matrices).
 #' @param readsTable A table that summarizes read counts and percent of 
 #' total read counts by count type. Also summarizes missing data.
-#' @param IC_table If ICs are defined, outputs another table with number (%)
+#' @param IC_table If ICs are defined, outputs another table with number (\%)
 #' of samples that have missing or zero IC counts, total and percent reads (out of all
-#' parseable match reads), mean, SD, and %CV reads across all samples.
-#' @param IPC_table If IPCs are defined, outputs another table with total (%)
-#' IPC reads, mean IPC count per target, number (%) of targets with missing or zero
-#' IPC reads, and the mean and median CV% across targets. Data is shown for 
+#' parseable match reads), mean, SD, and \%CV reads across all samples.
+#' @param IPC_table If IPCs are defined, outputs another table with total (\%)
+#' IPC reads, mean IPC count per target, number (\%) of targets with missing or zero
+#' IPC reads, and the mean and median CV\% across targets. Data is shown for 
 #' total IPC wells / targets, each IPC well individually, and the targetwise
 #' medians across the IPC wells (potentially used for interplate normalization).
-#' @param NC_table If NCs are defined, outputs another table with total (%)
+#' @param NC_table If NCs are defined, outputs another table with total (\%)
 #' NC reads, mean NC count per target, maximum NC target count, 
-#' number (%) of targets with missing or zero
+#' number (\%) of targets with missing or zero
 #' NC reads. Data is shown for 
 #' total NC wells / targets, each NC well individually, and the targetwise
 #' means across the NC wells (potentially used for LOD calculation).

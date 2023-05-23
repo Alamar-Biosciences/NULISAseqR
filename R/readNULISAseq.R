@@ -319,12 +319,11 @@ readNULISAseq <- function(file,
 #' Biosciences Galaxy NULISAseq (Beta) tool or the NULISAseq Normalization (Alpha) tool.
 #'
 #' @param file Character string. Path and name of the file.
-#' @param plateID Character string that denotes plate ID.
-#' @param file_type Character string. Type of input file, as output from Galaxy. Options include
-#' xml_full_output, xml_no_mismatches (default) (both from NULISAseq tool),
-#' or xml_normalization (from NULISAseq Normalization tool).
-#' @param replaceNA Logical. If TRUE (default), will replace missing counts with 
-#' zeros.
+#' @param IPC String(s) that represent the inter-plate control wells. 
+#' For example, \code{'IPC'} (default). Set to \code{NULL} if there are no IPCs.
+#' Only used for xml file formats.
+#' @param IC string(s) that represents the names of internal control targets. 
+#' Default is \code{'mCherry'}.Only used for xml file formats.
 #'
 #' @return List of lists, data frames, and matrices.
 #' Output will differ slightly depending on the input file type.
@@ -332,11 +331,12 @@ readNULISAseq <- function(file,
 #'
 #' @export
 #'
-loadNULISAseq <- function(file,IPC, ...){
-  raw <- readNULISAseq(file, IPC=IPC, ...)
-  raw$normed <- intraPlateNorm(raw$Data, ...)
-  raw$qcPlate <- QCFlagPlate(raw$Data, raw$normed$normData, raw$targets, raw$samples)
-  raw$qcSample <- QCFlagSample(raw$Data, raw$normed$normData, raw$samples, raw$targets)
+loadNULISAseq <- function(file, IPC, IC, ...){
+  raw <- readNULISAseq(file, IPC=IPC, IC=IC, ...)
+  raw$IC_normed <- intraPlateNorm(raw$Data, IC=IC[1], ...)
+  raw$normed <- interPlateNorm(list(raw$IC_normed$normData), IPC_wells=list(raw$IPC), ...)
+  raw$qcPlate <- QCFlagPlate(raw$Data, raw$IC_normed$normData, raw$targets, raw$samples)
+  raw$qcSample <- QCFlagSample(raw$Data, raw$IC_normed$normData, raw$samples, raw$targets)
   return(raw)
 }
 
