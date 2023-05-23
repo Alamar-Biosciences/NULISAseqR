@@ -45,7 +45,7 @@ Required when `subtractLOD = TRUE`. This is passed to the `lod()` function.}
 y-axis)? Default is `FALSE` (target names along x-axis).}
 
 \item{log2transform}{If TRUE (default), each value `x` will be transformed 
-by `log2(x + 0.01)`. LOD values will also be transformed when 
+by `log2(x + 1)`. LOD values will also be transformed when 
 `subtractLOD = TRUE`.}
 
 \item{replace_zero_LOD}{If TRUE (default is FALSE), will replace LODs of zero 
