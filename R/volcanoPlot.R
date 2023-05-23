@@ -51,13 +51,14 @@ volcanoPlot <- function(coefs,
                         sig_label='FDR = 5%',
                         label_all_targets=FALSE,
                         target_labels_off=FALSE,
+                        target_label_colors=NULL,
                         target_point_colors=NULL,
+                        target_label_size=2,
+                        target_label_segment_color='grey',
                         max.overlaps=Inf,
                         plot_title_font_size=14,
                         axis_label_font_size=12,
                         tick_label_font_size=12,
-                        target_label_size=2,
-                        target_label_segment_color='grey',
                         plot_aspect_ratio=1,
                         log_y=TRUE){
   
@@ -121,7 +122,8 @@ volcanoPlot <- function(coefs,
                    legend.position='none') +
     ggrepel::geom_text_repel(size=target_label_size, 
                              max.overlaps = max.overlaps, 
-                             segment.color=target_label_segment_color) +
+                             segment.color=target_label_segment_color,
+                             color=target_label_colors) +
     ggplot2::coord_cartesian(clip='off')
   return(volcano_plot)
 }
