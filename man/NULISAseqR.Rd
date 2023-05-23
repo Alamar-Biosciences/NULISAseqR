@@ -5,9 +5,9 @@
 \alias{NULISAseqR}
 \title{NULISAseqR Package}
 \description{
-NULISAseqR package can load data from Galaxy XML output files.
+NULISAseqR package can load data from XML data files.
 Includes functions to normalize, calculate CV, and visualize data, among others.
 }
 \author{
-Joanne C. Beer \email{jbeer@alamarbio.com}
+Alamar Biosciences \email{jbeer@alamarbio.com}
 }

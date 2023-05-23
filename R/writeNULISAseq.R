@@ -81,6 +81,11 @@
 #' @param include_SC Logical. Should SC samples be included in output? Default is TRUE.
 #' @param include_Bridge Logical. Should Bridge samples be included in output? Default is TRUE.
 #' @param include_NC Logical. Should NC samples be included in output? Default is FALSE.
+#' @param include_unnorm_counts Logical. Should unnormalized counts be included 
+#' as am additional column in output? Default is FALSE.
+#' @param include_IC Logical. Should IC counts be included in the output? 
+#' Default is FALSE. This is probably only useful when 
+#' \code{include_unnorm_counts=TRUE}.
 #' @param excludeSamples List of character string vectors that give sample names to be
 #' excluded from the output file. List should be in order of xml files. If 
 #' no sample is to be excluded from a plate, use NULL in the list for that plate.
@@ -90,7 +95,8 @@
 #' @param intraPlateNorm_scaleFactor Optional scaling factor to apply after 
 #' intra-plate normalization. Passed to intraPlateNorm() function.
 #' @param interPlateNorm_method Default is "IPC" for inter-plate control normalization. 
-#' Use "IN" for intensity normalization. If neither, no interplate normalization is done.
+#' Use "IN" for IPC normalization followed by intensity normalization. 
+#' If neither, no interplate normalization is done.
 #' @param IPC_method Passed to interPlateNorm function. 'median' is the default. 
 #' Other options include 'mean' (arithmetic mean) and 'geom_mean' (geometric mean). 
 #' Determines how the counts are summarized across the IPC wells on a given plate.
@@ -134,6 +140,8 @@ writeNULISAseq <- function(xml_files,
                            include_SC=TRUE,
                            include_Bridge=TRUE,
                            include_NC=FALSE,
+                           include_unnorm_counts=FALSE,
+                           include_IC_counts=FALSE,
                            excludeSamples=NULL,
                            intraPlateNorm_method='IC',
                            intraPlateNorm_scaleFactor=1,
@@ -141,7 +149,7 @@ writeNULISAseq <- function(xml_files,
                            IPC_method='median',
                            IN_samples=NULL,
                            interPlateNorm_dataScale='count',
-                           interPlateNorm_scaleFactor=1,
+                           interPlateNorm_scaleFactor=10^4,
                            replaceNA=TRUE,
                            verbose=TRUE){
   n_plates <- length(xml_files)
@@ -173,6 +181,15 @@ writeNULISAseq <- function(xml_files,
                        by.x='TargetName',
                        by.y='targetName',
                        all.x=TRUE, all.y=FALSE)
+  if(include_IC_counts==TRUE){
+    IC_info <- c(TargetName=ICs[1],
+                 AlamarTargetID=NA,
+                 UniProtID=NA,
+                 ProteinName=NA,
+                 targetBarcode=NA,
+                 targetType=NA)
+    all_targets <- rbind(all_targets, IC_info)
+  }
   # get all sample data 
   sample_data <- lapply(runs, function(x) x$samples)
   sample_data <- do.call(rbind, sample_data)
@@ -192,6 +209,11 @@ writeNULISAseq <- function(xml_files,
                          all.x=TRUE, all.y=FALSE)
   }
   
+  # save unnorm data if include_unnorm_counts==TRUE
+  if(include_unnorm_counts==TRUE){
+    unnorm_data <- lapply(runs, function(x) x$Data)
+  }
+  
   # do intra-plate normalization -- IC 
   if(is.null(ICs)){
     warning('Argument ICs is NULL. Intra-plate normalization was not done.\n')
@@ -208,30 +230,28 @@ writeNULISAseq <- function(xml_files,
     Data <- lapply(intraPlateNorm_data, function(x) x$normData)
   }
   
-  # if more than one plate, do inter-plate normalization
-  if(n_plates > 1){
-    if(interPlateNorm_method=='IPC'){
-      interPlateNorm_data <- interPlateNorm(data_list=lapply(intraPlateNorm_data, function(x) x$normData),
-                                            IPC=TRUE, IN=FALSE,
-                                            IPC_wells=lapply(runs, function(x) x$IPC),
-                                            IPC_method=IPC_method,
-                                            dataScale=interPlateNorm_dataScale,
-                                            scaleFactor=interPlateNorm_scaleFactor)
-      Data <- interPlateNorm_data$interNormData
-      if(verbose==TRUE) cat('Inter-plate IPC normalization completed.\n')
-    } else if(interPlateNorm_method=='IN'){
-      interPlateNorm_data <- interPlateNorm(data_list=lapply(intraPlateNorm_data, function(x) x$normData),
-                                            IPC=FALSE, IN=TRUE,
-                                            IPC_wells=NULL,
-                                            NC_wells=lapply(runs, function(x) x$NC),
-                                            IN_samples=IN_samples,
-                                            dataScale=interPlateNorm_dataScale,
-                                            scaleFactor=interPlateNorm_scaleFactor)
-      Data <- interPlateNorm_data$interNormData
-      if(verbose==TRUE) cat('Inter-plate intensity normalization completed.\n')
-    } else if(interPlateNorm_method!='IPC' & interPlateNorm_method!='IPC'){
-      warning('No valid inter-plate normalization method was specified.')
-    }
+  # do IPC normalization
+  if(interPlateNorm_method=='IPC'){
+    interPlateNorm_data <- interPlateNorm(data_list=lapply(intraPlateNorm_data, function(x) x$normData),
+                                          IPC=TRUE, IN=FALSE,
+                                          IPC_wells=lapply(runs, function(x) x$IPC),
+                                          IPC_method=IPC_method,
+                                          dataScale=interPlateNorm_dataScale,
+                                          scaleFactor=interPlateNorm_scaleFactor)
+    Data <- interPlateNorm_data$interNormData
+    if(verbose==TRUE) cat('Inter-plate IPC normalization completed.\n')
+  } else if(interPlateNorm_method=='IN'){
+    interPlateNorm_data <- interPlateNorm(data_list=lapply(intraPlateNorm_data, function(x) x$normData),
+                                          IPC=TRUE, IN=TRUE,
+                                          IPC_wells=lapply(runs, function(x) x$IPC),
+                                          NC_wells=lapply(runs, function(x) x$NC),
+                                          IN_samples=IN_samples,
+                                          dataScale=interPlateNorm_dataScale,
+                                          scaleFactor=interPlateNorm_scaleFactor)
+    Data <- interPlateNorm_data$interNormData
+    if(verbose==TRUE) cat('Inter-plate IPC and intensity normalization completed.\n')
+  } else if(interPlateNorm_method!='IPC' & interPlateNorm_method!='IN'){
+    warning('No valid inter-plate normalization method was specified.')
   }
   
   # calculate LODs 
@@ -296,19 +316,45 @@ writeNULISAseq <- function(xml_files,
     # get plate-specific and target-specific data
     target_data <- vector(mode='list', length=n_plates)
     for(j in 1:n_plates){
-      plate_j_LOD <- log2(LODs[[j]][target] + 0.01)
-      plate_j_log2NormalizedCount <- log2(Data[[j]][target,] + 0.01)
+      plate_j_LOD <- log2(LODs[[j]][target] + 1)
+      plate_j_log2NormalizedCount <- log2(Data[[j]][target,] + 1)
       data_length <- length(plate_j_log2NormalizedCount)
-      target_data[[j]] <- data.frame(SampleName=names(plate_j_log2NormalizedCount), 
-                                     Panel=rep(Panel, data_length),
-                                     PanelLotNumber=rep(PanelLotNumber, data_length),
-                                     PlateID=rep(plateIDs[j], data_length),
-                                     Target=rep(target, data_length),
-                                     AlamarTargetID=rep(AlamarTargetID, data_length),
-                                     UniProtID=rep(UniProtID, data_length),
-                                     ProteinName=rep(ProteinName, data_length),
-                                     LOD=rep(plate_j_LOD, data_length),
-                                     log2NormalizedCount=plate_j_log2NormalizedCount)
+      
+      if(include_unnorm_counts==FALSE){
+        target_data[[j]] <- data.frame(SampleName=names(plate_j_log2NormalizedCount), 
+                                       Panel=rep(Panel, data_length),
+                                       PanelLotNumber=rep(PanelLotNumber, data_length),
+                                       PlateID=rep(plateIDs[j], data_length),
+                                       Target=rep(target, data_length),
+                                       AlamarTargetID=rep(AlamarTargetID, data_length),
+                                       UniProtID=rep(UniProtID, data_length),
+                                       ProteinName=rep(ProteinName, data_length),
+                                       LOD=rep(plate_j_LOD, data_length),
+                                       log2NormalizedCount=plate_j_log2NormalizedCount)
+        target_data_colnames <- c("Panel","PanelLotNumber","PlateID",
+                                  "SampleName","SampleType",
+                                  sample_info_file_variables,"Target",
+                                  "AlamarTargetID","UniProtID","ProteinName",
+                                  "SampleQC","LOD","log2NormalizedCount")
+      } else if(include_unnorm_counts==TRUE){
+        plate_j_UnnormalizedCount <- unnorm_data[[j]][target,]
+        target_data[[j]] <- data.frame(SampleName=names(plate_j_log2NormalizedCount), 
+                                       Panel=rep(Panel, data_length),
+                                       PanelLotNumber=rep(PanelLotNumber, data_length),
+                                       PlateID=rep(plateIDs[j], data_length),
+                                       Target=rep(target, data_length),
+                                       AlamarTargetID=rep(AlamarTargetID, data_length),
+                                       UniProtID=rep(UniProtID, data_length),
+                                       ProteinName=rep(ProteinName, data_length),
+                                       LOD=rep(plate_j_LOD, data_length),
+                                       UnnormalizedCount=plate_j_UnnormalizedCount,
+                                       log2NormalizedCount=plate_j_log2NormalizedCount)
+        target_data_colnames <- c("Panel","PanelLotNumber","PlateID",
+                                  "SampleName","SampleType",
+                                  sample_info_file_variables,"Target",
+                                  "AlamarTargetID","UniProtID","ProteinName",
+                                  "SampleQC","LOD","UnnormalizedCount","log2NormalizedCount")
+      }
     }
     target_data <- do.call(rbind, target_data)
     
@@ -317,11 +363,7 @@ writeNULISAseq <- function(xml_files,
                          by=c('PlateID', 'SampleName'))
     target_data$SampleType <- factor(target_data$SampleType, levels=c("Sample", "IPC", "SC", "Bridge", "NC"))
     target_data <- target_data[order(target_data$PlateID, target_data$SampleType, target_data$SampleName),]
-    target_data <- target_data[,c("Panel","PanelLotNumber","PlateID",
-                                  "SampleName","SampleType",
-                                  sample_info_file_variables,"Target",
-                                  "AlamarTargetID","UniProtID","ProteinName",
-                                  "SampleQC","LOD","log2NormalizedCount")]
+    target_data <- target_data[,target_data_colnames]
     
     long_data[[i]] <- target_data
   }

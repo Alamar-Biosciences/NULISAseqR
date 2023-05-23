@@ -20,7 +20,7 @@
 #' @param horizontal Should the boxplots be horizontal (target names along the 
 #' y-axis)? Default is `FALSE` (target names along x-axis).
 #' @param log2transform If TRUE (default), each value `x` will be transformed 
-#' by `log2(x + 0.01)`. LOD values will also be transformed when 
+#' by `log2(x + 1)`. LOD values will also be transformed when 
 #' `subtractLOD = TRUE`.
 #' @param replace_zero_LOD If TRUE (default is FALSE), will replace LODs of zero 
 #' on the unlogged scale with zeros on the log scale. Probably only makes sense 
@@ -90,7 +90,7 @@ targetBoxplot <- function(data_matrix,
     
     # log2 transform
     if(log2transform==TRUE){
-      data_matrix <- log2(data_matrix + 0.01)
+      data_matrix <- log2(data_matrix + 1)
       if(axis_lab_normalized==FALSE) axis_label <- 'log2(count)'
       else if (axis_lab_normalized==TRUE) axis_label <- 'log2(normalized count)'
     } else if(log2transform==FALSE){
@@ -167,9 +167,9 @@ targetBoxplot <- function(data_matrix,
     detect <- detectability(aboveLOD_matrix = LOD$aboveLOD[,!(colnames(LOD$aboveLOD) %in% excludeSamples)])$all$detectability
     # log2 transform
     if(log2transform==TRUE){
-      data_matrix <- log2(data_matrix + 0.01)
+      data_matrix <- log2(data_matrix + 1)
       LOD_count_scale <- LOD$LOD
-      LOD$LOD <- log2(LOD$LOD + 0.01)
+      LOD$LOD <- log2(LOD$LOD + 1)
       if(replace_zero_LOD==TRUE){
         # replace zero LOD_count_scale with zero
         LOD$LOD[LOD_count_scale == 0] <- 0

@@ -23,6 +23,8 @@ writeNULISAseq(
   include_SC = TRUE,
   include_Bridge = TRUE,
   include_NC = FALSE,
+  include_unnorm_counts = FALSE,
+  include_IC_counts = FALSE,
   excludeSamples = NULL,
   intraPlateNorm_method = "IC",
   intraPlateNorm_scaleFactor = 1,
@@ -30,7 +32,7 @@ writeNULISAseq(
   IPC_method = "median",
   IN_samples = NULL,
   interPlateNorm_dataScale = "count",
-  interPlateNorm_scaleFactor = 1,
+  interPlateNorm_scaleFactor = 10^4,
   replaceNA = TRUE,
   verbose = TRUE
 )
@@ -93,6 +95,9 @@ column names (e.g. 'NC').}
 
 \item{include_NC}{Logical. Should NC samples be included in output? Default is FALSE.}
 
+\item{include_unnorm_counts}{Logical. Should unnormalized counts be included 
+as am additional column in output? Default is FALSE.}
+
 \item{excludeSamples}{List of character string vectors that give sample names to be
 excluded from the output file. List should be in order of xml files. If 
 no sample is to be excluded from a plate, use NULL in the list for that plate.}
@@ -105,7 +110,8 @@ intraPlateNorm() function. Default is 'IC' (internal control). Other option is
 intra-plate normalization. Passed to intraPlateNorm() function.}
 
 \item{interPlateNorm_method}{Default is "IPC" for inter-plate control normalization. 
-Use "IN" for intensity normalization. If neither, no interplate normalization is done.}
+Use "IN" for IPC normalization followed by intensity normalization. 
+If neither, no interplate normalization is done.}
 
 \item{IPC_method}{Passed to interPlateNorm function. 'median' is the default. 
 Other options include 'mean' (arithmetic mean) and 'geom_mean' (geometric mean). 
@@ -131,6 +137,10 @@ zeros.}
 
 \item{verbose}{Logical. Should function output step completion into.
 Default is TRUE.}
+
+\item{include_IC}{Logical. Should IC counts be included in the output? 
+Default is FALSE. This is probably only useful when 
+\code{include_unnorm_counts=TRUE}.}
 }
 \value{
 writes CSV file
