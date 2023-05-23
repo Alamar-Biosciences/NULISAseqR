@@ -28,19 +28,19 @@ column names (character string) of the negative controls.}
 \item{readsTable}{A table that summarizes read counts and percent of 
 total read counts by count type. Also summarizes missing data.}
 
-\item{IC_table}{If ICs are defined, outputs another table with number (%)
+\item{IC_table}{If ICs are defined, outputs another table with number (\%)
 of samples that have missing or zero IC counts, total and percent reads (out of all
-parseable match reads), mean, SD, and %CV reads across all samples.}
+parseable match reads), mean, SD, and \%CV reads across all samples.}
 
-\item{IPC_table}{If IPCs are defined, outputs another table with total (%)
-IPC reads, mean IPC count per target, number (%) of targets with missing or zero
-IPC reads, and the mean and median CV% across targets. Data is shown for 
+\item{IPC_table}{If IPCs are defined, outputs another table with total (\%)
+IPC reads, mean IPC count per target, number (\%) of targets with missing or zero
+IPC reads, and the mean and median CV\% across targets. Data is shown for 
 total IPC wells / targets, each IPC well individually, and the targetwise
 medians across the IPC wells (potentially used for interplate normalization).}
 
-\item{NC_table}{If NCs are defined, outputs another table with total (%)
+\item{NC_table}{If NCs are defined, outputs another table with total (\%)
 NC reads, mean NC count per target, maximum NC target count, 
-number (%) of targets with missing or zero
+number (\%) of targets with missing or zero
 NC reads. Data is shown for 
 total NC wells / targets, each NC well individually, and the targetwise
 means across the NC wells (potentially used for LOD calculation).}
