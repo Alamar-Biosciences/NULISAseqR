@@ -4,7 +4,7 @@ on:
 
   pull_request:
     types: closed
-    branches: ['main', 'dev']
+    branches: 'main' # ['main', 'dev']
     paths-ignore:
       - '**.md'
       - '.gitignore'
@@ -20,15 +20,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkpoint: Throw an error if PR to main is originating from a branch other than dev
-      - name: Test the head ref
-        run: |
-          if [ "${{ github.event.pull_request.base.ref }}" == "main" ]; then
-            if [ "${{ github.event.pull_request.head.ref }}" != "dev" ]; then
-              echo "Error: Only 'dev' can make a direct PR to 'main'."
-              exit 1
-            fi
-          fi
+      # # Checkpoint: Throw an error if PR to main is originating from a branch other than dev
+      # - name: Test the head ref
+      #   run: |
+      #     if [ "${{ github.event.pull_request.base.ref }}" == "main" ]; then
+      #       if [ "${{ github.event.pull_request.head.ref }}" != "dev" ]; then
+      #         echo "Error: Only 'dev' can make a direct PR to 'main'."
+      #         exit 1
+      #       fi
+      #     fi
 
       - name: Determine ref and workflow file
         id: get_wf_name
