@@ -9,10 +9,10 @@
 #' @param sample_subset A vector of column names or numeric column indices that
 #' represent the sample subset that detectability will be calculated for. 
 #' Default uses all columns. NCs and IPCs should probably be excluded.
-#' @param sample_identity A string vector defining sample types/identities that
+#' @param sample_groups A string vector defining sample types/identities that
 #' represent the sample type subsets that detectability should be calculated 
 #' for. Default value NULL provides overall detectability assuming all samples
-#' are of the same type (i.e., plasma).
+#' are of the same type (e.g., plasma).
 #' @param exclude_targets A vector of row names or numeric row indices 
 #' representing the 
 #' targets that should be excluded from detectability calculation. For example,
@@ -21,10 +21,10 @@
 #'
 #'
 #' @return A nested list containing detectability information.
-#' The list has two high-level names: "all" and "sample".
+#' The list has two high-level names: "all" and "sample_group".
 #' The "all" name corresponds to detectability information for all samples
-#' combined as a single unit. If the \code{sample_identity} parameter is not NULL,
-#' the "sample" name provides detectability data for unique sample types.
+#' combined as a single unit. If the \code{sample_groups} parameter is not NULL,
+#' the "sample_group" name provides detectability data for unique sample groups.
 #' The nested list has three names to access detectability and sample information.
 #' @param sampleNumber The number of samples.
 #' @param detectability A named vector of detectability values in percentages.
@@ -37,7 +37,7 @@
 #' 
 detectability <- function(aboveLOD_matrix, 
                           sample_subset=NULL,
-                          sample_identity=NULL,
+                          sample_groups=NULL,
                           exclude_targets=NULL){
   # return named list
   detectability_data <- list()
@@ -51,9 +51,9 @@ detectability <- function(aboveLOD_matrix,
   }
   
   # get detectability data for samples: Plasma, serum, etc.
-  if (!is.null(sample_identity)){
+  if (!is.null(sample_groups)){
     # make case insensitive
-    sample_identity <- tolower(sample_identity)
+    sample_groups <- tolower(sample_groups)
     
     # set all samples if sample_subset == NULL
     if (is.null(sample_subset)){
@@ -62,15 +62,15 @@ detectability <- function(aboveLOD_matrix,
       all_samples <- sample_subset
     }
 
-    # collect sample type/identity specific detectability data
-    for (i in unique(sample_identity)){
-      sample_identity_inds <- which(sample_identity %in% i)
-      sample_subset_inds <- which(colnames(aboveLOD_matrix) %in% all_samples[sample_identity_inds])
+    # collect sample group specific detectability data
+    for (i in unique(sample_groups)){
+      sample_group_inds <- which(sample_groups %in% i)
+      sample_subset_inds <- which(colnames(aboveLOD_matrix) %in% all_samples[sample_group_inds])
       sample_aboveLOD_matrix <- aboveLOD_matrix[,sample_subset_inds]
       
-      detectability_data$sample$sampleNumber[[i]] <- length(sample_identity_inds)
-      detectability_data$sample$detectability[[i]] <- apply(sample_aboveLOD_matrix, 1, function(x) sum(x)/length(x)*100)
-      detectability_data$sample$detectable[[i]] <- detectability_data$sample$detectability[[i]] > 50
+      detectability_data$sample_group$sampleNumber[[i]] <- length(sample_group_inds)
+      detectability_data$sample_group$detectability[[i]] <- apply(sample_aboveLOD_matrix, 1, function(x) sum(x)/length(x)*100)
+      detectability_data$sample_group$detectable[[i]] <- detectability_data$sample_group$detectability[[i]] > 50
     }
   }
   
