@@ -433,15 +433,15 @@ for (i in 1:length(params$xmlFiles)){
   
   # retrieve sample type group information accurately
   if (is.null(params$sampleGroupCovar)){
-    sample_identity <- NULL
+    sample_groups <- NULL
   } else{
-    sample_identity <- runs[[i]][[params$sampleGroupCovar]]
+    sample_groups <- runs[[i]][[params$sampleGroupCovar]]
   }
   
   # run detectability calculation
   plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
                                 sample_subset=runs[[i]]$SampleNames,
-                                sample_identity=sample_identity,
+                                sample_groups=sample_groups,
                                 exclude_targets=runs[[i]]$IC)
 
   # add all sample type/identity detectability data
@@ -464,10 +464,10 @@ for (i in 1:length(params$xmlFiles)){
 
   # check if both sample and all data present
   if (length(names(plate_detect)) == 2){
-    for (j in names(plate_detect$sample$detectability)){
-      raw_detectability <- plate_detect$sample$detectability[[j]]
+    for (j in names(plate_detect$sample_group$detectability)){
+      raw_detectability <- plate_detect$sample_group$detectability[[j]]
       detectability <- cbind(j,
-                             plate_detect$sample$sampleNumber[[j]],
+                             plate_detect$sample_group$sampleNumber[[j]],
                              format(round(mean(raw_detectability, na.rm=TRUE), 1), nsmall=1),
                              format(round(sd(raw_detectability, na.rm=TRUE), 1), nsmall=1),
                              formatC(median(raw_detectability, na.rm=TRUE), width=2),
@@ -584,7 +584,7 @@ if(length(params$xmlFiles) > 1){
   
   # present data tables better if all plates have the same sample type
   # applicable only if sample group information is provided and/or all samples are
-  # of the same group (i.e., plasma)
+  # of the same group (e.g., plasma)
   if (length(unique_types) <= 2){
     # summary data
     all_rows <- lapply(detectability_return_summary,
