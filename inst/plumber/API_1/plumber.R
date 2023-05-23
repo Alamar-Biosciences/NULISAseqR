@@ -62,6 +62,7 @@ normXML <- function(in_xml,
 #* @param reportType Type of the report. Options: "WebApp", "internal".
 #* @param excludeSamples Sample barcodes to be excluded from analysis
 #* @param outputPlots Output HTML document and required plots for slides. Returned will be a zip file.
+#* @param sampleGroupCovar Covariate to retrieve sample group information
 #* @post /xml2html
 xml2html <- function(res,
                      in_xml,
@@ -72,7 +73,8 @@ xml2html <- function(res,
                      assayName = "NULISAseq 200-plex Inflammation Panel",
                      reportType = "WebApp",
                      excludeSamples = NULL,
-                     outputPlots = FALSE) {
+                     outputPlots = FALSE,
+                     sampleGroupCovar = NULL) {
   promises::future_promise({
     UUID <- uuid::UUIDgenerate()
 
@@ -104,7 +106,8 @@ xml2html <- function(res,
                                     study_name = study_name,
                                     assayName = assayName,
                                     excludeSamples = excludeSamples,
-                                    outputPlots = outputPlots))
+                                    outputPlots = outputPlots,
+                                    sampleGroupCovar = sampleGroupCovar))
 
     # Handle if output plots are also requested: Return a zip containing HTML+figures
     if (outputPlots) {
