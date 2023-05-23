@@ -205,13 +205,13 @@ mCherry_IPC <- interPlateNorm(data_list=normData,
 
 # mCherry + IN
 mCherry_IN <- interPlateNorm(data_list=normData,
-                             IPC=FALSE, IN=TRUE,
+                             IPC=TRUE, IN=TRUE,
                              IPC_wells=IPC_wells,
                              NC_wells=NC_wells)
 
 if(indicatorBridge==TRUE){
   mCherry_Bridge <- interPlateNorm(data_list=normData,
-                                   IPC=FALSE, IN=TRUE,
+                                   IPC=TRUE, IN=TRUE,
                                    IN_samples=Bridge_wells)
 }
 ```
@@ -477,20 +477,20 @@ if(length(params$xmlFiles) > 1){
 ```{r, include=FALSE}
 # log transform and scale data for clustered heatmap
 # and sample correlation plot
-data_mCherry_log2_scaled <- list()
-data_mCherry_log2_no_NC_scaled <- list()
+data_mCherry_IPC_log2_scaled <- list()
+data_mCherry_IPC_log2_no_NC_scaled <- list()
 for(i in 1:length(params$xmlFiles)){
-  data_mCherry <- intraPlateNormData[[i]]$mCherry$normData
+  data_mCherry_IPC <- mCherry_IPC$interNormData[[i]]
   # remove ICs
-  data_mCherry <- data_mCherry[!grepl(paste(runs[[i]]$IC, collapse="|"), rownames(data_mCherry)),]
+  data_mCherry_IPC <- data_mCherry_IPC[!grepl(paste(runs[[i]]$IC, collapse="|"), rownames(data_mCherry_IPC)),]
   # remove NCs to calculate center and scale (so NCs don't skew the scale parameters)
-  data_mCherry_no_NC <- data_mCherry[,!grepl(paste(runs[[i]]$NC, collapse="|"), colnames(data_mCherry))]
-  data_mCherry_log2_no_NC_scaled[[i]] <- t(scale(t(log2(data_mCherry_no_NC + 0.01)),
+  data_mCherry_IPC_no_NC <- data_mCherry_IPC[,!grepl(paste(runs[[i]]$NC, collapse="|"), colnames(data_mCherry_IPC))]
+  data_mCherry_IPC_log2_no_NC_scaled[[i]] <- t(scale(t(log2(data_mCherry_IPC_no_NC + 1)),
                                                  center=TRUE, scale=TRUE))
   # log transform and scale targets
-  data_mCherry_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry + 0.01)),
-                                           center=attributes(data_mCherry_log2_no_NC_scaled[[i]])$`scaled:center`, 
-                                           scale=attributes(data_mCherry_log2_no_NC_scaled[[i]])$`scaled:scale`))
+  data_mCherry_IPC_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry_IPC + 1)),
+                                           center=attributes(data_mCherry_IPC_log2_no_NC_scaled[[i]])$`scaled:center`, 
+                                           scale=attributes(data_mCherry_IPC_log2_no_NC_scaled[[i]])$`scaled:scale`))
 }
 ```
 
@@ -941,10 +941,10 @@ kable_styling(knitr::kable(detectability_targets, caption='',
 ```{r, results='asis', out.width='100%', fig.asp=2*ceiling(length(params$xmlFiles)/2)}
 # Target Boxplot
 pandoc.header("Target detectability boxplot", 3)
-pandoc.p("Plot shows target mCherry-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for mCherry-normalized data.")
+pandoc.p("Plot shows target mCherry-IPC-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for mCherry-normalized data.")
 par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,2,2,1))
 for (i in 1:length(params$xmlFiles)){
-  targetBoxplot(intraPlateNormData[[i]][[1]]$normData, 
+  targetBoxplot(mCherry_IPC$interNormData[[i]], 
                 title=PlateNames[i], 
                 subtractLOD=TRUE, 
                 blanks=runs[[i]]$NC, 
@@ -1037,7 +1037,7 @@ sampleboxplot <- function(data,
                           horiz=TRUE,
                           data_axis_limits=NULL,
                           internal_control_label='mCherry',
-                          data_axis_label='log2(count + 0.01)'){
+                          data_axis_label='log2(count + 1)'){
   par(mar=c(2,6,2,0.5))
   if(horiz==TRUE){
     sample_axis_side <- 2
@@ -1051,7 +1051,7 @@ sampleboxplot <- function(data,
     ylimits <- data_axis_limits
   }
   
-  boxplot(log2(data[,data_order]+0.01),
+  boxplot(log2(data[,data_order] + 1),
           xlim=xlimits,
           ylim=ylimits,
           las=1, 
@@ -1074,7 +1074,7 @@ sampleboxplot <- function(data,
   axis(side=data_axis_side, labels=FALSE, tck=-0.01)
   axis(side=data_axis_side, labels=TRUE, cex.axis=0.5, line=-1, tick=FALSE)
   # add internal control line
-  lines(cbind(log2(data['mCherry', data_order]+0.01), 1:ncol(data)), col='red', las=1)
+  lines(cbind(log2(data['mCherry', data_order] + 1), 1:ncol(data)), col='red', las=1)
   # add data axis label
   mtext(data_axis_label, side=1, line=0.75, cex=0.5)
   # legend
@@ -1138,7 +1138,7 @@ wellcolors <- function(data, well_types, boxplot_colors){
 
 for(i in 1:length(params$xmlFiles)){
   pdf(file=NULL)
-  corrvals <- corrplot(cor(data_mCherry_log2_scaled[[i]], use="complete.obs"), 
+  corrvals <- corrplot(cor(data_mCherry_IPC_log2_scaled[[i]], use="complete.obs"), 
                        order='hclust') 
   dev.off()
   
@@ -1173,19 +1173,19 @@ for(i in 1:length(params$xmlFiles)){
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
   if(indicatorSC){ well_types <- append(well_types, list(SC_wells[[i]]))}
   if(indicatorBridge){ well_types <- append(well_types, list(Bridge_wells[[i]]))}
-  label_colors <- wellcolors(data=data_mCherry_log2_scaled[[i]], 
+  label_colors <- wellcolors(data=data_mCherry_IPC_log2_scaled[[i]], 
                              well_types=well_types, 
                              boxplot_colors=boxplot_colors)
   # define color scale breaks
   # omit NCs for determining min
-  breaks <- c(seq(min(data_mCherry_log2_no_NC_scaled[[i]],na.rm=TRUE), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(data_mCherry_log2_scaled[[i]], na.rm=TRUE)/paletteLength, 
-                  max(data_mCherry_log2_scaled[[i]], na.rm=TRUE), length.out=floor(paletteLength/2)))
+  breaks <- c(seq(min(data_mCherry_IPC_log2_no_NC_scaled[[i]],na.rm=TRUE), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(data_mCherry_IPC_log2_scaled[[i]], na.rm=TRUE)/paletteLength, 
+                  max(data_mCherry_IPC_log2_scaled[[i]], na.rm=TRUE), length.out=floor(paletteLength/2)))
   # transpose and add color variable
-  data_mCherry_log2_scaled2 <- data.frame(t(data_mCherry_log2_scaled[[i]]))
-  data_mCherry_log2_scaled2$label_colors <- label_colors
+  data_mCherry_IPC_log2_scaled2 <- data.frame(t(data_mCherry_IPC_log2_scaled[[i]]))
+  data_mCherry_IPC_log2_scaled2$label_colors <- label_colors
   # generate heatmap for plate i
-  vals <- data_mCherry_log2_scaled2[,1:(ncol(data_mCherry_log2_scaled2) - 1)]
+  vals <- data_mCherry_IPC_log2_scaled2[,1:(ncol(data_mCherry_IPC_log2_scaled2) - 1)]
   
   heatmap_i <- pheatmap(vals[,colSums(is.na(vals))==0],
                         main = paste("Plate", i), 
@@ -1194,7 +1194,7 @@ for(i in 1:length(params$xmlFiles)){
                         breaks=breaks,
                         show_colnames=FALSE, silent=TRUE)
   # put colors in order
-  label_colors_ordered <- data_mCherry_log2_scaled2[order(match(rownames(data_mCherry_log2_scaled2), heatmap_i$gtable$grobs[[5]]$label)),]$label_colors
+  label_colors_ordered <- data_mCherry_IPC_log2_scaled2[order(match(rownames(data_mCherry_IPC_log2_scaled2), heatmap_i$gtable$grobs[[5]]$label)),]$label_colors
   # add label colors to plot
   heatmap_i$gtable$grobs[[5]]$gp=gpar(col=label_colors_ordered)
   grid::grid.newpage()
@@ -1278,7 +1278,7 @@ pandoc.header("Sample PCA", 2)
 PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scale=TRUE, center=TRUE, title=NULL){
   data <- data[, which(apply(data, 2, sd) != 0)] # remove columns with stdev = 0
   data <- data[which(apply(data,1,sd) != 0),] # remove rows with stdev = 0
-  pca <- prcomp(log2(t(data)+0.01), scale=scale, center=center)
+  pca <- prcomp(log2(t(data) + 1), scale=scale, center=center)
   plateID <- factor(plateID)
   colors <- alamarColorPalette(length(levels(plateID)))
   point_shapes <- rep(1, ncol(data))
