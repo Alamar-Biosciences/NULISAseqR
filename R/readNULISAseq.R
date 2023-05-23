@@ -28,8 +28,8 @@
 #' @param sample_group_covar string that represents the name of the covariate
 #' that defines sample group information. Defaults to NULL. Typically, this covariate
 #' defines whether each sample is plasma, serum, csf, etc.
-#' This information can be used when reporting detectability (i.e., Report sample
-#' type group specific detectability values, etc.).
+#' This information can be used when reporting detectability. For instance report sample
+#' group specific detectability values, etc.).
 #' @param IC string(s) that represents the names of internal control targets. 
 #' Default is \code{'mCherry'}.Only used for xml file formats.
 #' @param IPC string(s) that represent the inter-plate control wells. 
