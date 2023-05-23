@@ -5,19 +5,17 @@
 \title{Convenience function for use by SAM
 Read NULISAseq XML, perform normalization, and QC}
 \usage{
-loadNULISAseq(file, IPC, ...)
+loadNULISAseq(file, IPC, IC, ...)
 }
 \arguments{
 \item{file}{Character string. Path and name of the file.}
 
-\item{plateID}{Character string that denotes plate ID.}
+\item{IPC}{String(s) that represent the inter-plate control wells. 
+For example, \code{'IPC'} (default). Set to \code{NULL} if there are no IPCs.
+Only used for xml file formats.}
 
-\item{file_type}{Character string. Type of input file, as output from Galaxy. Options include
-xml_full_output, xml_no_mismatches (default) (both from NULISAseq tool),
-or xml_normalization (from NULISAseq Normalization tool).}
-
-\item{replaceNA}{Logical. If TRUE (default), will replace missing counts with 
-zeros.}
+\item{IC}{string(s) that represents the names of internal control targets. 
+Default is \code{'mCherry'}.Only used for xml file formats.}
 }
 \value{
 List of lists, data frames, and matrices.
