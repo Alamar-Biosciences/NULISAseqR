@@ -131,6 +131,11 @@ xml2html <- function(res,
         stop("Failed to generate the zip file!")
       }
 
+      # Remove the figures directory: If present
+      if (file.exists("./figures") && file.info("./figures")$isdir) {
+        unlink("./figures", recursive = TRUE)
+      }
+
     } else {
       bin <- readBin(out_html, "raw", n = file.info(out_html)$size)
     }
