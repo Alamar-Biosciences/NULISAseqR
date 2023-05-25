@@ -17,13 +17,14 @@ volcanoPlot(
   sig_label = "FDR = 5\%",
   label_all_targets = FALSE,
   target_labels_off = FALSE,
+  target_label_colors = NULL,
   target_point_colors = NULL,
+  target_label_size = 2,
+  target_label_segment_color = "grey",
   max.overlaps = Inf,
   plot_title_font_size = 14,
   axis_label_font_size = 12,
   tick_label_font_size = 12,
-  target_label_size = 2,
-  target_label_segment_color = "grey",
   plot_aspect_ratio = 1,
   log_y = TRUE
 )
@@ -55,9 +56,19 @@ and will only label significant targets.}
 
 \item{target_labels_off}{Logical TRUE or FALSE. Should no targets be labelled?}
 
+\item{target_label_colors}{A vector of the same length as number of targets
+and same order as targets with colors for the target labels. Default is to 
+color upregulated target labels red and downregulated target labels blue.}
+
 \item{target_point_colors}{A vector of the same length as number of targets
 and same order as targets with colors for the points. Default is to 
-make significance target points black and nonsignificant target points grey.}
+make significant upregulated target points red, significant downregulated 
+target points blue, and nonsignificant target points grey.}
+
+\item{target_label_size}{Font size of target labels.}
+
+\item{target_label_segment_color}{Color of line segments for target labels.
+Can be a single value or a vector same length as number of targets.}
 
 \item{max.overlaps}{Passed to ggrepel. Integer which determines how many targets 
 will have labels. "Inf" (default) labels all targets.}
@@ -67,10 +78,6 @@ will have labels. "Inf" (default) labels all targets.}
 \item{axis_label_font_size}{Font size of axis title.}
 
 \item{tick_label_font_size}{Font size of axis tick marks.}
-
-\item{target_label_size}{Font size of target labels.}
-
-\item{target_label_segment_color}{Color of line segments for target labels.}
 
 \item{plot_aspect_ratio}{Aspect ratio for plot. Default is 1 (square plot).}
 

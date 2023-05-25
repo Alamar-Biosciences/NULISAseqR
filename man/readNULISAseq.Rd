@@ -10,6 +10,7 @@ readNULISAseq(
   file_type = "xml_no_mismatches",
   target_column_names = NULL,
   sample_column_names = NULL,
+  sample_group_covar = NULL,
   IC = "mCherry",
   IPC = "IPC",
   SC = "SC",
@@ -45,6 +46,12 @@ will include by default \code{c('PlateID', 'SampleName', 'SampleType', 'SampleQC
 In addition, by default, it will include any other variables in the dataset.
 If \code{sample_column_names} is specified, however, it will only include
 those variables in the sample data frame output.}
+
+\item{sample_group_covar}{string that represents the name of the covariate
+that defines sample group information. Defaults to NULL. Typically, this covariate
+defines whether each sample is plasma, serum, csf, etc.
+This information can be used when reporting detectability. For instance report sample
+group specific detectability values, etc.).}
 
 \item{IC}{string(s) that represents the names of internal control targets. 
 Default is \code{'mCherry'}.Only used for xml file formats.}
