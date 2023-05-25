@@ -4,7 +4,12 @@
 \alias{detectability}
 \title{Calculate Detectability for a Set of Targets and Samples}
 \usage{
-detectability(aboveLOD_matrix, sample_subset = NULL, exclude_targets = NULL)
+detectability(
+  aboveLOD_matrix,
+  sample_subset = NULL,
+  sample_groups = NULL,
+  exclude_targets = NULL
+)
 }
 \arguments{
 \item{aboveLOD_matrix}{aboveLOD matrix output from lod() function.
@@ -14,21 +19,32 @@ Rows are targets and columns are samples.}
 represent the sample subset that detectability will be calculated for. 
 Default uses all columns. NCs and IPCs should probably be excluded.}
 
+\item{sample_groups}{A string vector defining sample types/identities that
+represent the sample type subsets that detectability should be calculated 
+for. Default value NULL provides overall detectability assuming all samples
+are of the same type (e.g., plasma).}
+
 \item{exclude_targets}{A vector of row names or numeric row indices 
 representing the 
 targets that should be excluded from detectability calculation. For example,
 one might want to exclude internal controls. Default is NULL, which includes
 all targets in the aboveLOD_matrix.}
 
-\item{detectability}{A named vector of detectability values as percentages. 
-Names correspond to target row names.}
+\item{sampleNumber}{The number of samples.}
 
-\item{detectable}{A named TRUE/FALSE vector that indicates whether 
-detectability is above 50% for that target. 
-Names correspond to target row names.}
+\item{detectability}{A named vector of detectability values in percentages.
+The names correspond to target row names.}
+
+\item{detectable}{A named logical vector indicating whether detectability is
+above 50% for each target. The names correspond to target row names.}
 }
 \value{
-A list.
+A nested list containing detectability information.
+The list has two high-level names: "all" and "sample_group".
+The "all" name corresponds to detectability information for all samples
+combined as a single unit. If the \code{sample_groups} parameter is not NULL,
+the "sample_group" name provides detectability data for unique sample groups.
+The nested list has three names to access detectability and sample information.
 }
 \description{
 Calculates detectability for each target based on the
