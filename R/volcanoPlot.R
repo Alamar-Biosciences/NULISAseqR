@@ -18,16 +18,21 @@
 #' Should all targets be labelled? Default is FALSE 
 #' and will only label significant targets.
 #' @param target_labels_off Logical TRUE or FALSE. Should no targets be labelled? 
+#' @param target_label_colors  A vector of the same length as number of targets
+#' and same order as targets with colors for the target labels. Default is to 
+#' color upregulated target labels red and downregulated target labels blue.
 #' @param target_point_colors A vector of the same length as number of targets
 #' and same order as targets with colors for the points. Default is to 
-#' make significance target points black and nonsignificant target points grey.
+#' make significant upregulated target points red, significant downregulated 
+#' target points blue, and nonsignificant target points grey.
+#' @param target_label_size Font size of target labels.
+#' @param target_label_segment_color Color of line segments for target labels.
+#' Can be a single value or a vector same length as number of targets.
 #' @param max.overlaps Passed to ggrepel. Integer which determines how many targets 
 #' will have labels. "Inf" (default) labels all targets. 
 #' @param plot_title_font_size Font size of plot title.
 #' @param axis_label_font_size Font size of axis title.
 #' @param tick_label_font_size Font size of axis tick marks.
-#' @param target_label_size Font size of target labels.
-#' @param target_label_segment_color Color of line segments for target labels.
 #' @param plot_aspect_ratio Aspect ratio for plot. Default is 1 (square plot).
 #' @param log_y Logical \code{TRUE} (default) or \code{FALSE}. Should y-axis be 
 #' -log10 transformed? (\code{TRUE} recommended for plotting p-values.)
@@ -51,13 +56,14 @@ volcanoPlot <- function(coefs,
                         sig_label='FDR = 5%',
                         label_all_targets=FALSE,
                         target_labels_off=FALSE,
+                        target_label_colors=NULL,
                         target_point_colors=NULL,
+                        target_label_size=2,
+                        target_label_segment_color='grey',
                         max.overlaps=Inf,
                         plot_title_font_size=14,
                         axis_label_font_size=12,
                         tick_label_font_size=12,
-                        target_label_size=2,
-                        target_label_segment_color='grey',
                         plot_aspect_ratio=1,
                         log_y=TRUE){
   
@@ -68,12 +74,23 @@ volcanoPlot <- function(coefs,
   if(target_labels_off==TRUE){
     target_labels <- rep('', length(target_labels))
   }
+  # create point colors
+  red_blue <- alamarColorPalette(n=2, palette=2)
   if(is.null(target_point_colors)){
-    target_point_colors <- rep('black', length(target_labels))
-    target_point_colors[p_vals > sig_threshold] <- 'grey'
+    target_point_colors <- rep('grey', length(target_labels))
+    target_point_colors[p_vals < sig_threshold & coefs > 0] <- red_blue[2]
+    target_point_colors[p_vals < sig_threshold & coefs < 0] <- red_blue[1]
   }
-  colors <- unique(target_point_colors)
-  names(colors) <- colors
+  point_colors <- unique(target_point_colors)
+  names(point_colors) <- point_colors
+  # create label colors
+  if(is.null(target_label_colors)){
+    target_label_colors <- rep('grey', length(target_labels))
+    target_label_colors[p_vals < sig_threshold & coefs > 0] <- red_blue[2]
+    target_label_colors[p_vals < sig_threshold & coefs < 0] <- red_blue[1]
+  }
+  label_colors <- unique(target_label_colors)
+  names(label_colors) <- label_colors
   if(is.null(xlimits)){
     xlimits <- c(min(coefs), max(coefs))
     xmin <- min(coefs)
@@ -87,7 +104,7 @@ volcanoPlot <- function(coefs,
   }
   # organize plot data
   if (log_y==TRUE) y_vals <- -log10(p_vals)
-  if(log_y==FALSE) y_vals <- (p_vals)
+  if (log_y==FALSE) y_vals <- (p_vals)
   
   plot_data <- data.frame(coefs=coefs,
                           minus_log10_p_vals=y_vals,
@@ -103,7 +120,7 @@ volcanoPlot <- function(coefs,
     ggplot2::geom_vline(xintercept = 0, color='grey') +
     ggplot2::geom_hline(yintercept = 0, color='grey') +
     ggplot2::geom_point(shape=20, ggplot2::aes(color=target_point_colors)) +
-    ggplot2::scale_color_manual(values=colors) +
+    ggplot2::scale_color_manual(values=point_colors) +
     ggplot2::xlab(xlabel) +
     ggplot2::ylab(ylabel) +
     ggplot2::labs(title=title) +
@@ -121,7 +138,8 @@ volcanoPlot <- function(coefs,
                    legend.position='none') +
     ggrepel::geom_text_repel(size=target_label_size, 
                              max.overlaps = max.overlaps, 
-                             segment.color=target_label_segment_color) +
+                             segment.color=target_label_segment_color,
+                             color=target_label_colors) +
     ggplot2::coord_cartesian(clip='off')
   return(volcano_plot)
 }
