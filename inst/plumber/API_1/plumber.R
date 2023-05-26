@@ -287,6 +287,10 @@ xml2qs <- function(res,
     data <- loadNULISAseq(toString(in_xml), IPC, IC)
     qsave(data, tempFile)
     bin <- readBin(tempFile, "raw", n = file.info(tempFile)$size)
+    
+    # Clean the workspace
+    unlink(c(tempFile))
+
     return(bin)
   })
 }
