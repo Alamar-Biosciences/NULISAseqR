@@ -804,18 +804,18 @@ pandoc.p("QC criteria are assessed either on unnormalized (raw) or IC-normalized
 for( i in 1:length(runs)){
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
   table.attr <- paste0("id=\"QCFlagPlate-summary", i, "\"")
-  qcPlate$status[which(qcPlate$status == "F")] <- "Pass"
-  qcPlate$status[which(qcPlate$status == "T")] <- "Fail"
+  qcPlate$status[which(qcPlate$status == FALSE)] <- "Pass"
+  qcPlate$status[which(qcPlate$status == TRUE)] <- "Fail"
   qcPlate$QCthreshold[1:nrow(qcPlate)-1] <- paste0(format(as.numeric(qcPlate$QCthreshold[1:nrow(qcPlate)-1])*100, digits=2), "%")
   qcPlate$QCthreshold[nrow(qcPlate)] <- format(as.numeric(qcPlate$QCthreshold[nrow(qcPlate)]), big.mark=",")
   qcPlate$val[1:nrow(qcPlate)-1] <- paste0(format(as.numeric(qcPlate$val[1:nrow(qcPlate)-1])*100, digits=2), "%")
   qcPlate$val[nrow(qcPlate)] <- format(as.numeric(qcPlate$val[nrow(qcPlate)]), big.mark=",")
   cat(knitr::kable(qcPlate[,1:5], 
-                   caption=paste0("Plate ", as.character(i), ": Plate QC Flag Summary"), 
+                   caption=paste0("Plate ", as.character(i), ": Plate QC Summary"), 
                    align='r', 
                    format.args=list(big.mark = ",", digits=2),
                    table.attr=table.attr,
-                   col.names = c("Flag Name", "Normalization", "QC Status", "QC Value", "QC Threshold"
+                   col.names = c("QC Criterion", "Normalization", "QC Status", "QC Value", "QC Threshold"
                    )) %>%
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
         row_spec(which(qcPlate$status == "Fail"), bold=T, color="white", background="red"))
@@ -886,7 +886,7 @@ rownames(QCSummary) <- c(rowNameQC, "Total")
 colnames(QCSummary) <- c("# of Samples", names(criteria$thresholds))
 
 # print sample QC summary table
-knitr::kable(QCSummary, caption='Number of samples that fail each QC Flag (excludes IPC, SC, NC & bridge samples)', 
+knitr::kable(QCSummary, caption='Number of samples that fail each QC criterion (excludes IPC, SC, NC & bridge samples)', 
              align='r', 
              table.attr="id=\"QC-summary-table\"",
              format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
