@@ -1,5 +1,19 @@
 ---
 params:
+  study_name: "Study Name"
+  assayName: "NULISAseq 200-plex Inflammation Panel"
+  ## type of report
+  ## options:
+  ## internal
+  ## WebApp
+  reportType: "internal"
+  ## directory where xml files are located
+  dataDir: "."
+  ## XML file names
+  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
+  ## manually set plate ID if desired, otherwise plate ID will be 
+  # "Plate 1", "Plate 2", ... according to order of filenames 
+  plateNames: !r c()
   ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
@@ -11,8 +25,6 @@ params:
   SC: !r c("SC")
   ## string that denotes bridge samples
   Bridge: !r NULL
-  ## directory where xml files are located
-  dataDir: "."
   ## variables in XML that indicate row, column, and plate ID
   rowAnnotName: "AUTO_WELLROW"
   colAnnotName: "AUTO_WELLCOL"
@@ -21,28 +33,20 @@ params:
   # rowAnnotName: "Annot2"
   # colAnnotName: "Annot3"
   # plateAnnotName: "Annot1"
-  ## should heatmaps show % median units?
-  heatMapRel: !r TRUE
-  study_name: "Study Name"
-  assayName: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
-  ## manually set plate ID, otherwise plate ID will be 
-  ## "Plate 1", "Plate 2", ... according to order of filenames 
-  plateNames: !r c()
-  ## type of report
-  ## options:
-  ## internal
-  ## WebApp
-  reportType: "internal"
-  # list of names of samples to exclude
-  # excludeSamples: !r list(c('A_01_C001 P3', 'A_02_C044 P1'), c('A_01_C040 P1'))
+  # optional list of names of samples to exclude
+  ## excludeSamples: !r list(c('A_01_C001 P3', 'A_02_C044 P1'), c('A_01_C040 P1'))
   excludeSamples: !r NULL
-  ## outputPlots -- if TRUE will output a set of plots in a nice format for slides
-  outputPlots: !r FALSE
   ## sampleGroupCovar -- Specify the covariate to retrieve sample group information.
   # this information is used when determining detectability.
   # defaults to NULL.
   sampleGroupCovar: NULL
+  ## should heatmaps show % median units?
+  heatMapRel: !r TRUE
+  ## outputPlots -- if TRUE will output a set of plots in a nice format for slides
+  outputPlots: !r FALSE
+  ## outputDetectCSV
+  # if TRUE, outputs a CSV file with detectability for each target and sample type
+  outputDetectCSV: !r FALSE
 output:
   html_document:
     toc: yes
