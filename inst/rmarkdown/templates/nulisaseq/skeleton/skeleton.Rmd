@@ -1787,26 +1787,110 @@ if(multipleFiles==TRUE){
 
 
 ##########################
-# target detectability histogram
+# target detectability histograms
 ##########################
 
-pdf('./figures/target_detectability_histogram.pdf',
-    width=5, height=5)
-par(mar=c(4.5, 4.5, 2, 1))
-hist(detectability_data,
-     main='Target detectability (%)',
-     xlab='Detectability (%)', las=1, breaks=50,
-     col=colors[[1]][5],
-     border=colors[[1]][2])
+if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
+  # get only Overall estimates
+  detectability_data <- detect_output_table
+  detectability_data_name <- colnames(detect_output_table)
+  # make histogram
+  pdf('./figures/target_detectability_histogram.pdf',
+      width=5, height=5)
+  par(mar=c(4.5, 4.5, 2, 1))
+  hist(detectability_data,
+       main=paste0('Target detectability (%):\n', detectability_data_name),
+       xlab='Detectability (%)', las=1, breaks=50, 
+       col=colors[[1]][5],
+       border=colors[[1]][2])
+  abline(v=50, col=colors[[2]][3], lwd=1)
+  ydist <- par('usr')[4] - par('usr')[3]
+  text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
+       col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
+  legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
+                      paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
+         lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+  dev.off()
+}
 
-abline(v=50, col=colors[[2]][3], lwd=1)
-ydist <- par('usr')[4] - par('usr')[3]
-text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
-     col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
-legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
-                    paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
-       lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
-dev.off()
+if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
+  # get only Overall estimates
+  detectability_data <- detect_output_table
+  sample_types <- detectability_return_summary[[1]][2:nrow(detectability_return_summary[[1]]),1]
+  sample_types <- gsub(' ', replacement = '_', sample_types)
+  colnames(detectability_data) <- paste0('Target detectability (%):\n', colnames(detectability_data))
+  filenames <- paste0('./figures/target_detectability_histogram_', sample_types, '.pdf')
+  # make histogram for each sample type
+  for (i in 1:ncol(detectability_data)){
+    pdf(filenames[i],
+        width=5, height=5)
+    par(mar=c(4.5, 4.5, 2, 1))
+    hist(detectability_data[,i],
+         main=colnames(detectability_data)[i],
+         xlab='Detectability (%)', las=1, breaks=50, 
+         col=colors[[1]][5],
+         border=colors[[1]][2])
+    abline(v=50, col=colors[[2]][3], lwd=1)
+    ydist <- par('usr')[4] - par('usr')[3]
+    text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
+         col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
+    legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data[,i], na.rm=TRUE), 1), nsmall=1)),
+                        paste0('median = ', format(round(median(detectability_data[,i], na.rm=TRUE), 1), nsmall=1))),
+           lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+    dev.off()
+  }
+}
+
+if(multipleFiles==TRUE & is.null(params$sampleGroupCovar)){
+  # get only Overall estimates
+  detectability_data <- detect_output_table[,grep('Overall', colnames(detect_output_table))]
+  detectability_data_name <- colnames(detect_output_table)[grep('Overall', colnames(detect_output_table))]
+  # make histogram
+  pdf('./figures/target_detectability_histogram.pdf',
+      width=5, height=5)
+  par(mar=c(4.5, 4.5, 2, 1))
+  hist(detectability_data,
+       main=paste0('Target detectability (%):\n', detectability_data_name),
+       xlab='Detectability (%)', las=1, breaks=50, 
+       col=colors[[1]][5],
+       border=colors[[1]][2])
+  abline(v=50, col=colors[[2]][3], lwd=1)
+  ydist <- par('usr')[4] - par('usr')[3]
+  text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
+       col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
+  legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
+                      paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
+         lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+  dev.off()
+}
+
+if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
+  # get only Overall estimates
+  detectability_data <- detect_output_table[,grep('Overall', colnames(detect_output_table))]
+  sample_types <- detectability_return_summary$Overall[2:nrow(detectability_return_summary$Overall),1]
+  sample_types <- gsub(' ', replacement = '_', sample_types)
+  colnames(detectability_data) <- gsub('Overall: ', replacement = 'Target detectability (%):\n', colnames(detectability_data))
+  filenames <- paste0('./figures/target_detectability_histogram_', sample_types, '.pdf')
+  # make histogram for each sample type
+  for (i in 1:ncol(detectability_data)){
+    pdf(filenames[i],
+        width=5, height=5)
+    par(mar=c(4.5, 4.5, 2, 1))
+    hist(detectability_data[,i],
+         main=colnames(detectability_data)[i],
+         xlab='Detectability (%)', las=1, breaks=50, 
+         col=colors[[1]][5],
+         border=colors[[1]][2])
+    abline(v=50, col=colors[[2]][3], lwd=1)
+    ydist <- par('usr')[4] - par('usr')[3]
+    text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
+         col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
+    legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data[,i], na.rm=TRUE), 1), nsmall=1)),
+                        paste0('median = ', format(round(median(detectability_data[,i], na.rm=TRUE), 1), nsmall=1))),
+           lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+    dev.off()
+  }
+}
 
 
 ##########################
