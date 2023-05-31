@@ -46,7 +46,7 @@ params:
   outputPlots: !r FALSE
   ## outputDetectCSV
   # if TRUE, outputs a CSV file with detectability for each target and sample type
-  outputDetectCSV: !r FALSE
+  outputDetectCSV: !r TRUE
 output:
   html_document:
     toc: yes
@@ -1736,66 +1736,6 @@ for(i in 1:length(params$xmlFiles)){
   
 }
 
-
-
-
-##########################
-# intra-plate and inter-plate CV density plots
-##########################
-# intra-plate CV 
-pdf(paste0('./figures/intraCV_density.pdf'), 
-    width=5, height=5)
-colors <- alamarColorPalette(2, nReps = 5, palette = 2)
-par(mar=c(4.5, 4.5, 2, 1))
-if(indicatorSC==TRUE){
-  intraCV_mean <- rowMeans(SC_intraCV_mCherry, na.rm=TRUE)
-} else {
-  intraCV_mean <- rowMeans(IPC_intraCV_mCherry, na.rm=TRUE)
-}
-plot(density(intraCV_mean, na.rm=TRUE),
-     main='Intra-plate CV (%)',
-     xlab='CV (%)', las=1)
-x <- density(intraCV_mean, na.rm=TRUE)$x
-x <- c(x[1], x, x[length(x)])
-y <- c(0, density(intraCV_mean, na.rm=TRUE)$y, 0)
-polygon(x, y,
-        col=colors[[1]][5],
-        border=colors[[1]][2])
-abline(v=mean(intraCV_mean, na.rm=TRUE), col=colors[[1]][2], lwd=2)
-abline(v=median(intraCV_mean, na.rm=TRUE), col=colors[[1]][2], lty=2, lwd=2)
-legend('topright', c(paste0('mean CV% = ', format(round(mean(intraCV_mean, na.rm=TRUE), 1), nsmall=1)), 
-                     paste0('median CV% = ', format(round(median(intraCV_mean, na.rm=TRUE), 1), nsmall=1))),
-       lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1.25)
-dev.off()
-
-# inter-plate CV
-if(multipleFiles==TRUE){
-  pdf(paste0('./figures/interCV_density.pdf'), 
-      width=5, height=5)
-  colors <- alamarColorPalette(2, nReps = 5, palette = 2)
-  par(mar=c(4.5, 4.5, 2, 1))
-  if(indicatorSC==TRUE){
-    interCV <- interCV_mCherry_IPC[,'SC']
-  } else {
-    interCV <- interCV_mCherry_IPC[,'IPC']
-  }
-  plot(density(interCV, na.rm=TRUE),
-       main='Inter-plate CV (%)',
-       xlab='CV (%)', las=1)
-  x <- density(interCV, na.rm=TRUE)$x
-  x <- c(x[1], x, x[length(x)])
-  y <- c(0, density(interCV, na.rm=TRUE)$y, 0)
-  polygon(x, y,
-          col=colors[[1]][5],
-          border=colors[[1]][2])
-  abline(v=mean(interCV, na.rm=TRUE), col=colors[[1]][2], lwd=2)
-  abline(v=median(interCV, na.rm=TRUE), col=colors[[1]][2], lty=2, lwd=2)
-  legend('topright', c(paste0('mean CV% = ', format(round(mean(interCV, na.rm=TRUE), 1), nsmall=1)), 
-                       paste0('median CV% = ', format(round(median(interCV, na.rm=TRUE), 1), nsmall=1))),
-         lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1.25)
-  dev.off()
-}
-
 ##########################
 # intra-plate and inter-plate CV histograms
 ##########################
@@ -1844,35 +1784,6 @@ if(multipleFiles==TRUE){
          lty=c(1,2), col=colors[[2]][3], bty='n', lwd=2, cex=1.25)
   dev.off()
 }
-
-
-##########################
-# target detectability density plot
-##########################
-if(multipleFiles==TRUE){
-  detectability_data <- as.numeric(detectability_return_targets$Overall[,'all'])
-} else {
-  detectability_data <- as.numeric(detectability_return_targets$`Plate  1`[,1])
-}
-
-pdf('./figures/target_detectability_density.pdf',
-    width=5, height=5)
-par(mar=c(4.5, 4.5, 2, 1))
-plot(density(detectability_data, na.rm=TRUE),
-     main='Target detectability (%)',
-     xlab='Detectability (%)', las=1)
-x <- density(detectability_data, na.rm=TRUE)$x
-x <- c(x[1], x, x[length(x)])
-y <- c(0, density(detectability_data, na.rm=TRUE)$y, 0)
-polygon(x, y,
-        col=colors[[1]][5],
-        border=colors[[1]][2])
-abline(v=50, col=colors[[2]][2], lwd=2)
-text(50, 0.013, '50%', pos=4, col=colors[[2]][2])
-legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
-                    paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
-       lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
-dev.off()
 
 
 ##########################
