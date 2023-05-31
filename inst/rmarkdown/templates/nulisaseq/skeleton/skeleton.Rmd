@@ -1099,6 +1099,88 @@ if (combine_detectability){
 }
 ```
 
+```{r, eval=params$outputDetectCSV==TRUE, include=FALSE}
+# make directory -- we will put the file in the figures directory
+dir.create("./figures")
+
+# Target detectability -- output CSV file
+# code depends on multipleFiles TRUE / FALSE and sampleGroupCovar NULL / non-NULL
+if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
+  # put overall summary first
+  detect_output_table <- detectability_return_targets[[1]]
+  detect_table_names <- colnames(detect_output_table)
+  detect_summary_output_table <- detectability_return_summary[[1]]
+  # add n's to column name
+  colnames(detect_output_table)[1] <- paste0(PlateNames[1], ' (n = ',  detect_summary_output_table[1,2], ')')
+  # save rownames 
+  detect_output_table_rownames <- rownames(detect_output_table)
+  # round to 1 decimal place
+  detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
+  # add rownames
+  rownames(detect_output_table) <- detect_output_table_rownames
+}
+
+if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
+  # put overall summary first
+  detect_output_table <- detectability_return_targets[[1]]
+  detect_table_names <- colnames(detect_output_table)
+  detect_summary_output_table <- detectability_return_summary[[1]]
+  # add n's to columns
+  for (i in 1:length(detect_table_names)){
+    colnames(detect_output_table)[i] <- paste0(detect_table_names[i], ' (n = ',  detect_summary_output_table[i,2], ')')
+  }
+  # remove "all" column
+  detect_output_table <- detect_output_table[,-grep("all ", colnames(detect_output_table))]
+  # save rownames 
+  detect_output_table_rownames <- rownames(detect_output_table)
+  # round to 1 decimal place
+  detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
+  # add rownames
+  rownames(detect_output_table) <- detect_output_table_rownames
+}
+
+if(multipleFiles==TRUE & is.null(params$sampleGroupCovar)){
+  # put overall summary first
+  detect_output_table <- detectability_return_targets$Combined[,c(ncol(detectability_return_targets$Combined), 1:(ncol(detectability_return_targets$Combined) - 1))]
+  detect_table_names <- colnames(detect_output_table)
+  detect_summary_output_table <- detectability_return_summary$Combined[c(nrow(detectability_return_summary$Combined), 1:(nrow(detectability_return_summary$Combined) - 1)),]
+  # add plate name and n's to columns
+  for (i in 1:length(detect_table_names)){
+    colnames(detect_output_table)[i] <- paste0(detect_table_names[i], ' (n = ',  detect_summary_output_table[i,2], ')')
+  }
+  # save rownames 
+  detect_output_table_rownames <- rownames(detect_output_table)
+  # round to 1 decimal place
+  detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
+  # add rownames
+  rownames(detect_output_table) <- detect_output_table_rownames
+}
+
+if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
+  # put overall summary first
+  detect_output_table <- detectability_return_targets[c(length(detectability_return_targets), 1:(length(detectability_return_targets) - 1))]
+  detect_table_names <- names(detect_output_table)
+  detect_summary_output_table <- detectability_return_summary[c(length(detectability_return_summary), 1:(length(detectability_return_summary) - 1))]
+  # add plate name and n's to columns
+  for (i in 1:length(detect_table_names)){
+    colnames(detect_output_table[[i]]) <- paste0(detect_table_names[i], ': ', colnames(detect_output_table[[i]]))
+    colnames(detect_output_table[[i]]) <- paste0(colnames(detect_output_table[[i]]), ' (n = ',  detect_summary_output_table[[i]][,2], ')')
+  }
+  # cbind the tables together
+  detect_output_table <- do.call(cbind, detect_output_table)
+  # remove "all" columns
+  detect_output_table <- detect_output_table[,-grep(" all ", colnames(detect_output_table))]
+  # save rownames 
+  detect_output_table_rownames <- rownames(detect_output_table)
+  # round to 1 decimal place
+  detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
+  # add rownames
+  rownames(detect_output_table) <- detect_output_table_rownames
+}
+
+write.csv(detect_output_table, './figures/target_detectability_table.csv')
+```
+
 ```{r, results='asis', out.width='100%', fig.asp=2*ceiling(length(params$xmlFiles)/2)}
 # Target Boxplot
 pandoc.header("Target detectability boxplot", 3)
