@@ -362,6 +362,8 @@ readCovariateFile <- function(txt_file, NULISAseqRuns){
     NULISAseqRuns[[i]]$samples <- merge(runs[[i]]$samples, newInfo, nodups=T, all.x=T,
                                         by.x=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"), 
                                         by.y=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"))
+    # Determine if covariates are numeric
+    NULISAseqRuns[[i]]$numericCovariates <- sapply(samples, function(lst) all(sapply(lst, function(x) suppressWarnings(!is.na(as.numeric(x))))))
   }
   return(NULISAseqRuns)
 }
