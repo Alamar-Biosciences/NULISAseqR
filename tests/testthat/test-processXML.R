@@ -1,5 +1,5 @@
-# Define a test for QCSampleCriteria
-test_that("", {
+# Define a test processXML
+test_that("Test that processXML reads in an XML file and outputs an XML according to the schema", {
   
   test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
   schema_file <- paste0(testthat::test_path(), "./../NGSNormalize.xsd")
