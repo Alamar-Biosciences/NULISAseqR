@@ -253,6 +253,9 @@ readNULISAseq <- function(file,
     if(length(inds) > 0){
       targets[, inds] <- NULL
     }
+
+    # Determine if covariates are numeric
+    numericCovariates <- sapply(samples, function(lst) all(sapply(lst, function(x) suppressWarnings(!is.na(as.numeric(x))))))
     
     ###########################
     # return the output
@@ -263,7 +266,8 @@ readNULISAseq <- function(file,
       RunSummary=RunSummary,
       targets=targets,
       samples=samples,
-      Data=DataMatrix),
+      Data=DataMatrix,
+      numericCovariates=numericCovariates),
       specialWellsTargets))
     # end file type xml_no_mismatches
   } 
