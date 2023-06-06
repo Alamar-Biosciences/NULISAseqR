@@ -17,19 +17,19 @@ params:
   ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
-  ## string that denotes inter-plate controls
+  ## string(s) that denotes inter-plate controls
   IPC: !r c("IPC")
-  ## string that denotes negative controls
+  ## string(s) that denotes negative controls
   NC: !r c("NC")
-  ## string that denotes sample controls
+  ## string(s) that denotes sample controls
   SC: !r c("SC")
-  ## string that denotes bridge samples
+  ## string(s) that denotes bridge samples
   Bridge: !r NULL
   ## variables in XML that indicate row, column, and plate ID
   rowAnnotName: "AUTO_WELLROW"
   colAnnotName: "AUTO_WELLCOL"
   plateAnnotName: "AUTO_PLATE"
-  ## older version names for row, column, plate ID variables 
+  ## older version names for row, column, plate ID variables
   # rowAnnotName: "Annot2"
   # colAnnotName: "Annot3"
   # plateAnnotName: "Annot1"
@@ -1907,7 +1907,7 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
 ##########################
 for(i in 1:length(params$xmlFiles)){
   pdf(paste0('./figures/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
-  targetBoxplot(intraPlateNormData[[i]][[1]]$normData,
+  targetBoxplot(mCherry_IPC$interNormData[[i]],
                 title=PlateNames[i],
                 subtractLOD = TRUE,
                 blanks = runs[[i]]$NC,
