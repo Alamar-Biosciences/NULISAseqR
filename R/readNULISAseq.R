@@ -255,7 +255,7 @@ readNULISAseq <- function(file,
     }
 
     # Determine if covariates are numeric
-    numericCovariates <- sapply(samples, function(lst) all(sapply(lst, function(x) suppressWarnings(!is.na(as.numeric(x))))))
+    numericCovariates <- sapply(samples, function(lst) all(sapply(na.omit(lst), function(x) suppressWarnings(!is.na(as.numeric(x))))))
     
     ###########################
     # return the output
@@ -363,7 +363,7 @@ readCovariateFile <- function(txt_file, NULISAseqRuns){
                                         by.x=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"), 
                                         by.y=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"))
     # Determine if covariates are numeric
-    NULISAseqRuns[[i]]$numericCovariates <- sapply(NULISAseqRuns[[i]]$samples, function(lst) all(sapply(lst, function(x) suppressWarnings(!is.na(as.numeric(x))))))
+    NULISAseqRuns[[i]]$numericCovariates <- sapply(NULISAseqRuns[[i]]$samples, function(lst) all(sapply(na.omit(lst), function(x) suppressWarnings(!is.na(as.numeric(x))))))
   }
   return(NULISAseqRuns)
 }
