@@ -18,7 +18,7 @@ test_that("Test that processXML reads in an XML file and outputs an XML accordin
   data2 <- readCovariateFile(covarFile, list(data))
   expect_true("var1" %in% names(data2[[1]]$numericCovariates))
   expect_true("var3" %in% names(data2[[1]]$numericCovariates)) 
-  expect_false(unname(data2[[1]]$numericCovariates["var1"]))
-  expect_false(unname(data2[[1]]$numericCovariates["var3"]))
+  expect_true(all(is.na(unname(data2[[1]]$samples$var1))))
+  expect_true(all(is.na(unname(data2[[1]]$samples$var3))))
 
 })
