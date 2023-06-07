@@ -39,6 +39,7 @@ params:
   ## sampleGroupCovar -- Specify the covariate to retrieve sample group information.
   # this information is used when determining detectability.
   # defaults to NULL.
+  # for testing sampleGroupCovar: "AUTO_WELLROW"
   sampleGroupCovar: NULL
   ## should heatmaps show % median units?
   heatMapRel: !r TRUE
@@ -1906,12 +1907,12 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
 
 
 ##########################
-# target detectability boxplot
+# target detectability boxplot -- by plate
 ##########################
 for(i in 1:length(params$xmlFiles)){
   pdf(paste0('./figures/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
   targetBoxplot(mCherry_IPC$interNormData[[i]],
-                title=PlateNames[i],
+                title=paste0('Target detectability: ', PlateNames[i]),
                 subtractLOD = TRUE,
                 blanks = runs[[i]]$NC,
                 horizontal = FALSE,
@@ -1921,6 +1922,191 @@ for(i in 1:length(params$xmlFiles)){
                 excludeSamples=c(runs[[i]]$IPC, runs[[i]]$NC, runs[[i]]$SC))
   dev.off()
 }
+
+##########################
+# target detectability boxplot -- combine across plates
+# if no sample group specified and more than one plate, combine all data
+##########################
+if(is.null(params$sampleGroupCovar) & length(runs) > 1){
+  # calculate LODs on IC - IPC normalized data
+  plate_lod_IPC <- vector('list', length(params$xmlFiles))
+  for (i in 1:length(params$xmlFiles)){
+    plate_lod_IPC[[i]] <- lod(data_matrix=mCherry_IPC$interNormData[[i]], 
+                              blanks=runs[[i]]$NC, 
+                              min_count=0)
+    plate_lod_IPC[[i]]$LOD_log2 <- log2(plate_lod_IPC[[i]]$LOD + 1)
+  }
+  # subtract LODs from the IC - IPC normalized sample data
+  data_minus_LOD <- vector('list', length(params$xmlFiles))
+  for (i in 1:length(params$xmlFiles)){
+    plate_i_sample_data <- mCherry_IPC$log2_interNormData[[i]][,runs[[i]]$SampleNames]
+    # add plate ID to colnames in case any names are identical across plates
+    colnames(plate_i_sample_data) <- paste0('plate_', i, '_', colnames(plate_i_sample_data))
+    data_minus_LOD[[i]] <- sweep(plate_i_sample_data, MARGIN=1, STATS=plate_lod_IPC[[i]]$LOD_log2)
+  }
+  data_minus_LOD <- do.call(cbind, data_minus_LOD)
+  # sort targets
+  target_medians <- apply(data_minus_LOD, 1, median)
+  target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
+  data_minus_LOD <- data_minus_LOD[names(target_medians),]
+  # calculate detectability
+  detect <- apply(data_minus_LOD, 1, function(x) sum(x > 0)) / ncol(data_minus_LOD) * 100
+  # create colors to indicate detectability
+  makeColors <- colorRamp(colors=c('blue', 'pink'))
+  detectColors <- makeColors(detect/100)
+  detectColors <- apply(detectColors, 1, 
+                        function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
+  
+  pdf('./figures/target_detectability_boxplot_all_plates.pdf', width=20, height=7)
+  # make plot
+  par(mar=c(4,4,2,0.5))
+  boxplot(t(data_minus_LOD), 
+          horizontal=FALSE,
+          xlab='',
+          ylab='NPQ - LOD',
+          main='Target detectability: All plates',
+          las=3, 
+          lty=1,
+          pch=16, 
+          cex=0.5,
+          staplelty=0,
+          cex.axis=0.4,
+          yaxt='n',
+          col=detectColors)
+  axis(side=2, las=1)
+  grid(nx=NA, ny=NULL)
+  abline(h=0, col='darkred')
+  axis_limits <- par('usr')
+  text(x=axis_limits[1] + (axis_limits[2] - axis_limits[1])/20, y=0,
+       labels='LOD', col='darkred', cex=0.8, pos=3)
+  
+  # make legend
+  # add color gradient legend
+  # define coordinates
+  axis_limits <- par('usr')
+  x_axis_length <- axis_limits[2] - axis_limits[1]
+  y_axis_length <- axis_limits[4] - axis_limits[3]
+  legend_length <- x_axis_length/6
+  legend_right <- axis_limits[2] - x_axis_length/20
+  legend_left <- legend_right - legend_length
+  legend_height <- y_axis_length/20
+  legend_top <- axis_limits[4] - y_axis_length/10
+  legend_bottom <- legend_top - legend_height
+  # create color gradient
+  colfunc <- colorRampPalette(c('blue', 'pink'))
+  legend_image <- as.raster(matrix(colfunc(20), nrow=1))
+  rasterImage(legend_image, legend_left, legend_bottom, legend_right, legend_top)
+  # make labels
+  text(x=seq(legend_left, legend_right, l=6), 
+       y = legend_bottom - y_axis_length/40,
+       labels = seq(0,100,l=6), 
+       cex=0.8, adj=0.5)
+  text(x=(legend_left+legend_right)/2, y=legend_top, 
+       labels='detectability (%)', pos=3, cex=0.8) # end legend
+  dev.off()
+}
+
+
+##########################
+# target detectability boxplot -- combine across plates, by sample group
+# if sample group is specified, combine data across plates
+# and make separate plots by sample type
+##########################
+if(!is.null(params$sampleGroupCovar)){
+  # calculate LODs on IC - IPC normalized data
+  plate_lod_IPC <- vector('list', length(params$xmlFiles))
+  for (i in 1:length(params$xmlFiles)){
+    plate_lod_IPC[[i]] <- lod(data_matrix=mCherry_IPC$interNormData[[i]], 
+                              blanks=runs[[i]]$NC, 
+                              min_count=0)
+    plate_lod_IPC[[i]]$LOD_log2 <- log2(plate_lod_IPC[[i]]$LOD + 1)
+  }
+  # subtract LODs from the IC - IPC normalized sample data
+  data_minus_LOD <- vector('list', length(params$xmlFiles))
+  for (i in 1:length(params$xmlFiles)){
+    plate_i_sample_data <- mCherry_IPC$log2_interNormData[[i]]
+    # add plate ID to colnames in case any names are identical across plates
+    colnames(plate_i_sample_data) <- paste0('plate_', i, '_', colnames(plate_i_sample_data))
+    # add plate ID - sample name to the samples data frame
+    runs[[i]]$samples$plate_sampleName <- paste0('plate_', i, '_', runs[[i]]$sample$sampleName)
+    data_minus_LOD[[i]] <- sweep(plate_i_sample_data, MARGIN=1, STATS=plate_lod_IPC[[i]]$LOD_log2)
+  }
+  
+  data_minus_LOD <- do.call(cbind, data_minus_LOD)
+  samples_data <- lapply(runs, function(x) x$samples)
+  samples_data <- do.call(rbind, samples_data)
+  
+  # loop over sample groups
+  sample_groups <- unique(samples_data[,params$sampleGroupCovar])
+  
+  for(k in 1:length(sample_groups)){
+    
+    sample_group_data <- data_minus_LOD[,samples_data$plate_sampleName[samples_data[,params$sampleGroupCovar]==sample_groups[k]]]
+    # sort targets
+    target_medians <- apply(sample_group_data, 1, median)
+    target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
+    sample_group_data <- sample_group_data[names(target_medians),]
+    # calculate detectability
+    detect <- apply(sample_group_data, 1, function(x) sum(x > 0)) / ncol(sample_group_data) * 100
+    # create colors to indicate detectability
+    makeColors <- colorRamp(colors=c('blue', 'pink'))
+    detectColors <- makeColors(detect/100)
+    detectColors <- apply(detectColors, 1, 
+                          function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
+    
+    # define filename and plot title
+    sample_group_filename <- paste0('./figures/target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf')
+    sample_group_title <- paste0('Target detectability: All plates, ', sample_groups[k])
+    pdf(sample_group_filename, width=20, height=7)
+    # make plot
+    par(mar=c(4,4,2,0.5))
+    boxplot(t(sample_group_data), 
+            horizontal=FALSE,
+            xlab='',
+            ylab='NPQ - LOD',
+            main=sample_group_title,
+            las=3, 
+            lty=1,
+            pch=16, 
+            cex=0.5,
+            staplelty=0,
+            cex.axis=0.4,
+            yaxt='n',
+            col=detectColors)
+    axis(side=2, las=1)
+    grid(nx=NA, ny=NULL)
+    abline(h=0, col='darkred')
+    axis_limits <- par('usr')
+    text(x=axis_limits[1] + (axis_limits[2] - axis_limits[1])/20, y=0,
+         labels='LOD', col='darkred', cex=0.8, pos=3)
+    
+    # make legend
+    # add color gradient legend
+    # define coordinates
+    axis_limits <- par('usr')
+    x_axis_length <- axis_limits[2] - axis_limits[1]
+    y_axis_length <- axis_limits[4] - axis_limits[3]
+    legend_length <- x_axis_length/6
+    legend_right <- axis_limits[2] - x_axis_length/20
+    legend_left <- legend_right - legend_length
+    legend_height <- y_axis_length/20
+    legend_top <- axis_limits[4] - y_axis_length/10
+    legend_bottom <- legend_top - legend_height
+    # create color gradient
+    colfunc <- colorRampPalette(c('blue', 'pink'))
+    legend_image <- as.raster(matrix(colfunc(20), nrow=1))
+    rasterImage(legend_image, legend_left, legend_bottom, legend_right, legend_top)
+    # make labels
+    text(x=seq(legend_left, legend_right, l=6), 
+         y = legend_bottom - y_axis_length/40,
+         labels = seq(0,100,l=6), 
+         cex=0.8, adj=0.5)
+    text(x=(legend_left+legend_right)/2, y=legend_top, 
+         labels='detectability (%)', pos=3, cex=0.8) # end legend
+    dev.off()
+  }
+}
+
 
 
 ```
