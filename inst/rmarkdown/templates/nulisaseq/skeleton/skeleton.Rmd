@@ -856,10 +856,12 @@ for (i in 1:length(runs)){
 
 # loop over criteria
 # get xlim for plots
-rmin <- rmax <- val <- list()
+val <- list()
+QCplot_axis_limits <- vector(mode='list', length=length(runs))
 for (i in 1:length(runs)){
   well_order <- wellorder(runs[[i]]$samples)
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
+  rmin <- rmax <- c()
   for (j in 1:length(criteria$thresholds)){
     inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
     QC_criterion_j_data <- qcSample[inds, ]
@@ -880,17 +882,18 @@ for (i in 1:length(runs)){
     }
     # add a small amount of padding to x axis limits
     if(names(criteria$thresholds)[j] %in% c("ICReads", "NumReads")){
-      rlim_delta <- log10(rmax[[j]][1]) - log10(rmin[[j]][1])
-      rmin[[j]][1] <- 10^(log10(rmin[[j]][1]) - 0.025 * rlim_delta)
-      rmax[[j]][1] <- 10^(log10(rmax[[j]][1]) + 0.025 * rlim_delta)
+      rlim_delta <- log10(rmax[j]) - log10(rmin[j])
+      rmin[j] <- 10^(log10(rmin[j]) - 0.025 * rlim_delta)
+      rmax[j] <- 10^(log10(rmax[j]) + 0.025 * rlim_delta)
     } else {
-      rlim_delta <- rmax[[j]][1] - rmin[[j]][1]
-      rmin[[j]][1] <- rmin[[j]][1] - 0.025 * rlim_delta
-      rmax[[j]][1] <- rmax[[j]][1] + 0.025 * rlim_delta
+      rlim_delta <- rmax[j] - rmin[j]
+      rmin[j] <- rmin[j] - 0.025 * rlim_delta
+      rmax[j] <- rmax[j] + 0.025 * rlim_delta
     }
     # count how many samples fail QC (excludes controls)
     QCSummary[i, j+1] <- length(which(QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]$status=="TRUE"))
   }
+  QCplot_axis_limits[[i]] <- list(rmin=rmin, rmax=rmax) 
 }
 
 # fill in & format QCSummary
@@ -1018,7 +1021,7 @@ for( i in 1:length(runs)){
     dotchart(x=as.numeric(xval), 
              xlab=xlab, 
              labels=rep('', length(xval)), las=1, 
-             cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), 
+             cex=0.45, xlim=c(QCplot_axis_limits[[i]]$rmin[j], QCplot_axis_limits[[i]]$rmax[j]), 
              color=color, log=log)
     if(j==1){
       # need to loop over labels and color individuals
