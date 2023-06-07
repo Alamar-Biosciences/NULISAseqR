@@ -1829,10 +1829,10 @@ if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
 if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
   # get only Overall estimates
   detectability_data <- detect_output_table
-  sample_types <- detectability_return_summary[[1]][2:nrow(detectability_return_summary[[1]]),1]
-  sample_types <- gsub(' ', replacement = '_', sample_types)
+  sample_groups <- detectability_return_summary[[1]][2:nrow(detectability_return_summary[[1]]),1]
+  sample_groups <- gsub(' ', replacement = '_', sample_groups)
   colnames(detectability_data) <- paste0('Target detectability (%):\n', colnames(detectability_data))
-  filenames <- paste0('./figures/target_detectability_histogram_', sample_types, '.pdf')
+  filenames <- paste0('./figures/target_detectability_histogram_', sample_groups, '.pdf')
   # make histogram for each sample type
   for (i in 1:ncol(detectability_data)){
     pdf(filenames[i],
@@ -1880,10 +1880,10 @@ if(multipleFiles==TRUE & is.null(params$sampleGroupCovar)){
 if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
   # get only Overall estimates
   detectability_data <- detect_output_table[,grep('Overall', colnames(detect_output_table))]
-  sample_types <- detectability_return_summary$Overall[2:nrow(detectability_return_summary$Overall),1]
-  sample_types <- gsub(' ', replacement = '_', sample_types)
+  sample_groups <- detectability_return_summary$Overall[2:nrow(detectability_return_summary$Overall),1]
+  sample_groups <- gsub(' ', replacement = '_', sample_groups)
   colnames(detectability_data) <- gsub('Overall: ', replacement = 'Target detectability (%):\n', colnames(detectability_data))
-  filenames <- paste0('./figures/target_detectability_histogram_', sample_types, '.pdf')
+  filenames <- paste0('./figures/target_detectability_histogram_', sample_groups, '.pdf')
   # make histogram for each sample type
   for (i in 1:ncol(detectability_data)){
     pdf(filenames[i],
@@ -2038,6 +2038,7 @@ if(!is.null(params$sampleGroupCovar)){
   
   # loop over sample groups
   sample_groups <- unique(samples_data[,params$sampleGroupCovar])
+  sample_groups <- gsub(' ', replacement = '_', sample_groups)
   
   for(k in 1:length(sample_groups)){
     
