@@ -1113,8 +1113,8 @@ if (combine_detectability){
 ```
 
 ```{r, eval=params$outputDetectCSV==TRUE, include=FALSE}
-# make directory -- we will put the file in the figures directory
-dir.create("./figures")
+# make directory -- we will put the file in the outputFiles directory
+dir.create("./outputFiles")
 
 # Target detectability -- output CSV file
 # code depends on multipleFiles TRUE / FALSE and sampleGroupCovar NULL / non-NULL
@@ -1191,7 +1191,7 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
   rownames(detect_output_table) <- detect_output_table_rownames
 }
 
-write.csv(detect_output_table, './figures/target_detectability_table.csv')
+write.csv(detect_output_table, './outputFiles/target_detectability_table.csv')
 ```
 
 ```{r, results='asis', out.width='100%', fig.asp=2*ceiling(length(params$xmlFiles)/2)}
@@ -1608,8 +1608,8 @@ if(multipleFiles){
 ```
 
 ```{r, include=FALSE, eval=params$outputPlots==TRUE}
-# create directory for figures
-dir.create("./figures")
+# create directory for outputFiles
+dir.create("./outputFiles")
 
 ##########################
 # plate layouts
@@ -1634,7 +1634,7 @@ for(i in 1:length(params$xmlFiles)){
                   full_width = TRUE) %>%
     column_spec(column=1:13, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
     row_spec(0:8, extra_css = "border-bottom: 1px solid")  %>%
-    save_kable(file=paste0('./figures/plate_layout_', i, '.pdf'))
+    save_kable(file=paste0('./outputFiles/plate_layout_', i, '.pdf'))
   
 }
 
@@ -1678,7 +1678,7 @@ for(i in 1:length(runs)){
     color[which(qcSample[inds,]$sampleType == "Bridge")] <- label_colors[5]
   }
   # make plot
-  pdf(paste0('./figures/sample_QC_IC_median_', i, '.pdf'), width=12, height=4)
+  pdf(paste0('./outputFiles/sample_QC_IC_median_', i, '.pdf'), width=12, height=4)
   par(mfcol=c(1, 1), mar=c(5,4,2,0.5))
   plot(x=1:length(xval),
        y=rev(as.numeric(xval)), 
@@ -1736,7 +1736,7 @@ for(i in 1:length(params$xmlFiles)){
   # reverse ordering so special wells are at the bottom
   ordering <- rev(ordering)
   # make plots
-  pdf(paste0('./figures/sample_boxplot_', i, '.pdf'), width=4, height=9)
+  pdf(paste0('./outputFiles/sample_boxplot_', i, '.pdf'), width=4, height=9)
   par(mar=c(4,6,2,0))
   sampleboxplot(mCherry_IPC$interNormData[[i]], data_order=ordering, 
                 title=paste0(PlateNames[i], ": Sample Distributions After Normalization"), 
@@ -1753,7 +1753,7 @@ for(i in 1:length(params$xmlFiles)){
 # intra-plate and inter-plate CV histograms
 ##########################
 # intra-plate CV 
-pdf(paste0('./figures/intraCV_histogram.pdf'), 
+pdf(paste0('./outputFiles/intraCV_histogram.pdf'), 
     width=5, height=5)
 colors <- alamarColorPalette(2, nReps = 5, palette = 2)
 par(mar=c(4.5, 4.5, 2, 1))
@@ -1776,7 +1776,7 @@ dev.off()
 
 # inter-plate CV
 if(multipleFiles==TRUE){
-  pdf(paste0('./figures/interCV_histogram.pdf'), 
+  pdf(paste0('./outputFiles/interCV_histogram.pdf'), 
       width=5, height=5)
   colors <- alamarColorPalette(2, nReps = 5, palette = 2)
   par(mar=c(4.5, 4.5, 2, 1))
@@ -1808,7 +1808,7 @@ if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
   detectability_data <- detect_output_table
   detectability_data_name <- colnames(detect_output_table)
   # make histogram
-  pdf('./figures/target_detectability_histogram.pdf',
+  pdf('./outputFiles/target_detectability_histogram.pdf',
       width=5, height=5)
   par(mar=c(4.5, 4.5, 2, 1))
   hist(detectability_data,
@@ -1832,7 +1832,7 @@ if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
   sample_groups <- detectability_return_summary[[1]][2:nrow(detectability_return_summary[[1]]),1]
   sample_groups <- gsub(' ', replacement = '_', sample_groups)
   colnames(detectability_data) <- paste0('Target detectability (%):\n', colnames(detectability_data))
-  filenames <- paste0('./figures/target_detectability_histogram_', sample_groups, '.pdf')
+  filenames <- paste0('./outputFiles/target_detectability_histogram_', sample_groups, '.pdf')
   # make histogram for each sample type
   for (i in 1:ncol(detectability_data)){
     pdf(filenames[i],
@@ -1859,7 +1859,7 @@ if(multipleFiles==TRUE & is.null(params$sampleGroupCovar)){
   detectability_data <- detect_output_table[,grep('Overall', colnames(detect_output_table))]
   detectability_data_name <- colnames(detect_output_table)[grep('Overall', colnames(detect_output_table))]
   # make histogram
-  pdf('./figures/target_detectability_histogram.pdf',
+  pdf('./outputFiles/target_detectability_histogram.pdf',
       width=5, height=5)
   par(mar=c(4.5, 4.5, 2, 1))
   hist(detectability_data,
@@ -1883,7 +1883,7 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
   sample_groups <- detectability_return_summary$Overall[2:nrow(detectability_return_summary$Overall),1]
   sample_groups <- gsub(' ', replacement = '_', sample_groups)
   colnames(detectability_data) <- gsub('Overall: ', replacement = 'Target detectability (%):\n', colnames(detectability_data))
-  filenames <- paste0('./figures/target_detectability_histogram_', sample_groups, '.pdf')
+  filenames <- paste0('./outputFiles/target_detectability_histogram_', sample_groups, '.pdf')
   # make histogram for each sample type
   for (i in 1:ncol(detectability_data)){
     pdf(filenames[i],
@@ -1910,7 +1910,7 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
 # target detectability boxplot -- by plate
 ##########################
 for(i in 1:length(params$xmlFiles)){
-  pdf(paste0('./figures/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
+  pdf(paste0('./outputFiles/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
   targetBoxplot(mCherry_IPC$interNormData[[i]],
                 title=paste0('Target detectability: ', PlateNames[i]),
                 subtractLOD = TRUE,
@@ -1957,7 +1957,7 @@ if(is.null(params$sampleGroupCovar) & length(runs) > 1){
   detectColors <- apply(detectColors, 1, 
                         function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
   
-  pdf('./figures/target_detectability_boxplot_all_plates.pdf', width=20, height=7)
+  pdf('./outputFiles/target_detectability_boxplot_all_plates.pdf', width=20, height=7)
   # make plot
   par(mar=c(4,4,2,0.5))
   boxplot(t(data_minus_LOD), 
@@ -2043,6 +2043,8 @@ if(!is.null(params$sampleGroupCovar)){
   for(k in 1:length(sample_groups)){
     
     sample_group_data <- data_minus_LOD[,samples_data$plate_sampleName[samples_data[,params$sampleGroupCovar]==sample_groups[k]]]
+    # remove any control samples -- SC, IPC, NC
+    sample_group_data <- sample_group_data[,colnames(sample_group_data) %in% samples_data$plate_sampleName[samples_data$sampleType=='Sample']]
     # sort targets
     target_medians <- apply(sample_group_data, 1, median)
     target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
@@ -2056,7 +2058,7 @@ if(!is.null(params$sampleGroupCovar)){
                           function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
     
     # define filename and plot title
-    sample_group_filename <- paste0('./figures/target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf')
+    sample_group_filename <- paste0('./outputFiles/target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf')
     sample_group_title <- paste0('Target detectability: All plates, ', sample_groups[k])
     pdf(sample_group_filename, width=20, height=7)
     # make plot
