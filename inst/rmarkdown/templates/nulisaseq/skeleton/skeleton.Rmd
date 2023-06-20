@@ -1,47 +1,45 @@
 ---
 params:
-  ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
-  # first IC will be used for LOD calculations (should typically be mCherry)
-  IC: !r c("mCherry")
-  ## string that denotes inter-plate controls
-  IPC: !r c("IPC")
-  ## string that denotes negative controls
-  NC: !r c("NC")
-  ## string that denotes sample controls
-  SC: !r c("SC")
-  ## string that denotes bridge samples
-  Bridge: !r NULL
-  ## directory where xml files are located
-  dataDir: "."
-  ## variables in XML that indicate row, column, and plate ID
-  rowAnnotName: "AUTO_WELLROW"
-  colAnnotName: "AUTO_WELLCOL"
-  plateAnnotName: "AUTO_PLATE"
-  ## older version names for row, column, plate ID variables 
-  # rowAnnotName: "Annot2"
-  # colAnnotName: "Annot3"
-  # plateAnnotName: "Annot1"
-  ## should heatmaps show % median units?
-  heatMapRel: !r TRUE
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
-  ## manually set plate ID, otherwise plate ID will be 
-  ## "Plate 1", "Plate 2", ... according to order of filenames 
-  plateNames: !r c()
   ## type of report
   ## options:
   ## internal
   ## WebApp
   reportType: "internal"
-  # list of names of samples to exclude
-  # excludeSamples: !r list(c('A_01_C001 P3', 'A_02_C044 P1'), c('A_01_C040 P1'))
+  ## directory where xml files are located
+  dataDir: "."
+  ## XML file names
+  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
+  ## manually set plate ID if desired, otherwise plate ID will be 
+  # "Plate 1", "Plate 2", ... according to order of filenames 
+  plateNames: !r c()
+  ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
+  # first IC will be used for LOD calculations (should typically be mCherry)
+  IC: !r c("mCherry")
+  ## string(s) that denotes inter-plate controls
+  IPC: !r c("IPC")
+  ## string(s) that denotes negative controls
+  NC: !r c("NC")
+  ## string(s) that denotes sample controls
+  SC: !r c("SC")
+  ## string(s) that denotes bridge samples
+  Bridge: !r NULL
+  ## variables in XML that indicate row, column, and plate ID
+  rowAnnotName: "AUTO_WELLROW"
+  colAnnotName: "AUTO_WELLCOL"
+  plateAnnotName: "AUTO_PLATE"
+  ## older version names for row, column, plate ID variables
+  # rowAnnotName: "Annot2"
+  # colAnnotName: "Annot3"
+  # plateAnnotName: "Annot1"
+  # optional list of names of samples to exclude
+  ## excludeSamples: !r list(c('A_01_C001 P3', 'A_02_C044 P1'), c('A_01_C040 P1'))
   excludeSamples: !r NULL
-  ## outputPlots -- if TRUE will output a set of plots in a nice format for slides
-  outputPlots: !r FALSE
   ## sampleGroupCovar -- Specify the covariate to retrieve sample group information.
   # this information is used when determining detectability.
   # defaults to NULL.
+  # for testing sampleGroupCovar: "AUTO_WELLROW"
   sampleGroupCovar: NULL
   outPlateLayout: !r TRUE
   outReadSummary: !r TRUE
@@ -54,6 +52,13 @@ params:
   outSampleClustering: !r TRUE
   outInterPlateNorm: !r TRUE
   outSamplePCA: !r TRUE
+  ## should heatmaps show % median units?
+  heatMapRel: !r TRUE
+  ## outputPlots -- if TRUE will output a set of plots in a nice format for slides
+  outputPlots: !r TRUE
+  ## outputDetectCSV
+  # if TRUE, outputs a CSV file with detectability for each target and sample type
+  outputDetectCSV: !r TRUE
 output:
   html_document:
     toc: yes
@@ -268,10 +273,19 @@ for (i in 1:length(params$xmlFiles)){
     SC_intraCV_mCherry <- cbind(SC_intraCV_mCherry, plate_mCherry_intraCV[,'SC'])
   }
 }
-
+# set colnames
 colnames(IPC_intraCV_unnorm) <- colnames(IPC_intraCV_mCherry) <- PlateNames
 if(indicatorSC==TRUE){
   colnames(SC_intraCV_unnorm) <- colnames(SC_intraCV_mCherry) <- PlateNames
+}
+# if more than one plate, add Overall column of mean intraCV
+if(multipleFiles==TRUE){
+  IPC_intraCV_unnorm <- cbind(IPC_intraCV_unnorm, Overall=rowMeans(IPC_intraCV_unnorm, na.rm=TRUE))
+  IPC_intraCV_mCherry <- cbind(IPC_intraCV_mCherry, Overall=rowMeans(IPC_intraCV_mCherry, na.rm=TRUE))
+  if(indicatorSC==TRUE){
+    SC_intraCV_unnorm <- cbind(SC_intraCV_unnorm, Overall=rowMeans(SC_intraCV_unnorm, na.rm=TRUE))
+    SC_intraCV_mCherry <- cbind(SC_intraCV_mCherry, Overall=rowMeans(SC_intraCV_mCherry, na.rm=TRUE))
+  }
 }
 
 # function to summarize columns of a matrix
@@ -454,7 +468,7 @@ for (i in 1:length(params$xmlFiles)){
                                 sample_subset=runs[[i]]$SampleNames,
                                 sample_groups=sample_groups,
                                 exclude_targets=runs[[i]]$IC)
-
+  
   # add all sample type/identity detectability data
   raw_detectability <- plate_detect$all$detectability
   detectability <- cbind('all',
@@ -472,7 +486,7 @@ for (i in 1:length(params$xmlFiles)){
   detectability_summary <- rbind(detectability_summary, detectability)
   detectability_targets <- cbind(detectability_targets,
                                  format(round(raw_detectability, 1), nsmall=1))
-
+  
   # check if both sample and all data present
   if (length(names(plate_detect)) == 2){
     for (j in names(plate_detect$sample_group$detectability)){
@@ -540,7 +554,7 @@ if(length(params$xmlFiles) > 1){
     # get plate matrix and weights
     plate_matrix <- detectability_return_targets[[plate_name]]
     plate_weights <- sample_weights_plate[[plate_name]]
-
+    
     # multiply the appropriate column with the corresponding weight
     multiplied_matrix <- sapply(1:ncol(plate_matrix), function(col_index){
       weight <- plate_weights[[col_index]]
@@ -548,7 +562,7 @@ if(length(params$xmlFiles) > 1){
       multiplied_column <- weight * column
       multiplied_column
     })
-  
+    
     # assign the multiplied columns to the corresponding plate in the result list
     rownames(multiplied_matrix) <- rownames(plate_matrix)
     colnames(multiplied_matrix) <- colnames(plate_matrix)
@@ -561,15 +575,15 @@ if(length(params$xmlFiles) > 1){
                        ncol = length(unique_types))
   colnames(sum_matrix) <- unique_types
   rownames(sum_matrix) <- unique(unlist(lapply(weighted_target_detectabilities, rownames)))
-
+  
   for (plate in weighted_target_detectabilities) {
     matching_cols <- intersect(colnames(plate), unique_types)
     sum_matrix[, matching_cols] <- sum_matrix[, matching_cols] + plate[, matching_cols]
   }
-
+  
   # update target detectability data vector: add overall data
   detectability_return_targets[["Overall"]] <- sum_matrix
-
+  
   # update detectability summary with overall data
   detectability_summary_overall <- NULL
   for (j in colnames(sum_matrix)){
@@ -602,13 +616,13 @@ if(length(params$xmlFiles) > 1){
                        function(plate) plate[plate[, "type"] == "all", ])
     combined_all_matrix <- do.call(rbind, all_rows)
     detectability_return_summary[["Combined"]] <- combined_all_matrix
-
+    
     # detectability targets
     all_cols <- lapply(detectability_return_targets,
                        function(plate) plate[, "all"])
     combined_all_matrix <- do.call(cbind, all_cols)
     detectability_return_targets[["Combined"]] <- combined_all_matrix
-
+    
     combine_detectability <- TRUE
   }
 }
@@ -626,11 +640,11 @@ for(i in 1:length(params$xmlFiles)){
   # remove NCs to calculate center and scale (so NCs don't skew the scale parameters)
   data_mCherry_IPC_no_NC <- data_mCherry_IPC[,!grepl(paste(runs[[i]]$NC, collapse="|"), colnames(data_mCherry_IPC))]
   data_mCherry_IPC_log2_no_NC_scaled[[i]] <- t(scale(t(log2(data_mCherry_IPC_no_NC + 1)),
-                                                 center=TRUE, scale=TRUE))
+                                                     center=TRUE, scale=TRUE))
   # log transform and scale targets
   data_mCherry_IPC_log2_scaled[[i]] <- t(scale(t(log2(data_mCherry_IPC + 1)),
-                                           center=attributes(data_mCherry_IPC_log2_no_NC_scaled[[i]])$`scaled:center`, 
-                                           scale=attributes(data_mCherry_IPC_log2_no_NC_scaled[[i]])$`scaled:scale`))
+                                               center=attributes(data_mCherry_IPC_log2_no_NC_scaled[[i]])$`scaled:center`, 
+                                               scale=attributes(data_mCherry_IPC_log2_no_NC_scaled[[i]])$`scaled:scale`))
 }
 ```
 
@@ -853,10 +867,12 @@ for (i in 1:length(runs)){
 
 # loop over criteria
 # get xlim for plots
-rmin <- rmax <- val <- list()
+val <- list()
+QCplot_axis_limits <- vector(mode='list', length=length(runs))
 for (i in 1:length(runs)){
   well_order <- wellorder(runs[[i]]$samples)
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
+  rmin <- rmax <- c()
   for (j in 1:length(criteria$thresholds)){
     inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
     QC_criterion_j_data <- qcSample[inds, ]
@@ -877,17 +893,18 @@ for (i in 1:length(runs)){
     }
     # add a small amount of padding to x axis limits
     if(names(criteria$thresholds)[j] %in% c("ICReads", "NumReads")){
-      rlim_delta <- log10(rmax[[j]][1]) - log10(rmin[[j]][1])
-      rmin[[j]][1] <- 10^(log10(rmin[[j]][1]) - 0.025 * rlim_delta)
-      rmax[[j]][1] <- 10^(log10(rmax[[j]][1]) + 0.025 * rlim_delta)
+      rlim_delta <- log10(rmax[j]) - log10(rmin[j])
+      rmin[j] <- 10^(log10(rmin[j]) - 0.025 * rlim_delta)
+      rmax[j] <- 10^(log10(rmax[j]) + 0.025 * rlim_delta)
     } else {
-      rlim_delta <- rmax[[j]][1] - rmin[[j]][1]
-      rmin[[j]][1] <- rmin[[j]][1] - 0.025 * rlim_delta
-      rmax[[j]][1] <- rmax[[j]][1] + 0.025 * rlim_delta
+      rlim_delta <- rmax[j] - rmin[j]
+      rmin[j] <- rmin[j] - 0.025 * rlim_delta
+      rmax[j] <- rmax[j] + 0.025 * rlim_delta
     }
     # count how many samples fail QC (excludes controls)
     QCSummary[i, j+1] <- length(which(QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]$status=="TRUE"))
   }
+  QCplot_axis_limits[[i]] <- list(rmin=rmin, rmax=rmax) 
 }
 
 # fill in & format QCSummary
@@ -1015,7 +1032,7 @@ for( i in 1:length(runs)){
     dotchart(x=as.numeric(xval), 
              xlab=xlab, 
              labels=rep('', length(xval)), las=1, 
-             cex=0.45, xlim=c(rmin[[j]], rmax[[j]]), 
+             cex=0.45, xlim=c(QCplot_axis_limits[[i]]$rmin[j], QCplot_axis_limits[[i]]$rmax[j]), 
              color=color, log=log)
     if(j==1){
       # need to loop over labels and color individuals
@@ -1094,15 +1111,97 @@ if (combine_detectability){
                       full_width = TRUE))
 } else{
   for (i in names(detectability_return_targets)){
-  table.attr <- paste0("id=\"detectability-indepth", i, "\"")
-  cat(knitr::kable(detectability_return_targets[[i]],
-                   caption=paste(as.character(i)), 
-                   align="r", table.attr=table.attr,
-                   format.args=list(big.mark = ",", digits=2)) %>%
-        kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
-                      full_width = TRUE))
+    table.attr <- paste0("id=\"detectability-indepth", i, "\"")
+    cat(knitr::kable(detectability_return_targets[[i]],
+                     caption=paste(as.character(i)), 
+                     align="r", table.attr=table.attr,
+                     format.args=list(big.mark = ",", digits=2)) %>%
+          kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                        full_width = TRUE))
   }
 }
+```
+
+```{r, eval=params$outputDetectCSV==TRUE, include=FALSE}
+# make directory -- we will put the file in the outputFiles directory
+dir.create("./outputFiles")
+
+# Target detectability -- output CSV file
+# code depends on multipleFiles TRUE / FALSE and sampleGroupCovar NULL / non-NULL
+if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
+  # put overall summary first
+  detect_output_table <- detectability_return_targets[[1]]
+  detect_table_names <- colnames(detect_output_table)
+  detect_summary_output_table <- detectability_return_summary[[1]]
+  # add n's to column name
+  colnames(detect_output_table)[1] <- paste0(PlateNames[1], ' (n = ',  detect_summary_output_table[1,2], ')')
+  # save rownames 
+  detect_output_table_rownames <- rownames(detect_output_table)
+  # round to 1 decimal place
+  detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
+  # add rownames
+  rownames(detect_output_table) <- detect_output_table_rownames
+}
+
+if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
+  # put overall summary first
+  detect_output_table <- detectability_return_targets[[1]]
+  detect_table_names <- colnames(detect_output_table)
+  detect_summary_output_table <- detectability_return_summary[[1]]
+  # add n's to columns
+  for (i in 1:length(detect_table_names)){
+    colnames(detect_output_table)[i] <- paste0(detect_table_names[i], ' (n = ',  detect_summary_output_table[i,2], ')')
+  }
+  # remove "all" column
+  detect_output_table <- detect_output_table[,-grep("all ", colnames(detect_output_table))]
+  # save rownames 
+  detect_output_table_rownames <- rownames(detect_output_table)
+  # round to 1 decimal place
+  detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
+  # add rownames
+  rownames(detect_output_table) <- detect_output_table_rownames
+}
+
+if(multipleFiles==TRUE & is.null(params$sampleGroupCovar)){
+  # put overall summary first
+  detect_output_table <- detectability_return_targets$Combined[,c(ncol(detectability_return_targets$Combined), 1:(ncol(detectability_return_targets$Combined) - 1))]
+  detect_table_names <- colnames(detect_output_table)
+  detect_summary_output_table <- detectability_return_summary$Combined[c(nrow(detectability_return_summary$Combined), 1:(nrow(detectability_return_summary$Combined) - 1)),]
+  # add plate name and n's to columns
+  for (i in 1:length(detect_table_names)){
+    colnames(detect_output_table)[i] <- paste0(detect_table_names[i], ' (n = ',  detect_summary_output_table[i,2], ')')
+  }
+  # save rownames 
+  detect_output_table_rownames <- rownames(detect_output_table)
+  # round to 1 decimal place
+  detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
+  # add rownames
+  rownames(detect_output_table) <- detect_output_table_rownames
+}
+
+if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
+  # put overall summary first
+  detect_output_table <- detectability_return_targets[c(length(detectability_return_targets), 1:(length(detectability_return_targets) - 1))]
+  detect_table_names <- names(detect_output_table)
+  detect_summary_output_table <- detectability_return_summary[c(length(detectability_return_summary), 1:(length(detectability_return_summary) - 1))]
+  # add plate name and n's to columns
+  for (i in 1:length(detect_table_names)){
+    colnames(detect_output_table[[i]]) <- paste0(detect_table_names[i], ': ', colnames(detect_output_table[[i]]))
+    colnames(detect_output_table[[i]]) <- paste0(colnames(detect_output_table[[i]]), ' (n = ',  detect_summary_output_table[[i]][,2], ')')
+  }
+  # cbind the tables together
+  detect_output_table <- do.call(cbind, detect_output_table)
+  # remove "all" columns
+  detect_output_table <- detect_output_table[,-grep(" all ", colnames(detect_output_table))]
+  # save rownames 
+  detect_output_table_rownames <- rownames(detect_output_table)
+  # round to 1 decimal place
+  detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
+  # add rownames
+  rownames(detect_output_table) <- detect_output_table_rownames
+}
+
+write.csv(detect_output_table, './outputFiles/target_detectability_table.csv')
 ```
 
 ```{r, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=2*ceiling(length(params$xmlFiles)/2)}
@@ -1126,7 +1225,8 @@ for (i in 1:length(params$xmlFiles)){
 
 ---
 
-
+## Intra-plate normalization {#intraPlateNorm}
+%CV was calculated for each target (excluding internal controls) for the sample control replicates (if given) and IPCs. Only values above LOD were used to calculate %CV. If there are multiple plates, "Overall" represents the distribution for the target-specific mean intra-plate CV across all plates.
 
 ```{r, eval=(params$outIntraPlateNorm & params$reportType=="internal" & indicatorSC==TRUE), results='asis'}
 pandoc.header("Intra-plate normalization", 2) #{#intraPlateNorm}
@@ -1176,7 +1276,7 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ```{r, out.width='100%', eval=(params$outIntraPlateNorm), fig.asp=(0.2*length(runs) + 0.15)}
 IPC_intraCV_unnorm2 <- IPC_intraCV_unnorm
-colnames(IPC_intraCV_unnorm2) <- paste0(colnames(IPC_intraCV_mCherry), ' unnormalized')
+colnames(IPC_intraCV_unnorm2) <- paste0(colnames(IPC_intraCV_unnorm), ' unnormalized')
 IPC_intraCV_mCherry2 <- IPC_intraCV_mCherry
 colnames(IPC_intraCV_mCherry2) <- paste0(colnames(IPC_intraCV_mCherry), ' mCherry-normalized')
 IPC_intraCV_vals <- t(interleave(t(IPC_intraCV_unnorm2), t(IPC_intraCV_mCherry2), drop=FALSE))
@@ -1519,8 +1619,8 @@ if(multipleFiles){
 ```
 
 ```{r, include=FALSE, eval=params$outputPlots==TRUE}
-# create directory for figures
-dir.create("./figures")
+# create directory for outputFiles
+dir.create("./outputFiles")
 
 ##########################
 # plate layouts
@@ -1545,7 +1645,7 @@ for(i in 1:length(params$xmlFiles)){
                   full_width = TRUE) %>%
     column_spec(column=1:13, width = "1.75cm", border_left = TRUE, border_right = TRUE) %>%
     row_spec(0:8, extra_css = "border-bottom: 1px solid")  %>%
-    save_kable(file=paste0('./figures/plate_layout_', i, '.pdf'))
+    save_kable(file=paste0('./outputFiles/plate_layout_', i, '.pdf'))
   
 }
 
@@ -1589,7 +1689,7 @@ for(i in 1:length(runs)){
     color[which(qcSample[inds,]$sampleType == "Bridge")] <- label_colors[5]
   }
   # make plot
-  pdf(paste0('./figures/sample_QC_IC_median_', i, '.pdf'), width=12, height=4)
+  pdf(paste0('./outputFiles/sample_QC_IC_median_', i, '.pdf'), width=12, height=4)
   par(mfcol=c(1, 1), mar=c(5,4,2,0.5))
   plot(x=1:length(xval),
        y=rev(as.numeric(xval)), 
@@ -1647,7 +1747,7 @@ for(i in 1:length(params$xmlFiles)){
   # reverse ordering so special wells are at the bottom
   ordering <- rev(ordering)
   # make plots
-  pdf(paste0('./figures/sample_boxplot_', i, '.pdf'), width=4, height=9)
+  pdf(paste0('./outputFiles/sample_boxplot_', i, '.pdf'), width=4, height=9)
   par(mar=c(4,6,2,0))
   sampleboxplot(mCherry_IPC$interNormData[[i]], data_order=ordering, 
                 title=paste0(PlateNames[i], ": Sample Distributions After Normalization"), 
@@ -1660,71 +1760,11 @@ for(i in 1:length(params$xmlFiles)){
   
 }
 
-
-
-
-##########################
-# intra-plate and inter-plate CV density plots
-##########################
-# intra-plate CV 
-pdf(paste0('./figures/intraCV_density.pdf'), 
-    width=5, height=5)
-colors <- alamarColorPalette(2, nReps = 5, palette = 2)
-par(mar=c(4.5, 4.5, 2, 1))
-if(indicatorSC==TRUE){
-  intraCV_mean <- rowMeans(SC_intraCV_mCherry, na.rm=TRUE)
-} else {
-  intraCV_mean <- rowMeans(IPC_intraCV_mCherry, na.rm=TRUE)
-}
-plot(density(intraCV_mean, na.rm=TRUE),
-     main='Intra-plate CV (%)',
-     xlab='CV (%)', las=1)
-x <- density(intraCV_mean, na.rm=TRUE)$x
-x <- c(x[1], x, x[length(x)])
-y <- c(0, density(intraCV_mean, na.rm=TRUE)$y, 0)
-polygon(x, y,
-        col=colors[[1]][5],
-        border=colors[[1]][2])
-abline(v=mean(intraCV_mean, na.rm=TRUE), col=colors[[1]][2], lwd=2)
-abline(v=median(intraCV_mean, na.rm=TRUE), col=colors[[1]][2], lty=2, lwd=2)
-legend('topright', c(paste0('mean CV% = ', format(round(mean(intraCV_mean, na.rm=TRUE), 1), nsmall=1)), 
-                     paste0('median CV% = ', format(round(median(intraCV_mean, na.rm=TRUE), 1), nsmall=1))),
-       lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1.25)
-dev.off()
-
-# inter-plate CV
-if(multipleFiles==TRUE){
-  pdf(paste0('./figures/interCV_density.pdf'), 
-      width=5, height=5)
-  colors <- alamarColorPalette(2, nReps = 5, palette = 2)
-  par(mar=c(4.5, 4.5, 2, 1))
-  if(indicatorSC==TRUE){
-    interCV <- interCV_mCherry_IPC[,'SC']
-  } else {
-    interCV <- interCV_mCherry_IPC[,'IPC']
-  }
-  plot(density(interCV, na.rm=TRUE),
-       main='Inter-plate CV (%)',
-       xlab='CV (%)', las=1)
-  x <- density(interCV, na.rm=TRUE)$x
-  x <- c(x[1], x, x[length(x)])
-  y <- c(0, density(interCV, na.rm=TRUE)$y, 0)
-  polygon(x, y,
-          col=colors[[1]][5],
-          border=colors[[1]][2])
-  abline(v=mean(interCV, na.rm=TRUE), col=colors[[1]][2], lwd=2)
-  abline(v=median(interCV, na.rm=TRUE), col=colors[[1]][2], lty=2, lwd=2)
-  legend('topright', c(paste0('mean CV% = ', format(round(mean(interCV, na.rm=TRUE), 1), nsmall=1)), 
-                       paste0('median CV% = ', format(round(median(interCV, na.rm=TRUE), 1), nsmall=1))),
-         lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1.25)
-  dev.off()
-}
-
 ##########################
 # intra-plate and inter-plate CV histograms
 ##########################
 # intra-plate CV 
-pdf(paste0('./figures/intraCV_histogram.pdf'), 
+pdf(paste0('./outputFiles/intraCV_histogram.pdf'), 
     width=5, height=5)
 colors <- alamarColorPalette(2, nReps = 5, palette = 2)
 par(mar=c(4.5, 4.5, 2, 1))
@@ -1747,7 +1787,7 @@ dev.off()
 
 # inter-plate CV
 if(multipleFiles==TRUE){
-  pdf(paste0('./figures/interCV_histogram.pdf'), 
+  pdf(paste0('./outputFiles/interCV_histogram.pdf'), 
       width=5, height=5)
   colors <- alamarColorPalette(2, nReps = 5, palette = 2)
   par(mar=c(4.5, 4.5, 2, 1))
@@ -1771,64 +1811,119 @@ if(multipleFiles==TRUE){
 
 
 ##########################
-# target detectability density plot
+# target detectability histograms
 ##########################
-if(multipleFiles==TRUE){
-  detectability_data <- as.numeric(detectability_return_targets$Overall[,'all'])
-} else {
-  detectability_data <- as.numeric(detectability_return_targets$`Plate  1`[,1])
+
+if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
+  # get only Overall estimates
+  detectability_data <- detect_output_table
+  detectability_data_name <- colnames(detect_output_table)
+  # make histogram
+  pdf('./outputFiles/target_detectability_histogram.pdf',
+      width=5, height=5)
+  par(mar=c(4.5, 4.5, 2, 1))
+  hist(detectability_data,
+       main=paste0('Target detectability (%):\n', detectability_data_name),
+       xlab='Detectability (%)', las=1, breaks=50, 
+       col=colors[[1]][5],
+       border=colors[[1]][2])
+  abline(v=50, col=colors[[2]][3], lwd=1)
+  ydist <- par('usr')[4] - par('usr')[3]
+  text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
+       col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
+  legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
+                      paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
+         lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+  dev.off()
 }
 
-pdf('./figures/target_detectability_density.pdf',
-    width=5, height=5)
-par(mar=c(4.5, 4.5, 2, 1))
-plot(density(detectability_data, na.rm=TRUE),
-     main='Target detectability (%)',
-     xlab='Detectability (%)', las=1)
-x <- density(detectability_data, na.rm=TRUE)$x
-x <- c(x[1], x, x[length(x)])
-y <- c(0, density(detectability_data, na.rm=TRUE)$y, 0)
-polygon(x, y,
-        col=colors[[1]][5],
-        border=colors[[1]][2])
-abline(v=50, col=colors[[2]][2], lwd=2)
-text(50, 0.013, '50%', pos=4, col=colors[[2]][2])
-legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
-                    paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
-       lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
-dev.off()
+if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
+  # get only Overall estimates
+  detectability_data <- detect_output_table
+  sample_groups <- detectability_return_summary[[1]][2:nrow(detectability_return_summary[[1]]),1]
+  sample_groups <- gsub(' ', replacement = '_', sample_groups)
+  colnames(detectability_data) <- paste0('Target detectability (%):\n', colnames(detectability_data))
+  filenames <- paste0('./outputFiles/target_detectability_histogram_', sample_groups, '.pdf')
+  # make histogram for each sample type
+  for (i in 1:ncol(detectability_data)){
+    pdf(filenames[i],
+        width=5, height=5)
+    par(mar=c(4.5, 4.5, 2, 1))
+    hist(detectability_data[,i],
+         main=colnames(detectability_data)[i],
+         xlab='Detectability (%)', las=1, breaks=50, 
+         col=colors[[1]][5],
+         border=colors[[1]][2])
+    abline(v=50, col=colors[[2]][3], lwd=1)
+    ydist <- par('usr')[4] - par('usr')[3]
+    text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
+         col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
+    legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data[,i], na.rm=TRUE), 1), nsmall=1)),
+                        paste0('median = ', format(round(median(detectability_data[,i], na.rm=TRUE), 1), nsmall=1))),
+           lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+    dev.off()
+  }
+}
+
+if(multipleFiles==TRUE & is.null(params$sampleGroupCovar)){
+  # get only Overall estimates
+  detectability_data <- detect_output_table[,grep('Overall', colnames(detect_output_table))]
+  detectability_data_name <- colnames(detect_output_table)[grep('Overall', colnames(detect_output_table))]
+  # make histogram
+  pdf('./outputFiles/target_detectability_histogram.pdf',
+      width=5, height=5)
+  par(mar=c(4.5, 4.5, 2, 1))
+  hist(detectability_data,
+       main=paste0('Target detectability (%):\n', detectability_data_name),
+       xlab='Detectability (%)', las=1, breaks=50, 
+       col=colors[[1]][5],
+       border=colors[[1]][2])
+  abline(v=50, col=colors[[2]][3], lwd=1)
+  ydist <- par('usr')[4] - par('usr')[3]
+  text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
+       col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
+  legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
+                      paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
+         lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+  dev.off()
+}
+
+if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
+  # get only Overall estimates
+  detectability_data <- detect_output_table[,grep('Overall', colnames(detect_output_table))]
+  sample_groups <- detectability_return_summary$Overall[2:nrow(detectability_return_summary$Overall),1]
+  sample_groups <- gsub(' ', replacement = '_', sample_groups)
+  colnames(detectability_data) <- gsub('Overall: ', replacement = 'Target detectability (%):\n', colnames(detectability_data))
+  filenames <- paste0('./outputFiles/target_detectability_histogram_', sample_groups, '.pdf')
+  # make histogram for each sample type
+  for (i in 1:ncol(detectability_data)){
+    pdf(filenames[i],
+        width=5, height=5)
+    par(mar=c(4.5, 4.5, 2, 1))
+    hist(detectability_data[,i],
+         main=colnames(detectability_data)[i],
+         xlab='Detectability (%)', las=1, breaks=50, 
+         col=colors[[1]][5],
+         border=colors[[1]][2])
+    abline(v=50, col=colors[[2]][3], lwd=1)
+    ydist <- par('usr')[4] - par('usr')[3]
+    text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
+         col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
+    legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data[,i], na.rm=TRUE), 1), nsmall=1)),
+                        paste0('median = ', format(round(median(detectability_data[,i], na.rm=TRUE), 1), nsmall=1))),
+           lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
+    dev.off()
+  }
+}
 
 
 ##########################
-# target detectability histogram
-##########################
-
-pdf('./figures/target_detectability_histogram.pdf',
-    width=5, height=5)
-par(mar=c(4.5, 4.5, 2, 1))
-hist(detectability_data,
-     main='Target detectability (%)',
-     xlab='Detectability (%)', las=1, breaks=50,
-     col=colors[[1]][5],
-     border=colors[[1]][2])
-
-abline(v=50, col=colors[[2]][3], lwd=1)
-ydist <- par('usr')[4] - par('usr')[3]
-text(47, par('usr')[4] - 0.7 * ydist, 'detectability = 50%',
-     col=colors[[2]][3], adj=c(1,1), cex=0.5, srt=90)
-legend('topleft', c(paste0('mean = ', format(round(mean(detectability_data, na.rm=TRUE), 1), nsmall=1)),
-                    paste0('median = ', format(round(median(detectability_data, na.rm=TRUE), 1), nsmall=1))),
-       lty=c(1,2), col=colors[[1]][2], bty='n', lwd=2, cex=1)
-dev.off()
-
-
-##########################
-# target detectability boxplot
+# target detectability boxplot -- by plate
 ##########################
 for(i in 1:length(params$xmlFiles)){
-  pdf(paste0('./figures/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
-  targetBoxplot(intraPlateNormData[[i]][[1]]$normData,
-                title=PlateNames[i],
+  pdf(paste0('./outputFiles/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
+  targetBoxplot(mCherry_IPC$interNormData[[i]],
+                title=paste0('Target detectability: ', PlateNames[i]),
                 subtractLOD = TRUE,
                 blanks = runs[[i]]$NC,
                 horizontal = FALSE,
@@ -1838,6 +1933,194 @@ for(i in 1:length(params$xmlFiles)){
                 excludeSamples=c(runs[[i]]$IPC, runs[[i]]$NC, runs[[i]]$SC))
   dev.off()
 }
+
+##########################
+# target detectability boxplot -- combine across plates
+# if no sample group specified and more than one plate, combine all data
+##########################
+if(is.null(params$sampleGroupCovar) & length(runs) > 1){
+  # calculate LODs on IC - IPC normalized data
+  plate_lod_IPC <- vector('list', length(params$xmlFiles))
+  for (i in 1:length(params$xmlFiles)){
+    plate_lod_IPC[[i]] <- lod(data_matrix=mCherry_IPC$interNormData[[i]], 
+                              blanks=runs[[i]]$NC, 
+                              min_count=0)
+    plate_lod_IPC[[i]]$LOD_log2 <- log2(plate_lod_IPC[[i]]$LOD + 1)
+  }
+  # subtract LODs from the IC - IPC normalized sample data
+  data_minus_LOD <- vector('list', length(params$xmlFiles))
+  for (i in 1:length(params$xmlFiles)){
+    plate_i_sample_data <- mCherry_IPC$log2_interNormData[[i]][,runs[[i]]$SampleNames]
+    # add plate ID to colnames in case any names are identical across plates
+    colnames(plate_i_sample_data) <- paste0('plate_', i, '_', colnames(plate_i_sample_data))
+    data_minus_LOD[[i]] <- sweep(plate_i_sample_data, MARGIN=1, STATS=plate_lod_IPC[[i]]$LOD_log2)
+  }
+  data_minus_LOD <- do.call(cbind, data_minus_LOD)
+  # sort targets
+  target_medians <- apply(data_minus_LOD, 1, median)
+  target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
+  data_minus_LOD <- data_minus_LOD[names(target_medians),]
+  # calculate detectability
+  detect <- apply(data_minus_LOD, 1, function(x) sum(x > 0)) / ncol(data_minus_LOD) * 100
+  # create colors to indicate detectability
+  makeColors <- colorRamp(colors=c('blue', 'pink'))
+  detectColors <- makeColors(detect/100)
+  detectColors <- apply(detectColors, 1, 
+                        function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
+  
+  pdf('./outputFiles/target_detectability_boxplot_all_plates.pdf', width=20, height=7)
+  # make plot
+  par(mar=c(4,4,2,0.5))
+  boxplot(t(data_minus_LOD), 
+          horizontal=FALSE,
+          xlab='',
+          ylab='NPQ - LOD',
+          main='Target detectability: All plates',
+          las=3, 
+          lty=1,
+          pch=16, 
+          cex=0.5,
+          staplelty=0,
+          cex.axis=0.4,
+          yaxt='n',
+          col=detectColors)
+  axis(side=2, las=1)
+  grid(nx=NA, ny=NULL)
+  abline(h=0, col='darkred')
+  axis_limits <- par('usr')
+  text(x=axis_limits[1] + (axis_limits[2] - axis_limits[1])/20, y=0,
+       labels='LOD', col='darkred', cex=0.8, pos=3)
+  
+  # make legend
+  # add color gradient legend
+  # define coordinates
+  axis_limits <- par('usr')
+  x_axis_length <- axis_limits[2] - axis_limits[1]
+  y_axis_length <- axis_limits[4] - axis_limits[3]
+  legend_length <- x_axis_length/6
+  legend_right <- axis_limits[2] - x_axis_length/20
+  legend_left <- legend_right - legend_length
+  legend_height <- y_axis_length/20
+  legend_top <- axis_limits[4] - y_axis_length/10
+  legend_bottom <- legend_top - legend_height
+  # create color gradient
+  colfunc <- colorRampPalette(c('blue', 'pink'))
+  legend_image <- as.raster(matrix(colfunc(20), nrow=1))
+  rasterImage(legend_image, legend_left, legend_bottom, legend_right, legend_top)
+  # make labels
+  text(x=seq(legend_left, legend_right, l=6), 
+       y = legend_bottom - y_axis_length/40,
+       labels = seq(0,100,l=6), 
+       cex=0.8, adj=0.5)
+  text(x=(legend_left+legend_right)/2, y=legend_top, 
+       labels='detectability (%)', pos=3, cex=0.8) # end legend
+  dev.off()
+}
+
+
+##########################
+# target detectability boxplot -- combine across plates, by sample group
+# if sample group is specified, combine data across plates
+# and make separate plots by sample type
+##########################
+if(!is.null(params$sampleGroupCovar)){
+  # calculate LODs on IC - IPC normalized data
+  plate_lod_IPC <- vector('list', length(params$xmlFiles))
+  for (i in 1:length(params$xmlFiles)){
+    plate_lod_IPC[[i]] <- lod(data_matrix=mCherry_IPC$interNormData[[i]], 
+                              blanks=runs[[i]]$NC, 
+                              min_count=0)
+    plate_lod_IPC[[i]]$LOD_log2 <- log2(plate_lod_IPC[[i]]$LOD + 1)
+  }
+  # subtract LODs from the IC - IPC normalized sample data
+  data_minus_LOD <- vector('list', length(params$xmlFiles))
+  for (i in 1:length(params$xmlFiles)){
+    plate_i_sample_data <- mCherry_IPC$log2_interNormData[[i]]
+    # add plate ID to colnames in case any names are identical across plates
+    colnames(plate_i_sample_data) <- paste0('plate_', i, '_', colnames(plate_i_sample_data))
+    # add plate ID - sample name to the samples data frame
+    runs[[i]]$samples$plate_sampleName <- paste0('plate_', i, '_', runs[[i]]$sample$sampleName)
+    data_minus_LOD[[i]] <- sweep(plate_i_sample_data, MARGIN=1, STATS=plate_lod_IPC[[i]]$LOD_log2)
+  }
+  
+  data_minus_LOD <- do.call(cbind, data_minus_LOD)
+  samples_data <- lapply(runs, function(x) x$samples)
+  samples_data <- do.call(rbind, samples_data)
+  
+  # loop over sample groups
+  sample_groups <- unique(samples_data[,params$sampleGroupCovar])
+  sample_groups <- gsub(' ', replacement = '_', sample_groups)
+  
+  for(k in 1:length(sample_groups)){
+    
+    sample_group_data <- data_minus_LOD[,samples_data$plate_sampleName[samples_data[,params$sampleGroupCovar]==sample_groups[k]]]
+    # remove any control samples -- SC, IPC, NC
+    sample_group_data <- sample_group_data[,colnames(sample_group_data) %in% samples_data$plate_sampleName[samples_data$sampleType=='Sample']]
+    # sort targets
+    target_medians <- apply(sample_group_data, 1, median)
+    target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
+    sample_group_data <- sample_group_data[names(target_medians),]
+    # calculate detectability
+    detect <- apply(sample_group_data, 1, function(x) sum(x > 0)) / ncol(sample_group_data) * 100
+    # create colors to indicate detectability
+    makeColors <- colorRamp(colors=c('blue', 'pink'))
+    detectColors <- makeColors(detect/100)
+    detectColors <- apply(detectColors, 1, 
+                          function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
+    
+    # define filename and plot title
+    sample_group_filename <- paste0('./outputFiles/target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf')
+    sample_group_title <- paste0('Target detectability: All plates, ', sample_groups[k])
+    pdf(sample_group_filename, width=20, height=7)
+    # make plot
+    par(mar=c(4,4,2,0.5))
+    boxplot(t(sample_group_data), 
+            horizontal=FALSE,
+            xlab='',
+            ylab='NPQ - LOD',
+            main=sample_group_title,
+            las=3, 
+            lty=1,
+            pch=16, 
+            cex=0.5,
+            staplelty=0,
+            cex.axis=0.4,
+            yaxt='n',
+            col=detectColors)
+    axis(side=2, las=1)
+    grid(nx=NA, ny=NULL)
+    abline(h=0, col='darkred')
+    axis_limits <- par('usr')
+    text(x=axis_limits[1] + (axis_limits[2] - axis_limits[1])/20, y=0,
+         labels='LOD', col='darkred', cex=0.8, pos=3)
+    
+    # make legend
+    # add color gradient legend
+    # define coordinates
+    axis_limits <- par('usr')
+    x_axis_length <- axis_limits[2] - axis_limits[1]
+    y_axis_length <- axis_limits[4] - axis_limits[3]
+    legend_length <- x_axis_length/6
+    legend_right <- axis_limits[2] - x_axis_length/20
+    legend_left <- legend_right - legend_length
+    legend_height <- y_axis_length/20
+    legend_top <- axis_limits[4] - y_axis_length/10
+    legend_bottom <- legend_top - legend_height
+    # create color gradient
+    colfunc <- colorRampPalette(c('blue', 'pink'))
+    legend_image <- as.raster(matrix(colfunc(20), nrow=1))
+    rasterImage(legend_image, legend_left, legend_bottom, legend_right, legend_top)
+    # make labels
+    text(x=seq(legend_left, legend_right, l=6), 
+         y = legend_bottom - y_axis_length/40,
+         labels = seq(0,100,l=6), 
+         cex=0.8, adj=0.5)
+    text(x=(legend_left+legend_right)/2, y=legend_top, 
+         labels='detectability (%)', pos=3, cex=0.8) # end legend
+    dev.off()
+  }
+}
+
 
 
 ```
