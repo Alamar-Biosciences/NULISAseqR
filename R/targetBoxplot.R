@@ -205,7 +205,7 @@ targetBoxplot <- function(data_matrix,
     if(!is.null(colors)){
       detectColors <- colors
     }
-
+    
     if(horizontal==FALSE){
       # make plot
       par(mar=c(4,4,2,0.5))
