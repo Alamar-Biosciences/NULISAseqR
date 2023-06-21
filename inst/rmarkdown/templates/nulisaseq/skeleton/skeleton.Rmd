@@ -15,10 +15,6 @@ params:
   ## directory where xml files are located
   dataDir: "."
   ## XML file names
-  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
-  ## manually set plate ID if desired, otherwise plate ID will be 
-  # "Plate 1", "Plate 2", ... according to order of filenames 
-  plateNames: !r c()
   ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
