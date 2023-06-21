@@ -848,7 +848,7 @@ pandoc.list(c(paste0("ICRead_CV - Coefficient of Variation of internal control s
               )))
 pandoc.p("QC criteria are assessed either on unnormalized (raw) or IC-normalized (IC) data.")
 
-for( i in 1:length(runs)){
+for( i in 1:numFiles){
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
   table.attr <- paste0("id=\"QCFlagPlate-summary", i, "\"")
   qcPlate$status[which(qcPlate$status == FALSE)] <- "Pass"
@@ -882,8 +882,8 @@ pandoc.list(c(paste0("Detectability - Percentage of targets above LOD for a samp
 # make empty sample QC summary table
 criteria <- QCSampleCriteria()
 rowNameQC <- c()
-QCSummary <- matrix(nrow=length(runs) + 1, ncol=length(criteria$thresholds) + 1)
-for (i in 1:length(runs)){
+QCSummary <- matrix(nrow=numFiles + 1, ncol=length(criteria$thresholds) + 1)
+for (i in 1:numFiles){
   QCSummary[i,1] <- length(runs[[i]]$SampleNames)
   rowNameQC <- c(rowNameQC,  paste0("Plate ", as.character(i))) 
 }
@@ -891,8 +891,8 @@ for (i in 1:length(runs)){
 # loop over criteria
 # get xlim for plots
 val <- list()
-QCplot_axis_limits <- vector(mode='list', length=length(runs))
-for (i in 1:length(runs)){
+QCplot_axis_limits <- vector(mode='list', length=numFiles)
+for (i in 1:numFiles){
   well_order <- wellorder(runs[[i]]$samples)
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
   rmin <- rmax <- c()
@@ -949,7 +949,7 @@ knitr::kable(QCSummary, caption='Number of samples that fail each QC criterion (
 QC_sample_fail <- vector(mode='list', length=length(names(criteria$thresholds)))
 names(QC_sample_fail) <- names(criteria$thresholds)
 QC_sample_fail <- lapply(QC_sample_fail, function(x) x <- data.frame(Plate=character(0), QC_fail_samples=character(0)))
-for (i in 1:length(runs)){
+for (i in 1:numFiles){
   well_order <- wellorder(runs[[i]]$samples)
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
   for (j in 1:length(criteria$thresholds)){
@@ -981,7 +981,7 @@ for(i in 1:length(names(criteria$thresholds))){
 ```{r, eval=(params$outQC), out.width='100%', fig.asp=1, results='asis'}
 pandoc.header("Sample QC plots", 4)
 # make sample QC plots
-for( i in 1:length(runs)){
+for( i in 1:numFiles){
   # sort in order: samples, IPC, SC, Bridge, NC
   sampleType_factor <- factor(runs[[i]]$sample$sampleType,
                               levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
@@ -1283,7 +1283,7 @@ knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV -- 
 
 
 ### Intra-plate %CV boxplots by plate
-```{r, out.width='100%', eval=(params$outIntraPlateNorm), fig.asp=(0.2*length(runs) + 0.15), eval=indicatorSC}
+```{r, out.width='100%', eval=(params$outIntraPlateNorm), fig.asp=(0.2*numFiles + 0.15), eval=indicatorSC}
 SC_intraCV_unnorm2 <- SC_intraCV_unnorm
 colnames(SC_intraCV_unnorm2) <- paste0(colnames(SC_intraCV_mCherry), ' unnormalized')
 SC_intraCV_mCherry2 <- SC_intraCV_mCherry
@@ -1298,7 +1298,7 @@ boxplot(SC_intraCV_vals[,ncol(SC_intraCV_vals):1], las=1, xlab='intra-plate CV (
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
-```{r, out.width='100%', eval=(params$outIntraPlateNorm), fig.asp=(0.2*length(runs) + 0.15)}
+```{r, out.width='100%', eval=(params$outIntraPlateNorm), fig.asp=(0.2*numFiles + 0.15)}
 IPC_intraCV_unnorm2 <- IPC_intraCV_unnorm
 colnames(IPC_intraCV_unnorm2) <- paste0(colnames(IPC_intraCV_unnorm), ' unnormalized')
 IPC_intraCV_mCherry2 <- IPC_intraCV_mCherry
@@ -1676,7 +1676,7 @@ for(i in 1:numFiles){
 ##########################
 # IC median QC plot
 ##########################
-for(i in 1:length(runs)){
+for(i in 1:numFiles){
   # sort in order: samples, IPC, SC, Bridge, NC
   sampleType_factor <- factor(runs[[i]]$sample$sampleType,
                               levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
@@ -1944,7 +1944,7 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
 ##########################
 # target detectability boxplot -- by plate
 ##########################
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   pdf(paste0('./outputFiles/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
   targetBoxplot(mCherry_IPC$interNormData[[i]],
                 title=paste0('Target detectability: ', PlateNames[i]),
@@ -1962,10 +1962,10 @@ for(i in 1:length(params$xmlFiles)){
 # target detectability boxplot -- combine across plates
 # if no sample group specified and more than one plate, combine all data
 ##########################
-if(is.null(params$sampleGroupCovar) & length(runs) > 1){
+if(is.null(params$sampleGroupCovar) & numFiles > 1){
   # calculate LODs on IC - IPC normalized data
   plate_lod_IPC <- vector('list', length(params$xmlFiles))
-  for (i in 1:length(params$xmlFiles)){
+  for (i in 1:numFiles){
     plate_lod_IPC[[i]] <- lod(data_matrix=mCherry_IPC$interNormData[[i]], 
                               blanks=runs[[i]]$NC, 
                               min_count=0)
