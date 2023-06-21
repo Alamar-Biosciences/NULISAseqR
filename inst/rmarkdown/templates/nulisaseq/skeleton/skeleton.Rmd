@@ -2,6 +2,11 @@
 params:
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
+  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
+  dataRuns: NULL 
+  ## manually set plate ID, otherwise plate ID will be 
+  ## "Plate 1", "Plate 2", ... according to order of filenames 
+  plateNames: !r c()
   ## type of report
   ## options:
   ## internal
@@ -116,53 +121,75 @@ matrixify <- function(runSamples, plate=FALSE){
 title_var <- paste(params$study_name, params$assayName, sep='<br>')
 # define sample specific boxplot colors for use in plots
 boxplot_colors <- unlist(lapply(alamarColorPalette(n=5, tint='light', nReps=5), function(x) x[4]))
-# set data directory
-if(is.null(params$dataDir)){
-  xmlFilesPath <- params$xmlFiles
-} else {
-  knitr::opts_knit$set(root.dir=params$dataDir)
-  # save xml file path
-  xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
-}
-# define variables to store results
-runs <- vector('list', length(params$xmlFiles))
-runSummaries <- vector('list', length(params$xmlFiles))
-read_summary <- NULL
-# define plateIDs / plate names
-if(length(params$plateNames) == 0){
-  PlateNames <- paste0('Plate ', 1:length(params$xmlFiles))
-} else {
-  PlateNames <- params$plateNames
-}
-# read in XML files
-for(i in 1:length(params$xmlFiles)){
-  runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=PlateNames[i], 
-                             NC=params$NC, SC=params$SC, IC=params$IC, 
-                             IPC=params$IPC, Bridge=params$Bridge,
-                             sample_group_covar=params$sampleGroupCovar)
-  # check if plate / row / col AnnotName match the data
-  if(!(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples))){
-    stop('plate / row / col AnnotName do not match the data. Check and update params.')
+if(is.null(params$dataRuns)){
+  numFiles <- length(params$xmlFiles)
+  # set data directory
+  if(is.null(params$dataDir)){
+    xmlFilesPath <- params$xmlFiles
+  } else {
+    knitr::opts_knit$set(root.dir=params$dataDir)
+    # save xml file path
+    xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
   }
-  # summarize each plate
-  runSummaries[[i]] <- plateSummary(runs[[i]])
-  read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
-  if(is.null(runs[[i]]$samples[["AUTO_PLATE"]]) | !is.null(params$plateAnnotName)){
-    runs[[i]]$samples$AUTO_PLATE = eval(str2expression(paste0("runs[[i]]$samples$", params$plateAnnotName)))
+  # define variables to store results
+  runs <- vector('list', numFiles)
+  runSummaries <- vector('list', numFiles)
+  read_summary <- NULL
+  # define plateIDs / plate names
+  if(length(params$plateNames) == 0){
+    PlateNames <- paste0('Plate ', 1:numFiles)
+  }else{
+    PlateNames <- params$plateNames
   }
-  if(is.null(runs[[i]]$samples[["AUTO_WELLROW"]]) | !is.null(params$rowAnnotName)){
-    runs[[i]]$samples$AUTO_WELLROW = eval(str2expression(paste0("runs[[i]]$samples$", params$rowAnnotName)))
+  # read in XML files
+  for(i in 1:numFiles){
+    runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=PlateNames[i], 
+                               NC=params$NC, SC=params$SC, IC=params$IC, 
+                               IPC=params$IPC, Bridge=params$Bridge,
+                               sample_group_covar=params$sampleGroupCovar)
+    # check if plate / row / col AnnotName match the data
+    if(!(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples))){
+      stop('plate / row / col AnnotName do not match the data. Check and update params.')
+    }
+    # summarize each plate
+    runSummaries[[i]] <- plateSummary(runs[[i]])
+    read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
+    if(is.null(runs[[i]]$samples[["AUTO_PLATE"]]) | !is.null(params$plateAnnotName)){
+      runs[[i]]$samples$AUTO_PLATE = eval(str2expression(paste0("runs[[i]]$samples$", params$plateAnnotName)))
+    }
+    if(is.null(runs[[i]]$samples[["AUTO_WELLROW"]]) | !is.null(params$rowAnnotName)){
+      runs[[i]]$samples$AUTO_WELLROW = eval(str2expression(paste0("runs[[i]]$samples$", params$rowAnnotName)))
+    }
+    if(is.null(runs[[i]]$samples[["AUTO_WELLCOL"]]) | !is.null(params$colAnnotName)){
+      runs[[i]]$samples$AUTO_WELLCOL = eval(str2expression(paste0("runs[[i]]$samples$", params$colAnnotName)))
+    }
   }
-  if(is.null(runs[[i]]$samples[["AUTO_WELLCOL"]]) | !is.null(params$colAnnotName)){
-    runs[[i]]$samples$AUTO_WELLCOL = eval(str2expression(paste0("runs[[i]]$samples$", params$colAnnotName)))
+}else{ # passed in runs[[i]] from SAM, etc.
+  runs <- params$dataRuns
+  numFiles <- length(runs)
+  runSummaries <- vector('list', numFiles)
+  read_summary <- NULL
+  for(i in 1:numFiles){
+    runSummaries[[i]] <- plateSummary(runs[[i]])
+    read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
+    if(is.null(runs[[i]]$samples[["AUTO_PLATE"]]) | !is.null(params$plateAnnotName)){
+      runs[[i]]$samples$AUTO_PLATE = eval(str2expression(paste0("runs[[i]]$samples$", params$plateAnnotName)))
+    }
+    if(is.null(runs[[i]]$samples[["AUTO_WELLROW"]]) | !is.null(params$rowAnnotName)){
+      runs[[i]]$samples$AUTO_WELLROW = eval(str2expression(paste0("runs[[i]]$samples$", params$rowAnnotName)))
+    }
+    if(is.null(runs[[i]]$samples[["AUTO_WELLCOL"]]) | !is.null(params$colAnnotName)){
+      runs[[i]]$samples$AUTO_WELLCOL = eval(str2expression(paste0("runs[[i]]$samples$", params$colAnnotName)))
+    }
   }
+  PlateNames <- paste0('Plate ', 1:numFiles)
 }
 names(runs) <- names(runSummaries) <- PlateNames
 colnames(read_summary) <- PlateNames
 # transpose read summary
 read_summary <- t(read_summary)
 # set multiple file indicator
-multipleFiles <- if(length(params$xmlFiles) > 1) TRUE else FALSE
+multipleFiles <- if(numFiles > 1) TRUE else FALSE
 # set SC indicator
 indicatorSC <- if(sum(sapply(runs, function(x) length(x$SC)))==0) FALSE else TRUE
 # set Bridge indicator
@@ -172,7 +199,7 @@ indicatorBridge <- if(sum(sapply(runs, function(x) length(x$Bridge)))==0) FALSE 
 ```{r, include=FALSE}
 # exclude samples if specified
 if(!is.null(params$excludeSamples)){
-  for(i in 1:length(params$xmlFiles)){
+  for(i in 1:numFiles){
     exclude_samples <- params$excludeSamples[[i]]
     runs[[i]]$samples <- runs[[i]]$samples[!(runs[[i]]$samples$sampleName %in% exclude_samples),]
     runs[[i]]$SampleNames <- runs[[i]]$SampleNames[!(runs[[i]]$SampleNames %in% exclude_samples)]
@@ -183,8 +210,8 @@ if(!is.null(params$excludeSamples)){
 
 ```{r, include=FALSE}
 # do intra-plate normalization
-intraPlateNormData <- vector("list", length(params$xmlFiles))
-for (i in 1:length(params$xmlFiles)){
+intraPlateNormData <- vector("list", numFiles)
+for (i in 1:numFiles){
   intraPlateNormData[[i]] <- vector("list", length(runs[[i]]$IC))
   for (j in 1:length(runs[[i]]$IC)){
     intraPlateNormData[[i]][[j]] <- intraPlateNorm(data_matrix=runs[[i]]$Data,
@@ -199,8 +226,8 @@ names(intraPlateNormData) <- PlateNames
 ```{r, include=FALSE}
 # calculate LOD on the IC normalized data
 # use 1st IC as the primary IC (should be mCherry)
-plate_lod <- vector('list', length(params$xmlFiles))
-for (i in 1:length(params$xmlFiles)){
+plate_lod <- vector('list', numFiles)
+for (i in 1:numFiles){
   plate_lod[[i]] <- lod(data_matrix=intraPlateNormData[[i]][[1]]$normData, 
                         blanks=runs[[i]]$NC, 
                         min_count=0)
@@ -245,7 +272,7 @@ if(indicatorSC==TRUE){
   SC_intraCV_unnorm <- SC_intraCV_mCherry <- NULL
 }
 # loop through plates and calculate CVs
-for (i in 1:length(params$xmlFiles)){
+for (i in 1:numFiles){
   # define IPC / SC vector
   IPC_SC_samples <- rep(NA, nrow(runs[[i]]$samples))
   IPC_SC_samples[colnames(runs[[i]]$Data) %in% runs[[i]]$IPC] <- 'IPC'
@@ -448,7 +475,7 @@ if(indicatorBridge==TRUE){
 detectability_return_summary <- list()
 detectability_return_targets <- list()
 
-for (i in 1:length(params$xmlFiles)){
+for (i in 1:numFiles){
   detectability_summary <- detectability_targets <- NULL
   
   # column names of return data
@@ -520,7 +547,7 @@ for (i in 1:length(params$xmlFiles)){
 
 # if more than one plate, summarize across plates using weighted average
 combine_detectability <- FALSE
-if(length(params$xmlFiles) > 1){
+if(numFiles > 1){
   # identify all sample types and all targets
   unique_types <- unique(unlist(lapply(detectability_return_summary, function(x) x[, "type"])))
   all_targets <- unique(unlist(lapply(detectability_return_targets, rownames)))
@@ -633,7 +660,7 @@ if(length(params$xmlFiles) > 1){
 # and sample correlation plot
 data_mCherry_IPC_log2_scaled <- list()
 data_mCherry_IPC_log2_no_NC_scaled <- list()
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   data_mCherry_IPC <- mCherry_IPC$interNormData[[i]]
   # remove ICs
   data_mCherry_IPC <- data_mCherry_IPC[!grepl(paste(runs[[i]]$IC, collapse="|"), rownames(data_mCherry_IPC)),]
@@ -656,7 +683,7 @@ title: `r title_var`
 ```{r, eval=(params$outPlateLayout), results='asis'}
 pandoc.header("Plate layout", 2)
 pandoc.p("Shows the layout of samples, controls (e.g., negative controls (NC), inter-plate controls (IPC)), and special wells if any (e.g., sample controls (SC), bridge samples) on the 96 well assay plate." )
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   val <- matrixify(runs[[i]]$samples, plate=TRUE)
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
   if(indicatorSC){      well_types <- append(well_types, list(SC_wells[[i]]))}
@@ -706,10 +733,10 @@ pandoc.header("Internal controls (IC)", 3)
 pandoc.p("Each sample of the assay is spiked with the same concentration of an internal control (IC). This is used both as part of a well normalization procedure and as a method for assessing the uniformity of the assay run.") 
 if(length(params$IC) == 1){
   IC_tables <- NULL
-  for (i in 1:length(params$xmlFiles)){
+  for (i in 1:numFiles){
     IC_tables <- rbind(IC_tables, runSummaries[[i]]$IC_table)
   }
-  rownames(IC_tables) <- paste0("Plate", as.character(1:length(params$xmlFiles))) 
+  rownames(IC_tables) <- paste0("Plate", as.character(1:numFiles)) 
   cat(knitr::kable(IC_tables, 
                    caption="mCherry (IC) summary", 
                    align='r', 
@@ -717,7 +744,7 @@ if(length(params$IC) == 1){
                    table.attr="id=\"IC-summary\"") %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))  
 } else {
-  for(i in 1:length(params$xmlFiles)){
+  for(i in 1:numFiles){
     table.attr <- paste0("id=\"IC-summary", i, "\"")
     cat(knitr::kable(runSummaries[[i]]$IC_table, 
                      caption=paste0("Plate ", as.character(i), ": IC summary"), 
@@ -735,7 +762,7 @@ if(length(params$IC) == 1){
 pandoc.header("Inter-plate controls (IPC)", 3)
 pandoc.p("IPC samples are pooled plasma controls used both to normalize samples between experiments and to assess performance (e.g., precision) of the assay.")
 pandoc.p("Note: %CV in this table does not exclude values below LOD. See [Intra-plate normalization](#intraPlateNorm) or [Inter-plate normalization](#interPlateNorm) sections for %CV (before and after normalization) that excludes values below LOD.")
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   table.attr <- paste0("id=\"IPC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
@@ -748,7 +775,7 @@ for(i in 1:length(params$xmlFiles)){
 ```{r, eval=(params$outReadSummary), results='asis'}
 pandoc.header("Negative controls (NC)", 3)
 pandoc.p("NC wells are reactions where no sample input is provided (i.e., buffer only). These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality (e.g., background levels).")
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
@@ -760,7 +787,7 @@ for(i in 1:length(params$xmlFiles)){
 ```{r eval=(indicatorSC & params$outReadSummary), results='asis'}
 pandoc.header("Sample controls (SC)", 3)
 pandoc.p("SC samples are pooled plasma controls from an independent pooled plasma source that is different from IPCs. They could be a pooled sample derived from all study samples, for example. They should be from the same source across all plates that will be analysed together. SCs are used for calculating intra- and inter-plate coefficient of variation (CV). They are necessary for obtaining an unbiased measure of inter-plate CV when IPC normalization is used.")
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   table.attr <- paste0("id=\"SC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$SC_table, caption=paste0("Plate ", as.character(i), ": SC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
@@ -772,7 +799,7 @@ for(i in 1:length(params$xmlFiles)){
 ```{r eval=(indicatorBridge & params$outReadSummary), results='asis'}
 pandoc.header("Bridge samples (Bridge)", 3)
 pandoc.p("Bridge samples can be used for inter-plate normalization. Bridge sample normalization uses the bridge sample subset to estimate plate- and target-specific medians, and then uses these medians to normalize all samples in a manner similar to intensity normalization.")
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   table.attr <- paste0("id=\"Bridge-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$Bridge_table, caption=paste0("Plate ", as.character(i), ": Bridge summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
@@ -785,7 +812,7 @@ for(i in 1:length(params$xmlFiles)){
 pandoc.header("Heatmaps", 2)
 heatmap_description <- if (params$heatMapRel==TRUE) "percent relative to plate median" else "absolute normalized read count"
 pandoc.p(paste0("Heatmaps show the ", heatmap_description, " for log2(total counts) and the specified internal control."))
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   ICs <- which(runs[[i]]$targets$targetType == "Control")
   val <- matrixify(runs[[i]]$samples)
   vals <- unlist(as.list(t(val)))
@@ -1069,7 +1096,7 @@ for( i in 1:length(runs)){
 
 ```{r, echo=FALSE}
 # calculate fig.asp for detectability plots
-detect_fig_asp <- 2*ceiling(length(params$xmlFiles)/2)
+detect_fig_asp <- 2*ceiling(numFiles/2)
 ```
 
 ```{r, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=detect_fig_asp}
@@ -1122,6 +1149,7 @@ if (combine_detectability){
 }
 ```
 
+<<<<<<< HEAD
 ```{r, eval=params$outputDetectCSV==TRUE, include=FALSE}
 # make directory -- we will put the file in the outputFiles directory
 dir.create("./outputFiles")
@@ -1204,12 +1232,12 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
 write.csv(detect_output_table, './outputFiles/target_detectability_table.csv')
 ```
 
-```{r, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=2*ceiling(length(params$xmlFiles)/2)}
+```{r, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=2*ceiling(numFiles/2)}
 # Target Boxplot
 pandoc.header("Target detectability boxplot", 3)
 pandoc.p("Plot shows target mCherry-IPC-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for mCherry-normalized data.")
-par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,2,2,1))
-for (i in 1:length(params$xmlFiles)){
+par(mfrow=c(ceiling(numFiles/2), 2), mar=c(4,2,2,1))
+for (i in 1:numFiles){
   targetBoxplot(mCherry_IPC$interNormData[[i]], 
                 title=PlateNames[i], 
                 subtractLOD=TRUE, 
@@ -1350,7 +1378,7 @@ sampleboxplot <- function(data,
   abline(v=c(-50:50*5), col='grey', lty=3)
 }
 
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   sample_type <- runs[[i]]$samples$sampleType
   sample_type <- factor(sample_type, levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
   # make colors
@@ -1403,7 +1431,7 @@ wellcolors <- function(data, well_types, boxplot_colors){
   return(colors)
 }
 
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   pdf(file=NULL)
   corrvals <- corrplot(cor(data_mCherry_IPC_log2_scaled[[i]], use="complete.obs"), 
                        order='hclust') 
@@ -1435,7 +1463,7 @@ pandoc.p("Hierarchical clustering of both samples and targets was done using a E
 paletteLength <- 50
 heatmapColors <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
 # loop over plates and draw heatmaps
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   # define label colors
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
   if(indicatorSC){ well_types <- append(well_types, list(SC_wells[[i]]))}
@@ -1591,7 +1619,7 @@ removeTargetsSamples <- function(data, NC, IC){
 
 # merge data across plates for PCA
 dataPCA_unnorm <- dataPCA_mCherry <- dataPCA_mCherryIPC <- dataPCA_mCherryIN <- plateID <- NULL
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   dataPCA_unnorm <- cbind(dataPCA_unnorm, removeTargetsSamples(runs[[i]]$Data, runs[[i]]$NC, runs[[i]]$IC))
   dataPCA_mCherry <- cbind(dataPCA_mCherry, removeTargetsSamples(intraPlateNormData[[i]][[1]]$normData, runs[[i]]$NC, runs[[i]]$IC))
   dataPCA_mCherryIPC <- cbind(dataPCA_mCherryIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], runs[[i]]$NC, runs[[i]]$IC))
@@ -1625,7 +1653,7 @@ dir.create("./outputFiles")
 ##########################
 # plate layouts
 ##########################
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   val <- matrixify(runs[[i]]$samples, plate=TRUE)
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
   if(indicatorSC){      well_types <- append(well_types, list(SC_wells[[i]]))}
@@ -1728,7 +1756,7 @@ for(i in 1:length(runs)){
 ##########################
 # sample distribution boxplots after normalization
 ##########################
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   sample_type <- runs[[i]]$samples$sampleType
   sample_type <- factor(sample_type, levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
   # make colors
