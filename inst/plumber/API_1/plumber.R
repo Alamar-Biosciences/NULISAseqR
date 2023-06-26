@@ -114,7 +114,7 @@ xml2html <- function(res,
       out_zip <- paste0(UUID, ".zip")
 
       # Add plots to the zip archive
-      plot_files <- list.files("./figures/", full.names = TRUE)
+      plot_files <- list.files("./outputFiles/", full.names = TRUE)
       for (file in plot_files) {
         zip(out_zip, file)
       }
@@ -132,8 +132,8 @@ xml2html <- function(res,
       }
 
       # Remove the figures directory: If present
-      if (file.exists("./figures") && file.info("./figures")$isdir) {
-        unlink("./figures", recursive = TRUE)
+      if (file.exists("./outputFiles") && file.info("./outputFiles")$isdir) {
+        unlink("./outputFiles", recursive = TRUE)
       }
 
     } else {
