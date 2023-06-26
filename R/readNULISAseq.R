@@ -253,6 +253,9 @@ readNULISAseq <- function(file,
     if(length(inds) > 0){
       targets[, inds] <- NULL
     }
+
+    # Determine if covariates are numeric
+    numericCovariates <- sapply(samples, function(lst) all(sapply(na.omit(lst), function(x) suppressWarnings(!is.na(as.numeric(x))))))
     
     ###########################
     # return the output
@@ -263,7 +266,8 @@ readNULISAseq <- function(file,
       RunSummary=RunSummary,
       targets=targets,
       samples=samples,
-      Data=DataMatrix),
+      Data=DataMatrix,
+      numericCovariates=numericCovariates),
       specialWellsTargets))
     # end file type xml_no_mismatches
   } 
@@ -355,9 +359,11 @@ loadNULISAseq <- function(file, IPC, IC, ...){
 readCovariateFile <- function(txt_file, NULISAseqRuns){
   newInfo <- read.table(txt_file, header=T, sep="\t")
   for(i in 1:length(NULISAseqRuns)){
-    NULISAseqRuns[[i]]$samples <- merge(runs[[i]]$samples, newInfo, nodups=T, all.x=T,
+    NULISAseqRuns[[i]]$samples <- merge(NULISAseqRuns[[i]]$samples, newInfo, nodups=T, all.x=T,
                                         by.x=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"), 
                                         by.y=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"))
+    # Determine if covariates are numeric
+    NULISAseqRuns[[i]]$numericCovariates <- sapply(NULISAseqRuns[[i]]$samples, function(lst) all(sapply(na.omit(lst), function(x) suppressWarnings(!is.na(as.numeric(x))))))
   }
   return(NULISAseqRuns)
 }

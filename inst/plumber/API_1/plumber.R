@@ -268,3 +268,29 @@ xml2counts <- function(res,
     return(bin)
   })
 }
+
+#* @param in_xml:[file] Character string vector. Path(s) and name(s) of the file(s).
+#* @param IPC Name to search for Interprocess control (IPC) samples
+#* @param NC Name to search for Negative control (NC) samples
+#* @param IC Name to search for Internal Control (IC) targets
+#* @serializer contentType list(type="application/octet-stream")
+#* @post /xml2qs
+xml2qs <- function(res,
+                     in_xml,
+                     IPC = c("InterProcessControl"),
+                     NC = c("NegativeControl"),
+                     IC = c("mCherry")){
+  promises::future_promise({
+
+    UUID <- uuid::UUIDgenerate()
+    tempFile <- paste0(UUID, ".qs")
+    data <- loadNULISAseq(toString(in_xml), IPC, IC)
+    qsave(data, tempFile)
+    bin <- readBin(tempFile, "raw", n = file.info(tempFile)$size)
+    
+    # Clean the workspace
+    unlink(c(tempFile))
+
+    return(bin)
+  })
+}

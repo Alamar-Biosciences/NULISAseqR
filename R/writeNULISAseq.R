@@ -38,7 +38,7 @@
 #'  \item{"ProteinName"}{}
 #'  \item{"SampleQC"}{}
 #'  \item{"LOD"}{}
-#'  \item{"log2NormalizedCount"}{}
+#'  \item{"NPQ"}{}
 #' }
 #' 
 #'
@@ -276,7 +276,7 @@ writeNULISAseq <- function(xml_files,
                                   ICs=runs[[i]]$IC,
                                   IPCs=runs[[i]]$IPC,
                                   NCs=runs[[i]]$NC)
-    sampleQC_IC_Median[[i]] <- sampleQC[[i]]$sampleName[sampleQC[[i]]$flagName=='IC_Median' & sampleQC[[i]]$status=='T']
+    sampleQC_IC_Median[[i]] <- sampleQC[[i]]$sampleName[sampleQC[[i]]$flagName=='IC_Median' & sampleQC[[i]]$status==TRUE]
   }
   sample_data$SampleQC <- 'PASS'
   sample_data$SampleQC[sample_data$sampleName %in% unlist(sampleQC_IC_Median)] <- 'WARN'
@@ -317,11 +317,11 @@ writeNULISAseq <- function(xml_files,
     target_data <- vector(mode='list', length=n_plates)
     for(j in 1:n_plates){
       plate_j_LOD <- log2(LODs[[j]][target] + 1)
-      plate_j_log2NormalizedCount <- log2(Data[[j]][target,] + 1)
-      data_length <- length(plate_j_log2NormalizedCount)
+      plate_j_NPQ <- log2(Data[[j]][target,] + 1)
+      data_length <- length(plate_j_NPQ)
       
       if(include_unnorm_counts==FALSE){
-        target_data[[j]] <- data.frame(SampleName=names(plate_j_log2NormalizedCount), 
+        target_data[[j]] <- data.frame(SampleName=names(plate_j_NPQ), 
                                        Panel=rep(Panel, data_length),
                                        PanelLotNumber=rep(PanelLotNumber, data_length),
                                        PlateID=rep(plateIDs[j], data_length),
@@ -330,15 +330,15 @@ writeNULISAseq <- function(xml_files,
                                        UniProtID=rep(UniProtID, data_length),
                                        ProteinName=rep(ProteinName, data_length),
                                        LOD=rep(plate_j_LOD, data_length),
-                                       log2NormalizedCount=plate_j_log2NormalizedCount)
+                                       NPQ=plate_j_NPQ)
         target_data_colnames <- c("Panel","PanelLotNumber","PlateID",
                                   "SampleName","SampleType",
                                   sample_info_file_variables,"Target",
                                   "AlamarTargetID","UniProtID","ProteinName",
-                                  "SampleQC","LOD","log2NormalizedCount")
+                                  "SampleQC","LOD","NPQ")
       } else if(include_unnorm_counts==TRUE){
         plate_j_UnnormalizedCount <- unnorm_data[[j]][target,]
-        target_data[[j]] <- data.frame(SampleName=names(plate_j_log2NormalizedCount), 
+        target_data[[j]] <- data.frame(SampleName=names(plate_j_NPQ), 
                                        Panel=rep(Panel, data_length),
                                        PanelLotNumber=rep(PanelLotNumber, data_length),
                                        PlateID=rep(plateIDs[j], data_length),
@@ -348,12 +348,12 @@ writeNULISAseq <- function(xml_files,
                                        ProteinName=rep(ProteinName, data_length),
                                        LOD=rep(plate_j_LOD, data_length),
                                        UnnormalizedCount=plate_j_UnnormalizedCount,
-                                       log2NormalizedCount=plate_j_log2NormalizedCount)
+                                       NPQ=plate_j_NPQ)
         target_data_colnames <- c("Panel","PanelLotNumber","PlateID",
                                   "SampleName","SampleType",
                                   sample_info_file_variables,"Target",
                                   "AlamarTargetID","UniProtID","ProteinName",
-                                  "SampleQC","LOD","UnnormalizedCount","log2NormalizedCount")
+                                  "SampleQC","LOD","UnnormalizedCount","NPQ")
       }
     }
     target_data <- do.call(rbind, target_data)
