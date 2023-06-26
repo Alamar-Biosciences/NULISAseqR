@@ -144,11 +144,11 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
   NCs  <- if(!is.null(NCs))   NCs else which(samples$sampleType == "NC")
 
   # Median IC between -30% and 30% of median  
-  mCherry_median <- median(raw[ICs,], na.rm=T)
+  mCherry_median <- median(raw[ICs[1],], na.rm=T)
   min_ic_median <- unname(unlist(strsplit(MIN_IC_MEDIAN, ",")))
   medianMin30 <- mCherry_median - mCherry_median * abs(as.numeric(min_ic_median[0]))
   medianMax30 <- mCherry_median + mCherry_median * abs(as.numeric(min_ic_median[1]))
-  medVals <- (raw[ICs, ] - mCherry_median ) / mCherry_median 
+  medVals <- (raw[ICs[1], ] - mCherry_median ) / mCherry_median 
   op <- criteria$operators[which(criteria$thresholdNames=="MIN_IC_MEDIAN")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_IC_MEDIAN")]
   for(j in 1:length(medVals)){
@@ -188,7 +188,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
 
   
   # Minimum number (ICReads) of IC reads within a sample
-  ICvals <- raw[ICs, ]
+  ICvals <- raw[ICs[1], ]
   ICvals[is.na(ICvals)] <- 0
   op <- criteria$operators[which(criteria$thresholdNames=="MIN_IC_READS_PER_SAMPLE")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_IC_READS_PER_SAMPLE")]
