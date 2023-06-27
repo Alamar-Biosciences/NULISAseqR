@@ -1145,7 +1145,6 @@ if (combine_detectability){
 }
 ```
 
-<<<<<<< HEAD
 ```{r, eval=params$outputDetectCSV==TRUE, include=FALSE}
 # make directory -- we will put the file in the outputFiles directory
 dir.create("./outputFiles")
