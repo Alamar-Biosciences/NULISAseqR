@@ -5,6 +5,7 @@ env:
     AWS_DEFAULT_REGION: "us-west-1"
     IMAGE_REPO_NAME: "nulisaseq_r"
     IMAGE_TAG: "latest"
+    DOCKER_COMPOSE_YML: "docker-compose.test.yml"
 
 phases:
 
