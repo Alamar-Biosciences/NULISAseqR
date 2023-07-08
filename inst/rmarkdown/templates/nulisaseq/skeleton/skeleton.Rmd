@@ -2,7 +2,7 @@
 params:
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230703_NULISAseq_Data_etr_UcxKOImj_output_xml.xml","20230703_NULISAseq_Data_etr_ZM3y0Lyq_output_xml.xml")
+  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
   dataRuns: NULL 
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
@@ -41,7 +41,7 @@ params:
   # this information is used when determining detectability.
   # defaults to NULL.
   # for testing sampleGroupCovar: "AUTO_WELLROW"
-  sampleGroupCovar: "CONDITION_1"
+  sampleGroupCovar: NULL
   outPlateLayout: !r TRUE
   outReadSummary: !r TRUE
   outHeatmaps: !r TRUE
