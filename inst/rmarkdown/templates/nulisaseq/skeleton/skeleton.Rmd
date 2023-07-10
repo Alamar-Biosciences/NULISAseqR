@@ -2,6 +2,11 @@
 params:
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
+  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
+  dataRuns: NULL 
+  ## manually set plate ID, otherwise plate ID will be 
+  ## "Plate 1", "Plate 2", ... according to order of filenames 
+  plateNames: !r c()
   ## type of report
   ## options:
   ## internal
@@ -10,10 +15,6 @@ params:
   ## directory where xml files are located
   dataDir: "."
   ## XML file names
-  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
-  ## manually set plate ID if desired, otherwise plate ID will be 
-  # "Plate 1", "Plate 2", ... according to order of filenames 
-  plateNames: !r c()
   ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
@@ -41,6 +42,17 @@ params:
   # defaults to NULL.
   # for testing sampleGroupCovar: "AUTO_WELLROW"
   sampleGroupCovar: NULL
+  outPlateLayout: !r TRUE
+  outReadSummary: !r TRUE
+  outHeatmaps: !r TRUE
+  outQC: !r TRUE
+  outDetectability: !r TRUE
+  outIntraPlateNorm: !r TRUE
+  outSampleBoxplot: !r TRUE
+  outSampleCorrelation: !r TRUE
+  outSampleClustering: !r TRUE
+  outInterPlateNorm: !r TRUE
+  outSamplePCA: !r TRUE
   ## should heatmaps show % median units?
   heatMapRel: !r TRUE
   ## outputPlots -- if TRUE will output a set of plots in a nice format for slides
@@ -105,53 +117,75 @@ matrixify <- function(runSamples, plate=FALSE){
 title_var <- paste(params$study_name, params$assayName, sep='<br>')
 # define sample specific boxplot colors for use in plots
 boxplot_colors <- unlist(lapply(alamarColorPalette(n=5, tint='light', nReps=5), function(x) x[4]))
-# set data directory
-if(is.null(params$dataDir)){
-  xmlFilesPath <- params$xmlFiles
-} else {
-  knitr::opts_knit$set(root.dir=params$dataDir)
-  # save xml file path
-  xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
-}
-# define variables to store results
-runs <- vector('list', length(params$xmlFiles))
-runSummaries <- vector('list', length(params$xmlFiles))
-read_summary <- NULL
-# define plateIDs / plate names
-if(length(params$plateNames) == 0){
-  PlateNames <- paste0('Plate ', 1:length(params$xmlFiles))
-} else {
-  PlateNames <- params$plateNames
-}
-# read in XML files
-for(i in 1:length(params$xmlFiles)){
-  runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=PlateNames[i], 
-                             NC=params$NC, SC=params$SC, IC=params$IC, 
-                             IPC=params$IPC, Bridge=params$Bridge,
-                             sample_group_covar=params$sampleGroupCovar)
-  # check if plate / row / col AnnotName match the data
-  if(!(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples))){
-    stop('plate / row / col AnnotName do not match the data. Check and update params.')
+if(is.null(params$dataRuns)){
+  numFiles <- length(params$xmlFiles)
+  # set data directory
+  if(is.null(params$dataDir)){
+    xmlFilesPath <- params$xmlFiles
+  } else {
+    knitr::opts_knit$set(root.dir=params$dataDir)
+    # save xml file path
+    xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
   }
-  # summarize each plate
-  runSummaries[[i]] <- plateSummary(runs[[i]])
-  read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
-  if(is.null(runs[[i]]$samples[["AUTO_PLATE"]]) | !is.null(params$plateAnnotName)){
-    runs[[i]]$samples$AUTO_PLATE = eval(str2expression(paste0("runs[[i]]$samples$", params$plateAnnotName)))
+  # define variables to store results
+  runs <- vector('list', numFiles)
+  runSummaries <- vector('list', numFiles)
+  read_summary <- NULL
+  # define plateIDs / plate names
+  if(length(params$plateNames) == 0){
+    PlateNames <- paste0('Plate ', 1:numFiles)
+  }else{
+    PlateNames <- params$plateNames
   }
-  if(is.null(runs[[i]]$samples[["AUTO_WELLROW"]]) | !is.null(params$rowAnnotName)){
-    runs[[i]]$samples$AUTO_WELLROW = eval(str2expression(paste0("runs[[i]]$samples$", params$rowAnnotName)))
+  # read in XML files
+  for(i in 1:numFiles){
+    runs[[i]] <- readNULISAseq(xmlFilesPath[i], plateID=PlateNames[i], 
+                               NC=params$NC, SC=params$SC, IC=params$IC, 
+                               IPC=params$IPC, Bridge=params$Bridge,
+                               sample_group_covar=params$sampleGroupCovar)
+    # check if plate / row / col AnnotName match the data
+    if(!(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples))){
+      stop('plate / row / col AnnotName do not match the data. Check and update params.')
+    }
+    # summarize each plate
+    runSummaries[[i]] <- plateSummary(runs[[i]])
+    read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
+    if(is.null(runs[[i]]$samples[["AUTO_PLATE"]]) | !is.null(params$plateAnnotName)){
+      runs[[i]]$samples$AUTO_PLATE = eval(str2expression(paste0("runs[[i]]$samples$", params$plateAnnotName)))
+    }
+    if(is.null(runs[[i]]$samples[["AUTO_WELLROW"]]) | !is.null(params$rowAnnotName)){
+      runs[[i]]$samples$AUTO_WELLROW = eval(str2expression(paste0("runs[[i]]$samples$", params$rowAnnotName)))
+    }
+    if(is.null(runs[[i]]$samples[["AUTO_WELLCOL"]]) | !is.null(params$colAnnotName)){
+      runs[[i]]$samples$AUTO_WELLCOL = eval(str2expression(paste0("runs[[i]]$samples$", params$colAnnotName)))
+    }
   }
-  if(is.null(runs[[i]]$samples[["AUTO_WELLCOL"]]) | !is.null(params$colAnnotName)){
-    runs[[i]]$samples$AUTO_WELLCOL = eval(str2expression(paste0("runs[[i]]$samples$", params$colAnnotName)))
+}else{ # passed in runs[[i]] from SAM, etc.
+  runs <- params$dataRuns
+  numFiles <- length(runs)
+  runSummaries <- vector('list', numFiles)
+  read_summary <- NULL
+  for(i in 1:numFiles){
+    runSummaries[[i]] <- plateSummary(runs[[i]])
+    read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
+    if(is.null(runs[[i]]$samples[["AUTO_PLATE"]]) | !is.null(params$plateAnnotName)){
+      runs[[i]]$samples$AUTO_PLATE = eval(str2expression(paste0("runs[[i]]$samples$", params$plateAnnotName)))
+    }
+    if(is.null(runs[[i]]$samples[["AUTO_WELLROW"]]) | !is.null(params$rowAnnotName)){
+      runs[[i]]$samples$AUTO_WELLROW = eval(str2expression(paste0("runs[[i]]$samples$", params$rowAnnotName)))
+    }
+    if(is.null(runs[[i]]$samples[["AUTO_WELLCOL"]]) | !is.null(params$colAnnotName)){
+      runs[[i]]$samples$AUTO_WELLCOL = eval(str2expression(paste0("runs[[i]]$samples$", params$colAnnotName)))
+    }
   }
+  PlateNames <- paste0('Plate ', 1:numFiles)
 }
 names(runs) <- names(runSummaries) <- PlateNames
 colnames(read_summary) <- PlateNames
 # transpose read summary
 read_summary <- t(read_summary)
 # set multiple file indicator
-multipleFiles <- if(length(params$xmlFiles) > 1) TRUE else FALSE
+multipleFiles <- if(numFiles > 1) TRUE else FALSE
 # set SC indicator
 indicatorSC <- if(sum(sapply(runs, function(x) length(x$SC)))==0) FALSE else TRUE
 # set Bridge indicator
@@ -161,7 +195,7 @@ indicatorBridge <- if(sum(sapply(runs, function(x) length(x$Bridge)))==0) FALSE 
 ```{r, include=FALSE}
 # exclude samples if specified
 if(!is.null(params$excludeSamples)){
-  for(i in 1:length(params$xmlFiles)){
+  for(i in 1:numFiles){
     exclude_samples <- params$excludeSamples[[i]]
     runs[[i]]$samples <- runs[[i]]$samples[!(runs[[i]]$samples$sampleName %in% exclude_samples),]
     runs[[i]]$SampleNames <- runs[[i]]$SampleNames[!(runs[[i]]$SampleNames %in% exclude_samples)]
@@ -172,8 +206,8 @@ if(!is.null(params$excludeSamples)){
 
 ```{r, include=FALSE}
 # do intra-plate normalization
-intraPlateNormData <- vector("list", length(params$xmlFiles))
-for (i in 1:length(params$xmlFiles)){
+intraPlateNormData <- vector("list", numFiles)
+for (i in 1:numFiles){
   intraPlateNormData[[i]] <- vector("list", length(runs[[i]]$IC))
   for (j in 1:length(runs[[i]]$IC)){
     intraPlateNormData[[i]][[j]] <- intraPlateNorm(data_matrix=runs[[i]]$Data,
@@ -188,8 +222,8 @@ names(intraPlateNormData) <- PlateNames
 ```{r, include=FALSE}
 # calculate LOD on the IC normalized data
 # use 1st IC as the primary IC (should be mCherry)
-plate_lod <- vector('list', length(params$xmlFiles))
-for (i in 1:length(params$xmlFiles)){
+plate_lod <- vector('list', numFiles)
+for (i in 1:numFiles){
   plate_lod[[i]] <- lod(data_matrix=intraPlateNormData[[i]][[1]]$normData, 
                         blanks=runs[[i]]$NC, 
                         min_count=0)
@@ -234,7 +268,7 @@ if(indicatorSC==TRUE){
   SC_intraCV_unnorm <- SC_intraCV_mCherry <- NULL
 }
 # loop through plates and calculate CVs
-for (i in 1:length(params$xmlFiles)){
+for (i in 1:numFiles){
   # define IPC / SC vector
   IPC_SC_samples <- rep(NA, nrow(runs[[i]]$samples))
   IPC_SC_samples[colnames(runs[[i]]$Data) %in% runs[[i]]$IPC] <- 'IPC'
@@ -437,7 +471,7 @@ if(indicatorBridge==TRUE){
 detectability_return_summary <- list()
 detectability_return_targets <- list()
 
-for (i in 1:length(params$xmlFiles)){
+for (i in 1:numFiles){
   detectability_summary <- detectability_targets <- NULL
   
   # column names of return data
@@ -509,7 +543,7 @@ for (i in 1:length(params$xmlFiles)){
 
 # if more than one plate, summarize across plates using weighted average
 combine_detectability <- FALSE
-if(length(params$xmlFiles) > 1){
+if(numFiles > 1){
   # identify all sample types and all targets
   unique_types <- unique(unlist(lapply(detectability_return_summary, function(x) x[, "type"])))
   all_targets <- unique(unlist(lapply(detectability_return_targets, rownames)))
@@ -622,7 +656,7 @@ if(length(params$xmlFiles) > 1){
 # and sample correlation plot
 data_mCherry_IPC_log2_scaled <- list()
 data_mCherry_IPC_log2_no_NC_scaled <- list()
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   data_mCherry_IPC <- mCherry_IPC$interNormData[[i]]
   # remove ICs
   data_mCherry_IPC <- data_mCherry_IPC[!grepl(paste(runs[[i]]$IC, collapse="|"), rownames(data_mCherry_IPC)),]
@@ -642,10 +676,10 @@ title: `r title_var`
 ---
 
 
-## Plate layout
-```{r, results='asis'}
+```{r, eval=(params$outPlateLayout), results='asis'}
+pandoc.header("Plate layout", 2)
 pandoc.p("Shows the layout of samples, controls (e.g., negative controls (NC), inter-plate controls (IPC)), and special wells if any (e.g., sample controls (SC), bridge samples) on the 96 well assay plate." )
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   val <- matrixify(runs[[i]]$samples, plate=TRUE)
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
   if(indicatorSC){      well_types <- append(well_types, list(SC_wells[[i]]))}
@@ -671,8 +705,8 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-## Read summary
-```{r, results='asis'}
+```{r, eval=(params$outReadSummary), results='asis'}
+pandoc.header("Read summary", 2)
 pandoc.p("Summary of the number and classification of reads for the assay run") 
 pandoc.list(c("Parseable - Valid next generation sequencing (NGS) read (assay signal or background)",
               "Parseable Match - Valid NGS read (assay signal)",
@@ -690,15 +724,15 @@ knitr::kable(read_summary, caption='',
 
 ---
 
-### Internal controls (IC)
-```{r, results='asis'}
+```{r, eval=(params$outReadSummary), results='asis'}
+pandoc.header("Internal controls (IC)", 3)
 pandoc.p("Each sample of the assay is spiked with the same concentration of an internal control (IC). This is used both as part of a well normalization procedure and as a method for assessing the uniformity of the assay run.") 
 if(length(params$IC) == 1){
   IC_tables <- NULL
-  for (i in 1:length(params$xmlFiles)){
+  for (i in 1:numFiles){
     IC_tables <- rbind(IC_tables, runSummaries[[i]]$IC_table)
   }
-  rownames(IC_tables) <- paste0("Plate", as.character(1:length(params$xmlFiles))) 
+  rownames(IC_tables) <- paste0("Plate", as.character(1:numFiles)) 
   cat(knitr::kable(IC_tables, 
                    caption="mCherry (IC) summary", 
                    align='r', 
@@ -706,7 +740,7 @@ if(length(params$IC) == 1){
                    table.attr="id=\"IC-summary\"") %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))  
 } else {
-  for(i in 1:length(params$xmlFiles)){
+  for(i in 1:numFiles){
     table.attr <- paste0("id=\"IC-summary", i, "\"")
     cat(knitr::kable(runSummaries[[i]]$IC_table, 
                      caption=paste0("Plate ", as.character(i), ": IC summary"), 
@@ -720,11 +754,11 @@ if(length(params$IC) == 1){
 
 ---
 
-### Inter-plate controls (IPC)
-```{r, results='asis'}
+```{r, eval=(params$outReadSummary), results='asis'}
+pandoc.header("Inter-plate controls (IPC)", 3)
 pandoc.p("IPC samples are pooled plasma controls used both to normalize samples between experiments and to assess performance (e.g., precision) of the assay.")
 pandoc.p("Note: %CV in this table does not exclude values below LOD. See [Intra-plate normalization](#intraPlateNorm) or [Inter-plate normalization](#interPlateNorm) sections for %CV (before and after normalization) that excludes values below LOD.")
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   table.attr <- paste0("id=\"IPC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$IPC_table, caption=paste0("Plate ", as.character(i), ": IPC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
@@ -734,10 +768,10 @@ for(i in 1:length(params$xmlFiles)){
 ---
 
 
-### Negative controls (NC) 
-```{r, results='asis'}
+```{r, eval=(params$outReadSummary), results='asis'}
+pandoc.header("Negative controls (NC)", 3)
 pandoc.p("NC wells are reactions where no sample input is provided (i.e., buffer only). These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality (e.g., background levels).")
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   table.attr <- paste0("id=\"NC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$NC_table, caption=paste0("Plate ", as.character(i), ": NC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
@@ -746,10 +780,10 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-```{r eval=indicatorSC, results='asis'}
+```{r eval=(indicatorSC & params$outReadSummary), results='asis'}
 pandoc.header("Sample controls (SC)", 3)
 pandoc.p("SC samples are pooled plasma controls from an independent pooled plasma source that is different from IPCs. They could be a pooled sample derived from all study samples, for example. They should be from the same source across all plates that will be analysed together. SCs are used for calculating intra- and inter-plate coefficient of variation (CV). They are necessary for obtaining an unbiased measure of inter-plate CV when IPC normalization is used.")
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   table.attr <- paste0("id=\"SC-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$SC_table, caption=paste0("Plate ", as.character(i), ": SC summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
@@ -758,10 +792,10 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-```{r eval=indicatorBridge, results='asis'}
+```{r eval=(indicatorBridge & params$outReadSummary), results='asis'}
 pandoc.header("Bridge samples (Bridge)", 3)
 pandoc.p("Bridge samples can be used for inter-plate normalization. Bridge sample normalization uses the bridge sample subset to estimate plate- and target-specific medians, and then uses these medians to normalize all samples in a manner similar to intensity normalization.")
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   table.attr <- paste0("id=\"Bridge-summary", i, "\"")
   cat(knitr::kable(runSummaries[[i]]$Bridge_table, caption=paste0("Plate ", as.character(i), ": Bridge summary"), align='r', format.args=list(big.mark = ","), table.attr=table.attr) %>% 
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
@@ -770,11 +804,11 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-## Heatmaps
-```{r, out.width='100%', fig.asp=0.33333*ceiling((length(params$IC)+1)/2), results='asis'}
+```{r, out.width='100%', eval=(params$outHeatmaps), fig.asp=0.33333*ceiling((length(params$IC)+1)/2), results='asis'}
+pandoc.header("Heatmaps", 2)
 heatmap_description <- if (params$heatMapRel==TRUE) "percent relative to plate median" else "absolute normalized read count"
 pandoc.p(paste0("Heatmaps show the ", heatmap_description, " for log2(total counts) and the specified internal control."))
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   ICs <- which(runs[[i]]$targets$targetType == "Control")
   val <- matrixify(runs[[i]]$samples)
   vals <- unlist(as.list(t(val)))
@@ -801,11 +835,10 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-## Quality control
 
-### Plate QC
-
-```{r, results='asis'}
+```{r, eval=(params$outQC), results='asis'}
+pandoc.header("Quality control", 2)
+pandoc.header("Plate QC", 3)
 pandoc.p("Plate-specific QC criteria:")
 pandoc.list(c(paste0("ICRead_CV - Coefficient of Variation of internal control signal across all samples (maximum = ", QCPlateCriteria()$thresholds['ICRead_CV']*100,"%)"),
               paste0("IPCRead_CV - Coefficient of Variation of the total assay signal across all IPCs (maximum = ", QCPlateCriteria()$thresholds['IPCRead_CV']*100,"%)"),
@@ -815,7 +848,7 @@ pandoc.list(c(paste0("ICRead_CV - Coefficient of Variation of internal control s
               )))
 pandoc.p("QC criteria are assessed either on unnormalized (raw) or IC-normalized (IC) data.")
 
-for( i in 1:length(runs)){
+for( i in 1:numFiles){
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
   table.attr <- paste0("id=\"QCFlagPlate-summary", i, "\"")
   qcPlate$status[which(qcPlate$status == FALSE)] <- "Pass"
@@ -836,9 +869,9 @@ for( i in 1:length(runs)){
 }
 ```
 
-### Sample QC 
-#### Sample QC summary tables
-```{r, out.width='100%', results='asis'}
+```{r, eval=(params$outQC), out.width='100%', results='asis'}
+pandoc.header("Sample QC", 3)
+pandoc.header("Sample QC summary tables", 4)
 pandoc.p("Sample-specific QC criteria:")
 pandoc.list(c(paste0("Detectability - Percentage of targets above LOD for a sample (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability'])*100,"%)"),
               paste0("ICReads - Number of IC reads for a sample (minimum = ", QCSampleCriteria()$thresholds['ICReads'],")"),
@@ -849,8 +882,8 @@ pandoc.list(c(paste0("Detectability - Percentage of targets above LOD for a samp
 # make empty sample QC summary table
 criteria <- QCSampleCriteria()
 rowNameQC <- c()
-QCSummary <- matrix(nrow=length(runs) + 1, ncol=length(criteria$thresholds) + 1)
-for (i in 1:length(runs)){
+QCSummary <- matrix(nrow=numFiles + 1, ncol=length(criteria$thresholds) + 1)
+for (i in 1:numFiles){
   QCSummary[i,1] <- length(runs[[i]]$SampleNames)
   rowNameQC <- c(rowNameQC,  paste0("Plate ", as.character(i))) 
 }
@@ -858,8 +891,8 @@ for (i in 1:length(runs)){
 # loop over criteria
 # get xlim for plots
 val <- list()
-QCplot_axis_limits <- vector(mode='list', length=length(runs))
-for (i in 1:length(runs)){
+QCplot_axis_limits <- vector(mode='list', length=numFiles)
+for (i in 1:numFiles){
   well_order <- wellorder(runs[[i]]$samples)
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
   rmin <- rmax <- c()
@@ -911,12 +944,12 @@ knitr::kable(QCSummary, caption='Number of samples that fail each QC criterion (
 ```
 
 
-```{r, out.width='100%', results='asis'}
+```{r, eval=(params$outQC), out.width='100%', results='asis'}
 # table to show which specific samples fail each QC flag
 QC_sample_fail <- vector(mode='list', length=length(names(criteria$thresholds)))
 names(QC_sample_fail) <- names(criteria$thresholds)
 QC_sample_fail <- lapply(QC_sample_fail, function(x) x <- data.frame(Plate=character(0), QC_fail_samples=character(0)))
-for (i in 1:length(runs)){
+for (i in 1:numFiles){
   well_order <- wellorder(runs[[i]]$samples)
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
   for (j in 1:length(criteria$thresholds)){
@@ -945,10 +978,10 @@ for(i in 1:length(names(criteria$thresholds))){
 ```
 
 
-#### Sample QC plots
-```{r, out.width='100%', fig.asp=1, results='asis'}
+```{r, eval=(params$outQC), out.width='100%', fig.asp=1, results='asis'}
+pandoc.header("Sample QC plots", 4)
 # make sample QC plots
-for( i in 1:length(runs)){
+for( i in 1:numFiles){
   # sort in order: samples, IPC, SC, Bridge, NC
   sampleType_factor <- factor(runs[[i]]$sample$sampleType,
                               levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
@@ -1057,14 +1090,14 @@ for( i in 1:length(runs)){
 
 ---
 
-## Detectability
-Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered "detectable" if it is above limit of detection in greater than 50% of samples. "Overall" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes IPCs, SCs, NCs, and bridge samples. 
 ```{r, echo=FALSE}
 # calculate fig.asp for detectability plots
-detect_fig_asp <- 2*ceiling(length(params$xmlFiles)/2)
+detect_fig_asp <- 2*ceiling(numFiles/2)
 ```
 
-```{r, results='asis', out.width='100%', fig.asp=detect_fig_asp}
+```{r, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=detect_fig_asp}
+pandoc.header("Detectability", 2)
+pandoc.p("Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered \"detectable\" if it is above limit of detection in greater than 50% of samples. \"Overall\" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes IPCs, SCs, NCs, and bridge samples.")
 pandoc.header("Detectability summary", 3)
 # Detectability summary
 if (combine_detectability){
@@ -1088,7 +1121,7 @@ if (combine_detectability){
 }
 ```
 
-```{r, results='asis', out.width='100%', fig.asp=detect_fig_asp}
+```{r, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=detect_fig_asp}
 pandoc.header("Target detectability %", 3)
 # Target detectability
 if (combine_detectability){
@@ -1194,12 +1227,12 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
 write.csv(detect_output_table, './outputFiles/target_detectability_table.csv')
 ```
 
-```{r, results='asis', out.width='100%', fig.asp=2*ceiling(length(params$xmlFiles)/2)}
+```{r, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=2*ceiling(numFiles/2)}
 # Target Boxplot
 pandoc.header("Target detectability boxplot", 3)
 pandoc.p("Plot shows target mCherry-IPC-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for mCherry-normalized data.")
-par(mfrow=c(ceiling(length(params$xmlFiles)/2), 2), mar=c(4,2,2,1))
-for (i in 1:length(params$xmlFiles)){
+par(mfrow=c(ceiling(numFiles/2), 2), mar=c(4,2,2,1))
+for (i in 1:numFiles){
   targetBoxplot(mCherry_IPC$interNormData[[i]], 
                 title=PlateNames[i], 
                 subtractLOD=TRUE, 
@@ -1218,8 +1251,9 @@ for (i in 1:length(params$xmlFiles)){
 ## Intra-plate normalization {#intraPlateNorm}
 %CV was calculated for each target (excluding internal controls) for the sample control replicates (if given) and IPCs. Only values above LOD were used to calculate %CV. If there are multiple plates, "Overall" represents the distribution for the target-specific mean intra-plate CV across all plates.
 
-
-```{r, eval=(params$reportType=="internal" & indicatorSC==TRUE), results='asis'}
+```{r, eval=(params$outIntraPlateNorm & params$reportType=="internal" & indicatorSC==TRUE), results='asis'}
+pandoc.header("Intra-plate normalization", 2) #{#intraPlateNorm}
+pandoc.p("%CV was calculated for each target (excluding internal controls) for the sample control replicates (if given) and IPCs. Only values above LOD were used to calculate %CV. ")
 pandoc.header("Intra-plate %CV table -- unnormalized", 3)
 knitr::kable(SC_intraCV_unnorm_summary_table, caption='SC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"SC-intra-plateCV-unnorm-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
@@ -1236,7 +1270,7 @@ knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV -- 
 ```
 
 
-```{r, eval=(params$reportType=="internal" & indicatorSC==FALSE), results='asis'}
+```{r, eval=(params$outIntraPlateNorm & params$reportType=="internal" & indicatorSC==FALSE), results='asis'}
 pandoc.header("Intra-plate %CV table -- unnormalized", 3)
 knitr::kable(IPC_intraCV_unnorm_summary_table, caption='IPC intra-plate %CV -- unnormalized', align='r', table.attr="id=\"IPC-intra-plateCV-unnorm-summary\"",
              format.args=list(big.mark = ",", digits=3)) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
@@ -1248,7 +1282,7 @@ knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV -- 
 
 
 ### Intra-plate %CV boxplots by plate
-```{r, out.width='100%', fig.asp=(0.2*length(runs) + 0.15), eval=indicatorSC}
+```{r, out.width='100%', eval=(params$outIntraPlateNorm), fig.asp=(0.2*numFiles + 0.15), eval=indicatorSC}
 SC_intraCV_unnorm2 <- SC_intraCV_unnorm
 colnames(SC_intraCV_unnorm2) <- paste0(colnames(SC_intraCV_mCherry), ' unnormalized')
 SC_intraCV_mCherry2 <- SC_intraCV_mCherry
@@ -1263,7 +1297,7 @@ boxplot(SC_intraCV_vals[,ncol(SC_intraCV_vals):1], las=1, xlab='intra-plate CV (
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
-```{r, out.width='100%', fig.asp=(0.2*length(runs) + 0.15)}
+```{r, out.width='100%', eval=(params$outIntraPlateNorm), fig.asp=(0.2*numFiles + 0.15)}
 IPC_intraCV_unnorm2 <- IPC_intraCV_unnorm
 colnames(IPC_intraCV_unnorm2) <- paste0(colnames(IPC_intraCV_unnorm), ' unnormalized')
 IPC_intraCV_mCherry2 <- IPC_intraCV_mCherry
@@ -1280,8 +1314,8 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ---
 
-## Sample boxplots
-```{r, out.width='100%', fig.asp=1, results='asis'}
+```{r, out.width='100%', eval=(params$SampleBoxplot), fig.asp=1, results='asis'}
+pandoc.header("Sample boxplots", 2)
 pandoc.p("Sample boxplots show distributions of the log2 counts for each sample, unnormalized and after mCherry + IPC normalization.")
 
 # function to draw boxplot
@@ -1339,7 +1373,7 @@ sampleboxplot <- function(data,
   abline(v=c(-50:50*5), col='grey', lty=3)
 }
 
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   sample_type <- runs[[i]]$samples$sampleType
   sample_type <- factor(sample_type, levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
   # make colors
@@ -1375,8 +1409,8 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-## Sample correlation
-```{r, out.width='100%', fig.asp=1, results='asis'}
+```{r, out.width='100%', eval=(params$outSampleCorrelation), fig.asp=1, results='asis'}
+pandoc.header("Sample correlation", 2)
 pandoc.p("Plot shows the Pearson correlation between samples. Heirarchical clustering is done using complete linkage.")
 wellcolors <- function(data, well_types, boxplot_colors){
   # all labels black by default
@@ -1392,7 +1426,7 @@ wellcolors <- function(data, well_types, boxplot_colors){
   return(colors)
 }
 
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   pdf(file=NULL)
   corrvals <- corrplot(cor(data_mCherry_IPC_log2_scaled[[i]], use="complete.obs"), 
                        order='hclust') 
@@ -1417,14 +1451,14 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-## Sample and target clustering 
-```{r, out.width='100%', fig.asp=1, results='asis'}
+```{r, out.width='100%', eval=(params$outSampleClustering), fig.asp=1, results='asis'}
+pandoc.header("Sample and target clustering", 2)
 pandoc.p("Hierarchical clustering of both samples and targets was done using a Euclidean distance metric and complete linkage. Data is log2 and mCherry-normalized; targets are centered and scaled.")
 # define colors
 paletteLength <- 50
 heatmapColors <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
 # loop over plates and draw heatmaps
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   # define label colors
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
   if(indicatorSC){ well_types <- append(well_types, list(SC_wells[[i]]))}
@@ -1461,12 +1495,12 @@ for(i in 1:length(params$xmlFiles)){
 
 ---
 
-```{r eval=multipleFiles, results='asis'}
+```{r eval=(multipleFiles & params$outInterPlateNorm), results='asis'}
 pandoc.header("Inter-plate normalization {#interPlateNorm}", 2)
 cat("%CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV.")
 ```
 
-```{r eval=multipleFiles, results='asis'}
+```{r eval=(multipleFiles & params$outInterPlateNorm), results='asis'}
 pandoc.header("Inter-plate %CV", 3)
 
 if(params$reportType != "internal"){
@@ -1504,7 +1538,7 @@ knitr::kable(IPC_interCV_summary_table2,
 ```
 
 
-```{r out.width='100%', fig.asp=0.5, eval=(multipleFiles & indicatorSC), results='asis'}
+```{r out.width='100%', fig.asp=0.5, eval=(params$outInterPlateNorm & multipleFiles & indicatorSC), results='asis'}
 pandoc.header("Inter-plate %CV boxplot", 3)
 
 par(mar=c(5,12,2,1))
@@ -1516,7 +1550,7 @@ boxplot(SC_interCV_results2[,ncol(SC_interCV_results2):1], las=1,
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
-```{r out.width='100%', fig.asp=0.5, eval=(multipleFiles & indicatorSC), results='asis'}
+```{r out.width='100%', fig.asp=0.5, eval=(params$outInterPlateNorm & multipleFiles & indicatorSC), results='asis'}
 par(mar=c(5,12,2,1))
 boxplot(IPC_interCV_results2[,ncol(IPC_interCV_results2):1], las=1, 
         xlab='inter-plate CV (%)',
@@ -1528,7 +1562,7 @@ abline(v=c(0:200*5), col='grey', lty=3)
 
 ---
 
-```{r, out.width='100%', fig.asp=(0.4)+as.numeric(multipleFiles)*0.4, results='asis', eval=params$reportType=="internal"}
+```{r, out.width='100%', fig.asp=(0.4)+as.numeric(multipleFiles)*0.4, results='asis', eval=(params$reportType=="internal" & params$outSamplePCA)}
 pandoc.header("Sample PCA", 2)
 # function to make PCA plot
 PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scale=TRUE, center=TRUE, title=NULL){
@@ -1580,7 +1614,7 @@ removeTargetsSamples <- function(data, NC, IC){
 
 # merge data across plates for PCA
 dataPCA_unnorm <- dataPCA_mCherry <- dataPCA_mCherryIPC <- dataPCA_mCherryIN <- plateID <- NULL
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   dataPCA_unnorm <- cbind(dataPCA_unnorm, removeTargetsSamples(runs[[i]]$Data, runs[[i]]$NC, runs[[i]]$IC))
   dataPCA_mCherry <- cbind(dataPCA_mCherry, removeTargetsSamples(intraPlateNormData[[i]][[1]]$normData, runs[[i]]$NC, runs[[i]]$IC))
   dataPCA_mCherryIPC <- cbind(dataPCA_mCherryIPC, removeTargetsSamples(mCherry_IPC$interNormData[[i]], runs[[i]]$NC, runs[[i]]$IC))
@@ -1614,7 +1648,7 @@ dir.create("./outputFiles")
 ##########################
 # plate layouts
 ##########################
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   val <- matrixify(runs[[i]]$samples, plate=TRUE)
   well_types <- list(IPC_wells[[i]], NC_wells[[i]])
   if(indicatorSC){      well_types <- append(well_types, list(SC_wells[[i]]))}
@@ -1641,7 +1675,7 @@ for(i in 1:length(params$xmlFiles)){
 ##########################
 # IC median QC plot
 ##########################
-for(i in 1:length(runs)){
+for(i in 1:numFiles){
   # sort in order: samples, IPC, SC, Bridge, NC
   sampleType_factor <- factor(runs[[i]]$sample$sampleType,
                               levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
@@ -1717,7 +1751,7 @@ for(i in 1:length(runs)){
 ##########################
 # sample distribution boxplots after normalization
 ##########################
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   sample_type <- runs[[i]]$samples$sampleType
   sample_type <- factor(sample_type, levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
   # make colors
@@ -1909,7 +1943,7 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
 ##########################
 # target detectability boxplot -- by plate
 ##########################
-for(i in 1:length(params$xmlFiles)){
+for(i in 1:numFiles){
   pdf(paste0('./outputFiles/target_detectability_boxplot_', i, '.pdf'), width=20, height=7)
   targetBoxplot(mCherry_IPC$interNormData[[i]],
                 title=paste0('Target detectability: ', PlateNames[i]),
@@ -1927,10 +1961,10 @@ for(i in 1:length(params$xmlFiles)){
 # target detectability boxplot -- combine across plates
 # if no sample group specified and more than one plate, combine all data
 ##########################
-if(is.null(params$sampleGroupCovar) & length(runs) > 1){
+if(is.null(params$sampleGroupCovar) & numFiles > 1){
   # calculate LODs on IC - IPC normalized data
   plate_lod_IPC <- vector('list', length(params$xmlFiles))
-  for (i in 1:length(params$xmlFiles)){
+  for (i in 1:numFiles){
     plate_lod_IPC[[i]] <- lod(data_matrix=mCherry_IPC$interNormData[[i]], 
                               blanks=runs[[i]]$NC, 
                               min_count=0)
@@ -2045,68 +2079,71 @@ if(!is.null(params$sampleGroupCovar)){
     sample_group_data <- data_minus_LOD[,samples_data$plate_sampleName[samples_data[,params$sampleGroupCovar]==sample_groups[k]]]
     # remove any control samples -- SC, IPC, NC
     sample_group_data <- sample_group_data[,colnames(sample_group_data) %in% samples_data$plate_sampleName[samples_data$sampleType=='Sample']]
-    # sort targets
-    target_medians <- apply(sample_group_data, 1, median)
-    target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
-    sample_group_data <- sample_group_data[names(target_medians),]
-    # calculate detectability
-    detect <- apply(sample_group_data, 1, function(x) sum(x > 0)) / ncol(sample_group_data) * 100
-    # create colors to indicate detectability
-    makeColors <- colorRamp(colors=c('blue', 'pink'))
-    detectColors <- makeColors(detect/100)
-    detectColors <- apply(detectColors, 1, 
-                          function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
-    
-    # define filename and plot title
-    sample_group_filename <- paste0('./outputFiles/target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf')
-    sample_group_title <- paste0('Target detectability: All plates, ', sample_groups[k])
-    pdf(sample_group_filename, width=20, height=7)
-    # make plot
-    par(mar=c(4,4,2,0.5))
-    boxplot(t(sample_group_data), 
-            horizontal=FALSE,
-            xlab='',
-            ylab='NPQ - LOD',
-            main=sample_group_title,
-            las=3, 
-            lty=1,
-            pch=16, 
-            cex=0.5,
-            staplelty=0,
-            cex.axis=0.4,
-            yaxt='n',
-            col=detectColors)
-    axis(side=2, las=1)
-    grid(nx=NA, ny=NULL)
-    abline(h=0, col='darkred')
-    axis_limits <- par('usr')
-    text(x=axis_limits[1] + (axis_limits[2] - axis_limits[1])/20, y=0,
-         labels='LOD', col='darkred', cex=0.8, pos=3)
-    
-    # make legend
-    # add color gradient legend
-    # define coordinates
-    axis_limits <- par('usr')
-    x_axis_length <- axis_limits[2] - axis_limits[1]
-    y_axis_length <- axis_limits[4] - axis_limits[3]
-    legend_length <- x_axis_length/6
-    legend_right <- axis_limits[2] - x_axis_length/20
-    legend_left <- legend_right - legend_length
-    legend_height <- y_axis_length/20
-    legend_top <- axis_limits[4] - y_axis_length/10
-    legend_bottom <- legend_top - legend_height
-    # create color gradient
-    colfunc <- colorRampPalette(c('blue', 'pink'))
-    legend_image <- as.raster(matrix(colfunc(20), nrow=1))
-    rasterImage(legend_image, legend_left, legend_bottom, legend_right, legend_top)
-    # make labels
-    text(x=seq(legend_left, legend_right, l=6), 
-         y = legend_bottom - y_axis_length/40,
-         labels = seq(0,100,l=6), 
-         cex=0.8, adj=0.5)
-    text(x=(legend_left+legend_right)/2, y=legend_top, 
-         labels='detectability (%)', pos=3, cex=0.8) # end legend
-    dev.off()
+
+    if (!is.null(colnames(sample_group_data))) {
+      # sort targets
+      target_medians <- apply(sample_group_data, 1, median)
+      target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
+      sample_group_data <- sample_group_data[names(target_medians),]
+      # calculate detectability
+      detect <- apply(sample_group_data, 1, function(x) sum(x > 0)) / ncol(sample_group_data) * 100
+      # create colors to indicate detectability
+      makeColors <- colorRamp(colors=c('blue', 'pink'))
+      detectColors <- makeColors(detect/100)
+      detectColors <- apply(detectColors, 1, 
+                            function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
+      
+      # define filename and plot title
+      sample_group_filename <- paste0('./outputFiles/target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf')
+      sample_group_title <- paste0('Target detectability: All plates, ', sample_groups[k])
+      pdf(sample_group_filename, width=20, height=7)
+      # make plot
+      par(mar=c(4,4,2,0.5))
+      boxplot(t(sample_group_data), 
+              horizontal=FALSE,
+              xlab='',
+              ylab='NPQ - LOD',
+              main=sample_group_title,
+              las=3, 
+              lty=1,
+              pch=16, 
+              cex=0.5,
+              staplelty=0,
+              cex.axis=0.4,
+              yaxt='n',
+              col=detectColors)
+      axis(side=2, las=1)
+      grid(nx=NA, ny=NULL)
+      abline(h=0, col='darkred')
+      axis_limits <- par('usr')
+      text(x=axis_limits[1] + (axis_limits[2] - axis_limits[1])/20, y=0,
+           labels='LOD', col='darkred', cex=0.8, pos=3)
+      
+      # make legend
+      # add color gradient legend
+      # define coordinates
+      axis_limits <- par('usr')
+      x_axis_length <- axis_limits[2] - axis_limits[1]
+      y_axis_length <- axis_limits[4] - axis_limits[3]
+      legend_length <- x_axis_length/6
+      legend_right <- axis_limits[2] - x_axis_length/20
+      legend_left <- legend_right - legend_length
+      legend_height <- y_axis_length/20
+      legend_top <- axis_limits[4] - y_axis_length/10
+      legend_bottom <- legend_top - legend_height
+      # create color gradient
+      colfunc <- colorRampPalette(c('blue', 'pink'))
+      legend_image <- as.raster(matrix(colfunc(20), nrow=1))
+      rasterImage(legend_image, legend_left, legend_bottom, legend_right, legend_top)
+      # make labels
+      text(x=seq(legend_left, legend_right, l=6), 
+           y = legend_bottom - y_axis_length/40,
+           labels = seq(0,100,l=6), 
+           cex=0.8, adj=0.5)
+      text(x=(legend_left+legend_right)/2, y=legend_top, 
+           labels='detectability (%)', pos=3, cex=0.8) # end legend
+      dev.off()
+    }
   }
 }
 
