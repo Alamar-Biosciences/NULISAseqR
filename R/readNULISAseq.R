@@ -19,7 +19,7 @@
 #' Only used for \code{csv_long} format, and only needed when sample column names
 #' are different from the default. Default includes all column names in the csv except 
 #' for the target column names, given above (either the default or whatever is specified), 
-#' and the following: \code{c('Panel', 'PanelLotNumber', 'LOD', 'log2NormalizedCount')}. 
+#' and the following: \code{c('Panel', 'PanelLotNumber', 'LOD', 'NPQ')}. 
 #' The sample-specific data
 #' will include by default \code{c('PlateID', 'SampleName', 'SampleType', 'SampleQC')}.
 #' In addition, by default, it will include any other variables in the dataset.
@@ -282,15 +282,15 @@ readNULISAseq <- function(file,
     if(is.null(sample_column_names)){
       sample_column_names <- Data_colnames[!(Data_colnames %in% c(target_column_names, 
                                                                   'Panel', 'PanelLotNumber',
-                                                                  'LOD', 'log2NormalizedCount'))]
+                                                                  'LOD', 'NPQ'))]
     }
     targets <- unique(Data[,target_column_names])
     samples <- unique(Data[,sample_column_names])
     # make an LOD data frame
     LOD <- unique(Data[,c('PlateID', 'Target', 'LOD')])
-    # reformat the log2NormalizedCount data
+    # reformat the NPQ data
     # reformat into wide, targets in columns
-    Data <- reshape(Data[,c('SampleName', 'Target', 'log2NormalizedCount')],
+    Data <- reshape(Data[,c('SampleName', 'Target', 'NPQ')],
                     direction= 'wide',
                     idvar = 'Target',
                     timevar='SampleName')
