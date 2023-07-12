@@ -69,8 +69,12 @@ params:
   # this information is used when determining detectability.
   # defaults to NULL.
   # for testing sampleGroupCovar: "AUTO_WELLROW"
+<<<<<<< HEAD
   # sampleGroupCovar: "CONDITION_1"
   sampleGroupCovar: "SAMPLE_MATRIX"
+=======
+  sampleGroupCovar: "CONDITION_1"
+>>>>>>> 47bac7a (fix bugs in the detectability boxplot by sample group covar output file. also switch default XML to data that has the "CONDITION_1" filled in to test sampleGroupCovar functionality)
   outPlateLayout: !r TRUE
   outReadSummary: !r TRUE
   outHeatmaps: !r TRUE
@@ -2104,7 +2108,10 @@ if(!is.null(params$sampleGroupCovar)){
   data_minus_LOD <- do.call(cbind, data_minus_LOD)
   samples_data <- lapply(runs, function(x) x$samples)
   matching_column <- Reduce(intersect, lapply(samples_data, colnames))
+<<<<<<< HEAD
   samples_data <- lapply(samples_data, function(x) x[,matching_column])
+=======
+>>>>>>> 47bac7a (fix bugs in the detectability boxplot by sample group covar output file. also switch default XML to data that has the "CONDITION_1" filled in to test sampleGroupCovar functionality)
   samples_data <- do.call(rbind, samples_data)
   
   # loop over sample groups
