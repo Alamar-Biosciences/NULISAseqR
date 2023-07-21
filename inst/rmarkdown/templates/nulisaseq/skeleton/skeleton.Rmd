@@ -2,6 +2,9 @@
 params:
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
+  ## directory where xml files are located
+  dataDir: "."
+  ## XML file names
   xmlFiles: !r c("20230522_NULISAseq_Data_etr_H4htpaIE_output_xml.xml","20230522_NULISAseq_Data_etr_rZ2fRDqC_output_xml.xml")
   dataRuns: NULL 
   ## manually set plate ID, otherwise plate ID will be 
@@ -12,9 +15,6 @@ params:
   ## internal
   ## WebApp
   reportType: "internal"
-  ## directory where xml files are located
-  dataDir: "."
-  ## XML file names
   ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
@@ -2069,6 +2069,7 @@ if(!is.null(params$sampleGroupCovar)){
   data_minus_LOD <- do.call(cbind, data_minus_LOD)
   samples_data <- lapply(runs, function(x) x$samples)
   matching_column <- Reduce(intersect, lapply(samples_data, colnames))
+  samples_data <- lapply(samples_data, function(x) x[,matching_column])
   samples_data <- do.call(rbind, samples_data)
   
   # loop over sample groups
