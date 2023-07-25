@@ -192,6 +192,9 @@ writeNULISAseq <- function(xml_files,
   }
   # get all sample data 
   sample_data <- lapply(runs, function(x) x$samples)
+  # use only matching columns 
+  matching_column <- Reduce(intersect, lapply(sample_data, colnames))
+  sample_data <- lapply(sample_data, function(x) x[,matching_column])
   sample_data <- do.call(rbind, sample_data)
   # read sample metadata file if given
   if(!is.null(sample_info_file)){
