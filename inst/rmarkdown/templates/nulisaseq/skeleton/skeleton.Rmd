@@ -2,7 +2,10 @@
 params:
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
-  xmlFiles: !r c("20230325_TAP_Qatar_plate01_no_nonmatching.xml","20230325_TAP_Qatar_plate02_no_nonmatching_XML.xml")
+  ## directory where xml files are located
+  dataDir: "."
+  ## XML file names
+  xmlFiles: !r c("20230522_NULISAseq_Data_etr_H4htpaIE_output_xml.xml","20230522_NULISAseq_Data_etr_rZ2fRDqC_output_xml.xml")
   dataRuns: NULL 
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
@@ -12,9 +15,6 @@ params:
   ## internal
   ## WebApp
   reportType: "internal"
-  ## directory where xml files are located
-  dataDir: "."
-  ## XML file names
   ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
@@ -41,7 +41,7 @@ params:
   # this information is used when determining detectability.
   # defaults to NULL.
   # for testing sampleGroupCovar: "AUTO_WELLROW"
-  sampleGroupCovar: NULL
+  sampleGroupCovar: "CONDITION_1"
   outPlateLayout: !r TRUE
   outReadSummary: !r TRUE
   outHeatmaps: !r TRUE
@@ -1145,7 +1145,6 @@ if (combine_detectability){
 }
 ```
 
-<<<<<<< HEAD
 ```{r, eval=params$outputDetectCSV==TRUE, include=FALSE}
 # make directory -- we will put the file in the outputFiles directory
 dir.create("./outputFiles")
@@ -2069,79 +2068,85 @@ if(!is.null(params$sampleGroupCovar)){
   
   data_minus_LOD <- do.call(cbind, data_minus_LOD)
   samples_data <- lapply(runs, function(x) x$samples)
+  matching_column <- Reduce(intersect, lapply(samples_data, colnames))
+  samples_data <- lapply(samples_data, function(x) x[,matching_column])
   samples_data <- do.call(rbind, samples_data)
   
   # loop over sample groups
   sample_groups <- unique(samples_data[,params$sampleGroupCovar])
-  sample_groups <- gsub(' ', replacement = '_', sample_groups)
+  # remove control sample groups
+  sample_groups <- sample_groups[!(sample_groups %in% c('IPC', 'SC', 'NC'))]
   
   for(k in 1:length(sample_groups)){
     
     sample_group_data <- data_minus_LOD[,samples_data$plate_sampleName[samples_data[,params$sampleGroupCovar]==sample_groups[k]]]
     # remove any control samples -- SC, IPC, NC
     sample_group_data <- sample_group_data[,colnames(sample_group_data) %in% samples_data$plate_sampleName[samples_data$sampleType=='Sample']]
-    # sort targets
-    target_medians <- apply(sample_group_data, 1, median)
-    target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
-    sample_group_data <- sample_group_data[names(target_medians),]
-    # calculate detectability
-    detect <- apply(sample_group_data, 1, function(x) sum(x > 0)) / ncol(sample_group_data) * 100
-    # create colors to indicate detectability
-    makeColors <- colorRamp(colors=c('blue', 'pink'))
-    detectColors <- makeColors(detect/100)
-    detectColors <- apply(detectColors, 1, 
-                          function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
-    
-    # define filename and plot title
-    sample_group_filename <- paste0('./outputFiles/target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf')
-    sample_group_title <- paste0('Target detectability: All plates, ', sample_groups[k])
-    pdf(sample_group_filename, width=20, height=7)
-    # make plot
-    par(mar=c(4,4,2,0.5))
-    boxplot(t(sample_group_data), 
-            horizontal=FALSE,
-            xlab='',
-            ylab='NPQ - LOD',
-            main=sample_group_title,
-            las=3, 
-            lty=1,
-            pch=16, 
-            cex=0.5,
-            staplelty=0,
-            cex.axis=0.4,
-            yaxt='n',
-            col=detectColors)
-    axis(side=2, las=1)
-    grid(nx=NA, ny=NULL)
-    abline(h=0, col='darkred')
-    axis_limits <- par('usr')
-    text(x=axis_limits[1] + (axis_limits[2] - axis_limits[1])/20, y=0,
-         labels='LOD', col='darkred', cex=0.8, pos=3)
-    
-    # make legend
-    # add color gradient legend
-    # define coordinates
-    axis_limits <- par('usr')
-    x_axis_length <- axis_limits[2] - axis_limits[1]
-    y_axis_length <- axis_limits[4] - axis_limits[3]
-    legend_length <- x_axis_length/6
-    legend_right <- axis_limits[2] - x_axis_length/20
-    legend_left <- legend_right - legend_length
-    legend_height <- y_axis_length/20
-    legend_top <- axis_limits[4] - y_axis_length/10
-    legend_bottom <- legend_top - legend_height
-    # create color gradient
-    colfunc <- colorRampPalette(c('blue', 'pink'))
-    legend_image <- as.raster(matrix(colfunc(20), nrow=1))
-    rasterImage(legend_image, legend_left, legend_bottom, legend_right, legend_top)
-    # make labels
-    text(x=seq(legend_left, legend_right, l=6), 
-         y = legend_bottom - y_axis_length/40,
-         labels = seq(0,100,l=6), 
-         cex=0.8, adj=0.5)
-    text(x=(legend_left+legend_right)/2, y=legend_top, 
-         labels='detectability (%)', pos=3, cex=0.8) # end legend
-    dev.off()
+
+    if (!is.null(colnames(sample_group_data))) {
+      # sort targets
+      target_medians <- apply(sample_group_data, 1, median)
+      target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
+      sample_group_data <- sample_group_data[names(target_medians),]
+      # calculate detectability
+      detect <- apply(sample_group_data, 1, function(x) sum(x > 0)) / ncol(sample_group_data) * 100
+      # create colors to indicate detectability
+      makeColors <- colorRamp(colors=c('blue', 'pink'))
+      detectColors <- makeColors(detect/100)
+      detectColors <- apply(detectColors, 1, 
+                            function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
+      
+      # define filename and plot title
+      sample_group_filename <- paste0('./outputFiles/target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf')
+      sample_group_title <- paste0('Target detectability: All plates, ', sample_groups[k], ' (n = ', ncol(sample_group_data), ')')
+      pdf(sample_group_filename, width=20, height=7)
+      # make plot
+      par(mar=c(4,4,2,0.5))
+      boxplot(t(sample_group_data), 
+              horizontal=FALSE,
+              xlab='',
+              ylab='NPQ - LOD',
+              main=sample_group_title,
+              las=3, 
+              lty=1,
+              pch=16, 
+              cex=0.5,
+              staplelty=0,
+              cex.axis=0.4,
+              yaxt='n',
+              col=detectColors)
+      axis(side=2, las=1)
+      grid(nx=NA, ny=NULL)
+      abline(h=0, col='darkred')
+      axis_limits <- par('usr')
+      text(x=axis_limits[1] + (axis_limits[2] - axis_limits[1])/20, y=0,
+           labels='LOD', col='darkred', cex=0.8, pos=3)
+      
+      # make legend
+      # add color gradient legend
+      # define coordinates
+      axis_limits <- par('usr')
+      x_axis_length <- axis_limits[2] - axis_limits[1]
+      y_axis_length <- axis_limits[4] - axis_limits[3]
+      legend_length <- x_axis_length/6
+      legend_right <- axis_limits[2] - x_axis_length/20
+      legend_left <- legend_right - legend_length
+      legend_height <- y_axis_length/20
+      legend_top <- axis_limits[4] - y_axis_length/10
+      legend_bottom <- legend_top - legend_height
+      # create color gradient
+      colfunc <- colorRampPalette(c('blue', 'pink'))
+      legend_image <- as.raster(matrix(colfunc(20), nrow=1))
+      rasterImage(legend_image, legend_left, legend_bottom, legend_right, legend_top)
+      # make labels
+      text(x=seq(legend_left, legend_right, l=6), 
+           y = legend_bottom - y_axis_length/40,
+           labels = seq(0,100,l=6), 
+           cex=0.8, adj=0.5)
+      text(x=(legend_left+legend_right)/2, y=legend_top, 
+           labels='detectability (%)', pos=3, cex=0.8) # end legend
+      dev.off()
+    }
   }
 }
 
