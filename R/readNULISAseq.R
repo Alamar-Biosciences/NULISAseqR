@@ -106,6 +106,7 @@ readNULISAseq <- function(file,
     # save sample data in data frame
     sampleBarcode <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)$name))
     sampleName <- unlist(RunSummary$Barcodes$BarcodeB)
+    sampleID <- if(!is.null(plateID)) paste0(plateID, ".", sampleName) else sampleName
     # get other sample annotations
     barcodeB_attrs <- names(attributes(RunSummary$Barcodes$BarcodeB[[1]]))
     barcodeB_attrs <- barcodeB_attrs[barcodeB_attrs!='name']
@@ -118,6 +119,7 @@ readNULISAseq <- function(file,
       }
       samples <- data.frame(sampleBarcode=sampleBarcode, 
                             sampleName=sampleName, 
+                            sampleID=sampleID,
                             sampleMetadata)
     } else if (length(barcodeB_attrs) == 0) {
       samples <- data.frame(sampleBarcode, sampleName)
