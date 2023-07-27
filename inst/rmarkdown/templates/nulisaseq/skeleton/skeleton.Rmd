@@ -37,6 +37,8 @@ params:
   # optional list of names of samples to exclude
   ## excludeSamples: !r list(c('A_01_C001 P3', 'A_02_C044 P1'), c('A_01_C040 P1'))
   excludeSamples: !r NULL
+  ## excludeTargets: !r list(c('IL16', 'IL9'), c('KDR'))
+  excludeTargets: !r NULL
   ## sampleGroupCovar -- Specify the covariate to retrieve sample group information.
   # this information is used when determining detectability.
   # defaults to NULL.
@@ -147,6 +149,20 @@ if(is.null(params$dataRuns)){
     if(!(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples)) | !(params$plateAnnotName %in% colnames(runs[[i]]$samples))){
       stop('plate / row / col AnnotName do not match the data. Check and update params.')
     }
+    # exclude samples if specified
+    if(!is.null(params$excludeSamples)){
+        exclude_samples <- params$excludeSamples[[i]]
+        runs[[i]]$samples <- runs[[i]]$samples[!(runs[[i]]$samples$sampleName %in% exclude_samples),]
+        runs[[i]]$SampleNames <- runs[[i]]$SampleNames[!(runs[[i]]$SampleNames %in% exclude_samples)]
+        runs[[i]]$Data <- runs[[i]]$Data[,!(colnames(runs[[i]]$Data) %in% exclude_samples)]
+    }
+    
+    # exclude targets if specified
+    if(!is.null(params$excludeTargets)){
+      exclude_targets <- params$excludeTargets[[i]]
+      runs[[i]]$targets <- runs[[i]]$targets[!(runs[[i]]$targets$targetName %in% exclude_targets),]
+      runs[[i]]$Data <- runs[[i]]$Data[!(rownames(runs[[i]]$Data) %in% exclude_targets),]
+    }
     # summarize each plate
     runSummaries[[i]] <- plateSummary(runs[[i]])
     read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
@@ -190,18 +206,6 @@ multipleFiles <- if(numFiles > 1) TRUE else FALSE
 indicatorSC <- if(sum(sapply(runs, function(x) length(x$SC)))==0) FALSE else TRUE
 # set Bridge indicator
 indicatorBridge <- if(sum(sapply(runs, function(x) length(x$Bridge)))==0) FALSE else TRUE
-```
-
-```{r, include=FALSE}
-# exclude samples if specified
-if(!is.null(params$excludeSamples)){
-  for(i in 1:numFiles){
-    exclude_samples <- params$excludeSamples[[i]]
-    runs[[i]]$samples <- runs[[i]]$samples[!(runs[[i]]$samples$sampleName %in% exclude_samples),]
-    runs[[i]]$SampleNames <- runs[[i]]$SampleNames[!(runs[[i]]$SampleNames %in% exclude_samples)]
-    runs[[i]]$Data <- runs[[i]]$Data[,!(colnames(runs[[i]]$Data) %in% exclude_samples)]
-  }
-}
 ```
 
 ```{r, include=FALSE}
