@@ -1179,10 +1179,14 @@ if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
   for (i in 1:length(detect_table_names)){
     colnames(detect_output_table)[i] <- paste0(detect_table_names[i], ' (n = ',  detect_summary_output_table[i,2], ')')
   }
-  # remove "all" column
-  detect_output_table <- detect_output_table[,-grep("all ", colnames(detect_output_table))]
+  # save colnames
+  detect_output_table_colnames <- colnames(detect_output_table)
+  detect_output_table_colnames <-  detect_output_table_colnames[-grep("all ", colnames(detect_output_table))]
   # save rownames 
   detect_output_table_rownames <- rownames(detect_output_table)
+  # remove "all" column
+  detect_output_table <- data.frame(detect_output_table[,-grep("all ", colnames(detect_output_table))])
+  colnames(detect_output_table) <- detect_output_table_colnames
   # round to 1 decimal place
   detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
   # add rownames
@@ -2086,7 +2090,7 @@ if(!is.null(params$sampleGroupCovar)){
     sample_group_data <- data_minus_LOD[,samples_data$plate_sampleName[samples_data[,params$sampleGroupCovar]==sample_groups[k]]]
     # remove any control samples -- SC, IPC, NC
     sample_group_data <- sample_group_data[,colnames(sample_group_data) %in% samples_data$plate_sampleName[samples_data$sampleType=='Sample']]
-
+    
     if (!is.null(colnames(sample_group_data))) {
       # sort targets
       target_medians <- apply(sample_group_data, 1, median)
