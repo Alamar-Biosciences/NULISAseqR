@@ -258,7 +258,22 @@ readNULISAseq <- function(file,
 
     # Determine if covariates are numeric
     numericCovariates <- sapply(samples, function(lst) all(sapply(na.omit(lst), function(x) suppressWarnings(!is.na(as.numeric(x))))))
+
+    # if no sample matrix given assign "PLASMA"
+    if(is.null(samples$SAMPLE_MATRIX)){
+      samples$SAMPLE_MATRIX <- "PLASMA"
+    }
+
+    # if no Curve_Quant attribute given, assign "F" for forward curve
+    if(is.null(targets$Curve_Quant)){
+      targets$Curve_Quant <- "F"
+    }
     
+    # if no AlamarTargetID given assign it a NA value
+    if(is.null(targets$AlamarTargetID)){
+      targets$AlamarTargetID <- NA
+    }
+
     ###########################
     # return the output
     ###########################
