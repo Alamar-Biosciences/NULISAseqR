@@ -129,7 +129,7 @@ QC2XML <- function(input, QCNode, sample=F, combined=F){
 #' # QCFlagSample(inputtable)
 #'
 #' @export
-QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL){
+QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL){
   columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode", "sampleType", "QCthreshold", "QCoperator", "QCformat")
   criteria <- QCSampleCriteria()
 
@@ -142,6 +142,7 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
   ICs  <- if(!is.null(ICs))   ICs else which(targets$targetType == "Control")
   IPCs <- if(!is.null(IPCs)) IPCs else which(samples$sampleType == "IPC")
   NCs  <- if(!is.null(NCs))   NCs else which(samples$sampleType == "NC")
+  SCs  <- if(!is.null(SCs))   SCs else which(samples$sampleType == "SC")
 
   # Median IC between -30% and 30% of median  
   mCherry_median <- median(raw[ICs[1],], na.rm=T)
@@ -159,6 +160,8 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
       type <- "NC"
     }else if (i %in% IPCs){
       type <- "IPC"
+    }else if (i %in% SCs){
+      type <- "SC"
     }
     QCFlagReturn <- rbind(QCFlagReturn, c(names(medVals)[i], "IC_Median", "raw", set, medVals[i], "", samples$sampleBarcode[i], type, 
                                           as.character(paste(MIN_IC_MEDIAN, collapse=',')), as.character(op), format))
@@ -181,6 +184,8 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
       type <- "NC"
     }else if (i %in% IPCs){
       type <- "IPC"
+    }else if (i %in% SCs){
+      type <- "SC"
     }
     QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "Detectability", "IC", set, perc_tar[i], "", samples$sampleBarcode[i], type, 
                                           as.character(MIN_FRAC_DETECTABILITY), as.character(op), format))
@@ -200,6 +205,8 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
       type <- "NC"
     }else if (i %in% IPCs){
       type <- "IPC"
+    }else if (i %in% SCs){
+      type <- "SC"
     }
     QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[i], type, 
                                           as.character(MIN_IC_READS_PER_SAMPLE), as.character(op), format))
@@ -225,6 +232,8 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
       type <- "NC"
     }else if (i %in% IPCs){
       type <- "IPC"
+    }else if (i %in% SCs){
+      type <- "SC"
     }
     QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], "", barNames[i], type, 
                                           as.character(MIN_NUM_READS_PER_SAMPLE), as.character(op), format))
