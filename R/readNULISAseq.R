@@ -205,18 +205,10 @@ readNULISAseq <- function(file,
     
     # save the special well type column names
     specialWellsTargets <- list()
-    if(!is.null(IPC)) {
-      specialWellsTargets[['IPC']] <- samples$sampleName[samples$sampleType=='IPC']
-    }
-    if(!is.null(NC)) { 
-      specialWellsTargets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
-    }
-    if(!is.null(SC)) {
-      specialWellsTargets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
-    }
-    if(!is.null(Bridge)) {
-      specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
-    }
+    specialWellsTargets[['IPC']] <- samples$sampleName[samples$sampleType=='IPC']
+    specialWellsTargets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
+    specialWellsTargets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
+    specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
     specialWellsTargets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
     
     # add sample identity information
@@ -352,8 +344,8 @@ readNULISAseq <- function(file,
 #'
 #' @export
 #'
-loadNULISAseq <- function(file, IPC, IC, ...){
-  raw <- readNULISAseq(file, IPC=IPC, IC=IC, ...)
+loadNULISAseq <- function(file, IPC, IC, SC, ...){
+  raw <- readNULISAseq(file, IPC=IPC, IC=IC, SC=SC, ...)
   raw$IC_normed <- intraPlateNorm(raw$Data, IC=IC[1], ...)
   raw$normed <- interPlateNorm(list(raw$IC_normed$normData), IPC_wells=list(raw$IPC), ...)
   raw$qcPlate <- QCFlagPlate(raw$Data, raw$IC_normed$normData, raw$targets, raw$samples)
