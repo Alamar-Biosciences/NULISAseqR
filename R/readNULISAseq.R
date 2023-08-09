@@ -188,6 +188,12 @@ readNULISAseq <- function(file,
     if(!is.null(samples$type)){
       sampleType <- unlist(lapply(samples$type, FUN=function(t) gsub(pattern="sample", replacement="Sample", x=t, fixed=T)))
       samples$type <- NULL
+    }else{ # try to infer sample type from sample names
+      sampleType <- rep("Sample", length(samples$sampleName))
+      sampleType[grep(paste("NC", collapse="|"), samples$sampleName)]  <- "NC" 
+      sampleType[grep(paste("SC", collapse="|"), samples$sampleName)] <- "SC" 
+      sampleType[grep(paste("IPC", collapse="|"), samples$sampleName)] <- "IPC" 
+      sampleType[grep(paste("Bridge", collapse="|"), samples$sampleName)] <- "Bridge"
     } 
     
     # add well type information
