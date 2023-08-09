@@ -120,17 +120,22 @@ QC2XML <- function(input, QCNode, sample=F, combined=F){
 #'
 #' Writes NULISAseq QC sample flags 
 #' @param raw unnormalized data
-#' @param normednormalized data
+#' @param normed normalized data
 #' @param ICs indices of IC samples
 #' @param NCs indices of NC samples
 #' @param IPCs indices of IPC samples
+#' @param SCs indices of SC samples
 #' @return QC table
 #' @examples
 #' # QCFlagSample(inputtable)
 #'
 #' @export
-QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL){
-  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", "sampleBarcode", "sampleType", "QCthreshold", "QCoperator", "QCformat")
+
+QCFlagSample <- function(raw, normed, samples, targets, 
+                         well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL){
+  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", 
+               "sampleBarcode", "sampleType", "QCthreshold", "QCoperator", "QCformat")
+
   criteria <- QCSampleCriteria()
 
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
@@ -158,9 +163,9 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
     type <- "Sample"
     if(i %in% NCs){
       type <- "NC"
-    }else if (i %in% IPCs){
+    } else if (i %in% IPCs){
       type <- "IPC"
-    }else if (i %in% SCs){
+    } else if (i %in% SCs){
       type <- "SC"
     }
     QCFlagReturn <- rbind(QCFlagReturn, c(names(medVals)[i], "IC_Median", "raw", set, medVals[i], "", samples$sampleBarcode[i], type, 
@@ -182,9 +187,9 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
     type <- "Sample"
     if(i %in% NCs){
       type <- "NC"
-    }else if (i %in% IPCs){
+    } else if (i %in% IPCs){
       type <- "IPC"
-    }else if (i %in% SCs){
+    } else if (i %in% SCs){
       type <- "SC"
     }
     QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "Detectability", "IC", set, perc_tar[i], "", samples$sampleBarcode[i], type, 
@@ -203,9 +208,9 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
     type <-"Sample"
     if(i %in% NCs){
       type <- "NC"
-    }else if (i %in% IPCs){
+    } else if (i %in% IPCs){
       type <- "IPC"
-    }else if (i %in% SCs){
+    } else if (i %in% SCs){
       type <- "SC"
     }
     QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[i], type, 
@@ -230,9 +235,9 @@ QCFlagSample <- function(raw, normed, samples, targets, well_order=NULL, ICs=NUL
     type <- "Sample"
     if(i %in% NCs){
       type <- "NC"
-    }else if (i %in% IPCs){
+    } else if (i %in% IPCs){
       type <- "IPC"
-    }else if (i %in% SCs){
+    } else if (i %in% SCs){
       type <- "SC"
     }
     QCFlagReturn <- rbind(QCFlagReturn, c(colnames(raw)[i], "NumReads", "raw", set, val[i], "", barNames[i], type, 
@@ -265,16 +270,19 @@ evalCriterion <- function(name, value, operator, threshold){
 #' @param ICs indices of IC samples
 #' @param NCs indices of NC samples
 #' @param IPCs indices of IPC samples
+#' @param SCs indices of SC samples
 #' @return QC table
 #' @examples
 #' # QCFlagPlate(inputtable)
 #'
 #' @export
-QCFlagPlate <- function(raw, normed, targets, samples, ICs=NULL, IPCs=NULL, NCs=NULL){
+QCFlagPlate <- function(raw, normed, targets, samples, 
+                        ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL){
   criteria <- QCPlateCriteria()
   ICs  <- if(!is.null(ICs))   ICs else which(targets$targetType == "Control")
   IPCs <- if(!is.null(IPCs)) IPCs else which(samples$sampleType == "IPC")
   NCs  <- if(!is.null(NCs))   NCs else which(samples$sampleType == "NC")
+  SCs  <- if(!is.null(SCs))   SCs else which(samples$sampleType == "SC")
   columns <- c("flagName", "normMethod", "status", "val", "QCthreshold", "QCoperator", "QCformat")
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
 
