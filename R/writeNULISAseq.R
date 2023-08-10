@@ -165,6 +165,9 @@ writeNULISAseq <- function(xml_files,
                                Bridge=Bridge_string,
                                replaceNA=replaceNA,
                                IC=ICs)
+    # remove AlamarTargetID from the targets data.frame if present
+    # so we don't have issue with merging target info file which has same column
+    runs[[i]]$targets <- runs[[i]]$targets[,!(colnames(runs[[i]]$targets) %in% 'AlamarTargetID')]
     # exclude samples if listed
     if (!is.null(excludeSamples[[i]])){
       runs[[i]]$Data <- runs[[i]]$Data[,!(colnames(runs[[i]]$Data) %in% excludeSamples[[i]])]
