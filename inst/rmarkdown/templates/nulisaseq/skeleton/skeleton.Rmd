@@ -43,7 +43,8 @@ params:
   # this information is used when determining detectability.
   # defaults to NULL.
   # for testing sampleGroupCovar: "AUTO_WELLROW"
-  sampleGroupCovar: "CONDITION_1"
+  # sampleGroupCovar: "CONDITION_1"
+  sampleGroupCovar: "SAMPLE_MATRIX"
   outPlateLayout: !r TRUE
   outReadSummary: !r TRUE
   outHeatmaps: !r TRUE
