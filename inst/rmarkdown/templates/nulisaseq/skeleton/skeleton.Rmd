@@ -19,11 +19,11 @@ params:
   # first IC will be used for LOD calculations (should typically be mCherry)
   IC: !r c("mCherry")
   ## string(s) that denotes inter-plate controls
-  IPC: !r c("IPC")
+  IPC: !r NULL # c("IPC")
   ## string(s) that denotes negative controls
-  NC: !r c("NC")
+  NC: !r NULL # c("NC") 
   ## string(s) that denotes sample controls
-  SC: !r c("SC")
+  SC: !r NULL # c("SC")
   ## string(s) that denotes bridge samples
   Bridge: !r NULL
   ## variables in XML that indicate row, column, and plate ID
