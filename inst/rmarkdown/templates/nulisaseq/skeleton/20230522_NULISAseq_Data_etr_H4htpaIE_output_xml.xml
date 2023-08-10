@@ -9,308 +9,308 @@
 	<RunSummary>
 		<Barcodes>
 			<BarcodeA>
-				<Barcode name="1625168_1625168" META_bio.protein.uniprotid="NA">AGER</Barcode>
-				<Barcode name="1902917_1902917" META_bio.protein.uniprotid="NA">AGRP</Barcode>
-				<Barcode name="14763184_14763184" META_bio.protein.uniprotid="NA">ANGPT1</Barcode>
-				<Barcode name="2651532_2651532" META_bio.protein.uniprotid="NA">ANXA1</Barcode>
-				<Barcode name="7569675_7569675" META_bio.protein.uniprotid="NA">Activin A</Barcode>
-				<Barcode name="7189027_7569675" META_bio.protein.uniprotid="NA">Activin AB</Barcode>
-				<Barcode name="7189027_7189027" META_bio.protein.uniprotid="NA">Activin B</Barcode>
-				<Barcode name="16347233_16347233" META_bio.protein.uniprotid="NA">BDNF</Barcode>
-				<Barcode name="9990064_9990064" META_bio.protein.uniprotid="NA">BMP10</Barcode>
-				<Barcode name="908042_908042" META_bio.protein.uniprotid="NA">BMP7</Barcode>
-				<Barcode name="10671319_10671319" META_bio.protein.uniprotid="NA">C1QA</Barcode>
-				<Barcode name="11605520_11605520" META_bio.protein.uniprotid="NA">CCL1</Barcode>
-				<Barcode name="7285840_7285840" META_bio.protein.uniprotid="NA">CCL13</Barcode>
-				<Barcode name="1315649_1315649" META_bio.protein.uniprotid="NA">CCL14</Barcode>
-				<Barcode name="3577700_3577700" META_bio.protein.uniprotid="NA">CCL15</Barcode>
-				<Barcode name="13376624_13376624" META_bio.protein.uniprotid="NA">CCL16</Barcode>
-				<Barcode name="8676556_8676556" META_bio.protein.uniprotid="NA">CCL17</Barcode>
-				<Barcode name="3688275_3688275" META_bio.protein.uniprotid="NA">CCL19</Barcode>
-				<Barcode name="8160740_8160740" META_bio.protein.uniprotid="NA">CCL2</Barcode>
-				<Barcode name="3449296_3449296" META_bio.protein.uniprotid="NA">CCL20</Barcode>
-				<Barcode name="15487237_15487237" META_bio.protein.uniprotid="NA">CCL22</Barcode>
-				<Barcode name="7816728_7816728" META_bio.protein.uniprotid="NA">CCL23</Barcode>
-				<Barcode name="12684539_12684539" META_bio.protein.uniprotid="NA">CCL24</Barcode>
-				<Barcode name="6479245_6479245" META_bio.protein.uniprotid="NA">CCL25</Barcode>
-				<Barcode name="3485004_3485004" META_bio.protein.uniprotid="NA">CCL28</Barcode>
-				<Barcode name="2973766_2973766" META_bio.protein.uniprotid="NA">CCL3</Barcode>
-				<Barcode name="13320628_13320628" META_bio.protein.uniprotid="NA">CCL4</Barcode>
-				<Barcode name="10547568_10547568" META_bio.protein.uniprotid="NA">CCL5</Barcode>
-				<Barcode name="6193865_6193865" META_bio.protein.uniprotid="NA">CCL7</Barcode>
-				<Barcode name="3400923_3400923" META_bio.protein.uniprotid="NA">CCL8</Barcode>
-				<Barcode name="10191216_10191216" META_bio.protein.uniprotid="NA">CD200</Barcode>
-				<Barcode name="421252_421252" META_bio.protein.uniprotid="NA">CD200R1</Barcode>
-				<Barcode name="5861556_5861556" META_bio.protein.uniprotid="NA">CD274</Barcode>
-				<Barcode name="11394266_11394266" META_bio.protein.uniprotid="NA">CD276</Barcode>
-				<Barcode name="10160903_10160903" META_bio.protein.uniprotid="NA">CD40</Barcode>
-				<Barcode name="4489532_4489532" META_bio.protein.uniprotid="NA">CD70</Barcode>
-				<Barcode name="8870701_8870701" META_bio.protein.uniprotid="NA">CD83</Barcode>
-				<Barcode name="8065470_8065470" META_bio.protein.uniprotid="NA">CD93</Barcode>
-				<Barcode name="5075522_5075522" META_bio.protein.uniprotid="NA">CEACAM5</Barcode>
-				<Barcode name="12064663_12064663" META_bio.protein.uniprotid="NA">CHI3L1</Barcode>
-				<Barcode name="14710332_14710332" META_bio.protein.uniprotid="NA">CLCF1</Barcode>
-				<Barcode name="7439380_7439380" META_bio.protein.uniprotid="NA">CLEC4A</Barcode>
-				<Barcode name="15042539_15042539" META_bio.protein.uniprotid="NA">CSF1</Barcode>
-				<Barcode name="13132060_13132060" META_bio.protein.uniprotid="NA">CSF2RB</Barcode>
-				<Barcode name="3481026_3481026" META_bio.protein.uniprotid="NA">CSF3</Barcode>
-				<Barcode name="10007963_10007963" META_bio.protein.uniprotid="NA">CSF3R</Barcode>
-				<Barcode name="7147851_7147851" META_bio.protein.uniprotid="NA">CST7</Barcode>
-				<Barcode name="6021391_6021391" META_bio.protein.uniprotid="NA">CTF1</Barcode>
-				<Barcode name="15402052_15402052" META_bio.protein.uniprotid="NA">CTLA4</Barcode>
-				<Barcode name="7771693_7771693" META_bio.protein.uniprotid="NA">CTSS</Barcode>
-				<Barcode name="1319222_1319222" META_bio.protein.uniprotid="NA">CX3CL1</Barcode>
-				<Barcode name="13650882_13650882" META_bio.protein.uniprotid="NA">CXADR</Barcode>
-				<Barcode name="5057700_5057700" META_bio.protein.uniprotid="NA">CXCL1</Barcode>
-				<Barcode name="8769952_8769952" META_bio.protein.uniprotid="NA">CXCL10</Barcode>
-				<Barcode name="5333517_5333517" META_bio.protein.uniprotid="NA">CXCL12</Barcode>
-				<Barcode name="14340545_14340545" META_bio.protein.uniprotid="NA">CXCL13</Barcode>
-				<Barcode name="7744902_7744902" META_bio.protein.uniprotid="NA">CXCL14</Barcode>
-				<Barcode name="12264280_12264280" META_bio.protein.uniprotid="NA">CXCL2</Barcode>
-				<Barcode name="2176632_2176632" META_bio.protein.uniprotid="NA">CXCL3</Barcode>
-				<Barcode name="10393404_10393404" META_bio.protein.uniprotid="NA">CXCL5</Barcode>
-				<Barcode name="7430472_7430472" META_bio.protein.uniprotid="NA">CXCL8</Barcode>
-				<Barcode name="10065562_10065562" META_bio.protein.uniprotid="NA">CXCL9</Barcode>
-				<Barcode name="7648022_7648022" META_bio.protein.uniprotid="NA">EGF</Barcode>
-				<Barcode name="3559699_3559699" META_bio.protein.uniprotid="NA">EPO</Barcode>
-				<Barcode name="1580052_1580052" META_bio.protein.uniprotid="NA">FAM3D</Barcode>
-				<Barcode name="2283281_2283281" META_bio.protein.uniprotid="NA">FASLG</Barcode>
-				<Barcode name="2651408_2651408" META_bio.protein.uniprotid="NA">FGF19</Barcode>
-				<Barcode name="6234522_6234522" META_bio.protein.uniprotid="NA">FGF2</Barcode>
-				<Barcode name="10866820_10866820" META_bio.protein.uniprotid="NA">FGF21</Barcode>
-				<Barcode name="7576400_7576400" META_bio.protein.uniprotid="NA">FGF23</Barcode>
-				<Barcode name="12463812_12463812" META_bio.protein.uniprotid="NA">FLT1</Barcode>
-				<Barcode name="9179949_9179949" META_bio.protein.uniprotid="NA">FLT3LG</Barcode>
-				<Barcode name="4703334_4703334" META_bio.protein.uniprotid="NA">FTH1</Barcode>
-				<Barcode name="11646676_11646676" META_bio.protein.uniprotid="NA">GDF15</Barcode>
-				<Barcode name="13599963_13599963" META_bio.protein.uniprotid="NA">GDF2</Barcode>
-				<Barcode name="2541623_2541623" META_bio.protein.uniprotid="NA">GFAP</Barcode>
-				<Barcode name="4655133_4655133" META_bio.protein.uniprotid="NA">GRN</Barcode>
-				<Barcode name="416902_416902" META_bio.protein.uniprotid="NA">GZMB</Barcode>
-				<Barcode name="12863435_12863435" META_bio.protein.uniprotid="NA">HGF</Barcode>
-				<Barcode name="5849354_5849354" META_bio.protein.uniprotid="NA">IFNA1; IFNA13</Barcode>
-				<Barcode name="439408_439408" META_bio.protein.uniprotid="NA">IFNA2</Barcode>
-				<Barcode name="3452996_3452996" META_bio.protein.uniprotid="NA">IFNB1</Barcode>
-				<Barcode name="15862721_15862721" META_bio.protein.uniprotid="NA">IFNG</Barcode>
-				<Barcode name="1593458_1593458" META_bio.protein.uniprotid="NA">IFNL1</Barcode>
-				<Barcode name="3428761_3428761" META_bio.protein.uniprotid="NA">IFNW1</Barcode>
-				<Barcode name="6740585_6740585" META_bio.protein.uniprotid="NA">IL10</Barcode>
-				<Barcode name="7476761_7476761" META_bio.protein.uniprotid="NA">IL10RB</Barcode>
-				<Barcode name="12332811_12332811" META_bio.protein.uniprotid="NA">IL11</Barcode>
-				<Barcode name="10034253_10034253" META_bio.protein.uniprotid="NA">IL12B</Barcode>
-				<Barcode name="4593516_4593516" META_bio.protein.uniprotid="NA">IL12RB1</Barcode>
-				<Barcode name="9680656_10034253" META_bio.protein.uniprotid="NA">IL12p70</Barcode>
-				<Barcode name="14763085_14763085" META_bio.protein.uniprotid="NA">IL13</Barcode>
-				<Barcode name="377485_377485" META_bio.protein.uniprotid="NA">IL13RA2</Barcode>
-				<Barcode name="6620236_6620236" META_bio.protein.uniprotid="NA">IL15RA</Barcode>
-				<Barcode name="6312029_6312029" META_bio.protein.uniprotid="NA">IL16</Barcode>
-				<Barcode name="14206183_14206183" META_bio.protein.uniprotid="NA">IL17A</Barcode>
-				<Barcode name="14426903_14426903" META_bio.protein.uniprotid="NA">IL17B</Barcode>
-				<Barcode name="14160123_14160123" META_bio.protein.uniprotid="NA">IL17C</Barcode>
-				<Barcode name="6345794_6345794" META_bio.protein.uniprotid="NA">IL17F</Barcode>
-				<Barcode name="6910664_6910664" META_bio.protein.uniprotid="NA">IL17RB</Barcode>
-				<Barcode name="3346544_3346544" META_bio.protein.uniprotid="NA">IL18</Barcode>
-				<Barcode name="5303622_5303622" META_bio.protein.uniprotid="NA">IL18BP</Barcode>
-				<Barcode name="9482319_9482319" META_bio.protein.uniprotid="NA">IL18R1</Barcode>
-				<Barcode name="898701_898701" META_bio.protein.uniprotid="NA">IL19</Barcode>
-				<Barcode name="5861648_5861648" META_bio.protein.uniprotid="NA">IL1B</Barcode>
-				<Barcode name="279260_279260" META_bio.protein.uniprotid="NA">IL1R2</Barcode>
-				<Barcode name="12064579_12064579" META_bio.protein.uniprotid="NA">IL1RL1</Barcode>
-				<Barcode name="2298302_2298302" META_bio.protein.uniprotid="NA">IL1RN</Barcode>
-				<Barcode name="1627186_1627186" META_bio.protein.uniprotid="NA">IL20</Barcode>
-				<Barcode name="5817895_5817895" META_bio.protein.uniprotid="NA">IL22</Barcode>
-				<Barcode name="11297616_10034253" META_bio.protein.uniprotid="NA">IL23</Barcode>
-				<Barcode name="6390128_6390128" META_bio.protein.uniprotid="NA">IL27</Barcode>
-				<Barcode name="15474908_15474908" META_bio.protein.uniprotid="NA">IL2RA</Barcode>
-				<Barcode name="10119543_10119543" META_bio.protein.uniprotid="NA">IL2RB</Barcode>
-				<Barcode name="6358776_6358776" META_bio.protein.uniprotid="NA">IL32</Barcode>
-				<Barcode name="11342925_11342925" META_bio.protein.uniprotid="NA">IL33</Barcode>
-				<Barcode name="4315348_4315348" META_bio.protein.uniprotid="NA">IL34</Barcode>
-				<Barcode name="9680656_6390128" META_bio.protein.uniprotid="NA">IL35</Barcode>
-				<Barcode name="5479273_5479273" META_bio.protein.uniprotid="NA">IL36A</Barcode>
-				<Barcode name="6606064_6606064" META_bio.protein.uniprotid="NA">IL36G</Barcode>
-				<Barcode name="11297616_6390128" META_bio.protein.uniprotid="NA">IL39</Barcode>
-				<Barcode name="14752786_14752786" META_bio.protein.uniprotid="NA">IL3RA</Barcode>
-				<Barcode name="505488_505488" META_bio.protein.uniprotid="NA">IL4</Barcode>
-				<Barcode name="2039941_2039941" META_bio.protein.uniprotid="NA">IL4R</Barcode>
-				<Barcode name="2969025_2969025" META_bio.protein.uniprotid="NA">IL5</Barcode>
-				<Barcode name="11650520_11650520" META_bio.protein.uniprotid="NA">IL5RA</Barcode>
-				<Barcode name="7892784_7892784" META_bio.protein.uniprotid="NA">IL6</Barcode>
-				<Barcode name="10261451_10261451" META_bio.protein.uniprotid="NA">IL6R</Barcode>
-				<Barcode name="380423_380423" META_bio.protein.uniprotid="NA">IL7</Barcode>
-				<Barcode name="2985519_2985519" META_bio.protein.uniprotid="NA">IL7R</Barcode>
-				<Barcode name="14173416_14173416" META_bio.protein.uniprotid="NA">IL9</Barcode>
-				<Barcode name="6848884_6848884" META_bio.protein.uniprotid="NA">IRAK4</Barcode>
-				<Barcode name="7569675_7170242" META_bio.protein.uniprotid="NA">Inhibin A</Barcode>
-				<Barcode name="7189027_7170242" META_bio.protein.uniprotid="NA">Inhibin B</Barcode>
-				<Barcode name="15041922_15041922" META_bio.protein.uniprotid="NA">KDR</Barcode>
-				<Barcode name="15930544_15930544" META_bio.protein.uniprotid="NA">KITLG</Barcode>
-				<Barcode name="7489131_7489131" META_bio.protein.uniprotid="NA">LAG3</Barcode>
-				<Barcode name="11732836_11732836" META_bio.protein.uniprotid="NA">LAMP3</Barcode>
-				<Barcode name="12737799_12737799" META_bio.protein.uniprotid="NA">LCN2</Barcode>
-				<Barcode name="13176393_13176393" META_bio.protein.uniprotid="NA">LGALS9</Barcode>
-				<Barcode name="10934479_10934479" META_bio.protein.uniprotid="NA">LIF</Barcode>
-				<Barcode name="6347628_6347628" META_bio.protein.uniprotid="NA">LTBR</Barcode>
-				<Barcode name="11633525_11633525" META_bio.protein.uniprotid="NA">MDK</Barcode>
-				<Barcode name="12007776_12007776" META_bio.protein.uniprotid="NA">MERTK</Barcode>
-				<Barcode name="16283676_16283676" META_bio.protein.uniprotid="NA">MET</Barcode>
-				<Barcode name="5261096_5261096" META_bio.protein.uniprotid="NA">MICA</Barcode>
-				<Barcode name="517296_517296" META_bio.protein.uniprotid="NA">MICB</Barcode>
-				<Barcode name="2432396_2432396" META_bio.protein.uniprotid="NA">MIF</Barcode>
-				<Barcode name="7484678_7484678" META_bio.protein.uniprotid="NA">MMP10</Barcode>
-				<Barcode name="9508956_9508956" META_bio.protein.uniprotid="NA">MMP12</Barcode>
-				<Barcode name="5210631_5210631" META_bio.protein.uniprotid="NA">MMP3</Barcode>
-				<Barcode name="8483875_8483875" META_bio.protein.uniprotid="NA">MMP8</Barcode>
-				<Barcode name="12337645_12337645" META_bio.protein.uniprotid="NA">MMP9</Barcode>
-				<Barcode name="9258856_9258856" META_bio.protein.uniprotid="NA">MPO</Barcode>
-				<Barcode name="5344081_5344081" META_bio.protein.uniprotid="NA">MUC16</Barcode>
-				<Barcode name="15495348_15495348" META_bio.protein.uniprotid="NA">NCR1</Barcode>
-				<Barcode name="9520932_9520932" META_bio.protein.uniprotid="NA">NGF</Barcode>
-				<Barcode name="9520712_9520712" META_bio.protein.uniprotid="NA">OSM</Barcode>
-				<Barcode name="15931096_15931096" META_bio.protein.uniprotid="NA">PDCD1</Barcode>
-				<Barcode name="11732760_11732760" META_bio.protein.uniprotid="NA">PDGFA</Barcode>
-				<Barcode name="6710552_6710552" META_bio.protein.uniprotid="NA">PTX3</Barcode>
-				<Barcode name="2638940_2638940" META_bio.protein.uniprotid="NA">S100A12</Barcode>
-				<Barcode name="14190286_14190286" META_bio.protein.uniprotid="NA">S100A9</Barcode>
-				<Barcode name="9992717_9992717" META_bio.protein.uniprotid="NA">SCG2</Barcode>
-				<Barcode name="13260876_13260876" META_bio.protein.uniprotid="NA">SELE</Barcode>
-				<Barcode name="11932572_11932572" META_bio.protein.uniprotid="NA">SLURP1</Barcode>
-				<Barcode name="1663748_1663748" META_bio.protein.uniprotid="NA">SPP1</Barcode>
-				<Barcode name="7871636_7871636" META_bio.protein.uniprotid="NA">TAFA5</Barcode>
-				<Barcode name="4305601_4305601" META_bio.protein.uniprotid="NA">TGFB1</Barcode>
-				<Barcode name="361743_361743" META_bio.protein.uniprotid="NA">TGFB3</Barcode>
-				<Barcode name="6690904_6690904" META_bio.protein.uniprotid="NA">THPO</Barcode>
-				<Barcode name="14753094_14753094" META_bio.protein.uniprotid="NA">TIMP1</Barcode>
-				<Barcode name="1164780_1164780" META_bio.protein.uniprotid="NA">TIMP2</Barcode>
-				<Barcode name="317004_317004" META_bio.protein.uniprotid="NA">TLR3</Barcode>
-				<Barcode name="4900292_4900292" META_bio.protein.uniprotid="NA">TNF</Barcode>
-				<Barcode name="5151536_5151536" META_bio.protein.uniprotid="NA">TNFRSF11A</Barcode>
-				<Barcode name="15964738_15964738" META_bio.protein.uniprotid="NA">TNFRSF13C</Barcode>
-				<Barcode name="3215120_3215120" META_bio.protein.uniprotid="NA">TNFRSF14</Barcode>
-				<Barcode name="1773861_1773861" META_bio.protein.uniprotid="NA">TNFRSF17</Barcode>
-				<Barcode name="8614811_8614811" META_bio.protein.uniprotid="NA">TNFRSF18</Barcode>
-				<Barcode name="2893264_2893264" META_bio.protein.uniprotid="NA">TNFRSF1A</Barcode>
-				<Barcode name="3438188_3438188" META_bio.protein.uniprotid="NA">TNFRSF1B</Barcode>
-				<Barcode name="3222725_3222725" META_bio.protein.uniprotid="NA">TNFRSF4</Barcode>
-				<Barcode name="6050186_6050186" META_bio.protein.uniprotid="NA">TNFRSF8</Barcode>
-				<Barcode name="6887233_6887233" META_bio.protein.uniprotid="NA">TNFRSF9</Barcode>
-				<Barcode name="5064198_5064198" META_bio.protein.uniprotid="NA">TNFSF10</Barcode>
-				<Barcode name="4855569_4855569" META_bio.protein.uniprotid="NA">TNFSF11</Barcode>
-				<Barcode name="6035236_6035236" META_bio.protein.uniprotid="NA">TNFSF12</Barcode>
-				<Barcode name="9725168_9725168" META_bio.protein.uniprotid="NA">TNFSF13B</Barcode>
-				<Barcode name="13658503_13658503" META_bio.protein.uniprotid="NA">TNFSF15</Barcode>
-				<Barcode name="5468272_5468272" META_bio.protein.uniprotid="NA">TNFSF4</Barcode>
-				<Barcode name="10970568_10970568" META_bio.protein.uniprotid="NA">TNFSF8</Barcode>
-				<Barcode name="14994528_14994528" META_bio.protein.uniprotid="NA">TNFSF9</Barcode>
-				<Barcode name="1449256_1449256" META_bio.protein.uniprotid="NA">TREM1</Barcode>
-				<Barcode name="323684_323684" META_bio.protein.uniprotid="NA">TSLP</Barcode>
-				<Barcode name="5462177_5462177" META_bio.protein.uniprotid="NA">VCAM1</Barcode>
-				<Barcode name="1446593_1446593" META_bio.protein.uniprotid="NA">VEGFA</Barcode>
-				<Barcode name="1331952_1331952" META_bio.protein.uniprotid="NA">VEGFC</Barcode>
-				<Barcode name="6067138_6067138" META_bio.protein.uniprotid="NA">VEGFD</Barcode>
-				<Barcode name="13305492_13305492" META_bio.protein.uniprotid="NA">VSNL1</Barcode>
-				<Barcode name="529532_529532" META_bio.protein.uniprotid="NA">VSTM1</Barcode>
-				<Barcode name="6705376_6705376" META_bio.protein.uniprotid="NA">WNT16</Barcode>
-				<Barcode name="5791823_5791823" META_bio.protein.uniprotid="NA">WNT7A</Barcode>
-				<Barcode name="12867621_12867621" META_bio.protein.uniprotid="NA">mCherry</Barcode>
+				<Barcode name="1625168_1625168" AlamarTargetID="NA" Curve_Quant="F">AGER</Barcode>
+				<Barcode name="1902917_1902917" AlamarTargetID="NA" Curve_Quant="F">AGRP</Barcode>
+				<Barcode name="14763184_14763184" AlamarTargetID="NA" Curve_Quant="F">ANGPT1</Barcode>
+				<Barcode name="2651532_2651532" AlamarTargetID="NA" Curve_Quant="F">ANXA1</Barcode>
+				<Barcode name="7569675_7569675" AlamarTargetID="NA" Curve_Quant="F">Activin A</Barcode>
+				<Barcode name="7189027_7569675" AlamarTargetID="NA" Curve_Quant="F">Activin AB</Barcode>
+				<Barcode name="7189027_7189027" AlamarTargetID="NA" Curve_Quant="F">Activin B</Barcode>
+				<Barcode name="16347233_16347233" AlamarTargetID="NA" Curve_Quant="F">BDNF</Barcode>
+				<Barcode name="9990064_9990064" AlamarTargetID="NA" Curve_Quant="F">BMP10</Barcode>
+				<Barcode name="908042_908042" AlamarTargetID="NA" Curve_Quant="F">BMP7</Barcode>
+				<Barcode name="10671319_10671319" AlamarTargetID="NA" Curve_Quant="F">C1QA</Barcode>
+				<Barcode name="11605520_11605520" AlamarTargetID="NA" Curve_Quant="F">CCL1</Barcode>
+				<Barcode name="7285840_7285840" AlamarTargetID="NA" Curve_Quant="F">CCL13</Barcode>
+				<Barcode name="1315649_1315649" AlamarTargetID="NA" Curve_Quant="F">CCL14</Barcode>
+				<Barcode name="3577700_3577700" AlamarTargetID="NA" Curve_Quant="F">CCL15</Barcode>
+				<Barcode name="13376624_13376624" AlamarTargetID="NA" Curve_Quant="F">CCL16</Barcode>
+				<Barcode name="8676556_8676556" AlamarTargetID="NA" Curve_Quant="F">CCL17</Barcode>
+				<Barcode name="3688275_3688275" AlamarTargetID="NA" Curve_Quant="F">CCL19</Barcode>
+				<Barcode name="8160740_8160740" AlamarTargetID="NA" Curve_Quant="F">CCL2</Barcode>
+				<Barcode name="3449296_3449296" AlamarTargetID="NA" Curve_Quant="F">CCL20</Barcode>
+				<Barcode name="15487237_15487237" AlamarTargetID="NA" Curve_Quant="F">CCL22</Barcode>
+				<Barcode name="7816728_7816728" AlamarTargetID="NA" Curve_Quant="F">CCL23</Barcode>
+				<Barcode name="12684539_12684539" AlamarTargetID="NA" Curve_Quant="F">CCL24</Barcode>
+				<Barcode name="6479245_6479245" AlamarTargetID="NA" Curve_Quant="F">CCL25</Barcode>
+				<Barcode name="3485004_3485004" AlamarTargetID="NA" Curve_Quant="F">CCL28</Barcode>
+				<Barcode name="2973766_2973766" AlamarTargetID="NA" Curve_Quant="F">CCL3</Barcode>
+				<Barcode name="13320628_13320628" AlamarTargetID="NA" Curve_Quant="F">CCL4</Barcode>
+				<Barcode name="10547568_10547568" AlamarTargetID="NA" Curve_Quant="F">CCL5</Barcode>
+				<Barcode name="6193865_6193865" AlamarTargetID="NA" Curve_Quant="F">CCL7</Barcode>
+				<Barcode name="3400923_3400923" AlamarTargetID="NA" Curve_Quant="F">CCL8</Barcode>
+				<Barcode name="10191216_10191216" AlamarTargetID="NA" Curve_Quant="F">CD200</Barcode>
+				<Barcode name="421252_421252" AlamarTargetID="NA" Curve_Quant="F">CD200R1</Barcode>
+				<Barcode name="5861556_5861556" AlamarTargetID="NA" Curve_Quant="F">CD274</Barcode>
+				<Barcode name="11394266_11394266" AlamarTargetID="NA" Curve_Quant="F">CD276</Barcode>
+				<Barcode name="10160903_10160903" AlamarTargetID="NA" Curve_Quant="F">CD40</Barcode>
+				<Barcode name="4489532_4489532" AlamarTargetID="NA" Curve_Quant="F">CD70</Barcode>
+				<Barcode name="8870701_8870701" AlamarTargetID="NA" Curve_Quant="F">CD83</Barcode>
+				<Barcode name="8065470_8065470" AlamarTargetID="NA" Curve_Quant="F">CD93</Barcode>
+				<Barcode name="5075522_5075522" AlamarTargetID="NA" Curve_Quant="F">CEACAM5</Barcode>
+				<Barcode name="12064663_12064663" AlamarTargetID="NA" Curve_Quant="F">CHI3L1</Barcode>
+				<Barcode name="14710332_14710332" AlamarTargetID="NA" Curve_Quant="F">CLCF1</Barcode>
+				<Barcode name="7439380_7439380" AlamarTargetID="NA" Curve_Quant="F">CLEC4A</Barcode>
+				<Barcode name="15042539_15042539" AlamarTargetID="NA" Curve_Quant="F">CSF1</Barcode>
+				<Barcode name="13132060_13132060" AlamarTargetID="NA" Curve_Quant="F">CSF2RB</Barcode>
+				<Barcode name="3481026_3481026" AlamarTargetID="NA" Curve_Quant="F">CSF3</Barcode>
+				<Barcode name="10007963_10007963" AlamarTargetID="NA" Curve_Quant="F">CSF3R</Barcode>
+				<Barcode name="7147851_7147851" AlamarTargetID="NA" Curve_Quant="F">CST7</Barcode>
+				<Barcode name="6021391_6021391" AlamarTargetID="NA" Curve_Quant="F">CTF1</Barcode>
+				<Barcode name="15402052_15402052" AlamarTargetID="NA" Curve_Quant="F">CTLA4</Barcode>
+				<Barcode name="7771693_7771693" AlamarTargetID="NA" Curve_Quant="F">CTSS</Barcode>
+				<Barcode name="1319222_1319222" AlamarTargetID="NA" Curve_Quant="F">CX3CL1</Barcode>
+				<Barcode name="13650882_13650882" AlamarTargetID="NA" Curve_Quant="F">CXADR</Barcode>
+				<Barcode name="5057700_5057700" AlamarTargetID="NA" Curve_Quant="F">CXCL1</Barcode>
+				<Barcode name="8769952_8769952" AlamarTargetID="NA" Curve_Quant="F">CXCL10</Barcode>
+				<Barcode name="5333517_5333517" AlamarTargetID="NA" Curve_Quant="F">CXCL12</Barcode>
+				<Barcode name="14340545_14340545" AlamarTargetID="NA" Curve_Quant="F">CXCL13</Barcode>
+				<Barcode name="7744902_7744902" AlamarTargetID="NA" Curve_Quant="F">CXCL14</Barcode>
+				<Barcode name="12264280_12264280" AlamarTargetID="NA" Curve_Quant="F">CXCL2</Barcode>
+				<Barcode name="2176632_2176632" AlamarTargetID="NA" Curve_Quant="F">CXCL3</Barcode>
+				<Barcode name="10393404_10393404" AlamarTargetID="NA" Curve_Quant="F">CXCL5</Barcode>
+				<Barcode name="7430472_7430472" AlamarTargetID="NA" Curve_Quant="F">CXCL8</Barcode>
+				<Barcode name="10065562_10065562" AlamarTargetID="NA" Curve_Quant="F">CXCL9</Barcode>
+				<Barcode name="7648022_7648022" AlamarTargetID="NA" Curve_Quant="F">EGF</Barcode>
+				<Barcode name="3559699_3559699" AlamarTargetID="NA" Curve_Quant="F">EPO</Barcode>
+				<Barcode name="1580052_1580052" AlamarTargetID="NA" Curve_Quant="F">FAM3D</Barcode>
+				<Barcode name="2283281_2283281" AlamarTargetID="NA" Curve_Quant="F">FASLG</Barcode>
+				<Barcode name="2651408_2651408" AlamarTargetID="NA" Curve_Quant="F">FGF19</Barcode>
+				<Barcode name="6234522_6234522" AlamarTargetID="NA" Curve_Quant="F">FGF2</Barcode>
+				<Barcode name="10866820_10866820" AlamarTargetID="NA" Curve_Quant="F">FGF21</Barcode>
+				<Barcode name="7576400_7576400" AlamarTargetID="NA" Curve_Quant="F">FGF23</Barcode>
+				<Barcode name="12463812_12463812" AlamarTargetID="NA" Curve_Quant="F">FLT1</Barcode>
+				<Barcode name="9179949_9179949" AlamarTargetID="NA" Curve_Quant="F">FLT3LG</Barcode>
+				<Barcode name="4703334_4703334" AlamarTargetID="NA" Curve_Quant="F">FTH1</Barcode>
+				<Barcode name="11646676_11646676" AlamarTargetID="NA" Curve_Quant="F">GDF15</Barcode>
+				<Barcode name="13599963_13599963" AlamarTargetID="NA" Curve_Quant="F">GDF2</Barcode>
+				<Barcode name="2541623_2541623" AlamarTargetID="NA" Curve_Quant="F">GFAP</Barcode>
+				<Barcode name="4655133_4655133" AlamarTargetID="NA" Curve_Quant="F">GRN</Barcode>
+				<Barcode name="416902_416902" AlamarTargetID="NA" Curve_Quant="F">GZMB</Barcode>
+				<Barcode name="12863435_12863435" AlamarTargetID="NA" Curve_Quant="F">HGF</Barcode>
+				<Barcode name="5849354_5849354" AlamarTargetID="NA" Curve_Quant="F">IFNA1; IFNA13</Barcode>
+				<Barcode name="439408_439408" AlamarTargetID="NA" Curve_Quant="F">IFNA2</Barcode>
+				<Barcode name="3452996_3452996" AlamarTargetID="NA" Curve_Quant="F">IFNB1</Barcode>
+				<Barcode name="15862721_15862721" AlamarTargetID="NA" Curve_Quant="F">IFNG</Barcode>
+				<Barcode name="1593458_1593458" AlamarTargetID="NA" Curve_Quant="F">IFNL1</Barcode>
+				<Barcode name="3428761_3428761" AlamarTargetID="NA" Curve_Quant="F">IFNW1</Barcode>
+				<Barcode name="6740585_6740585" AlamarTargetID="NA" Curve_Quant="F">IL10</Barcode>
+				<Barcode name="7476761_7476761" AlamarTargetID="NA" Curve_Quant="F">IL10RB</Barcode>
+				<Barcode name="12332811_12332811" AlamarTargetID="NA" Curve_Quant="F">IL11</Barcode>
+				<Barcode name="10034253_10034253" AlamarTargetID="NA" Curve_Quant="F">IL12B</Barcode>
+				<Barcode name="4593516_4593516" AlamarTargetID="NA" Curve_Quant="F">IL12RB1</Barcode>
+				<Barcode name="9680656_10034253" AlamarTargetID="NA" Curve_Quant="F">IL12p70</Barcode>
+				<Barcode name="14763085_14763085" AlamarTargetID="NA" Curve_Quant="F">IL13</Barcode>
+				<Barcode name="377485_377485" AlamarTargetID="NA" Curve_Quant="F">IL13RA2</Barcode>
+				<Barcode name="6620236_6620236" AlamarTargetID="NA" Curve_Quant="F">IL15RA</Barcode>
+				<Barcode name="6312029_6312029" AlamarTargetID="NA" Curve_Quant="F">IL16</Barcode>
+				<Barcode name="14206183_14206183" AlamarTargetID="NA" Curve_Quant="F">IL17A</Barcode>
+				<Barcode name="14426903_14426903" AlamarTargetID="NA" Curve_Quant="F">IL17B</Barcode>
+				<Barcode name="14160123_14160123" AlamarTargetID="NA" Curve_Quant="F">IL17C</Barcode>
+				<Barcode name="6345794_6345794" AlamarTargetID="NA" Curve_Quant="F">IL17F</Barcode>
+				<Barcode name="6910664_6910664" AlamarTargetID="NA" Curve_Quant="F">IL17RB</Barcode>
+				<Barcode name="3346544_3346544" AlamarTargetID="NA" Curve_Quant="F">IL18</Barcode>
+				<Barcode name="5303622_5303622" AlamarTargetID="NA" Curve_Quant="F">IL18BP</Barcode>
+				<Barcode name="9482319_9482319" AlamarTargetID="NA" Curve_Quant="F">IL18R1</Barcode>
+				<Barcode name="898701_898701" AlamarTargetID="NA" Curve_Quant="F">IL19</Barcode>
+				<Barcode name="5861648_5861648" AlamarTargetID="NA" Curve_Quant="F">IL1B</Barcode>
+				<Barcode name="279260_279260" AlamarTargetID="NA" Curve_Quant="F">IL1R2</Barcode>
+				<Barcode name="12064579_12064579" AlamarTargetID="NA" Curve_Quant="F">IL1RL1</Barcode>
+				<Barcode name="2298302_2298302" AlamarTargetID="NA" Curve_Quant="F">IL1RN</Barcode>
+				<Barcode name="1627186_1627186" AlamarTargetID="NA" Curve_Quant="F">IL20</Barcode>
+				<Barcode name="5817895_5817895" AlamarTargetID="NA" Curve_Quant="F">IL22</Barcode>
+				<Barcode name="11297616_10034253" AlamarTargetID="NA" Curve_Quant="F">IL23</Barcode>
+				<Barcode name="6390128_6390128" AlamarTargetID="NA" Curve_Quant="F">IL27</Barcode>
+				<Barcode name="15474908_15474908" AlamarTargetID="NA" Curve_Quant="F">IL2RA</Barcode>
+				<Barcode name="10119543_10119543" AlamarTargetID="NA" Curve_Quant="F">IL2RB</Barcode>
+				<Barcode name="6358776_6358776" AlamarTargetID="NA" Curve_Quant="F">IL32</Barcode>
+				<Barcode name="11342925_11342925" AlamarTargetID="NA" Curve_Quant="F">IL33</Barcode>
+				<Barcode name="4315348_4315348" AlamarTargetID="NA" Curve_Quant="F">IL34</Barcode>
+				<Barcode name="9680656_6390128" AlamarTargetID="NA" Curve_Quant="F">IL35</Barcode>
+				<Barcode name="5479273_5479273" AlamarTargetID="NA" Curve_Quant="F">IL36A</Barcode>
+				<Barcode name="6606064_6606064" AlamarTargetID="NA" Curve_Quant="F">IL36G</Barcode>
+				<Barcode name="11297616_6390128" AlamarTargetID="NA" Curve_Quant="F">IL39</Barcode>
+				<Barcode name="14752786_14752786" AlamarTargetID="NA" Curve_Quant="F">IL3RA</Barcode>
+				<Barcode name="505488_505488" AlamarTargetID="NA" Curve_Quant="F">IL4</Barcode>
+				<Barcode name="2039941_2039941" AlamarTargetID="NA" Curve_Quant="F">IL4R</Barcode>
+				<Barcode name="2969025_2969025" AlamarTargetID="NA" Curve_Quant="F">IL5</Barcode>
+				<Barcode name="11650520_11650520" AlamarTargetID="NA" Curve_Quant="F">IL5RA</Barcode>
+				<Barcode name="7892784_7892784" AlamarTargetID="NA" Curve_Quant="F">IL6</Barcode>
+				<Barcode name="10261451_10261451" AlamarTargetID="NA" Curve_Quant="F">IL6R</Barcode>
+				<Barcode name="380423_380423" AlamarTargetID="NA" Curve_Quant="F">IL7</Barcode>
+				<Barcode name="2985519_2985519" AlamarTargetID="NA" Curve_Quant="F">IL7R</Barcode>
+				<Barcode name="14173416_14173416" AlamarTargetID="NA" Curve_Quant="F">IL9</Barcode>
+				<Barcode name="6848884_6848884" AlamarTargetID="NA" Curve_Quant="F">IRAK4</Barcode>
+				<Barcode name="7569675_7170242" AlamarTargetID="NA" Curve_Quant="F">Inhibin A</Barcode>
+				<Barcode name="7189027_7170242" AlamarTargetID="NA" Curve_Quant="F">Inhibin B</Barcode>
+				<Barcode name="15041922_15041922" AlamarTargetID="NA" Curve_Quant="F">KDR</Barcode>
+				<Barcode name="15930544_15930544" AlamarTargetID="NA" Curve_Quant="F">KITLG</Barcode>
+				<Barcode name="7489131_7489131" AlamarTargetID="NA" Curve_Quant="F">LAG3</Barcode>
+				<Barcode name="11732836_11732836" AlamarTargetID="NA" Curve_Quant="F">LAMP3</Barcode>
+				<Barcode name="12737799_12737799" AlamarTargetID="NA" Curve_Quant="F">LCN2</Barcode>
+				<Barcode name="13176393_13176393" AlamarTargetID="NA" Curve_Quant="F">LGALS9</Barcode>
+				<Barcode name="10934479_10934479" AlamarTargetID="NA" Curve_Quant="F">LIF</Barcode>
+				<Barcode name="6347628_6347628" AlamarTargetID="NA" Curve_Quant="F">LTBR</Barcode>
+				<Barcode name="11633525_11633525" AlamarTargetID="NA" Curve_Quant="F">MDK</Barcode>
+				<Barcode name="12007776_12007776" AlamarTargetID="NA" Curve_Quant="F">MERTK</Barcode>
+				<Barcode name="16283676_16283676" AlamarTargetID="NA" Curve_Quant="F">MET</Barcode>
+				<Barcode name="5261096_5261096" AlamarTargetID="NA" Curve_Quant="F">MICA</Barcode>
+				<Barcode name="517296_517296" AlamarTargetID="NA" Curve_Quant="F">MICB</Barcode>
+				<Barcode name="2432396_2432396" AlamarTargetID="NA" Curve_Quant="F">MIF</Barcode>
+				<Barcode name="7484678_7484678" AlamarTargetID="NA" Curve_Quant="F">MMP10</Barcode>
+				<Barcode name="9508956_9508956" AlamarTargetID="NA" Curve_Quant="F">MMP12</Barcode>
+				<Barcode name="5210631_5210631" AlamarTargetID="NA" Curve_Quant="F">MMP3</Barcode>
+				<Barcode name="8483875_8483875" AlamarTargetID="NA" Curve_Quant="F">MMP8</Barcode>
+				<Barcode name="12337645_12337645" AlamarTargetID="NA" Curve_Quant="F">MMP9</Barcode>
+				<Barcode name="9258856_9258856" AlamarTargetID="NA" Curve_Quant="F">MPO</Barcode>
+				<Barcode name="5344081_5344081" AlamarTargetID="NA" Curve_Quant="F">MUC16</Barcode>
+				<Barcode name="15495348_15495348" AlamarTargetID="NA" Curve_Quant="F">NCR1</Barcode>
+				<Barcode name="9520932_9520932" AlamarTargetID="NA" Curve_Quant="F">NGF</Barcode>
+				<Barcode name="9520712_9520712" AlamarTargetID="NA" Curve_Quant="F">OSM</Barcode>
+				<Barcode name="15931096_15931096" AlamarTargetID="NA" Curve_Quant="F">PDCD1</Barcode>
+				<Barcode name="11732760_11732760" AlamarTargetID="NA" Curve_Quant="F">PDGFA</Barcode>
+				<Barcode name="6710552_6710552" AlamarTargetID="NA" Curve_Quant="F">PTX3</Barcode>
+				<Barcode name="2638940_2638940" AlamarTargetID="NA" Curve_Quant="F">S100A12</Barcode>
+				<Barcode name="14190286_14190286" AlamarTargetID="NA" Curve_Quant="F">S100A9</Barcode>
+				<Barcode name="9992717_9992717" AlamarTargetID="NA" Curve_Quant="F">SCG2</Barcode>
+				<Barcode name="13260876_13260876" AlamarTargetID="NA" Curve_Quant="F">SELE</Barcode>
+				<Barcode name="11932572_11932572" AlamarTargetID="NA" Curve_Quant="F">SLURP1</Barcode>
+				<Barcode name="1663748_1663748" AlamarTargetID="NA" Curve_Quant="F">SPP1</Barcode>
+				<Barcode name="7871636_7871636" AlamarTargetID="NA" Curve_Quant="F">TAFA5</Barcode>
+				<Barcode name="4305601_4305601" AlamarTargetID="NA" Curve_Quant="F">TGFB1</Barcode>
+				<Barcode name="361743_361743" AlamarTargetID="NA" Curve_Quant="F">TGFB3</Barcode>
+				<Barcode name="6690904_6690904" AlamarTargetID="NA" Curve_Quant="F">THPO</Barcode>
+				<Barcode name="14753094_14753094" AlamarTargetID="NA" Curve_Quant="F">TIMP1</Barcode>
+				<Barcode name="1164780_1164780" AlamarTargetID="NA" Curve_Quant="F">TIMP2</Barcode>
+				<Barcode name="317004_317004" AlamarTargetID="NA" Curve_Quant="F">TLR3</Barcode>
+				<Barcode name="4900292_4900292" AlamarTargetID="NA" Curve_Quant="F">TNF</Barcode>
+				<Barcode name="5151536_5151536" AlamarTargetID="NA" Curve_Quant="F">TNFRSF11A</Barcode>
+				<Barcode name="15964738_15964738" AlamarTargetID="NA" Curve_Quant="F">TNFRSF13C</Barcode>
+				<Barcode name="3215120_3215120" AlamarTargetID="NA" Curve_Quant="F">TNFRSF14</Barcode>
+				<Barcode name="1773861_1773861" AlamarTargetID="NA" Curve_Quant="F">TNFRSF17</Barcode>
+				<Barcode name="8614811_8614811" AlamarTargetID="NA" Curve_Quant="F">TNFRSF18</Barcode>
+				<Barcode name="2893264_2893264" AlamarTargetID="NA" Curve_Quant="F">TNFRSF1A</Barcode>
+				<Barcode name="3438188_3438188" AlamarTargetID="NA" Curve_Quant="F">TNFRSF1B</Barcode>
+				<Barcode name="3222725_3222725" AlamarTargetID="NA" Curve_Quant="F">TNFRSF4</Barcode>
+				<Barcode name="6050186_6050186" AlamarTargetID="NA" Curve_Quant="F">TNFRSF8</Barcode>
+				<Barcode name="6887233_6887233" AlamarTargetID="NA" Curve_Quant="F">TNFRSF9</Barcode>
+				<Barcode name="5064198_5064198" AlamarTargetID="NA" Curve_Quant="F">TNFSF10</Barcode>
+				<Barcode name="4855569_4855569" AlamarTargetID="NA" Curve_Quant="F">TNFSF11</Barcode>
+				<Barcode name="6035236_6035236" AlamarTargetID="NA" Curve_Quant="F">TNFSF12</Barcode>
+				<Barcode name="9725168_9725168" AlamarTargetID="NA" Curve_Quant="F">TNFSF13B</Barcode>
+				<Barcode name="13658503_13658503" AlamarTargetID="NA" Curve_Quant="F">TNFSF15</Barcode>
+				<Barcode name="5468272_5468272" AlamarTargetID="NA" Curve_Quant="F">TNFSF4</Barcode>
+				<Barcode name="10970568_10970568" AlamarTargetID="NA" Curve_Quant="F">TNFSF8</Barcode>
+				<Barcode name="14994528_14994528" AlamarTargetID="NA" Curve_Quant="F">TNFSF9</Barcode>
+				<Barcode name="1449256_1449256" AlamarTargetID="NA" Curve_Quant="F">TREM1</Barcode>
+				<Barcode name="323684_323684" AlamarTargetID="NA" Curve_Quant="F">TSLP</Barcode>
+				<Barcode name="5462177_5462177" AlamarTargetID="NA" Curve_Quant="F">VCAM1</Barcode>
+				<Barcode name="1446593_1446593" AlamarTargetID="NA" Curve_Quant="F">VEGFA</Barcode>
+				<Barcode name="1331952_1331952" AlamarTargetID="NA" Curve_Quant="F">VEGFC</Barcode>
+				<Barcode name="6067138_6067138" AlamarTargetID="NA" Curve_Quant="F">VEGFD</Barcode>
+				<Barcode name="13305492_13305492" AlamarTargetID="NA" Curve_Quant="F">VSNL1</Barcode>
+				<Barcode name="529532_529532" AlamarTargetID="NA" Curve_Quant="F">VSTM1</Barcode>
+				<Barcode name="6705376_6705376" AlamarTargetID="NA" Curve_Quant="F">WNT16</Barcode>
+				<Barcode name="5791823_5791823" AlamarTargetID="NA" Curve_Quant="F">WNT7A</Barcode>
+				<Barcode name="12867621_12867621" AlamarTargetID="NA" Curve_Quant="F">mCherry</Barcode>
 			</BarcodeA>
 			<BarcodeB>
-				<Barcode name="285582" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="1" AUTO_WELLPOSITION="A1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_01_Urine -AIN 1</Barcode>
-				<Barcode name="434032" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="2" AUTO_WELLPOSITION="A2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_02_Urine -AIN 9</Barcode>
-				<Barcode name="937904" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="3" AUTO_WELLPOSITION="A3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_03_Urine -AIN 17</Barcode>
-				<Barcode name="67344" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="4" AUTO_WELLPOSITION="A4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_04_Urine -AIN 25</Barcode>
-				<Barcode name="820176" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="5" AUTO_WELLPOSITION="A5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_05_Urine -AIN 33</Barcode>
-				<Barcode name="54352" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="6" AUTO_WELLPOSITION="A6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_06_Urine -AIN 41</Barcode>
-				<Barcode name="291216" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="7" AUTO_WELLPOSITION="A7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_07_Urine -AIN 49</Barcode>
-				<Barcode name="208444" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="8" AUTO_WELLPOSITION="A8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_08_Urine -AIN 57</Barcode>
-				<Barcode name="365356" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="9" AUTO_WELLPOSITION="A9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_09_Urine-non-AIN 4</Barcode>
-				<Barcode name="969900" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="10" AUTO_WELLPOSITION="A10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_10_Urine-non-AIN 12</Barcode>
-				<Barcode name="562324" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="11" AUTO_WELLPOSITION="A11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_11_Urine-non-AIN 20</Barcode>
-				<Barcode name="329188" SMI_ID="NA" type="SC" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="12" AUTO_WELLPOSITION="A12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_12_SC_Rep01</Barcode>
-				<Barcode name="320904" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="1" AUTO_WELLPOSITION="B1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_01_Urine -AIN 2</Barcode>
-				<Barcode name="364696" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="2" AUTO_WELLPOSITION="B2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_02_Urine -AIN 10</Barcode>
-				<Barcode name="1012328" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="3" AUTO_WELLPOSITION="B3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_03_Urine -AIN 18</Barcode>
-				<Barcode name="1001503" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="4" AUTO_WELLPOSITION="B4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_04_Urine -AIN 26</Barcode>
-				<Barcode name="135775" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="5" AUTO_WELLPOSITION="B5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_05_Urine -AIN 34</Barcode>
-				<Barcode name="573743" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="6" AUTO_WELLPOSITION="B6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_06_Urine -AIN 42</Barcode>
-				<Barcode name="962927" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="7" AUTO_WELLPOSITION="B7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_07_Urine -AIN 50</Barcode>
-				<Barcode name="211703" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="8" AUTO_WELLPOSITION="B8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_08_Urine -AIN 58</Barcode>
-				<Barcode name="774951" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="9" AUTO_WELLPOSITION="B9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_09_Urine-non-AIN 5</Barcode>
-				<Barcode name="981451" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="10" AUTO_WELLPOSITION="B10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_10_Urine-non-AIN 13</Barcode>
-				<Barcode name="78811" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="11" AUTO_WELLPOSITION="B11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_11_Urine-non-AIN 21</Barcode>
-				<Barcode name="40176" SMI_ID="NA" type="SC" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="12" AUTO_WELLPOSITION="B12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_12_SC_Rep02</Barcode>
-				<Barcode name="843504" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="1" AUTO_WELLPOSITION="C1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_01_Urine -AIN 3</Barcode>
-				<Barcode name="865904" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="2" AUTO_WELLPOSITION="C2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_02_Urine -AIN 11</Barcode>
-				<Barcode name="425648" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="3" AUTO_WELLPOSITION="C3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_03_Urine -AIN 19</Barcode>
-				<Barcode name="159184" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="4" AUTO_WELLPOSITION="C4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_04_Urine -AIN 27</Barcode>
-				<Barcode name="315536" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="5" AUTO_WELLPOSITION="C5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_05_Urine -AIN 35</Barcode>
-				<Barcode name="463904" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="6" AUTO_WELLPOSITION="C6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_06_Urine -AIN 43</Barcode>
-				<Barcode name="206816" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="7" AUTO_WELLPOSITION="C7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_07_Urine -AIN 51</Barcode>
-				<Barcode name="1011424" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="8" AUTO_WELLPOSITION="C8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_08_Urine -AIN 59</Barcode>
-				<Barcode name="966240" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="9" AUTO_WELLPOSITION="C9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_09_Urine-non-AIN 6</Barcode>
-				<Barcode name="804256" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="10" AUTO_WELLPOSITION="C10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_10_Urine-non-AIN 14</Barcode>
-				<Barcode name="47900" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="11" AUTO_WELLPOSITION="C11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_11_Urine-non-AIN 22</Barcode>
-				<Barcode name="48876" SMI_ID="NA" type="IPC" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="12" AUTO_WELLPOSITION="C12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_12_IPC_Rep01</Barcode>
-				<Barcode name="424300" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="1" AUTO_WELLPOSITION="D1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_01_Urine -AIN 4</Barcode>
-				<Barcode name="809900" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="2" AUTO_WELLPOSITION="D2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_02_Urine -AIN 12</Barcode>
-				<Barcode name="60228" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="3" AUTO_WELLPOSITION="D3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_03_Urine -AIN 20</Barcode>
-				<Barcode name="448052" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="4" AUTO_WELLPOSITION="D4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_04_Urine -AIN 28</Barcode>
-				<Barcode name="338292" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="5" AUTO_WELLPOSITION="D5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_05_Urine -AIN 36</Barcode>
-				<Barcode name="289812" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="6" AUTO_WELLPOSITION="D6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_06_Urine -AIN 44</Barcode>
-				<Barcode name="461860" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="7" AUTO_WELLPOSITION="D7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_07_Urine -AIN 52</Barcode>
-				<Barcode name="303972" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="8" AUTO_WELLPOSITION="D8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_08_Urine -AIN 60</Barcode>
-				<Barcode name="997284" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="9" AUTO_WELLPOSITION="D9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_09_Urine-non-AIN 7</Barcode>
-				<Barcode name="1011960" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="10" AUTO_WELLPOSITION="D10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_10_Urine-non-AIN 15</Barcode>
-				<Barcode name="19576" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="11" AUTO_WELLPOSITION="D11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_11_Urine-non-AIN 23</Barcode>
-				<Barcode name="330776" SMI_ID="NA" type="IPC" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="12" AUTO_WELLPOSITION="D12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_12_IPC_Rep02</Barcode>
-				<Barcode name="138200" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="1" AUTO_WELLPOSITION="E1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_01_Urine -AIN 5</Barcode>
-				<Barcode name="217384" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="2" AUTO_WELLPOSITION="E2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_02_Urine -AIN 13</Barcode>
-				<Barcode name="92648" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="3" AUTO_WELLPOSITION="E3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_03_Urine -AIN 21</Barcode>
-				<Barcode name="321299" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="4" AUTO_WELLPOSITION="E4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_04_Urine -AIN 29</Barcode>
-				<Barcode name="91535" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="5" AUTO_WELLPOSITION="E5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_05_Urine -AIN 37</Barcode>
-				<Barcode name="552159" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="6" AUTO_WELLPOSITION="E6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_06_Urine -AIN 45</Barcode>
-				<Barcode name="763295" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="7" AUTO_WELLPOSITION="E7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_07_Urine -AIN 53</Barcode>
-				<Barcode name="776239" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="8" AUTO_WELLPOSITION="E8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_08_Urine -AIN 61</Barcode>
-				<Barcode name="406063" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="9" AUTO_WELLPOSITION="E9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_09_Urine-non-AIN 8</Barcode>
-				<Barcode name="336367" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="10" AUTO_WELLPOSITION="E10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_10_Urine-non-AIN 16</Barcode>
-				<Barcode name="301999" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="11" AUTO_WELLPOSITION="E11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_11_Urine-non-AIN 24</Barcode>
-				<Barcode name="556007" SMI_ID="NA" type="IPC" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="12" AUTO_WELLPOSITION="E12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_12_IPC_Rep03</Barcode>
-				<Barcode name="547431" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="1" AUTO_WELLPOSITION="F1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_01_Urine -AIN 6</Barcode>
-				<Barcode name="95291" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="2" AUTO_WELLPOSITION="F2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_02_Urine -AIN 14</Barcode>
-				<Barcode name="848107" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="3" AUTO_WELLPOSITION="F3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_03_Urine -AIN 22</Barcode>
-				<Barcode name="596843" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="4" AUTO_WELLPOSITION="F4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_04_Urine -AIN 30</Barcode>
-				<Barcode name="804561" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="5" AUTO_WELLPOSITION="F5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_05_Urine -AIN 38</Barcode>
-				<Barcode name="20269" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="6" AUTO_WELLPOSITION="F6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_06_Urine -AIN 46</Barcode>
-				<Barcode name="1022005" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="7" AUTO_WELLPOSITION="F7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_07_Urine -AIN 54</Barcode>
-				<Barcode name="55013" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="8" AUTO_WELLPOSITION="F8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_08_Urine-non-AIN 1</Barcode>
-				<Barcode name="208037" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="9" AUTO_WELLPOSITION="F9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_09_Urine-non-AIN 9</Barcode>
-				<Barcode name="377481" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="10" AUTO_WELLPOSITION="F10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_10_Urine-non-AIN 17</Barcode>
-				<Barcode name="284713" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="11" AUTO_WELLPOSITION="F11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_11_Urine-non-AIN 25</Barcode>
-				<Barcode name="448233" SMI_ID="NA" type="NC" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="12" AUTO_WELLPOSITION="F12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="NC" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_12_NC_Rep01</Barcode>
-				<Barcode name="506473" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="1" AUTO_WELLPOSITION="G1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_01_Urine -AIN 7</Barcode>
-				<Barcode name="441762" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="2" AUTO_WELLPOSITION="G2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_02_Urine -AIN 15</Barcode>
-				<Barcode name="282846" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="3" AUTO_WELLPOSITION="G3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_03_Urine -AIN 23</Barcode>
-				<Barcode name="291950" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="4" AUTO_WELLPOSITION="G4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_04_Urine -AIN 31</Barcode>
-				<Barcode name="814518" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="5" AUTO_WELLPOSITION="G5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_05_Urine -AIN 39</Barcode>
-				<Barcode name="497302" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="6" AUTO_WELLPOSITION="G6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_06_Urine -AIN 47</Barcode>
-				<Barcode name="973690" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="7" AUTO_WELLPOSITION="G7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_07_Urine -AIN 55</Barcode>
-				<Barcode name="46042" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="8" AUTO_WELLPOSITION="G8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_08_Urine-non-AIN 2</Barcode>
-				<Barcode name="954091" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="9" AUTO_WELLPOSITION="G9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_09_Urine-non-AIN 10</Barcode>
-				<Barcode name="379301" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="10" AUTO_WELLPOSITION="G10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_10_Urine-non-AIN 18</Barcode>
-				<Barcode name="476946" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="11" AUTO_WELLPOSITION="G11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_11_Urine-non-AIN 26</Barcode>
-				<Barcode name="482352" SMI_ID="NA" type="NC" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="12" AUTO_WELLPOSITION="G12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="NC" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_12_NC_Rep02</Barcode>
-				<Barcode name="340400" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="1" AUTO_WELLPOSITION="H1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_01_Urine -AIN 8</Barcode>
-				<Barcode name="199632" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="2" AUTO_WELLPOSITION="H2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_02_Urine -AIN 16</Barcode>
-				<Barcode name="325783" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="3" AUTO_WELLPOSITION="H3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_03_Urine -AIN 24</Barcode>
-				<Barcode name="937249" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="4" AUTO_WELLPOSITION="H4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_04_Urine -AIN 32</Barcode>
-				<Barcode name="242669" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="5" AUTO_WELLPOSITION="H5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_05_Urine -AIN 40</Barcode>
-				<Barcode name="969061" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="6" AUTO_WELLPOSITION="H6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_06_Urine -AIN 48</Barcode>
-				<Barcode name="811241" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="7" AUTO_WELLPOSITION="H7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_07_Urine -AIN 56</Barcode>
-				<Barcode name="220978" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="8" AUTO_WELLPOSITION="H8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_08_Urine-non-AIN 3</Barcode>
-				<Barcode name="112590" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="9" AUTO_WELLPOSITION="H9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_09_Urine-non-AIN 11</Barcode>
-				<Barcode name="941126" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="10" AUTO_WELLPOSITION="H10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_10_Urine-non-AIN 19</Barcode>
-				<Barcode name="80406" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="11" AUTO_WELLPOSITION="H11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_11_Urine-non-AIN 27</Barcode>
-				<Barcode name="510874" SMI_ID="NA" type="NC" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="12" AUTO_WELLPOSITION="H12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="NC" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_12_NC_Rep03</Barcode>
+				<Barcode name="285582" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="1" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_01_Urine -AIN 1</Barcode>
+				<Barcode name="434032" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="2" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_02_Urine -AIN 9</Barcode>
+				<Barcode name="937904" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="3" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_03_Urine -AIN 17</Barcode>
+				<Barcode name="67344" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="4" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_04_Urine -AIN 25</Barcode>
+				<Barcode name="820176" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="5" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_05_Urine -AIN 33</Barcode>
+				<Barcode name="54352" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="6" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_06_Urine -AIN 41</Barcode>
+				<Barcode name="291216" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="7" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_07_Urine -AIN 49</Barcode>
+				<Barcode name="208444" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="8" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_08_Urine -AIN 57</Barcode>
+				<Barcode name="365356" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="9" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_09_Urine-non-AIN 4</Barcode>
+				<Barcode name="969900" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="10" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_10_Urine-non-AIN 12</Barcode>
+				<Barcode name="562324" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="11" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_11_Urine-non-AIN 20</Barcode>
+				<Barcode name="329188" SMI_ID="NA" type="SC" AUTO_PLATE="Plate_01" AUTO_WELLROW="A" AUTO_WELLCOL="12" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="A12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">A_12_SC_Rep01</Barcode>
+				<Barcode name="320904" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="1" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_01_Urine -AIN 2</Barcode>
+				<Barcode name="364696" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="2" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_02_Urine -AIN 10</Barcode>
+				<Barcode name="1012328" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="3" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_03_Urine -AIN 18</Barcode>
+				<Barcode name="1001503" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="4" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_04_Urine -AIN 26</Barcode>
+				<Barcode name="135775" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="5" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_05_Urine -AIN 34</Barcode>
+				<Barcode name="573743" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="6" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_06_Urine -AIN 42</Barcode>
+				<Barcode name="962927" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="7" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_07_Urine -AIN 50</Barcode>
+				<Barcode name="211703" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="8" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_08_Urine -AIN 58</Barcode>
+				<Barcode name="774951" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="9" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_09_Urine-non-AIN 5</Barcode>
+				<Barcode name="981451" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="10" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_10_Urine-non-AIN 13</Barcode>
+				<Barcode name="78811" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="11" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_11_Urine-non-AIN 21</Barcode>
+				<Barcode name="40176" SMI_ID="NA" type="SC" AUTO_PLATE="Plate_01" AUTO_WELLROW="B" AUTO_WELLCOL="12" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="B12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">B_12_SC_Rep02</Barcode>
+				<Barcode name="843504" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="1" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_01_Urine -AIN 3</Barcode>
+				<Barcode name="865904" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="2" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_02_Urine -AIN 11</Barcode>
+				<Barcode name="425648" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="3" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_03_Urine -AIN 19</Barcode>
+				<Barcode name="159184" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="4" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_04_Urine -AIN 27</Barcode>
+				<Barcode name="315536" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="5" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_05_Urine -AIN 35</Barcode>
+				<Barcode name="463904" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="6" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_06_Urine -AIN 43</Barcode>
+				<Barcode name="206816" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="7" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_07_Urine -AIN 51</Barcode>
+				<Barcode name="1011424" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="8" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_08_Urine -AIN 59</Barcode>
+				<Barcode name="966240" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="9" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_09_Urine-non-AIN 6</Barcode>
+				<Barcode name="804256" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="10" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_10_Urine-non-AIN 14</Barcode>
+				<Barcode name="47900" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="11" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_11_Urine-non-AIN 22</Barcode>
+				<Barcode name="48876" SMI_ID="NA" type="IPC" AUTO_PLATE="Plate_01" AUTO_WELLROW="C" AUTO_WELLCOL="12" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="C12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">C_12_IPC_Rep01</Barcode>
+				<Barcode name="424300" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="1" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_01_Urine -AIN 4</Barcode>
+				<Barcode name="809900" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="2" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_02_Urine -AIN 12</Barcode>
+				<Barcode name="60228" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="3" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_03_Urine -AIN 20</Barcode>
+				<Barcode name="448052" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="4" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_04_Urine -AIN 28</Barcode>
+				<Barcode name="338292" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="5" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_05_Urine -AIN 36</Barcode>
+				<Barcode name="289812" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="6" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_06_Urine -AIN 44</Barcode>
+				<Barcode name="461860" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="7" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_07_Urine -AIN 52</Barcode>
+				<Barcode name="303972" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="8" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_08_Urine -AIN 60</Barcode>
+				<Barcode name="997284" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="9" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_09_Urine-non-AIN 7</Barcode>
+				<Barcode name="1011960" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="10" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_10_Urine-non-AIN 15</Barcode>
+				<Barcode name="19576" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="11" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_11_Urine-non-AIN 23</Barcode>
+				<Barcode name="330776" SMI_ID="NA" type="IPC" AUTO_PLATE="Plate_01" AUTO_WELLROW="D" AUTO_WELLCOL="12" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="D12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">D_12_IPC_Rep02</Barcode>
+				<Barcode name="138200" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="1" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_01_Urine -AIN 5</Barcode>
+				<Barcode name="217384" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="2" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_02_Urine -AIN 13</Barcode>
+				<Barcode name="92648" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="3" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_03_Urine -AIN 21</Barcode>
+				<Barcode name="321299" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="4" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_04_Urine -AIN 29</Barcode>
+				<Barcode name="91535" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="5" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_05_Urine -AIN 37</Barcode>
+				<Barcode name="552159" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="6" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_06_Urine -AIN 45</Barcode>
+				<Barcode name="763295" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="7" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_07_Urine -AIN 53</Barcode>
+				<Barcode name="776239" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="8" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_08_Urine -AIN 61</Barcode>
+				<Barcode name="406063" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="9" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_09_Urine-non-AIN 8</Barcode>
+				<Barcode name="336367" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="10" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_10_Urine-non-AIN 16</Barcode>
+				<Barcode name="301999" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="11" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_11_Urine-non-AIN 24</Barcode>
+				<Barcode name="556007" SMI_ID="NA" type="IPC" AUTO_PLATE="Plate_01" AUTO_WELLROW="E" AUTO_WELLCOL="12" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="E12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Plasma" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">E_12_IPC_Rep03</Barcode>
+				<Barcode name="547431" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="1" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_01_Urine -AIN 6</Barcode>
+				<Barcode name="95291" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="2" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_02_Urine -AIN 14</Barcode>
+				<Barcode name="848107" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="3" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_03_Urine -AIN 22</Barcode>
+				<Barcode name="596843" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="4" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_04_Urine -AIN 30</Barcode>
+				<Barcode name="804561" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="5" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_05_Urine -AIN 38</Barcode>
+				<Barcode name="20269" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="6" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_06_Urine -AIN 46</Barcode>
+				<Barcode name="1022005" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="7" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_07_Urine -AIN 54</Barcode>
+				<Barcode name="55013" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="8" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_08_Urine-non-AIN 1</Barcode>
+				<Barcode name="208037" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="9" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_09_Urine-non-AIN 9</Barcode>
+				<Barcode name="377481" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="10" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_10_Urine-non-AIN 17</Barcode>
+				<Barcode name="284713" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="11" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_11_Urine-non-AIN 25</Barcode>
+				<Barcode name="448233" SMI_ID="NA" type="NC" AUTO_PLATE="Plate_01" AUTO_WELLROW="F" AUTO_WELLCOL="12" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="F12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="NC" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">F_12_NC_Rep01</Barcode>
+				<Barcode name="506473" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="1" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_01_Urine -AIN 7</Barcode>
+				<Barcode name="441762" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="2" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_02_Urine -AIN 15</Barcode>
+				<Barcode name="282846" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="3" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_03_Urine -AIN 23</Barcode>
+				<Barcode name="291950" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="4" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_04_Urine -AIN 31</Barcode>
+				<Barcode name="814518" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="5" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_05_Urine -AIN 39</Barcode>
+				<Barcode name="497302" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="6" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_06_Urine -AIN 47</Barcode>
+				<Barcode name="973690" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="7" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_07_Urine -AIN 55</Barcode>
+				<Barcode name="46042" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="8" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_08_Urine-non-AIN 2</Barcode>
+				<Barcode name="954091" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="9" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_09_Urine-non-AIN 10</Barcode>
+				<Barcode name="379301" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="10" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_10_Urine-non-AIN 18</Barcode>
+				<Barcode name="476946" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="11" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_11_Urine-non-AIN 26</Barcode>
+				<Barcode name="482352" SMI_ID="NA" type="NC" AUTO_PLATE="Plate_01" AUTO_WELLROW="G" AUTO_WELLCOL="12" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="G12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="NC" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">G_12_NC_Rep02</Barcode>
+				<Barcode name="340400" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="1" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H1" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_01_Urine -AIN 8</Barcode>
+				<Barcode name="199632" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="2" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H2" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_02_Urine -AIN 16</Barcode>
+				<Barcode name="325783" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="3" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H3" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_03_Urine -AIN 24</Barcode>
+				<Barcode name="937249" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="4" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H4" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_04_Urine -AIN 32</Barcode>
+				<Barcode name="242669" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="5" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H5" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_05_Urine -AIN 40</Barcode>
+				<Barcode name="969061" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="6" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H6" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_06_Urine -AIN 48</Barcode>
+				<Barcode name="811241" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="7" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H7" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_07_Urine -AIN 56</Barcode>
+				<Barcode name="220978" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="8" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H8" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_08_Urine-non-AIN 3</Barcode>
+				<Barcode name="112590" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="9" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H9" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_09_Urine-non-AIN 11</Barcode>
+				<Barcode name="941126" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="10" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H10" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_10_Urine-non-AIN 19</Barcode>
+				<Barcode name="80406" SMI_ID="NA" type="sample" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="11" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H11" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="Urine" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_11_Urine-non-AIN 27</Barcode>
+				<Barcode name="510874" SMI_ID="NA" type="NC" AUTO_PLATE="Plate_01" AUTO_WELLROW="H" AUTO_WELLCOL="12" SAMPLE_MATRIX="PLASMA" AUTO_WELLPOSITION="H12" OPERATOR="IA" EXPERIMENT_ID="20230512_IA_P-000017-MDAnderson_Plate01_TAP_200-Plex_v1_NULISA-Seq" SEQ_INSTRUMENT_ID="NEXTSeq1" SEQ_RUN_DATE="20230512" CONDITION_1="NC" CONDITION_2="NA" CONDITION_3="NA" CONDITION_4="NA" CONDITION_5="NA">H_12_NC_Rep03</Barcode>
 			</BarcodeB>
 		</Barcodes>
 		<Tags>
