@@ -130,10 +130,12 @@ QC2XML <- function(input, QCNode, sample=F, combined=F){
 #' # QCFlagSample(inputtable)
 #'
 #' @export
+
 QCFlagSample <- function(raw, normed, samples, targets, 
                          well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL){
   columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", 
                "sampleBarcode", "sampleType", "QCthreshold", "QCoperator", "QCformat")
+
   criteria <- QCSampleCriteria()
 
   QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
@@ -145,7 +147,7 @@ QCFlagSample <- function(raw, normed, samples, targets,
   ICs  <- if(!is.null(ICs))   ICs else which(targets$targetType == "Control")
   IPCs <- if(!is.null(IPCs)) IPCs else which(samples$sampleType == "IPC")
   NCs  <- if(!is.null(NCs))   NCs else which(samples$sampleType == "NC")
-  SCs <- if(!is.null(SCs)) SCs else which(samples$sampleType == "SC")
+  SCs  <- if(!is.null(SCs))   SCs else which(samples$sampleType == "SC")
 
   # Median IC between -30% and 30% of median  
   mCherry_median <- median(raw[ICs[1],], na.rm=T)

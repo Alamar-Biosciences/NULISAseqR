@@ -188,6 +188,12 @@ readNULISAseq <- function(file,
     if(!is.null(samples$type)){
       sampleType <- unlist(lapply(samples$type, FUN=function(t) gsub(pattern="sample", replacement="Sample", x=t, fixed=T)))
       samples$type <- NULL
+    }else{ # try to infer sample type from sample names
+      sampleType <- rep("Sample", length(samples$sampleName))
+      sampleType[grep(paste("NC", collapse="|"), samples$sampleName)]  <- "NC" 
+      sampleType[grep(paste("SC", collapse="|"), samples$sampleName)] <- "SC" 
+      sampleType[grep(paste("IPC", collapse="|"), samples$sampleName)] <- "IPC" 
+      sampleType[grep(paste("Bridge", collapse="|"), samples$sampleName)] <- "Bridge"
     } 
     
     # add well type information
@@ -205,18 +211,10 @@ readNULISAseq <- function(file,
     
     # save the special well type column names
     specialWellsTargets <- list()
-    if(!is.null(IPC)) {
-      specialWellsTargets[['IPC']] <- samples$sampleName[samples$sampleType=='IPC']
-    }
-    if(!is.null(NC)) { 
-      specialWellsTargets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
-    }
-    if(!is.null(SC)) {
-      specialWellsTargets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
-    }
-    if(!is.null(Bridge)) {
-      specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
-    }
+    specialWellsTargets[['IPC']] <- samples$sampleName[samples$sampleType=='IPC']
+    specialWellsTargets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
+    specialWellsTargets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
+    specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
     specialWellsTargets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
     
     # add sample identity information
@@ -258,7 +256,22 @@ readNULISAseq <- function(file,
 
     # Determine if covariates are numeric
     numericCovariates <- sapply(samples, function(lst) all(sapply(na.omit(lst), function(x) suppressWarnings(!is.na(as.numeric(x))))))
+
+    # if no sample matrix given assign "PLASMA"
+    if(is.null(samples$SAMPLE_MATRIX)){
+      samples$SAMPLE_MATRIX <- "PLASMA"
+    }
+
+    # if no Curve_Quant attribute given, assign "F" for forward curve
+    if(is.null(targets$Curve_Quant)){
+      targets$Curve_Quant <- "F"
+    }
     
+    # if no AlamarTargetID given assign it a NA value
+    if(is.null(targets$AlamarTargetID)){
+      targets$AlamarTargetID <- NA
+    }
+
     ###########################
     # return the output
     ###########################
@@ -337,8 +350,8 @@ readNULISAseq <- function(file,
 #'
 #' @export
 #'
-loadNULISAseq <- function(file, IPC, IC, ...){
-  raw <- readNULISAseq(file, IPC=IPC, IC=IC, ...)
+loadNULISAseq <- function(file, IPC, IC, SC, ...){
+  raw <- readNULISAseq(file, IPC=IPC, IC=IC, SC=SC, ...)
   raw$IC_normed <- intraPlateNorm(raw$Data, IC=IC[1], ...)
   raw$normed <- interPlateNorm(list(raw$IC_normed$normData), IPC_wells=list(raw$IPC), ...)
   raw$qcPlate <- QCFlagPlate(raw$Data, raw$IC_normed$normData, raw$targets, raw$samples)
