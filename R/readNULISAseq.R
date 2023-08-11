@@ -19,7 +19,7 @@
 #' Only used for \code{csv_long} format, and only needed when sample column names
 #' are different from the default. Default includes all column names in the csv except 
 #' for the target column names, given above (either the default or whatever is specified), 
-#' and the following: \code{c('Panel', 'PanelLotNumber', 'LOD', 'log2NormalizedCount')}. 
+#' and the following: \code{c('Panel', 'PanelLotNumber', 'LOD', 'NPQ')}. 
 #' The sample-specific data
 #' will include by default \code{c('PlateID', 'SampleName', 'SampleType', 'SampleQC')}.
 #' In addition, by default, it will include any other variables in the dataset.
@@ -106,6 +106,7 @@ readNULISAseq <- function(file,
     # save sample data in data frame
     sampleBarcode <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)$name))
     sampleName <- unlist(RunSummary$Barcodes$BarcodeB)
+    sampleID <- if(!is.null(plateID)) paste0(plateID, ".", sampleName) else sampleName
     # get other sample annotations
     barcodeB_attrs <- names(attributes(RunSummary$Barcodes$BarcodeB[[1]]))
     barcodeB_attrs <- barcodeB_attrs[barcodeB_attrs!='name']
@@ -118,6 +119,7 @@ readNULISAseq <- function(file,
       }
       samples <- data.frame(sampleBarcode=sampleBarcode, 
                             sampleName=sampleName, 
+                            sampleID=sampleID,
                             sampleMetadata)
     } else if (length(barcodeB_attrs) == 0) {
       samples <- data.frame(sampleBarcode, sampleName)
@@ -186,6 +188,12 @@ readNULISAseq <- function(file,
     if(!is.null(samples$type)){
       sampleType <- unlist(lapply(samples$type, FUN=function(t) gsub(pattern="sample", replacement="Sample", x=t, fixed=T)))
       samples$type <- NULL
+    }else{ # try to infer sample type from sample names
+      sampleType <- rep("Sample", length(samples$sampleName))
+      sampleType[grep(paste("NC", collapse="|"), samples$sampleName)]  <- "NC" 
+      sampleType[grep(paste("SC", collapse="|"), samples$sampleName)] <- "SC" 
+      sampleType[grep(paste("IPC", collapse="|"), samples$sampleName)] <- "IPC" 
+      sampleType[grep(paste("Bridge", collapse="|"), samples$sampleName)] <- "Bridge"
     } 
     
     # add well type information
@@ -203,18 +211,10 @@ readNULISAseq <- function(file,
     
     # save the special well type column names
     specialWellsTargets <- list()
-    if(!is.null(IPC)) {
-      specialWellsTargets[['IPC']] <- samples$sampleName[samples$sampleType=='IPC']
-    }
-    if(!is.null(NC)) { 
-      specialWellsTargets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
-    }
-    if(!is.null(SC)) {
-      specialWellsTargets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
-    }
-    if(!is.null(Bridge)) {
-      specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
-    }
+    specialWellsTargets[['IPC']] <- samples$sampleName[samples$sampleType=='IPC']
+    specialWellsTargets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
+    specialWellsTargets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
+    specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
     specialWellsTargets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
     
     # add sample identity information
@@ -256,7 +256,22 @@ readNULISAseq <- function(file,
 
     # Determine if covariates are numeric
     numericCovariates <- sapply(samples, function(lst) all(sapply(na.omit(lst), function(x) suppressWarnings(!is.na(as.numeric(x))))))
+
+    # if no sample matrix given assign "PLASMA"
+    if(is.null(samples$SAMPLE_MATRIX)){
+      samples$SAMPLE_MATRIX <- "PLASMA"
+    }
+
+    # if no Curve_Quant attribute given, assign "F" for forward curve
+    if(is.null(targets$Curve_Quant)){
+      targets$Curve_Quant <- "F"
+    }
     
+    # if no AlamarTargetID given assign it a NA value
+    if(is.null(targets$AlamarTargetID)){
+      targets$AlamarTargetID <- NA
+    }
+
     ###########################
     # return the output
     ###########################
@@ -282,15 +297,15 @@ readNULISAseq <- function(file,
     if(is.null(sample_column_names)){
       sample_column_names <- Data_colnames[!(Data_colnames %in% c(target_column_names, 
                                                                   'Panel', 'PanelLotNumber',
-                                                                  'LOD', 'log2NormalizedCount'))]
+                                                                  'LOD', 'NPQ'))]
     }
     targets <- unique(Data[,target_column_names])
     samples <- unique(Data[,sample_column_names])
     # make an LOD data frame
     LOD <- unique(Data[,c('PlateID', 'Target', 'LOD')])
-    # reformat the log2NormalizedCount data
+    # reformat the NPQ data
     # reformat into wide, targets in columns
-    Data <- reshape(Data[,c('SampleName', 'Target', 'log2NormalizedCount')],
+    Data <- reshape(Data[,c('SampleName', 'Target', 'NPQ')],
                     direction= 'wide',
                     idvar = 'Target',
                     timevar='SampleName')
@@ -335,8 +350,8 @@ readNULISAseq <- function(file,
 #'
 #' @export
 #'
-loadNULISAseq <- function(file, IPC, IC, ...){
-  raw <- readNULISAseq(file, IPC=IPC, IC=IC, ...)
+loadNULISAseq <- function(file, IPC, IC, SC, ...){
+  raw <- readNULISAseq(file, IPC=IPC, IC=IC, SC=SC, ...)
   raw$IC_normed <- intraPlateNorm(raw$Data, IC=IC[1], ...)
   raw$normed <- interPlateNorm(list(raw$IC_normed$normData), IPC_wells=list(raw$IPC), ...)
   raw$qcPlate <- QCFlagPlate(raw$Data, raw$IC_normed$normData, raw$targets, raw$samples)
