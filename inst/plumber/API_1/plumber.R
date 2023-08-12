@@ -61,6 +61,7 @@ normXML <- function(in_xml,
 #* @param assayName Name of the assay
 #* @param reportType Type of the report. Options: "WebApp", "internal".
 #* @param excludeSamples Sample barcodes to be excluded from analysis
+#* @param excludeTargets Targets to be excluded from analysis
 #* @param outputPlots Output HTML document and required plots for slides. Returned will be a zip file.
 #* @param sampleGroupCovar Covariate to retrieve sample group information
 #* @post /xml2html
@@ -73,6 +74,7 @@ xml2html <- function(res,
                      assayName = "NULISAseq 200-plex Inflammation Panel",
                      reportType = "WebApp",
                      excludeSamples = NULL,
+                     excludeTargets = NULL,
                      outputPlots = FALSE,
                      sampleGroupCovar = NULL) {
   promises::future_promise({
@@ -85,6 +87,7 @@ xml2html <- function(res,
 
     # Convert to vectors: If a comma-separated string encounters
     excludeSamples <- if (!is.null(excludeSamples)) unlist(strsplit(excludeSamples, "\\s*,\\s*"))
+    excludeTargets <- if (!is.null(excludeTargets)) unlist(strsplit(excludeTargets, "\\s*,\\s*"))
     IPC <- unlist(strsplit(IPC, "\\s*,\\s*"))
     NC <- unlist(strsplit(NC, "\\s*,\\s*"))
     IC <- unlist(strsplit(IC, "\\s*,\\s*"))
@@ -106,6 +109,7 @@ xml2html <- function(res,
                                     study_name = study_name,
                                     assayName = assayName,
                                     excludeSamples = excludeSamples,
+                                    excludeTargets = excludeTargets,
                                     outputPlots = outputPlots,
                                     sampleGroupCovar = sampleGroupCovar))
 
