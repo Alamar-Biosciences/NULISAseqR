@@ -260,7 +260,10 @@ readNULISAseq <- function(file,
     # if no sample matrix given assign "PLASMA"
     if(is.null(samples$SAMPLE_MATRIX)){
       samples$SAMPLE_MATRIX <- "PLASMA"
+    }else{
+      samples$SAMPLE_MATRIX <- toupper(samples$SAMPLE_MATRIX)
     }
+    samples$SAMPLE_MATRIX[which(samples$sampleType != "Sample")] <- "CONTROL"
 
     # if no Curve_Quant attribute given, assign "F" for forward curve
     if(is.null(targets$Curve_Quant)){
