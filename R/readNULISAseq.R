@@ -353,7 +353,7 @@ readNULISAseq <- function(file,
 #'
 #' @export
 #'
-loadNULISAseq <- function(file, IPC, IC, SC, ...){
+loadNULISAseq <- function(file, IPC=NULL, IC='mCherry', SC=NULL, NC=NULL, ...){
   raw <- readNULISAseq(file, IPC=IPC, IC=IC, SC=SC, ...)
   raw$IC_normed <- intraPlateNorm(raw$Data, IC=IC[1], ...)
   ind <-  which(raw$targets$Curve_Quant == "R")
