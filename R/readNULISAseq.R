@@ -260,7 +260,10 @@ readNULISAseq <- function(file,
     # if no sample matrix given assign "PLASMA"
     if(is.null(samples$SAMPLE_MATRIX)){
       samples$SAMPLE_MATRIX <- "PLASMA"
+    }else{
+      samples$SAMPLE_MATRIX <- toupper(samples$SAMPLE_MATRIX)
     }
+    samples$SAMPLE_MATRIX[which(samples$sampleType != "Sample")] <- "CONTROL"
 
     # if no Curve_Quant attribute given, assign "F" for forward curve
     if(is.null(targets$Curve_Quant)){
@@ -350,10 +353,13 @@ readNULISAseq <- function(file,
 #'
 #' @export
 #'
-loadNULISAseq <- function(file, IPC, IC, SC, ...){
+loadNULISAseq <- function(file, IPC=NULL, IC='mCherry', SC=NULL, NC=NULL, ...){
   raw <- readNULISAseq(file, IPC=IPC, IC=IC, SC=SC, ...)
   raw$IC_normed <- intraPlateNorm(raw$Data, IC=IC[1], ...)
-  raw$normed <- interPlateNorm(list(raw$IC_normed$normData), IPC_wells=list(raw$IPC), ...)
+  ind <-  which(raw$targets$Curve_Quant == "R")
+  reverseCurve <- if (length(ind) > 0) raw$targets$targetName[ind] else NULL
+  raw$normed_untransformedReverse <- interPlateNorm(list(raw$IC_normed$normData), reverseCurve, IPC_wells=list(raw$IPC), ...)
+  raw$normed <- interPlateNorm(list(raw$IC_normed$normData), reverseCurve, IPC_wells=list(raw$IPC), ...)
   raw$qcPlate <- QCFlagPlate(raw$Data, raw$IC_normed$normData, raw$targets, raw$samples)
   raw$qcSample <- QCFlagSample(raw$Data, raw$IC_normed$normData, raw$samples, raw$targets)
   return(raw)
