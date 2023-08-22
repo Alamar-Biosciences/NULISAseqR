@@ -111,6 +111,13 @@
 #' numeric value used to rescale all data after normalizing. Default is 1. 
 #' This may be desirable to avoid normalized quantities between 0 and 1 
 #' (which will be negative in the log scale). Only useful for count scale data.
+#' @param interPlateNorm_transformReverse A vector of target names passed to the
+#' interPlateNorm function. These targets will have the reverse curve 
+#' transformation applied.
+#' @param interPlateNorm_transformReverseMax The maximum value used in the 
+#' reverse curve transformation. Default is 1e6. After IPC normalization 
+#' and multiplying by the scale factor (default 1e4), reverse curve 
+#' target values are subtracted from this maximum value.
 #' @param replaceNA Logical. Passed to readNULISAseq() function.
 #' If TRUE (default), will replace missing counts with 
 #' zeros.
@@ -150,6 +157,8 @@ writeNULISAseq <- function(xml_files,
                            IN_samples=NULL,
                            interPlateNorm_dataScale='count',
                            interPlateNorm_scaleFactor=10^4,
+                           interPlateNorm_transformReverse=NULL,
+                           interPlateNorm_transformReverseMax=1e6,
                            replaceNA=TRUE,
                            verbose=TRUE){
   n_plates <- length(xml_files)
@@ -243,7 +252,9 @@ writeNULISAseq <- function(xml_files,
                                           IPC_wells=lapply(runs, function(x) x$IPC),
                                           IPC_method=IPC_method,
                                           dataScale=interPlateNorm_dataScale,
-                                          scaleFactor=interPlateNorm_scaleFactor)
+                                          scaleFactor=interPlateNorm_scaleFactor,
+                                          transformReverse=interPlateNorm_transformReverse,
+                                          transformReverseMax=interPlateNorm_transformReverseMax)
     Data <- interPlateNorm_data$interNormData
     if(verbose==TRUE) cat('Inter-plate IPC normalization completed.\n')
   } else if(interPlateNorm_method=='IN'){
