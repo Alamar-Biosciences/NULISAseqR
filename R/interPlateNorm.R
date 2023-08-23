@@ -57,7 +57,6 @@
 #' after IPC normalization. Default is 10^4. This shifts the data distribution 
 #' to larger positive values, and helps prevent negative values after 
 #' adding 1 and log-transforming. Only useful for count scale data.
-#'
 #' @return A list.
 #' \item{interNormData}{A list of matrices of normalized count data (not 
 #' log-transformed, unless input data was log-transformed, which should use `dataScale='log'`).}
@@ -213,7 +212,6 @@ interPlateNorm <- function(data_list,
   for (i in 1:length(plateNs)){
     plate <- c(plate, rep(i, plateNs[i]))
   }
-  
   # log2 transform the output
   log2_interNormData <- lapply(data_list, function(x) log2(x + 1))
   
