@@ -57,7 +57,12 @@
 #' after IPC normalization. Default is 10^4. This shifts the data distribution 
 #' to larger positive values, and helps prevent negative values after 
 #' adding 1 and log-transforming. Only useful for count scale data.
-#'
+#' @param transformReverse A vector of target names that use reverse curve
+#' quantification. The reverse curve transformation will be applied to these targets.
+#' @param transformReverseMax=1e8 The maximum value used in the 
+#' reverse curve transformation. Default is 1e8. After IPC normalization 
+#' and multiplying by the scale factor (default 1e4), reverse curve 
+#' target values are subtracted from this maximum value.
 #' @return A list.
 #' \item{interNormData}{A list of matrices of normalized count data (not 
 #' log-transformed, unless input data was log-transformed, which should use `dataScale='log'`).}
@@ -73,7 +78,6 @@
 #' @export
 #' 
 interPlateNorm <- function(data_list,
-                           transformReverse=NULL,
                            IPC=TRUE,
                            IN=FALSE,
                            IPC_wells=NULL,
@@ -82,7 +86,8 @@ interPlateNorm <- function(data_list,
                            IN_samples=NULL,
                            dataScale='count',
                            scaleFactor=10^4,
-                           transformReverseMax=1e6){
+                           transformReverse=NULL,
+                           transformReverseMax=1e8){
 
   # inter-plate control normalization
   if (IPC==TRUE){
@@ -216,6 +221,7 @@ interPlateNorm <- function(data_list,
   for (i in 1:length(plateNs)){
     plate <- c(plate, rep(i, plateNs[i]))
   }
+  # apply the reverse curve transformation to specified targets
   if(!is.null(transformReverse)){
     reverses <- which(names(data_list[[i]][,1]) %in% transformReverse) 
     for (i in 1:length(data_list)){
