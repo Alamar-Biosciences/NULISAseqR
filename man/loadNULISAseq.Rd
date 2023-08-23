@@ -5,7 +5,7 @@
 \title{Convenience function for use by SAM
 Read NULISAseq XML, perform normalization, and QC}
 \usage{
-loadNULISAseq(file, IPC, IC, ...)
+loadNULISAseq(file, IPC = NULL, IC = "mCherry", SC = NULL, NC = NULL, ...)
 }
 \arguments{
 \item{file}{Character string. Path and name of the file.}

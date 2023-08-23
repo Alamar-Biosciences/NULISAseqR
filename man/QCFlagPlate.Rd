@@ -4,7 +4,16 @@
 \alias{QCFlagPlate}
 \title{Write Plate QC table}
 \usage{
-QCFlagPlate(raw, normed, targets, samples, ICs = NULL, IPCs = NULL, NCs = NULL)
+QCFlagPlate(
+  raw,
+  normed,
+  targets,
+  samples,
+  ICs = NULL,
+  IPCs = NULL,
+  NCs = NULL,
+  SCs = NULL
+)
 }
 \arguments{
 \item{raw}{unnormalized data}
@@ -14,6 +23,8 @@ QCFlagPlate(raw, normed, targets, samples, ICs = NULL, IPCs = NULL, NCs = NULL)
 \item{IPCs}{indices of IPC samples}
 
 \item{NCs}{indices of NC samples}
+
+\item{SCs}{indices of SC samples}
 
 \item{normednormalized}{data}
 }
