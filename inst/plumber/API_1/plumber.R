@@ -213,6 +213,12 @@ xml2pdf <- function(res,
 #* @param panel Name of the panel. Defaults to "200-plex Inflammation v1".
 #* @param ICs Vector of string(s). Internal control names. Default is "mCherry".
 #* @param SC_string Vector of character string(s) that represents SCs in the column. Default is "SC".
+#* @param include_NC Logical value indicating whether NC samples be included in output. Default is `FALSE`.
+#* @param include_unnorm_counts Logical value indicating whether unnormalized counts be included as an additional column in output. Default is `FALSE`.
+#* @param include_IC_counts Logical value indicating whether IC counts be included in output. Default is `FALSE`.
+#* @param interPlateNorm_scaleFactor Optional numeric value used to rescale all data after normalizing. Default is 1e4.
+#* @param interPlateNorm_transformReverse_covariateName Name of the covariate specifying curve quantification method. Default is `Curve_Quant`.
+#* @param interPlateNorm_transformReverseMax The maximum value used in the reverse curve transformation. Default is `1e8`.
 #* @param excludeSamples Sample barcodes to be excluded from analysis.
 #* @serializer contentType list(type="text/csv")
 #* @post /xml2counts
@@ -224,6 +230,12 @@ xml2counts <- function(res,
                        panel = "200-plex Inflammation v1",
                        ICs = c("mCherry"),
                        SC_string = c("SC"),
+                       include_NC = FALSE,
+                       include_unnorm_counts = FALSE,
+                       include_IC_counts = FALSE,
+                       interPlateNorm_scaleFactor=10^4,
+                       interPlateNorm_transformReverse_covariateName = "Curve_Quant",
+                       interPlateNorm_transformReverseMax = 1e8,
                        excludeSamples = c(NULL)) {
   promises::future_promise({
     # Temp output csv file
@@ -263,6 +275,12 @@ xml2counts <- function(res,
                                PanelLotNumber = PanelLotNumber,
                                ICs = ICs,
                                SC_string = SC_string,
+                               include_NC = include_NC,
+                               include_unnorm_counts = include_unnorm_counts,
+                               include_IC_counts = include_IC_counts,
+                               interPlateNorm_scaleFactor = interPlateNorm_scaleFactor,
+                               interPlateNorm_transformReverse_covariateName = interPlateNorm_transformReverse_covariateName,
+                               interPlateNorm_transformReverseMax = interPlateNorm_transformReverseMax,
                                excludeSamples = excludeSamples)
     bin <- readBin(outFile, "raw", n = file.info(outFile)$size)
 
