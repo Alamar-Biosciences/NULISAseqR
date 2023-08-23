@@ -40,7 +40,7 @@ that will appear in the sample data frame output.
 Only used for \code{csv_long} format, and only needed when sample column names
 are different from the default. Default includes all column names in the csv except 
 for the target column names, given above (either the default or whatever is specified), 
-and the following: \code{c('Panel', 'PanelLotNumber', 'LOD', 'log2NormalizedCount')}. 
+and the following: \code{c('Panel', 'PanelLotNumber', 'LOD', 'NPQ')}. 
 The sample-specific data
 will include by default \code{c('PlateID', 'SampleName', 'SampleType', 'SampleQC')}.
 In addition, by default, it will include any other variables in the dataset.
