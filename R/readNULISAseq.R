@@ -358,8 +358,12 @@ loadNULISAseq <- function(file, IPC=NULL, IC='mCherry', SC=NULL, NC=NULL, ...){
   raw$IC_normed <- intraPlateNorm(raw$Data, IC=IC[1], ...)
   ind <-  which(raw$targets$Curve_Quant == "R")
   reverseCurve <- if (length(ind) > 0) raw$targets$targetName[ind] else NULL
-  raw$normed_untransformedReverse <- interPlateNorm(list(raw$IC_normed$normData), reverseCurve, IPC_wells=list(raw$IPC), ...)
-  raw$normed <- interPlateNorm(list(raw$IC_normed$normData), reverseCurve, IPC_wells=list(raw$IPC), ...)
+  raw$normed_untransformedReverse <- interPlateNorm(data_list=list(raw$IC_normed$normData), 
+                                                    transformReverse=reverseCurve, 
+                                                    IPC_wells=list(raw$IPC), ...)
+  raw$normed <- interPlateNorm(list(raw$IC_normed$normData), 
+                               transformReverse=reverseCurve, 
+                               IPC_wells=list(raw$IPC), ...)
   raw$qcPlate <- QCFlagPlate(raw$Data, raw$IC_normed$normData, raw$targets, raw$samples)
   raw$qcSample <- QCFlagSample(raw$Data, raw$IC_normed$normData, raw$samples, raw$targets)
   return(raw)
