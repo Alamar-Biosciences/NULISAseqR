@@ -73,6 +73,7 @@
 #' @export
 #' 
 interPlateNorm <- function(data_list,
+                           transformReverse=NULL,
                            IPC=TRUE,
                            IN=FALSE,
                            IPC_wells=NULL,
@@ -80,7 +81,9 @@ interPlateNorm <- function(data_list,
                            IPC_method='median',
                            IN_samples=NULL,
                            dataScale='count',
-                           scaleFactor=10^4){
+                           scaleFactor=10^4,
+                           transformReverseMax=1e6){
+
   # inter-plate control normalization
   if (IPC==TRUE){
     if(is.null(IPC_wells)){
@@ -213,7 +216,12 @@ interPlateNorm <- function(data_list,
   for (i in 1:length(plateNs)){
     plate <- c(plate, rep(i, plateNs[i]))
   }
-  
+  if(!is.null(transformReverse)){
+    reverses <- which(names(data_list[[i]][,1]) %in% transformReverse) 
+    for (i in 1:length(data_list)){
+      data_list[[i]][reverses, ] <- transformReverseMax - data_list[[i]][reverses, ]
+    } 
+  } 
   # log2 transform the output
   log2_interNormData <- lapply(data_list, function(x) log2(x + 1))
   
