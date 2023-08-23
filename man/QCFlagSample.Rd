@@ -12,11 +12,14 @@ QCFlagSample(
   well_order = NULL,
   ICs = NULL,
   IPCs = NULL,
-  NCs = NULL
+  NCs = NULL,
+  SCs = NULL
 )
 }
 \arguments{
 \item{raw}{unnormalized data}
+
+\item{normed}{normalized data}
 
 \item{ICs}{indices of IC samples}
 
@@ -24,7 +27,7 @@ QCFlagSample(
 
 \item{NCs}{indices of NC samples}
 
-\item{normednormalized}{data}
+\item{SCs}{indices of SC samples}
 }
 \value{
 QC table
