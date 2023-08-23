@@ -119,7 +119,7 @@
 #' runs, writeNULISAseq will only use the first run target data to determine
 #' the reverse curve targets!
 #' @param interPlateNorm_transformReverseMax The maximum value used in the 
-#' reverse curve transformation. Default is 1e6. After IPC normalization 
+#' reverse curve transformation. Default is 1e8. After IPC normalization 
 #' and multiplying by the scale factor (default 1e4), reverse curve 
 #' target values are subtracted from this maximum value.
 #' @param replaceNA Logical. Passed to readNULISAseq() function.
