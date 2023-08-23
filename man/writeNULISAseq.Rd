@@ -33,6 +33,8 @@ writeNULISAseq(
   IN_samples = NULL,
   interPlateNorm_dataScale = "count",
   interPlateNorm_scaleFactor = 10^4,
+  interPlateNorm_transformReverse_covariateName = "Curve_Quant",
+  interPlateNorm_transformReverseMax = 1e+08,
   replaceNA = TRUE,
   verbose = TRUE
 )
@@ -131,6 +133,19 @@ numeric value used to rescale all data after normalizing. Default is 1.
 This may be desirable to avoid normalized quantities between 0 and 1 
 (which will be negative in the log scale). Only useful for count scale data.}
 
+\item{interPlateNorm_transformReverse_covariateName}{The name of the 
+covariate in the Barcode A file that indicates whether or not to use
+reverse curve transformation for each target. This column will have 
+an R entry for reverse curve targets, and F for forward curve targets. 
+Default is \code{"Curve_Quant"}. Please note that if there are multiple
+runs, writeNULISAseq will only use the first run target data to determine
+the reverse curve targets!}
+
+\item{interPlateNorm_transformReverseMax}{The maximum value used in the 
+reverse curve transformation. Default is 1e8. After IPC normalization 
+and multiplying by the scale factor (default 1e4), reverse curve 
+target values are subtracted from this maximum value.}
+
 \item{replaceNA}{Logical. Passed to readNULISAseq() function.
 If TRUE (default), will replace missing counts with 
 zeros.}
@@ -183,6 +198,6 @@ Columns of output data (in order) include:
  \item{"ProteinName"}{}
  \item{"SampleQC"}{}
  \item{"LOD"}{}
- \item{"log2NormalizedCount"}{}
+ \item{"NPQ"}{}
 }
 }

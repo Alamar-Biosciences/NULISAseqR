@@ -13,7 +13,9 @@ interPlateNorm(
   IPC_method = "median",
   IN_samples = NULL,
   dataScale = "count",
-  scaleFactor = 10^4
+  scaleFactor = 10^4,
+  transformReverse = NULL,
+  transformReverseMax = 1e+08
 )
 }
 \arguments{
@@ -59,6 +61,14 @@ data; normalization is additive on the log scale.}
 after IPC normalization. Default is 10^4. This shifts the data distribution 
 to larger positive values, and helps prevent negative values after 
 adding 1 and log-transforming. Only useful for count scale data.}
+
+\item{transformReverse}{A vector of target names that use reverse curve
+quantification. The reverse curve transformation will be applied to these targets.}
+
+\item{transformReverseMax=1e8}{The maximum value used in the 
+reverse curve transformation. Default is 1e8. After IPC normalization 
+and multiplying by the scale factor (default 1e4), reverse curve 
+target values are subtracted from this maximum value.}
 }
 \value{
 A list.
