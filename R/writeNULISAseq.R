@@ -162,7 +162,7 @@ writeNULISAseq <- function(xml_files,
                            interPlateNorm_dataScale='count',
                            interPlateNorm_scaleFactor=10^4,
                            interPlateNorm_transformReverse_covariateName='Curve_Quant',
-                           interPlateNorm_transformReverseMax=1e6,
+                           interPlateNorm_transformReverseMax=1e8,
                            replaceNA=TRUE,
                            verbose=TRUE){
   n_plates <- length(xml_files)
