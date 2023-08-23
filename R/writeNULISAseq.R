@@ -111,9 +111,13 @@
 #' numeric value used to rescale all data after normalizing. Default is 1. 
 #' This may be desirable to avoid normalized quantities between 0 and 1 
 #' (which will be negative in the log scale). Only useful for count scale data.
-#' @param interPlateNorm_transformReverse A vector of target names passed to the
-#' interPlateNorm function. These targets will have the reverse curve 
-#' transformation applied.
+#' @param interPlateNorm_transformReverse_covariateName The name of the 
+#' covariate in the Barcode A file that indicates whether or not to use
+#' reverse curve transformation for each target. This column will have 
+#' an R entry for reverse curve targets, and F for forward curve targets. 
+#' Default is \code{"Curve_Quant"}. Please note that if there are multiple
+#' runs, writeNULISAseq will only use the first run target data to determine
+#' the reverse curve targets!
 #' @param interPlateNorm_transformReverseMax The maximum value used in the 
 #' reverse curve transformation. Default is 1e6. After IPC normalization 
 #' and multiplying by the scale factor (default 1e4), reverse curve 
@@ -157,7 +161,7 @@ writeNULISAseq <- function(xml_files,
                            IN_samples=NULL,
                            interPlateNorm_dataScale='count',
                            interPlateNorm_scaleFactor=10^4,
-                           interPlateNorm_transformReverse=NULL,
+                           interPlateNorm_transformReverse_covariateName='Curve_Quant',
                            interPlateNorm_transformReverseMax=1e6,
                            replaceNA=TRUE,
                            verbose=TRUE){
@@ -247,13 +251,14 @@ writeNULISAseq <- function(xml_files,
   
   # do IPC normalization
   if(interPlateNorm_method=='IPC'){
+    transformReverse_targets <- runs[[1]]$targets$targetName[runs[[1]]$targets[,interPlateNorm_transformReverse_covariateName]=="R"]
     interPlateNorm_data <- interPlateNorm(data_list=lapply(intraPlateNorm_data, function(x) x$normData),
                                           IPC=TRUE, IN=FALSE,
                                           IPC_wells=lapply(runs, function(x) x$IPC),
                                           IPC_method=IPC_method,
                                           dataScale=interPlateNorm_dataScale,
                                           scaleFactor=interPlateNorm_scaleFactor,
-                                          transformReverse=interPlateNorm_transformReverse,
+                                          transformReverse=transformReverse_targets,
                                           transformReverseMax=interPlateNorm_transformReverseMax)
     Data <- interPlateNorm_data$interNormData
     if(verbose==TRUE) cat('Inter-plate IPC normalization completed.\n')
