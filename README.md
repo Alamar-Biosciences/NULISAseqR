@@ -5,18 +5,25 @@
 
 NULISAseq R package
 
+## System Requirements:
+1. R (version 4.3+)
+
 ## How to install
 
-1. Create a personal access token at 
-[https://github.com/settings/tokens](https://github.com/settings/tokens). Check the "repo" box.
-
-2. Run the following R code, where `tokenstring` is the personal access token:
+1. Run the following R code (typical installation time < 5 minutes):
 ```
     install.packages('devtools')
     devtools::install_github('Alamar-Biosciences/NULISAseqR',
-                              ref = 'main',
-                              auth_token = 'tokenstring'
+                              ref = 'main'
                               )
 ```
 
-3. Load the package in R with `library(NULISAseqR)`.
+2. Load the package in R with `library(NULISAseqR)`.
+
+## Demo
+
+```
+    library('NULISAseqR'))
+    data <- loadNULISAseq('<filename>')
+
+```
