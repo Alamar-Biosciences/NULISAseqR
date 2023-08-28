@@ -371,7 +371,7 @@ loadNULISAseq <- function(file, IPC=NULL, IC='mCherry', SC=NULL, NC=NULL, ...){
 
 #' Read Covariate file and add to NULISAseq object
 #'
-#' Reads NULISAseq covariate file and adds new covariates to list object. Merge based on plateID, row, col and sampleName. 
+#' Reads NULISAseq covariate file and adds new covariates to list object. Merge based on plateID and sampleName. 
 #' Fails if plateID is not set AND more than one entry in list
 #'
 #' @param txt_file Character string. File containing covariates (columns with name not already existing
@@ -382,11 +382,11 @@ loadNULISAseq <- function(file, IPC=NULL, IC='mCherry', SC=NULL, NC=NULL, ...){
 #' @export
 #'
 readCovariateFile <- function(txt_file, NULISAseqRuns){
-  newInfo <- read.table(txt_file, header=T, sep="\t")
+  newInfo <- read.csv(txt_file, header=T)
   for(i in 1:length(NULISAseqRuns)){
     NULISAseqRuns[[i]]$samples <- merge(NULISAseqRuns[[i]]$samples, newInfo, nodups=T, all.x=T,
-                                        by.x=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"), 
-                                        by.y=c("AUTO_PLATE", "AUTO_WELLROW", "AUTO_WELLCOL", "sampleName", "sampleBarcode"))
+                                        by.x=c("plateID","sampleName"), 
+                                        by.y=c("plateID","sampleName"))
     # Determine if covariates are numeric
     NULISAseqRuns[[i]]$numericCovariates <- sapply(NULISAseqRuns[[i]]$samples, function(lst) all(sapply(na.omit(lst), function(x) suppressWarnings(!is.na(as.numeric(x))))))
   }
