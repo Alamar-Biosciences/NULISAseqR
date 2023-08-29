@@ -20,10 +20,18 @@ NULISAseq R package
 
 2. Load the package in R with `library(NULISAseqR)`.
 
-## Demo
+## Demo: Loading Data
 
 ```
     library('NULISAseqR'))
-    data <- loadNULISAseq('<filename>')
+    data <- loadNULISAseq('<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton/detectability_P1_Tr03.xml')
 
 ```
+
+## Demo: Generating Report
+
+```
+    rmarkdown::render("<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd", params=list(dataDir="<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton", xmlFiles=c("detectability_P1_Tr03.xml"")))
+    [Report](/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.html)
+```
+
