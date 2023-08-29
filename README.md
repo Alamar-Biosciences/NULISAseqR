@@ -30,6 +30,7 @@ NULISAseq R package
 
 ## Demo: Generating Report
 
+Run the following to generate a QC report ( < 5 minutes)
 ```
     rmarkdown::render("<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd", params=list(dataDir="<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton", xmlFiles=c("detectability_P1_Tr03.xml"")))
     [Report](/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.html)
