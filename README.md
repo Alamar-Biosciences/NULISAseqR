@@ -5,18 +5,34 @@
 
 NULISAseq R package
 
+## System Requirements:
+1. R (version 4.3+)
+
 ## How to install
 
-1. Create a personal access token at 
-[https://github.com/settings/tokens](https://github.com/settings/tokens). Check the "repo" box.
-
-2. Run the following R code, where `tokenstring` is the personal access token:
+1. Run the following R code (typical installation time < 5 minutes):
 ```
     install.packages('devtools')
     devtools::install_github('Alamar-Biosciences/NULISAseqR',
-                              ref = 'main',
-                              auth_token = 'tokenstring'
+                              ref = 'main'
                               )
 ```
 
-3. Load the package in R with `library(NULISAseqR)`.
+2. Load the package in R with `library(NULISAseqR)`.
+
+## Demo: Loading Data
+
+```
+    library('NULISAseqR'))
+    data <- loadNULISAseq('<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton/detectability_P1_Tr03.xml')
+
+```
+
+## Demo: Generating Report
+
+Run the following to generate a QC report ( < 5 minutes)
+```
+    rmarkdown::render("<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd", params=list(dataDir="<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton", xmlFiles=c("detectability_P1_Tr03.xml"")))
+    [Report](/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.html)
+```
+
