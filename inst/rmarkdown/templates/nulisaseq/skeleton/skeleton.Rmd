@@ -857,7 +857,7 @@ for( i in 1:numFiles){
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$targets, runs[[i]]$samples)
   table.attr <- paste0("id=\"QCFlagPlate-summary", i, "\"")
   qcPlate$status[which(qcPlate$status == FALSE)] <- "Pass"
-  qcPlate$status[which(qcPlate$status == TRUE)] <- "Fail"
+  qcPlate$status[which(qcPlate$status == TRUE)] <- "Warning"
   qcPlate$QCthreshold[1:nrow(qcPlate)-1] <- paste0(format(as.numeric(qcPlate$QCthreshold[1:nrow(qcPlate)-1])*100, digits=2), "%")
   qcPlate$QCthreshold[nrow(qcPlate)] <- format(as.numeric(qcPlate$QCthreshold[nrow(qcPlate)]), big.mark=",")
   qcPlate$val[1:nrow(qcPlate)-1] <- paste0(format(as.numeric(qcPlate$val[1:nrow(qcPlate)-1])*100, digits=2), "%")
@@ -870,7 +870,7 @@ for( i in 1:numFiles){
                    col.names = c("QC Criterion", "Normalization", "QC Status", "QC Value", "QC Threshold"
                    )) %>%
         kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE) %>%
-        row_spec(which(qcPlate$status == "Fail"), bold=T, color="white", background="red"))
+        row_spec(which(qcPlate$status == "Warning"), bold=T, color="white", background="red"))
 }
 ```
 
@@ -941,7 +941,7 @@ rownames(QCSummary) <- c(rowNameQC, "Total")
 colnames(QCSummary) <- c("# of Samples", names(criteria$thresholds))
 
 # print sample QC summary table
-knitr::kable(QCSummary, caption='Number of samples that fail each QC criterion (excludes IPC, SC, NC & bridge samples)', 
+knitr::kable(QCSummary, caption='Number of samples that have warnings for each QC criterion (excludes IPC, SC, NC & bridge samples)', 
              align='r', 
              table.attr="id=\"QC-summary-table\"",
              format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
@@ -973,7 +973,7 @@ for (i in 1:numFiles){
 # need to fix table.attr
 for(i in 1:length(names(criteria$thresholds))){
   if(nrow(QC_sample_fail[[i]]) > 0){
-    cat(knitr::kable(QC_sample_fail[[i]], caption=paste0('Samples that fail ', names(criteria$thresholds)[i]), 
+    cat(knitr::kable(QC_sample_fail[[i]], caption=paste0('Samples with warnings: ', names(criteria$thresholds)[i]), 
                      align='r', 
                      table.attr="id=\"sample-QC-summary-table\"",
                      format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
@@ -1453,6 +1453,8 @@ for(i in 1:numFiles){
            tl.col=colors,
            order="original",
            title=paste("Plate", i),
+           #col=colorRampPalette(c("red","white","blue"))(200),
+           col=colorRampPalette(c("blue","white","red"))(200),
            is.corr=FALSE)
   cat("\n")
 }
@@ -1751,7 +1753,7 @@ for(i in 1:numFiles){
   abline(h=-30, col='gray41')
   abline(h=30, col='gray41')
   abline(h=0, col='gray41', lty=2)
-  legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), 
+  legend('bottomright', legend=c('Pass', "Warning"), col=c('green', 'red'), 
          pch=19, cex=0.75, bty='n', inset=c(0,1), xpd=T,horiz=T)
   dev.off()
 }
