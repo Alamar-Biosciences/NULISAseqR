@@ -1453,6 +1453,8 @@ for(i in 1:numFiles){
            tl.col=colors,
            order="original",
            title=paste("Plate", i),
+           #col=colorRampPalette(c("red","white","blue"))(200),
+           col=colorRampPalette(c("blue","white","red"))(200),
            is.corr=FALSE)
   cat("\n")
 }
