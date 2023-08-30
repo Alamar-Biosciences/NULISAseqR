@@ -85,17 +85,20 @@ xml2html <- function(res,
     tempFile <- paste0(UUID, ".Rmd")
     file.copy(rmd_path, tempFile)
 
+    # Handle multiple XML inputs
+    xml_files_list <- lapply(in_xml, toString)
+    xml_files_vec <- as.character(unlist(xml_files_list))
+
     # Convert to vectors: If a comma-separated string encounters
-    excludeSamples <- if (!is.null(excludeSamples)) unlist(strsplit(excludeSamples, "\\s*,\\s*"))
-    excludeTargets <- if (!is.null(excludeTargets)) unlist(strsplit(excludeTargets, "\\s*,\\s*"))
+    # excludeSamples and excludeTargets require repetition of the sample name/target values
+    excludeSamples <- if (!is.null(excludeSamples)) rep(list(unlist(strsplit(excludeSamples, "\\s*,\\s*"))),
+                                                        length(xml_files_vec))
+    excludeTargets <- if (!is.null(excludeTargets)) rep(list(unlist(strsplit(excludeTargets, "\\s*,\\s*"))),
+                                                        length(xml_files_vec))
     IPC <- unlist(strsplit(IPC, "\\s*,\\s*"))
     NC <- unlist(strsplit(NC, "\\s*,\\s*"))
     IC <- unlist(strsplit(IC, "\\s*,\\s*"))
     outputPlots <- as.logical(outputPlots)
-
-    # Handle multiple XML inputs
-    xml_files_list <- lapply(in_xml, toString)
-    xml_files_vec <- as.character(unlist(xml_files_list))
 
     rmarkdown::render(tempFile,
                       output_format = "html_document",
@@ -241,7 +244,8 @@ xml2counts <- function(res,
     outFile <- paste0(UUID, ".csv")
 
     # Convert to vectors: If a comma-separated string encounters
-    excludeSamples <- if (!is.null(excludeSamples)) unlist(strsplit(excludeSamples, "\\s*,\\s*"))
+    excludeSamples <- if (!is.null(excludeSamples)) rep(list(unlist(strsplit(excludeSamples, "\\s*,\\s*"))),
+                                                        length(in_xml))
     ICs <- unlist(strsplit(ICs, "\\s*,\\s*"))
     SC_string <- unlist(strsplit(SC_string, "\\s*,\\s*"))
 
