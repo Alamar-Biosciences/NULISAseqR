@@ -118,10 +118,10 @@
 #' Default is \code{"Curve_Quant"}. Please note that if there are multiple
 #' runs, writeNULISAseq will only use the first run target data to determine
 #' the reverse curve targets!
-#' @param interPlateNorm_transformReverseMax The maximum value used in the 
-#' reverse curve transformation. Default is 1e8. After IPC normalization 
-#' and multiplying by the scale factor (default 1e4), reverse curve 
-#' target values are subtracted from this maximum value.
+#' @param interPlateNorm_transformReverse_scaleFactor The scaling factor used in the 
+#' reverse curve transformation. Default is 1e4. Reverse curve transformation is 
+#' \code{transformReverse_scaleFactor / (IPC normalized count + 1)}. Then the log2
+#' tranformation is applied to this value, after adding 1, to obtain NPQ.
 #' @param replaceNA Logical. Passed to readNULISAseq() function.
 #' If TRUE (default), will replace missing counts with 
 #' zeros.
@@ -162,7 +162,7 @@ writeNULISAseq <- function(xml_files,
                            interPlateNorm_dataScale='count',
                            interPlateNorm_scaleFactor=10^4,
                            interPlateNorm_transformReverse_covariateName='Curve_Quant',
-                           interPlateNorm_transformReverseMax=1e8,
+                           interPlateNorm_transformReverse_scaleFactor=1e4,
                            replaceNA=TRUE,
                            verbose=TRUE){
   n_plates <- length(xml_files)
@@ -259,7 +259,7 @@ writeNULISAseq <- function(xml_files,
                                           dataScale=interPlateNorm_dataScale,
                                           scaleFactor=interPlateNorm_scaleFactor,
                                           transformReverse=transformReverse_targets,
-                                          transformReverseMax=interPlateNorm_transformReverseMax)
+                                          transformReverse_scaleFactor=interPlateNorm_transformReverse_scaleFactor)
     Data <- interPlateNorm_data$interNormData
     if(verbose==TRUE) cat('Inter-plate IPC normalization completed.\n')
   } else if(interPlateNorm_method=='IN'){

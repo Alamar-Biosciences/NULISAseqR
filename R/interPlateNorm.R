@@ -59,10 +59,10 @@
 #' adding 1 and log-transforming. Only useful for count scale data.
 #' @param transformReverse A vector of target names that use reverse curve
 #' quantification. The reverse curve transformation will be applied to these targets.
-#' @param transformReverseMax=1e8 The maximum value used in the 
-#' reverse curve transformation. Default is 1e8. After IPC normalization 
-#' and multiplying by the scale factor (default 1e4), reverse curve 
-#' target values are subtracted from this maximum value.
+#' @param transformReverse_scaleFactor The scaling factor used in the 
+#' reverse curve transformation. Default is 1e4. Reverse curve transformation is 
+#' \code{transformReverse_scaleFactor / (IPC normalized count + 1)}. Then the log2
+#' tranformation is applied to this value, after adding 1, to obtain NPQ.
 #' @return A list.
 #' \item{interNormData}{A list of matrices of normalized count data (not 
 #' log-transformed, unless input data was log-transformed, which should use `dataScale='log'`).}
@@ -87,7 +87,7 @@ interPlateNorm <- function(data_list,
                            dataScale='count',
                            scaleFactor=10^4,
                            transformReverse=NULL,
-                           transformReverseMax=1e8){
+                           transformReverse_scaleFactor=10^4){
 
   # inter-plate control normalization
   if (IPC==TRUE){
@@ -225,7 +225,7 @@ interPlateNorm <- function(data_list,
   if(!is.null(transformReverse)){
     reverses <- which(names(data_list[[i]][,1]) %in% transformReverse) 
     for (i in 1:length(data_list)){
-      data_list[[i]][reverses, ] <- transformReverseMax - data_list[[i]][reverses, ]
+      data_list[[i]][reverses, ] <- transformReverse_scaleFactor^2 / (data_list[[i]][reverses,] + 1)
     } 
   } 
   # log2 transform the output
@@ -236,5 +236,7 @@ interPlateNorm <- function(data_list,
               log2_interNormData=log2_interNormData,
               plate=plate,
               normFactors=normFactors,
-              scaleFactor=scaleFactor))
+              scaleFactor=scaleFactor,
+              transformReverse=transformReverse,
+              transformReverse_scaleFactor=transformReverse_scaleFactor))
 }
