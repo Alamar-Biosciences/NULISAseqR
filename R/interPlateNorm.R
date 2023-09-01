@@ -225,7 +225,7 @@ interPlateNorm <- function(data_list,
   if(!is.null(transformReverse)){
     reverses <- which(names(data_list[[i]][,1]) %in% transformReverse) 
     for (i in 1:length(data_list)){
-      data_list[[i]][reverses, ] <- (transformReverse_scaleFactor) / (data_list[[i]][reverses,]/scaleFactor + 1)
+      data_list[[i]][reverses, ] <- (transformReverse_scaleFactor * scaleFactor) / (data_list[[i]][reverses,] + 1)
     } 
   } 
   # log2 transform the output
