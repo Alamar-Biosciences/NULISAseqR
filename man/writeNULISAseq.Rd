@@ -34,7 +34,7 @@ writeNULISAseq(
   interPlateNorm_dataScale = "count",
   interPlateNorm_scaleFactor = 10^4,
   interPlateNorm_transformReverse_covariateName = "Curve_Quant",
-  interPlateNorm_transformReverseMax = 1e+08,
+  interPlateNorm_transformReverse_scaleFactor = 10000,
   replaceNA = TRUE,
   verbose = TRUE
 )
@@ -141,10 +141,10 @@ Default is \code{"Curve_Quant"}. Please note that if there are multiple
 runs, writeNULISAseq will only use the first run target data to determine
 the reverse curve targets!}
 
-\item{interPlateNorm_transformReverseMax}{The maximum value used in the 
-reverse curve transformation. Default is 1e8. After IPC normalization 
-and multiplying by the scale factor (default 1e4), reverse curve 
-target values are subtracted from this maximum value.}
+\item{interPlateNorm_transformReverse_scaleFactor}{The scaling factor used in the 
+reverse curve transformation. Default is 1e4. Reverse curve transformation is 
+\code{transformReverse_scaleFactor / (IPC normalized count + 1)}. Then the log2
+tranformation is applied to this value, after adding 1, to obtain NPQ.}
 
 \item{replaceNA}{Logical. Passed to readNULISAseq() function.
 If TRUE (default), will replace missing counts with 
