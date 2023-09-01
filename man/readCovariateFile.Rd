@@ -15,6 +15,6 @@ readCovariateFile(txt_file, NULISAseqRuns)
 List of lists, data frames, and matrices.
 }
 \description{
-Reads NULISAseq covariate file and adds new covariates to list object. Merge based on plateID, row, col and sampleName. 
+Reads NULISAseq covariate file and adds new covariates to list object. Merge based on plateID and sampleName. 
 Fails if plateID is not set AND more than one entry in list
 }
