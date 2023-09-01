@@ -15,7 +15,7 @@ interPlateNorm(
   dataScale = "count",
   scaleFactor = 10^4,
   transformReverse = NULL,
-  transformReverseMax = 1e+08
+  transformReverse_scaleFactor = 10^4
 )
 }
 \arguments{
@@ -65,10 +65,10 @@ adding 1 and log-transforming. Only useful for count scale data.}
 \item{transformReverse}{A vector of target names that use reverse curve
 quantification. The reverse curve transformation will be applied to these targets.}
 
-\item{transformReverseMax=1e8}{The maximum value used in the 
-reverse curve transformation. Default is 1e8. After IPC normalization 
-and multiplying by the scale factor (default 1e4), reverse curve 
-target values are subtracted from this maximum value.}
+\item{transformReverse_scaleFactor}{The scaling factor used in the 
+reverse curve transformation. Default is 1e4. Reverse curve transformation is 
+\code{transformReverse_scaleFactor / (IPC normalized count + 1)}. Then the log2
+tranformation is applied to this value, after adding 1, to obtain NPQ.}
 }
 \value{
 A list.
