@@ -26,11 +26,11 @@
 #' combined as a single unit. If the \code{sample_groups} parameter is not NULL,
 #' the "sample_group" name provides detectability data for unique sample groups.
 #' The nested list has three names to access detectability and sample information.
-#' @param sampleNumber The number of samples.
-#' @param detectability A named vector of detectability values in percentages.
-#' The names correspond to target row names.
-#' @param detectable A named logical vector indicating whether detectability is
-#' above 50% for each target. The names correspond to target row names.
+#' \item{sampleNumber}{The number of samples for each group.}
+#' \item{detectability}{A named vector of detectability values in percentages.
+#' The names correspond to target row names.}
+#' \item{detectable}{A named logical vector indicating whether detectability is
+#' above 50\% for each target. The names correspond to target row names.}
 #'
 #'
 #' @export
