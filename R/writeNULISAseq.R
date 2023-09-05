@@ -83,7 +83,7 @@
 #' @param include_NC Logical. Should NC samples be included in output? Default is FALSE.
 #' @param include_unnorm_counts Logical. Should unnormalized counts be included 
 #' as am additional column in output? Default is FALSE.
-#' @param include_IC Logical. Should IC counts be included in the output? 
+#' @param include_IC_counts Logical. Should IC counts be included in the output? 
 #' Default is FALSE. This is probably only useful when 
 #' \code{include_unnorm_counts=TRUE}.
 #' @param excludeSamples List of character string vectors that give sample names to be
@@ -269,7 +269,9 @@ writeNULISAseq <- function(xml_files,
                                           NC_wells=lapply(runs, function(x) x$NC),
                                           IN_samples=IN_samples,
                                           dataScale=interPlateNorm_dataScale,
-                                          scaleFactor=interPlateNorm_scaleFactor)
+                                          scaleFactor=interPlateNorm_scaleFactor,
+                                          transformReverse=transformReverse_targets,
+                                          transformReverse_scaleFactor=interPlateNorm_transformReverse_scaleFactor)
     Data <- interPlateNorm_data$interNormData
     if(verbose==TRUE) cat('Inter-plate IPC and intensity normalization completed.\n')
   } else if(interPlateNorm_method!='IPC' & interPlateNorm_method!='IN'){
@@ -282,6 +284,10 @@ writeNULISAseq <- function(xml_files,
     LODs[[i]] <- lod(data_matrix=Data[[i]],
                      blanks=runs[[i]]$NC,
                      min_count=0)$LOD
+    # set LODs for reverse curve targets to NA
+    if (length(transformReverse_targets) > 0){
+      LODs[[i]][transformReverse_targets] <- NA
+    }
   }
   if(verbose==TRUE) cat('LOD calculation completed.\n')
   
