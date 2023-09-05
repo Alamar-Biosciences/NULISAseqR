@@ -100,6 +100,10 @@ column names (e.g. 'NC').}
 \item{include_unnorm_counts}{Logical. Should unnormalized counts be included 
 as am additional column in output? Default is FALSE.}
 
+\item{include_IC_counts}{Logical. Should IC counts be included in the output? 
+Default is FALSE. This is probably only useful when 
+\code{include_unnorm_counts=TRUE}.}
+
 \item{excludeSamples}{List of character string vectors that give sample names to be
 excluded from the output file. List should be in order of xml files. If 
 no sample is to be excluded from a plate, use NULL in the list for that plate.}
@@ -152,10 +156,6 @@ zeros.}
 
 \item{verbose}{Logical. Should function output step completion into.
 Default is TRUE.}
-
-\item{include_IC}{Logical. Should IC counts be included in the output? 
-Default is FALSE. This is probably only useful when 
-\code{include_unnorm_counts=TRUE}.}
 }
 \value{
 writes CSV file
