@@ -29,14 +29,6 @@ representing the
 targets that should be excluded from detectability calculation. For example,
 one might want to exclude internal controls. Default is NULL, which includes
 all targets in the aboveLOD_matrix.}
-
-\item{sampleNumber}{The number of samples.}
-
-\item{detectability}{A named vector of detectability values in percentages.
-The names correspond to target row names.}
-
-\item{detectable}{A named logical vector indicating whether detectability is
-above 50% for each target. The names correspond to target row names.}
 }
 \value{
 A nested list containing detectability information.
@@ -45,6 +37,11 @@ The "all" name corresponds to detectability information for all samples
 combined as a single unit. If the \code{sample_groups} parameter is not NULL,
 the "sample_group" name provides detectability data for unique sample groups.
 The nested list has three names to access detectability and sample information.
+\item{sampleNumber}{The number of samples for each group.}
+\item{detectability}{A named vector of detectability values in percentages.
+The names correspond to target row names.}
+\item{detectable}{A named logical vector indicating whether detectability is
+above 50\% for each target. The names correspond to target row names.}
 }
 \description{
 Calculates detectability for each target based on the
