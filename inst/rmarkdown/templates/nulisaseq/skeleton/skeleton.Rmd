@@ -1,6 +1,4 @@
-
 ---
-
 params:
   study_name: "Study Name"
   assayName: "NULISAseq 200-plex Inflammation Panel"
@@ -100,7 +98,6 @@ output:
     toc: yes
     toc_depth: 4
 date: "`r Sys.Date()`"
-
 ---
 
 ```{r, include=FALSE}
@@ -724,9 +721,7 @@ for(i in 1:numFiles){
 ```
 
 ---
-
-title: `r title_var`
-
+title: "`r title_var`"
 ---
 
 
