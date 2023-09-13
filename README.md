@@ -23,7 +23,7 @@ NULISAseq R package
 ## Demo: Loading Data
 
 ```
-    library('NULISAseqR'))
+    library('NULISAseqR')
     data <- loadNULISAseq('<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton/detectability_P1_Tr03.xml')
 
 ```
