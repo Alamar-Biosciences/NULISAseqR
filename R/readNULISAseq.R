@@ -255,7 +255,7 @@ readNULISAseq <- function(file,
     }
 
     # Determine if covariates are numeric
-    numericCovariates <- sapply(samples, function(lst) all(sapply(na.omit(lst), function(x) suppressWarnings(!is.na(as.numeric(x))))))
+    numericCovariates <- sapply(samples, function(lst) all(sapply(lst, function(x) is.na(x) || (is.character(x) && x == "NA") || grepl("^\\d+\\.?\\d*$", x))))
 
     # if no sample matrix given assign "PLASMA"
     if(is.null(samples$SAMPLE_MATRIX)){
