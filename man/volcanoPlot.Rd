@@ -22,6 +22,8 @@ volcanoPlot(
   target_label_size = 2,
   target_label_segment_color = "grey",
   max.overlaps = Inf,
+  force = 1,
+  force_pull = 1,
   plot_title_font_size = 14,
   axis_label_font_size = 12,
   tick_label_font_size = 12,
@@ -70,8 +72,12 @@ target points blue, and nonsignificant target points grey.}
 \item{target_label_segment_color}{Color of line segments for target labels.
 Can be a single value or a vector same length as number of targets.}
 
-\item{max.overlaps}{Passed to ggrepel. Integer which determines how many targets 
+\item{max.overlaps}{Passed to \code{ggrepel::geom_text_repel}. Integer which determines how many targets 
 will have labels. "Inf" (default) labels all targets.}
+
+\item{force}{Passed to \code{ggrepel::geom_text_repel}. Force of repulsion between overlapping text labels. Defaults to 1.}
+
+\item{force_pull}{Passed to \code{ggrepel::geom_text_repel}. Force of attraction between a text label and its corresponding data point. Defaults to 1.}
 
 \item{plot_title_font_size}{Font size of plot title.}
 
