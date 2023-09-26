@@ -95,6 +95,20 @@ wellorder <- function(samples, sampleTypeFactor=NULL){
   return(inds$ix)
 }
 
+wellcolors <- function(data, well_types, boxplot_colors){
+  # all labels black by default
+  colors <- rep("black", ncol(data))
+  for (j in 1:length(well_types)){
+    # save indices matching the given well type
+    indices <- which(grepl(paste0(well_types[[j]], collapse="|"), colnames(data)))
+    # color well label to match well type
+    if(length(indices) > 0){
+      colors[indices] <- boxplot_colors[j+1]
+    }
+  }
+  return(colors)
+}
+
 # function to convert data into matrix for plate layout and heatmap
 matrixify <- function(runSamples, plate=FALSE){
   val <- matrix(rep(NA, 96), nrow=8)
@@ -677,7 +691,7 @@ for(i in 1:numFiles){
 ```
 
 ---
-title: `r title_var`
+title: "`r title_var`"
 ---
 
 
@@ -708,9 +722,9 @@ for(i in 1:numFiles){
 }
 ```
 
----
 
 ```{r, eval=(params$outReadSummary), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Read summary", 2)
 pandoc.p("Summary of the number and classification of reads for the assay run") 
 pandoc.list(c("Parseable - Valid next generation sequencing (NGS) read (assay signal or background)",
@@ -727,9 +741,9 @@ knitr::kable(read_summary, caption='',
   kable_styling(bootstrap_options=c("striped", "hover", "condensed"), full_width=TRUE)
 ```
 
----
 
 ```{r, eval=(params$outReadSummary), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Internal controls (IC)", 3)
 pandoc.p("Each sample of the assay is spiked with the same concentration of an internal control (IC). This is used both as part of a well normalization procedure and as a method for assessing the uniformity of the assay run.") 
 if(length(params$IC) == 1){
@@ -757,9 +771,9 @@ if(length(params$IC) == 1){
 }
 ```
 
----
 
 ```{r, eval=(params$outReadSummary), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Inter-plate controls (IPC)", 3)
 pandoc.p("IPC samples are pooled plasma controls used both to normalize samples between experiments and to assess performance (e.g., precision) of the assay.")
 pandoc.p("Note: %CV in this table does not exclude values below LOD. See [Intra-plate normalization](#intraPlateNorm) or [Inter-plate normalization](#interPlateNorm) sections for %CV (before and after normalization) that excludes values below LOD.")
@@ -770,10 +784,9 @@ for(i in 1:numFiles){
 }
 ```
 
----
-
 
 ```{r, eval=(params$outReadSummary), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Negative controls (NC)", 3)
 pandoc.p("NC wells are reactions where no sample input is provided (i.e., buffer only). These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality (e.g., background levels).")
 for(i in 1:numFiles){
@@ -783,9 +796,9 @@ for(i in 1:numFiles){
 }
 ```
 
----
 
 ```{r eval=(indicatorSC & params$outReadSummary), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Sample controls (SC)", 3)
 pandoc.p("SC samples are pooled plasma controls from an independent pooled plasma source that is different from IPCs. They could be a pooled sample derived from all study samples, for example. They should be from the same source across all plates that will be analysed together. SCs are used for calculating intra- and inter-plate coefficient of variation (CV). They are necessary for obtaining an unbiased measure of inter-plate CV when IPC normalization is used.")
 for(i in 1:numFiles){
@@ -795,9 +808,9 @@ for(i in 1:numFiles){
 }
 ```
 
----
 
 ```{r eval=(indicatorBridge & params$outReadSummary), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Bridge samples (Bridge)", 3)
 pandoc.p("Bridge samples can be used for inter-plate normalization. Bridge sample normalization uses the bridge sample subset to estimate plate- and target-specific medians, and then uses these medians to normalize all samples in a manner similar to intensity normalization.")
 for(i in 1:numFiles){
@@ -807,9 +820,9 @@ for(i in 1:numFiles){
 }
 ```
 
----
 
 ```{r, out.width='100%', eval=(params$outHeatmaps), fig.asp=0.33333*ceiling((length(params$IC)+1)/2), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Heatmaps", 2)
 heatmap_description <- if (params$heatMapRel==TRUE) "percent relative to plate median" else "absolute normalized read count"
 pandoc.p(paste0("Heatmaps show the ", heatmap_description, " for log2(total counts) and the specified internal control."))
@@ -838,10 +851,9 @@ for(i in 1:numFiles){
 }
 ```
 
----
-
 
 ```{r, eval=(params$outQC), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Quality control", 2)
 pandoc.header("Plate QC", 3)
 pandoc.p("Plate-specific QC criteria:")
@@ -1255,12 +1267,9 @@ for (i in 1:numFiles){
 }
 ```
 
----
-
-## Intra-plate normalization {#intraPlateNorm}
-%CV was calculated for each target (excluding internal controls) for the sample control replicates (if given) and IPCs. Only values above LOD were used to calculate %CV. If there are multiple plates, "Overall" represents the distribution for the target-specific mean intra-plate CV across all plates.
 
 ```{r, eval=(params$outIntraPlateNorm & params$reportType=="internal" & indicatorSC==TRUE), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Intra-plate normalization", 2) #{#intraPlateNorm}
 pandoc.p("%CV was calculated for each target (excluding internal controls) for the sample control replicates (if given) and IPCs. Only values above LOD were used to calculate %CV. ")
 pandoc.header("Intra-plate %CV table -- unnormalized", 3)
@@ -1290,8 +1299,8 @@ knitr::kable(IPC_intraCV_mCherry_summary_table, caption='IPC intra-plate %CV -- 
 ```
 
 
-### Intra-plate %CV boxplots by plate
-```{r, out.width='100%', eval=(params$outIntraPlateNorm), fig.asp=(0.2*numFiles + 0.15), eval=indicatorSC}
+```{r, out.width='100%', eval=(params$outIntraPlateNorm & indicatorSC == TRUE), fig.asp=(0.2*numFiles + 0.15)}
+pandoc.header("Intra-plate %CV boxplots by plate", 3)
 SC_intraCV_unnorm2 <- SC_intraCV_unnorm
 colnames(SC_intraCV_unnorm2) <- paste0(colnames(SC_intraCV_mCherry), ' unnormalized')
 SC_intraCV_mCherry2 <- SC_intraCV_mCherry
@@ -1321,9 +1330,8 @@ boxplot(IPC_intraCV_vals[,ncol(IPC_intraCV_vals):1], las=1, xlab='intra-plate CV
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
----
-
-```{r, out.width='100%', eval=(params$SampleBoxplot), fig.asp=1, results='asis'}
+```{r, out.width='100%', eval=(params$outSampleBoxplot), fig.asp=1, results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Sample boxplots", 2)
 pandoc.p("Sample boxplots show distributions of the log2 counts for each sample, unnormalized and after mCherry + IPC normalization.")
 
@@ -1416,24 +1424,11 @@ for(i in 1:numFiles){
 }
 ```
 
----
 
 ```{r, out.width='100%', eval=(params$outSampleCorrelation), fig.asp=1, results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Sample correlation", 2)
 pandoc.p("Plot shows the Pearson correlation between samples. Heirarchical clustering is done using complete linkage.")
-wellcolors <- function(data, well_types, boxplot_colors){
-  # all labels black by default
-  colors <- rep("black", ncol(data))
-  for (j in 1:length(well_types)){
-    # save indices matching the given well type
-    indices <- which(grepl(paste0(well_types[[j]], collapse="|"), colnames(data)))
-    # color well label to match well type
-    if(length(indices) > 0){
-      colors[indices] <- boxplot_colors[j+1]
-    }
-  }
-  return(colors)
-}
 
 for(i in 1:numFiles){
   pdf(file=NULL)
@@ -1460,9 +1455,9 @@ for(i in 1:numFiles){
 }
 ```
 
----
 
 ```{r, out.width='100%', eval=(params$outSampleClustering), fig.asp=1, results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Sample and target clustering", 2)
 pandoc.p("Hierarchical clustering of both samples and targets was done using a Euclidean distance metric and complete linkage. Data is log2 and mCherry-normalized; targets are centered and scaled.")
 # define colors
@@ -1504,9 +1499,9 @@ for(i in 1:numFiles){
 }
 ```
 
----
 
 ```{r eval=(multipleFiles & params$outInterPlateNorm), results='asis'}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Inter-plate normalization {#interPlateNorm}", 2)
 cat("%CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV.")
 ```
@@ -1571,9 +1566,9 @@ boxplot(IPC_interCV_results2[,ncol(IPC_interCV_results2):1], las=1,
 abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
----
 
 ```{r, out.width='100%', fig.asp=(0.4)+as.numeric(multipleFiles)*0.4, results='asis', eval=(params$reportType=="internal" & params$outSamplePCA)}
+knitr::asis_output("\n\n---\n\n")
 pandoc.header("Sample PCA", 2)
 # function to make PCA plot
 PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scale=TRUE, center=TRUE, title=NULL){
