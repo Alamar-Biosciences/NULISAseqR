@@ -28,8 +28,10 @@
 #' @param target_label_size Font size of target labels.
 #' @param target_label_segment_color Color of line segments for target labels.
 #' Can be a single value or a vector same length as number of targets.
-#' @param max.overlaps Passed to ggrepel. Integer which determines how many targets 
+#' @param max.overlaps Passed to \code{ggrepel::geom_text_repel}. Integer which determines how many targets 
 #' will have labels. "Inf" (default) labels all targets. 
+#' @param force Passed to \code{ggrepel::geom_text_repel}. Force of repulsion between overlapping text labels. Defaults to 1.
+#' @param force_pull Passed to \code{ggrepel::geom_text_repel}. Force of attraction between a text label and its corresponding data point. Defaults to 1.
 #' @param plot_title_font_size Font size of plot title.
 #' @param axis_label_font_size Font size of axis title.
 #' @param tick_label_font_size Font size of axis tick marks.
@@ -61,6 +63,8 @@ volcanoPlot <- function(coefs,
                         target_label_size=2,
                         target_label_segment_color='grey',
                         max.overlaps=Inf,
+                        force=1,
+                        force_pull=1,
                         plot_title_font_size=14,
                         axis_label_font_size=12,
                         tick_label_font_size=12,
@@ -138,6 +142,8 @@ volcanoPlot <- function(coefs,
                    legend.position='none') +
     ggrepel::geom_text_repel(size=target_label_size, 
                              max.overlaps = max.overlaps, 
+                             force=force,
+                             force_pull=force_pull,
                              segment.color=target_label_segment_color,
                              color=target_label_colors) +
     ggplot2::coord_cartesian(clip='off')
