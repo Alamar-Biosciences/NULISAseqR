@@ -41,6 +41,9 @@
 #' @param Bridge string(s) that represent the bridge sample wells. 
 #' Set to \code{NULL} if there are no bridge samples (default).
 #' Only used for xml file formats.
+#' @param Callibrator string(s) that represent the callibrator wells. 
+#' Set to \code{NULL} if there are no callibrator samples (default).
+#' Only used for xml file formats.
 #' @param replaceNA Logical. If TRUE (default), will replace missing counts with 
 #' zeros.
 #'
@@ -57,7 +60,7 @@ readNULISAseq <- function(file,
                           sample_column_names=NULL,
                           sample_group_covar=NULL,
                           IC='mCherry', 
-                          IPC='IPC', SC='SC', NC='NC', Bridge=NULL,
+                          IPC='IPC', SC='SC', NC='NC', Bridge=NULL, Callibrator=NULL,
                           replaceNA=TRUE){
   
   if(file_type == 'xml_no_mismatches'){
@@ -183,7 +186,7 @@ readNULISAseq <- function(file,
       DataMatrix[is.na(DataMatrix)] <- 0
     }
     
-    val <- if(is.null(NC) && is.null(IPC) && is.null(SC) && is.null(Bridge)) NA else "Sample"
+    val <- if(is.null(NC) && is.null(IPC) && is.null(SC) && is.null(Bridge) && is.null(Callibrator)) NA else "Sample"
     sampleType <- rep(val, length(samples$sampleName))
     if(!is.null(samples$type)){
       sampleType <- unlist(lapply(samples$type, FUN=function(t) gsub(pattern="sample", replacement="Sample", x=t, fixed=T)))
@@ -194,6 +197,7 @@ readNULISAseq <- function(file,
       sampleType[grep(paste("SC", collapse="|"), samples$sampleName)] <- "SC" 
       sampleType[grep(paste("IPC", collapse="|"), samples$sampleName)] <- "IPC" 
       sampleType[grep(paste("Bridge", collapse="|"), samples$sampleName)] <- "Bridge"
+      sampleType[grep(paste("Callibrator", collapse="|"), samples$sampleName)] <- "Callibrator"
     } 
     
     # add well type information
@@ -201,6 +205,7 @@ readNULISAseq <- function(file,
     if(!is.null(SC)){     sampleType[grep(paste(SC, collapse="|"), samples$sampleName)] <- "SC" }
     if(!is.null(IPC)){    sampleType[grep(paste(IPC, collapse="|"), samples$sampleName)] <- "IPC" }
     if(!is.null(Bridge)){ sampleType[grep(paste(Bridge, collapse="|"), samples$sampleName)] <- "Bridge"}
+    if(!is.null(Callibrator)){ sampleType[grep(paste(Callibrator, collapse="|"), samples$sampleName)] <- "Callibrator"}
     samples$sampleType <- sampleType
     
     # add IC target information
@@ -215,6 +220,7 @@ readNULISAseq <- function(file,
     specialWellsTargets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
     specialWellsTargets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
     specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
+    specialWellsTargets[['Callibrator']] <- samples$sampleName[samples$sampleType=='Callibrator']
     specialWellsTargets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
     
     # add sample identity information
