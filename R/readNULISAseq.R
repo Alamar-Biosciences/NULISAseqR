@@ -321,7 +321,7 @@ readNULISAseq <- function(file,
     
     rownames(Data) <- Data$Target
     Data <- Data[,2:ncol(Data)]
-    colnames(Data) <- substr(colnames(Data), start=21, stop=nchar(colnames(Data)))
+    colnames(Data) <- substr(colnames(Data), start=5, stop=nchar(colnames(Data)))
     Data <- as.matrix(Data)
     # set rownames 
     rownames(targets) <- NULL
