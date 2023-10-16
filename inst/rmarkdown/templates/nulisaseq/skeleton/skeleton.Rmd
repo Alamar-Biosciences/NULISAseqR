@@ -63,6 +63,8 @@ params:
   ## outputDetectCSV
   # if TRUE, outputs a CSV file with detectability for each target and sample type
   outputDetectCSV: !r TRUE
+  ## set to TRUE if this is being rendered by a Shiny wrapper (adds progress bar)
+  rendered_by_shiny: !r FALSE
 output:
   html_document:
     toc: yes
@@ -82,6 +84,7 @@ library(grid)
 library(gdata)
 library(dplyr)
 ```
+
 
 ```{r, include=FALSE}
 # function for colorizing wells in heatmap
@@ -130,6 +133,8 @@ matrixify <- function(runSamples, plate=FALSE){
 ```
 
 ```{r, include=FALSE}
+if (params$rendered_by_shiny) shiny::setProgress(0.1, message = "Parsing XML files ...")
+
 # define title
 title_var <- paste(params$study_name, params$assayName, sep='<br>')
 # define sample specific boxplot colors for use in plots
@@ -224,6 +229,9 @@ indicatorBridge <- if(sum(sapply(runs, function(x) length(x$Bridge)))==0) FALSE 
 ```
 
 ```{r, include=FALSE}
+
+if (params$rendered_by_shiny) shiny::setProgress(0.3, message = "Performing Normalization ...")
+
 # do intra-plate normalization
 intraPlateNormData <- vector("list", numFiles)
 for (i in 1:numFiles){
@@ -252,6 +260,7 @@ for (i in 1:numFiles){
 ```{r, include=FALSE}
 # do inter-plate normalization 
 # save mCherry-normalized data in a list
+
 normData <- lapply(intraPlateNormData, function(x) x[[1]]$normData)
 
 # save IPC, NC, etc wells for each plate
@@ -359,6 +368,8 @@ if(indicatorSC==TRUE){
 # calculate inter-plate CVs on unnormalized, mCherry normalized,
 # and inter-plate normalized data
 # using IPCs and SCs (sample controls) if present
+
+if (params$rendered_by_shiny) shiny::setProgress(0.4, message = "Performing Normalization ...")
 
 # get input data lists
 IPC_SC_samples_list <- lapply(runs, function(x) {
@@ -485,6 +496,8 @@ if(indicatorBridge==TRUE){
 ```{r, include=FALSE}
 # calculate detectability on regular samples only
 # NOTE: we may also want to add detectability_summary for IPCs, SCs, and Bridge samples
+
+if (params$rendered_by_shiny) shiny::setProgress(0.5, message = "Calculating Detectability ...")
 
 # initialize data stores
 detectability_return_summary <- list()
@@ -696,6 +709,9 @@ title: "`r title_var`"
 
 
 ```{r, eval=(params$outPlateLayout), results='asis'}
+
+if (params$rendered_by_shiny) shiny::setProgress(0.6, message = "Writing Document ...")
+
 pandoc.header("Plate layout", 2)
 pandoc.p("Shows the layout of samples, controls (e.g., negative controls (NC), inter-plate controls (IPC)), and special wells if any (e.g., sample controls (SC), bridge samples) on the 96 well assay plate." )
 for(i in 1:numFiles){
@@ -786,6 +802,9 @@ for(i in 1:numFiles){
 
 
 ```{r, eval=(params$outReadSummary), results='asis'}
+
+if (params$rendered_by_shiny) shiny::setProgress(0.7, message = "Writing Document ...")
+
 knitr::asis_output("\n\n---\n\n")
 pandoc.header("Negative controls (NC)", 3)
 pandoc.p("NC wells are reactions where no sample input is provided (i.e., buffer only). These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality (e.g., background levels).")
@@ -996,6 +1015,7 @@ for(i in 1:length(names(criteria$thresholds))){
 
 
 ```{r, eval=(params$outQC), out.width='100%', fig.asp=1, results='asis'}
+if (params$rendered_by_shiny) shiny::setProgress(0.8, message = "Writing Document ...")
 pandoc.header("Sample QC plots", 4)
 # make sample QC plots
 for( i in 1:numFiles){
@@ -1113,6 +1133,7 @@ detect_fig_asp <- 2*ceiling(numFiles/2)
 ```
 
 ```{r, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=detect_fig_asp}
+if (params$rendered_by_shiny) shiny::setProgress(0.9, message = "Writing Document ...")
 pandoc.header("Detectability", 2)
 pandoc.p("Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered \"detectable\" if it is above limit of detection in greater than 50% of samples. \"Overall\" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes IPCs, SCs, NCs, and bridge samples.")
 pandoc.header("Detectability summary", 3)
@@ -1501,6 +1522,9 @@ for(i in 1:numFiles){
 
 
 ```{r eval=(multipleFiles & params$outInterPlateNorm), results='asis'}
+
+if (params$rendered_by_shiny) shiny::setProgress(0.9, message = "Writing Document ...")
+
 knitr::asis_output("\n\n---\n\n")
 pandoc.header("Inter-plate normalization {#interPlateNorm}", 2)
 cat("%CV was calculated for each target (excluding internal controls) for the sample control replicates. Only values above LOD were used to calculate %CV.")
