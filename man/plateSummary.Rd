@@ -10,7 +10,8 @@ plateSummary(
   IPCs = NULL,
   NCs = NULL,
   SCs = NULL,
-  Bridges = NULL
+  Bridges = NULL,
+  Callibrators = NULL
 )
 }
 \arguments{
