@@ -6,8 +6,8 @@
 \usage{
 processXML(
   in_xml,
-  IPCs = c("InterProcessControl"),
-  NCs = c("NegativeControl"),
+  IPCs = NULL,
+  NCs = NULL,
   ICs = c("mCherry"),
   barcodeB = "",
   out_XML = ""
