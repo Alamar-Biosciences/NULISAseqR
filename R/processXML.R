@@ -110,7 +110,7 @@ NCBkgdLevels_XML <- function(Data, normedData, targets, NCs){
   methodRad <- newXMLNode("Method", attrs=c(name="raw"))
 
 
-  NCmeansIC <-rowMeans(normedData$normData[, NCs], na.rm=T)
+  NCmeansIC <-rowMeans(normedData[, NCs], na.rm=T)
   methodIC <- newXMLNode("Method", attrs=c(name="IC"))
   for(i in 1:length(NCmeansRad)){
     addChildren(methodRad, newXMLNode("Target", NCmeansRad[i], attrs=c(name=targets$targetBarcode[which(names(NCmeansRad[i]) == targets$targetName)])))
@@ -154,7 +154,7 @@ QCThresholds_XML <- function(){
 #' # writeXML('filename.xml')
 #'
 #' @export
-processXML <- function(in_xml, IPCs=c("InterProcessControl"), NCs=c("NegativeControl"), ICs=c("mCherry"), barcodeB="", out_XML=""){
+processXML <- function(in_xml, IPCs=NULL, NCs=NULL, ICs=c("mCherry"), barcodeB="", out_XML=""){
   val <- readNULISAseq(in_xml, IPC=IPCs, NC=NCs, IC=ICs, file_type='xml_no_mismatches')
   Data <- val$Data
   RunSummary <- val$RunSummary
@@ -167,14 +167,16 @@ processXML <- function(in_xml, IPCs=c("InterProcessControl"), NCs=c("NegativeCon
 
   #NC Bkgd Levels
   normedData <- intraPlateNorm(data_matrix=Data, method="IC", IC=val$IC)
-  NCBkgdLevels <- NCBkgdLevels_XML(Data, normedData, targets, val$NC)
+  ind <- which(val$targets$Curve_Quant == "R")
+  reverseCurve <- if( length(ind) >0 ) val$targets$targetName[ind] else NULL
+  normedDataIPC <- interPlateNorm(list(normedData$normData), transformReverse = reverseCurve, IPC_wells=list(val$IPC))
+  NCBkgdLevels <- NCBkgdLevels_XML(Data, normedDataIPC$interNormData[[1]], targets, NCs=val$NC)
   base <- base_XML(ExecutionDetails, bcodeA, bcodeB, RunSummary)  
   data <- newXMLNode("Data")
   addChildren(base, QCThresholds_XML())
-
   addChildren(base, addChildren(data, NCBkgdLevels))
-  qcPlate <- QCFlagPlate(Data, normedData$normData, targets, samples)
-  qcSample <- QCFlagSample(Data, normedData$normData, samples, targets)
+  qcPlate <- QCFlagPlate(Data, normedDataIPC$interNormData[[1]], targets, samples)
+  qcSample <- QCFlagSample(Data, normedDataIPC$interNormData[[1]], samples, targets)
   plateNode <- newXMLNode("PlateQC")
   QC2XML(qcPlate, plateNode, sample=F)
   addChildren(base, plateNode)
@@ -199,8 +201,8 @@ processXML <- function(in_xml, IPCs=c("InterProcessControl"), NCs=c("NegativeCon
       for (k in 2:2){
         name <- if(k == 1) "raw" else "IC"
         method <- newXMLNode("Method", attrs=c(name=name))
-        vals <- if (k == 1) Data[, ind[j]] else normedData$normData[, ind[j]]
-        lod <- if (k == 1) lod(data_matrix=Data, blanks=val$NC, min_count=0) else lod(data_matrix=normedData$normData, blanks=val$NC, min_count=0)
+        vals <- if (k == 1) Data[, ind[j]] else normedDataIPC$interNormData[[1]][, ind[j]]
+        lod <- if (k == 1) lod(data_matrix=Data, blanks=val$NC, min_count=0) else lod(data_matrix=normedDataIPC$interNormData[[1]], blanks=val$NC, min_count=0)
         for (m in 1:length(vals)){
           name <- targets$targetBarcode[which(names(vals[m]) == targets$targetName)]
           aboveLODval <- if(!lod$aboveLOD[m, ind[j]] || is.na(lod$aboveLOD[m, ind[j]])) "N" else "Y"
