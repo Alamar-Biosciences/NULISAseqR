@@ -1,3 +1,38 @@
+#' Rename Duplicates in a List with Incrementing Values
+#'
+#' This function renames duplicate entries in a list by adding an incrementing
+#' value to each duplicate while leaving unique elements unchanged.
+#'
+#' @param input_list A vector or list containing elements to be renamed.
+#'
+#' @return A vector with duplicate entries renamed by adding incrementing
+#' values, while unique elements remain unchanged.
+#'
+#' @examples
+#' original_list <- c("a", "b", "a", "b", "c", "d", "a")
+#' new_list <- renameDuplicateNames(original_list)
+#' print(new_list)
+#'
+#' # Output: "a_1" "b_1" "a_2" "b_2" "c" "d" "a_3"
+#'
+#' @export
+renameDuplicateNames <- function(input_list){
+  unique_names <- unique(input_list)
+  counts <- table(input_list)
+  new_names <- input_list
+
+  for (name in unique_names) {
+    if (counts[name] > 1) {
+      indices <- which(input_list == name)
+      for (i in 1:length(indices)) {
+        new_names[indices[i]] <- paste0(name, "_", i)
+      }
+    }
+  }
+
+  return(new_names)
+}
+
 #' Read NULISAseq XML
 #'
 #' Reads NULISAseq XML file, where XML file is output from the Alamar
@@ -41,8 +76,8 @@
 #' @param Bridge string(s) that represent the bridge sample wells. 
 #' Set to \code{NULL} if there are no bridge samples (default).
 #' Only used for xml file formats.
-#' @param Callibrator string(s) that represent the callibrator wells. 
-#' Set to \code{NULL} if there are no callibrator samples (default).
+#' @param Calibrator string(s) that represent the calibrator wells. 
+#' Set to \code{NULL} if there are no calibrator samples (default).
 #' Only used for xml file formats.
 #' @param replaceNA Logical. If TRUE (default), will replace missing counts with 
 #' zeros.
@@ -60,7 +95,7 @@ readNULISAseq <- function(file,
                           sample_column_names=NULL,
                           sample_group_covar=NULL,
                           IC='mCherry', 
-                          IPC='IPC', SC='SC', NC='NC', Bridge=NULL, Callibrator=NULL,
+                          IPC='IPC', SC='SC', NC='NC', Bridge=NULL, Calibrator=NULL,
                           replaceNA=TRUE){
   
   if(file_type == 'xml_no_mismatches'){
@@ -109,6 +144,7 @@ readNULISAseq <- function(file,
     # save sample data in data frame
     sampleBarcode <- unlist(lapply(RunSummary$Barcodes$BarcodeB, function(x) attributes(x)$name))
     sampleName <- unlist(RunSummary$Barcodes$BarcodeB)
+    sampleName <- renameDuplicateNames(sampleName)
     sampleID <- if(!is.null(plateID)) paste0(plateID, ".", sampleName) else sampleName
     # get other sample annotations
     barcodeB_attrs <- names(attributes(RunSummary$Barcodes$BarcodeB[[1]]))
@@ -186,7 +222,7 @@ readNULISAseq <- function(file,
       DataMatrix[is.na(DataMatrix)] <- 0
     }
     
-    val <- if(is.null(NC) && is.null(IPC) && is.null(SC) && is.null(Bridge) && is.null(Callibrator)) NA else "Sample"
+    val <- if(is.null(NC) && is.null(IPC) && is.null(SC) && is.null(Bridge) && is.null(Calibrator)) NA else "Sample"
     sampleType <- rep(val, length(samples$sampleName))
     if(!is.null(samples$type)){
       sampleType <- unlist(lapply(samples$type, FUN=function(t) gsub(pattern="sample", replacement="Sample", x=t, fixed=T)))
@@ -197,7 +233,7 @@ readNULISAseq <- function(file,
       sampleType[grep(paste("SC", collapse="|"), samples$sampleName)] <- "SC" 
       sampleType[grep(paste("IPC", collapse="|"), samples$sampleName)] <- "IPC" 
       sampleType[grep(paste("Bridge", collapse="|"), samples$sampleName)] <- "Bridge"
-      sampleType[grep(paste("Callibrator", collapse="|"), samples$sampleName)] <- "Callibrator"
+      sampleType[grep(paste("Calibrator", collapse="|"), samples$sampleName)] <- "Calibrator"
     } 
     
     # add well type information
@@ -205,7 +241,7 @@ readNULISAseq <- function(file,
     if(!is.null(SC)){     sampleType[grep(paste(SC, collapse="|"), samples$sampleName)] <- "SC" }
     if(!is.null(IPC)){    sampleType[grep(paste(IPC, collapse="|"), samples$sampleName)] <- "IPC" }
     if(!is.null(Bridge)){ sampleType[grep(paste(Bridge, collapse="|"), samples$sampleName)] <- "Bridge"}
-    if(!is.null(Callibrator)){ sampleType[grep(paste(Callibrator, collapse="|"), samples$sampleName)] <- "Callibrator"}
+    if(!is.null(Calibrator)){ sampleType[grep(paste(Calibrator, collapse="|"), samples$sampleName)] <- "Calibrator"}
     samples$sampleType <- sampleType
     
     # add IC target information
@@ -220,7 +256,7 @@ readNULISAseq <- function(file,
     specialWellsTargets[['NC']] <- samples$sampleName[samples$sampleType=='NC']
     specialWellsTargets[['SC']] <- samples$sampleName[samples$sampleType=='SC']
     specialWellsTargets[['Bridge']] <- samples$sampleName[samples$sampleType=='Bridge']
-    specialWellsTargets[['Callibrator']] <- samples$sampleName[samples$sampleType=='Callibrator']
+    specialWellsTargets[['Calibrator']] <- samples$sampleName[samples$sampleType=='Calibrator']
     specialWellsTargets[['SampleNames']] <- samples$sampleName[samples$sampleType=='Sample']
     
     # add sample identity information
