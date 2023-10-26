@@ -298,6 +298,15 @@ readNULISAseq <- function(file,
 
     # Determine if covariates are numeric
     numericCovariates <- sapply(samples, function(lst) all(sapply(lst, function(x) is.na(x) || (is.character(x) && x == "NA") || grepl("^\\d+\\.?\\d*$", x))))
+    if ("AUTO_PLATE" %in% names(numericCovariates)){
+      numericCovariates['AUTO_PLATE'] = FALSE
+    }
+    if ("sampleBarcode" %in% names(numericCovariates)){
+      numericCovariates['sampleBarcode'] = FALSE
+    }
+    if ("plateID" %in% names(numericCovariates)){
+      numericCovariates['plateID'] = FALSE
+    }
 
     # if no sample matrix given assign "PLASMA"
     if(is.null(samples$SAMPLE_MATRIX)){
