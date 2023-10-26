@@ -168,7 +168,8 @@ if (params$rendered_by_shiny) shiny::setProgress(0.1, message = "Parsing XML fil
 # define title
 title_var <- paste(params$study_name, params$assayName, sep='<br>')
 # define sample specific boxplot colors for use in plots
-boxplot_colors <- unlist(lapply(alamarColorPalette(n=5, tint='light', nReps=5), function(x) x[4]))
+#boxplot_colors <- unlist(lapply(alamarColorPalette(n=5, tint='light', nReps=5), function(x) x[4]))
+boxplot_colors <- grDevices::hcl.colors(5, palette = "Set3")[c(4,3,1,5,2)]
 if(is.null(params$dataRuns)){
   numFiles <- length(params$xmlFiles)
   # set data directory
@@ -1446,7 +1447,8 @@ for(i in 1:numFiles){
   sample_type <- factor(sample_type, levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
   # make colors
   boxplot_colors2 <- boxplot_colors[c(1,2,4,5,3)][as.numeric(sample_type)]
-  label_colors <- unlist(lapply(alamarColorPalette(n=5, nReps=5), function(x) x[2]))[c(1,2,4,5,3)]
+  #label_colors <- unlist(lapply(alamarColorPalette(n=5, nReps=5), function(x) x[2]))[c(1,2,4,5,3)]
+  label_colors <- grDevices::hcl.colors(5, palette = "Set3")[c(4,3,5,2,1)]
   label_colors[1] <- 'black'
   label_colors2 <- label_colors[as.numeric(sample_type)]
   # get well order
