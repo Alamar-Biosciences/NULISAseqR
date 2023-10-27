@@ -16,7 +16,7 @@ readNULISAseq(
   SC = "SC",
   NC = "NC",
   Bridge = NULL,
-  Callibrator = NULL,
+  Calibrator = NULL,
   replaceNA = TRUE
 )
 }
@@ -69,8 +69,8 @@ Only used for xml file formats.}
 Set to \code{NULL} if there are no bridge samples (default).
 Only used for xml file formats.}
 
-\item{Callibrator}{string(s) that represent the callibrator wells. 
-Set to \code{NULL} if there are no callibrator samples (default).
+\item{Calibrator}{string(s) that represent the calibrator wells. 
+Set to \code{NULL} if there are no calibrator samples (default).
 Only used for xml file formats.}
 
 \item{replaceNA}{Logical. If TRUE (default), will replace missing counts with 
