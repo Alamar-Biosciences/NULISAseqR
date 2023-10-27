@@ -11,7 +11,7 @@ plateSummary(
   NCs = NULL,
   SCs = NULL,
   Bridges = NULL,
-  Callibrators = NULL
+  Calibrators = NULL
 )
 }
 \arguments{
