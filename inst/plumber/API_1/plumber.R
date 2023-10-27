@@ -103,15 +103,8 @@ xml2html <- function(res,
     tryCatch(
       {
 
-        # Determine the Rmd file path
-        current_wd <- getwd()
-        rmd_path_suffix <- "/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"
-        if (file.exists(paste0(current_wd, rmd_path_suffix))) {
-          rmd_path <- paste0(current_wd, rmd_path_suffix)
-        } else {
-          rmd_path <- paste0(current_wd, "/NULISAseqR", rmd_path_suffix)
-          rmd_path <- gsub("NULISAseqR/inst/plumber/API_1/", "", rmd_path)
-        }
+        # Define the Rmd file path
+        rmd_path <- "/workingDir/NULISAseqR/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"
         log_info(paste("Rmd file found at:", rmd_path))
 
         # Create required temporary files
