@@ -18,12 +18,12 @@ writeNULISAseq(
   IPC_string = "IPC",
   SC_string = "SC",
   Bridge_string = "Bridge",
-  Callibrator_string = "Callibrator",
+  Calibrator_string = "Calibrator",
   NC_string = "NC",
   include_IPC = FALSE,
   include_SC = TRUE,
   include_Bridge = TRUE,
-  include_Callibrator = TRUE,
+  include_Calibrator = TRUE,
   include_NC = FALSE,
   include_unnorm_counts = FALSE,
   include_IC_counts = FALSE,
@@ -88,8 +88,8 @@ names (e.g. 'SC'). SC wells are included in the data file output.}
 Bridge samples in the column names (e.g. 'Bridge'). Bridge wells 
 can be used for inter-plate normalization (not currently implemented).}
 
-\item{Callibrator_string}{Optional (or Callibrator_wells) Vector of character string(s) that represents 
-Callibrator samples in the column names (e.g. 'Callibrator'). Callibrator wells 
+\item{Calibrator_string}{Optional (or Calibrator_wells) Vector of character string(s) that represents 
+Calibrator samples in the column names (e.g. 'Calibrator'). Calibrator wells 
 can be used for absolute quantification (not currently implemented).}
 
 \item{NC_string}{Required (or NC wells). Vector of character string(s) that represents NCs in the 
@@ -101,7 +101,7 @@ column names (e.g. 'NC').}
 
 \item{include_Bridge}{Logical. Should Bridge samples be included in output? Default is TRUE.}
 
-\item{include_Callibrator}{Logical. Should Callibrator samples be included in output? Default is TRUE.}
+\item{include_Calibrator}{Logical. Should Calibrator samples be included in output? Default is TRUE.}
 
 \item{include_NC}{Logical. Should NC samples be included in output? Default is FALSE.}
 
