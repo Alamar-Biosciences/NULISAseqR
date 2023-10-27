@@ -12,5 +12,5 @@ IPCs
 NCs
 SCs
 Bridge samples
-Callibrator samples
+Calibrator samples
 }

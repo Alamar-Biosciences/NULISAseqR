@@ -75,15 +75,15 @@
 #' @param Bridge_string Optional (or Bridge_wells) Vector of character string(s) that represents 
 #' Bridge samples in the column names (e.g. 'Bridge'). Bridge wells 
 #' can be used for inter-plate normalization (not currently implemented).
-#' @param Callibrator_string Optional (or Callibrator_wells) Vector of character string(s) that represents 
-#' Callibrator samples in the column names (e.g. 'Callibrator'). Callibrator wells 
+#' @param Calibrator_string Optional (or Calibrator_wells) Vector of character string(s) that represents 
+#' Calibrator samples in the column names (e.g. 'Calibrator'). Calibrator wells 
 #' can be used for absolute quantification (not currently implemented).
 #' @param NC_string Required (or NC wells). Vector of character string(s) that represents NCs in the 
 #' column names (e.g. 'NC'). 
 #' @param include_IPC Logical. Should IPC samples be included in output? Default is FALSE.
 #' @param include_SC Logical. Should SC samples be included in output? Default is TRUE.
 #' @param include_Bridge Logical. Should Bridge samples be included in output? Default is TRUE.
-#' @param include_Callibrator Logical. Should Callibrator samples be included in output? Default is TRUE.
+#' @param include_Calibrator Logical. Should Calibrator samples be included in output? Default is TRUE.
 #' @param include_NC Logical. Should NC samples be included in output? Default is FALSE.
 #' @param include_unnorm_counts Logical. Should unnormalized counts be included 
 #' as am additional column in output? Default is FALSE.
@@ -150,12 +150,12 @@ writeNULISAseq <- function(xml_files,
                            IPC_string='IPC',
                            SC_string='SC',
                            Bridge_string='Bridge',
-                           Callibrator_string='Callibrator',
+                           Calibrator_string='Calibrator',
                            NC_string='NC',
                            include_IPC=FALSE,
                            include_SC=TRUE,
                            include_Bridge=TRUE,
-                           include_Callibrator=TRUE,
+                           include_Calibrator=TRUE,
                            include_NC=FALSE,
                            include_unnorm_counts=FALSE,
                            include_IC_counts=FALSE,
@@ -182,7 +182,7 @@ writeNULISAseq <- function(xml_files,
                                SC=SC_string,
                                NC=NC_string,
                                Bridge=Bridge_string,
-                               Callibrator=Callibrator_string,
+                               Calibrator=Calibrator_string,
                                replaceNA=replaceNA,
                                IC=ICs)
     # remove AlamarTargetID from the targets data.frame if present
@@ -324,7 +324,7 @@ writeNULISAseq <- function(xml_files,
     if(include_IPC==TRUE & !is.null(x$IPC)) samples <- c(samples, x$IPC)
     if(include_SC==TRUE & !is.null(x$SC)) samples <- c(samples, x$SC)
     if(include_Bridge==TRUE & !is.null(x$Bridge)) samples <- c(samples, x$Bridge)
-    if(include_Callibrator==TRUE & !is.null(x$Callibrator)) samples <- c(samples, x$Callibrator)
+    if(include_Calibrator==TRUE & !is.null(x$Calibrator)) samples <- c(samples, x$Calibrator)
     if(include_NC==TRUE & !is.null(x$NC)) samples <- c(samples, x$NC)
     plateID <- rep(x$plateID, length(samples))
     return(list(samples=samples, plateID=plateID))
@@ -397,7 +397,7 @@ writeNULISAseq <- function(xml_files,
     
     target_data <- merge(SampleInfo, target_data, all.x=TRUE, all.y=FALSE,
                          by=c('PlateID', 'SampleName'))
-    target_data$SampleType <- factor(target_data$SampleType, levels=c("Sample", "IPC", "SC", "Bridge", "Callibrator", "NC"))
+    target_data$SampleType <- factor(target_data$SampleType, levels=c("Sample", "IPC", "SC", "Bridge", "Calibrator", "NC"))
     target_data <- target_data[order(target_data$PlateID, target_data$SampleType, target_data$SampleName),]
     target_data <- target_data[,target_data_colnames]
     
