@@ -201,8 +201,8 @@ processXML <- function(in_xml, IPCs=NULL, NCs=NULL, ICs=c("mCherry"), barcodeB="
       for (k in 2:2){
         name <- if(k == 1) "raw" else "IC"
         method <- newXMLNode("Method", attrs=c(name=name))
-        vals <- if (k == 1) Data[, ind[j]] else normedDataIPC$interNormData[[1]][, ind[j]]
-        lod <- if (k == 1) lod(data_matrix=Data, blanks=val$NC, min_count=0) else lod(data_matrix=normedDataIPC$interNormData[[1]], blanks=val$NC, min_count=0)
+        vals <- if (k == 1) Data[, ind[j]] else log2(normedDataIPC$interNormData[[1]][, ind[j]] +1)
+        lod <- if (k == 1) lod(data_matrix=Data, blanks=val$NC, min_count=0) else lod(data_matrix=log2(normedDataIPC$interNormData[[1]]+1), blanks=val$NC, min_count=0)
         for (m in 1:length(vals)){
           name <- targets$targetBarcode[which(names(vals[m]) == targets$targetName)]
           aboveLODval <- if(!lod$aboveLOD[m, ind[j]] || is.na(lod$aboveLOD[m, ind[j]])) "N" else "Y"
