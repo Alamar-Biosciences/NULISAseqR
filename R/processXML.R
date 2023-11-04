@@ -181,6 +181,7 @@ processXML <- function(in_xml, IPCs=NULL, NCs=NULL, ICs=c("mCherry"), barcodeB="
   QC2XML(qcPlate, plateNode, sample=F)
   addChildren(base, plateNode)
   uniqSampleNames <- unique(samples$sampleName)
+ 
   for( i in 1:length(uniqSampleNames)){
     ind <- which(samples$sampleName == uniqSampleNames[i])
     sampleNode <- newXMLNode("Sample", attrs=c(name=uniqSampleNames[i], replicates=length(ind)))
@@ -206,11 +207,9 @@ processXML <- function(in_xml, IPCs=NULL, NCs=NULL, ICs=c("mCherry"), barcodeB="
         for (m in 1:length(vals)){
           name <- targets$targetBarcode[which(names(vals[m]) == targets$targetName)]
           aboveLODval <- if(!lod$aboveLOD[m, ind[j]] || is.na(lod$aboveLOD[m, ind[j]])) "N" else "Y"
+          attrs <- if("AQ" %in% names(val)) c(name = name, aboveBkgd = aboveLODval, aq = val$AQ[m, ind[j]]) else c(name=name, aboveBkgd=aboveLODval)
           addChildren(method, newXMLNode("Target", 
-                                          attrs=c(
-                                            name=name,
-                                            aboveBkgd=aboveLODval
-                                          ),
+                                          attrs=attrs,
                                           if(is.na(vals[m])) 0 else vals[m]
                                         )
           )
