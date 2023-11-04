@@ -75,7 +75,12 @@ readNULISAseq <- function(file,
     ExecutionDetails <- lapply(ExecutionDetails, unlist)
     ExecutionDetails$ExecutionTime <- c(as.numeric(ExecutionDetails$ExecutionTime[1]),
                                         ExecutionTimeUnits)
-    
+    if("Abs" %in% names(ExecutionDetails)){
+      ExecutionDetails$Abs <- data.frame(
+                                seq = unname(ExecutionDetails$Abs)[seq(1, length(ExecutionDetails$Abs), 2)], 
+                                val = unname(ExecutionDetails$Abs)[seq(2, length(ExecutionDetails$Abs), 2)])
+    }
+
     ###########################
     # save Run Summary 
     ###########################
