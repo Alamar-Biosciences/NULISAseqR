@@ -103,6 +103,9 @@ xml2html <- function(res,
     tryCatch(
       {
 
+        # Make logical
+        outputPlots <- as.logical(outputPlots)
+
         # Define the Rmd file path
         rmd_path <- "/workingDir/NULISAseqR/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"
         log_info(paste("Rmd file found at:", rmd_path))
@@ -149,7 +152,7 @@ xml2html <- function(res,
                                         assayName = assayName,
                                         excludeSamples = excludeSamples,
                                         excludeTargets = excludeTargets,
-                                        outputPlots = as.logical(outputPlots),
+                                        outputPlots = outputPlots,
                                         sampleGroupCovar = sampleGroupCovar))
         log_info("Successfully generated the HTML QC report.")
 
@@ -159,7 +162,8 @@ xml2html <- function(res,
         if (outputPlots) {
 
           # Add plots to the zip archive
-          plot_files <- list.files("./outputFiles/", full.names = TRUE)
+          plots_dir <- paste(dirname(temp_rmd), "/outputFiles/", sep = "")
+          plot_files <- list.files(plots_dir, full.names = TRUE)
           for (file in plot_files) {
             zip(out_zip, file)
           }
@@ -176,8 +180,8 @@ xml2html <- function(res,
           }
 
           # Remove the figures/files directory: If present
-          if (file.exists("./outputFiles") && file.info("./outputFiles")$isdir) {
-            unlink("./outputFiles", recursive = TRUE)
+          if (file.exists(plots_dir) && file.info(plots_dir)$isdir) {
+            unlink(plots_dir, recursive = TRUE)
           }
 
           log_info("Generated a zip archive with required additional plots and files.")
