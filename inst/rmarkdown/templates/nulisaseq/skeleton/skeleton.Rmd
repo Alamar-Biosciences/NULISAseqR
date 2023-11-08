@@ -910,7 +910,13 @@ for( i in 1:numFiles){
 pandoc.header("Sample QC", 3)
 pandoc.header("Sample QC summary tables", 4)
 pandoc.p("Sample-specific QC criteria:")
-pandoc.list(c(paste0("Detectability - Percentage of targets above LOD for a sample (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability'])*100,"%)"),
+pandoc.list(c(
+              paste0("Detectability - Percentage of targets above LOD for a sample - Plasma (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.plasma'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - Serum (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.serum'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - CSF (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.csf'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - Urine (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.urine'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - Cell Culture Media (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.cell_culture'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - NHP (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.nhp'])*100,"%)"),
               paste0("ICReads - Number of IC reads for a sample (minimum = ", QCSampleCriteria()$thresholds['ICReads'],")"),
               paste0("NumReads - Number of total Parseable Match (signal) reads for a sample (minimum = ", QCSampleCriteria()$thresholds['NumReads'],")"),
               paste0("IC_Median - % deviation from the overall plate median IC reads (within +/-", as.numeric(unname(unlist(strsplit(QCSampleCriteria()$thresholds['IC_Median'], ',')))[2])*100, "% of plate median)")
@@ -919,7 +925,7 @@ pandoc.list(c(paste0("Detectability - Percentage of targets above LOD for a samp
 # make empty sample QC summary table
 criteria <- QCSampleCriteria()
 rowNameQC <- c()
-QCSummary <- matrix(nrow=numFiles + 1, ncol=length(criteria$thresholds) + 1)
+QCSummary <- matrix(nrow=numFiles + 1, ncol=length(criteria$thresholds) - length(which(startsWith(names(criteria$thresholds), "Detectability"))) + 1 + 1)
 for (i in 1:numFiles){
   QCSummary[i,1] <- length(runs[[i]]$SampleNames)
   rowNameQC <- c(rowNameQC,  paste0("Plate ", as.character(i))) 
@@ -933,15 +939,20 @@ for (i in 1:numFiles){
   well_order <- wellorder(runs[[i]]$samples)
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
   rmin <- rmax <- c()
-  for (j in 1:length(criteria$thresholds)){
-    inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
+  for (j in 1:length(criteria$thresholdNames)){
+    inds <- which(startsWith(names(criteria$thresholdNames)[j], qcSample$flagName))
     QC_criterion_j_data <- qcSample[inds, ]
+    if (startsWith(names(criteria$thresholdNames)[j], "Detectability")){
+      val[j] <- criteria$thresholds[1]
+    }else{
+      val[j] <- criteria$thresholds[which(names(criteria$thresholds) == names(criteria$thresholdNames)[j])]
+    }
     val[j] <- criteria$thresholds[j] #if(names(criteria$thresholds)[j] == "Detectability") as.numeric(unlist(strsplit(criteria$thresholds[j],",")))*100 else unlist(strsplit(criteria$thresholds[j],","))
-    if(names(criteria$thresholds)[j] == "Detectability"){
+    if(names(criteria$thresholdNames)[j] == "Detectability"){
       xval <- as.numeric(QC_criterion_j_data$val)*100
       rmax[j] <- 100.0
-      rmin[j] <- min(as.numeric(val[[j]])*100, as.numeric(xval), na.rm=TRUE) 
-    }else if (names(criteria$thresholds)[j] == "IC_Median"){
+      rmin[j] <- 0.0 #min(as.numeric(val[[j]])*100, as.numeric(xval), na.rm=TRUE)
+    }else if (names(criteria$thresholdNames)[j] == "IC_Median"){
       xval <- as.numeric(QC_criterion_j_data$val)*100
       minmaxVal <- unname(unlist(strsplit(val[[j]], ",")))
       rmin[j] <- min(as.numeric(minmaxVal[1])*100, as.numeric(xval), na.rm=TRUE)
@@ -952,7 +963,7 @@ for (i in 1:numFiles){
       rmax[j] <- max(as.numeric(val[[j]]), as.numeric(xval), na.rm=TRUE)
     }
     # add a small amount of padding to x axis limits
-    if(names(criteria$thresholds)[j] %in% c("ICReads", "NumReads")){
+    if(names(criteria$thresholdNames)[j] %in% c("ICReads", "NumReads")){
       rlim_delta <- log10(rmax[j]) - log10(rmin[j])
       rmin[j] <- 10^(log10(rmin[j]) - 0.025 * rlim_delta)
       rmax[j] <- 10^(log10(rmax[j]) + 0.025 * rlim_delta)
@@ -964,36 +975,36 @@ for (i in 1:numFiles){
     # count how many samples fail QC (excludes controls)
     QCSummary[i, j+1] <- length(which(QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]$status=="TRUE"))
   }
-  QCplot_axis_limits[[i]] <- list(rmin=rmin, rmax=rmax) 
+  QCplot_axis_limits[[i]] <- list(rmin=rmin, rmax=rmax)
 }
 
 # fill in & format QCSummary
-QCSummary[i+1, ] <- colSums(QCSummary, na.rm=TRUE) 
+QCSummary[i+1, ] <- colSums(QCSummary, na.rm=TRUE)
 rownames(QCSummary) <- c(rowNameQC, "Total")
-colnames(QCSummary) <- c("# of Samples", names(criteria$thresholds))
+colnames(QCSummary) <- c("# of Samples", names(criteria$thresholdNames))
 
 # print sample QC summary table
-knitr::kable(QCSummary, caption='Number of samples that have warnings for each QC criterion (excludes IPC, SC, NC & bridge samples)', 
-             align='r', 
+knitr::kable(QCSummary, caption='Number of samples that have warnings for each QC criterion (excludes IPC, SC, NC & bridge samples)',
+             align='r',
              table.attr="id=\"QC-summary-table\"",
-             format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
+             format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE)
 ```
 
 
 ```{r, eval=(params$outQC), out.width='100%', results='asis'}
 # table to show which specific samples fail each QC flag
-QC_sample_fail <- vector(mode='list', length=length(names(criteria$thresholds)))
-names(QC_sample_fail) <- names(criteria$thresholds)
+QC_sample_fail <- vector(mode='list', length=length(names(criteria$thresholdNames)))
+names(QC_sample_fail) <- names(criteria$thresholdNames)
 QC_sample_fail <- lapply(QC_sample_fail, function(x) x <- data.frame(Plate=character(0), QC_fail_samples=character(0)))
 for (i in 1:numFiles){
   well_order <- wellorder(runs[[i]]$samples)
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
-  for (j in 1:length(criteria$thresholds)){
-    QC_criterion_j_data <- qcSample[qcSample$flagName == names(criteria$thresholds)[j], ]
+  for (j in 1:length(criteria$thresholdNames)){
+    QC_criterion_j_data <- qcSample[qcSample$flagName == names(criteria$thresholdNames)[j], ]
     QC_criterion_j_data_samples <- QC_criterion_j_data[QC_criterion_j_data$sampleName %in% runs[[i]]$SampleNames,]
     QC_fail_samples_j <- QC_criterion_j_data_samples$sampleName[QC_criterion_j_data_samples$status==TRUE]
-    # reverse so they are sorted A1 - H12 
+    # reverse so they are sorted A1 - H12
     QC_fail_samples_j <- rev(QC_fail_samples_j)
     if(length(QC_fail_samples_j) > 0){
       QC_sample_fail[[j]] <- rbind(QC_sample_fail[[j]], data.frame(Plate=PlateNames[i], QC_fail_samples=QC_fail_samples_j))
@@ -1003,12 +1014,12 @@ for (i in 1:numFiles){
 
 # print QC fail tables
 # need to fix table.attr
-for(i in 1:length(names(criteria$thresholds))){
+for(i in 1:length(names(criteria$thresholdNames))){
   if(nrow(QC_sample_fail[[i]]) > 0){
-    cat(knitr::kable(QC_sample_fail[[i]], caption=paste0('Samples with warnings: ', names(criteria$thresholds)[i]), 
-                     align='r', 
+    cat(knitr::kable(QC_sample_fail[[i]], caption=paste0('Samples with warnings: ', names(criteria$thresholdNames)[i]),
+                     align='r',
                      table.attr="id=\"sample-QC-summary-table\"",
-                     format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>% 
+                     format.args=list(big.mark = ",", digits=2, escape=FALSE)) %>%
           kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE))
   }
 }
@@ -1023,7 +1034,7 @@ for( i in 1:numFiles){
   # sort in order: samples, IPC, SC, Bridge, NC
   sampleType_factor <- factor(runs[[i]]$sample$sampleType,
                               levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
-  well_order <- wellorder(runs[[i]]$samples, 
+  well_order <- wellorder(runs[[i]]$samples,
                           sampleTypeFactor=sampleType_factor)
   # do sample QC
   qcSample <- QCFlagSample(runs[[i]]$Data, normData[[i]], runs[[i]]$samples, runs[[i]]$targets, well_order)
@@ -1035,32 +1046,32 @@ for( i in 1:numFiles){
     inds <- which(grepl(paste(runs[[i]]$Bridge, collapse="|"), qcSample$sampleName))
     qcSample[inds, ]$sampleType <- "Bridge"
   }
-  
+
   # make plots
-  par(mfcol=c(1, length(criteria$thresholds)+1), mar=c(5,0.05,2,0.05))
-  # empty plot 
-  dotchart(x=rep(0, length(sampleType_factor)), 
+  par(mfcol=c(1, length(criteria$thresholdNames)+1), mar=c(5,0.05,2,0.05))
+  # empty plot
+  dotchart(x=rep(0, length(sampleType_factor)),
            xlab='',
            xlim=c(50, 100),
            labels=qcSample[inds, ]$sampleName,
-           color="white", 
+           color="white",
            lcolor='white',
            gcolor='black',
            xaxt='n', frame.plot=FALSE,
            offset=-1,
            cex=0.45)
   title(main=PlateNames[i])
-  
-  
-  for(j in 1:length(names(criteria$thresholds))){
-    inds <- which(qcSample$flagName == names(criteria$thresholds)[j])
+
+
+  for(j in 1:length(names(criteria$thresholdNames))){
+    inds <- which(qcSample$flagName == names(criteria$thresholdNames)[j])
     xlab <- ""
     xval <- NULL
     # define xlabels
-    if(names(criteria$thresholds)[j] == "Detectability"){
+    if(names(criteria$thresholdNames)[j] == "Detectability"){
       xlab <- "Detectability %"
       xval <- as.numeric(qcSample[inds, ]$val)*100
-    } else if(names(criteria$thresholds)[j] == "IC_Median"){
+    } else if(names(criteria$thresholdNames)[j] == "IC_Median"){
       xlab <- "% of mCherry Median"
       xval <- as.numeric(qcSample[inds, ]$val)*100
     } else {
@@ -1071,9 +1082,9 @@ for( i in 1:numFiles){
         xval[zs] <- xval[zs]+1
       }
     }
-    
+
     # use log scale for number of reads
-    log <- if(names(criteria$thresholds)[j] != "Detectability" && names(criteria$thresholds)[j] != "IC_Median") "x" else ""
+    log <- if(names(criteria$thresholdNames)[j] != "Detectability" && names(criteria$thresholdNames)[j] != "IC_Median") "x" else ""
     # use y labels only for first plot
     if(j==1) {
       labels <- qcSample[inds, ]$sampleName
@@ -1090,15 +1101,15 @@ for( i in 1:numFiles){
     if (length(which(qcSample[inds,]$sampleType == "Bridge")) > 0 ){
       color[which(qcSample[inds,]$sampleType == "Bridge")] <- boxplot_colors[5]
     }
-    dotchart(x=as.numeric(xval), 
-             xlab=xlab, 
-             labels=rep('', length(xval)), las=1, 
-             cex=0.45, xlim=c(QCplot_axis_limits[[i]]$rmin[j], QCplot_axis_limits[[i]]$rmax[j]), 
+    dotchart(x=as.numeric(xval),
+             xlab=xlab,
+             labels=rep('', length(xval)), las=1,
+             cex=0.45, xlim=c(QCplot_axis_limits[[i]]$rmin[j], QCplot_axis_limits[[i]]$rmax[j]),
              color=color, log=log)
     if(j==1){
       # need to loop over labels and color individuals
       for (k in 1:length(xval)){
-        axis(side=2, at=k, 
+        axis(side=2, at=k,
              labels=labels[k], col.axis=color[k], las=1,
              cex.axis=0.5)
       }
@@ -1110,18 +1121,28 @@ for( i in 1:numFiles){
     xvalPass[which(qcSample[inds,]$status != FALSE)] <- NA
     points(as.numeric(xvalPass),1:length(xvalPass), pch=19, col="green")
     points(as.numeric(xvalFail),1:length(xvalFail), pch=19, col="red")
-    
-    if(names(criteria$thresholds)[j] == "IC_Median"){
-      minmaxVal <- unlist(strsplit(val[[j]], ","))
+
+    if(names(criteria$thresholdNames)[j] == "IC_Median"){
+      minmaxVal <- unlist(strsplit(criteria$thresholds["IC_Median"], ","))
       abline(v=as.numeric(minmaxVal[[1]])*100, col='brown')
       abline(v=as.numeric(minmaxVal[[2]])*100, col='brown')
       abline(v=0, col='brown', lty=2)
-    }else{
+    } else if(names(criteria$thresholdNames)[j] == "Detectability"){
       value <- if(criteria$format[j] == "percentage") as.numeric(val[[j]])*100 else as.numeric(val[[j]])
+      detectVals <- as.numeric(qcSample$QCthreshold[which(qcSample$flagName == "Detectability")]) * 100
+      for(k in 1:length(detectVals)){
+        if(!is.na(detectVals[k])){
+          segments(detectVals[k], k - 0.5, detectVals[k], k + 0.5, col = "brown")
+        }
+      }
+    } else{
+#      value <- if(criteria$format[j] == "percentage") as.numeric(val[[j]])*100 else as.numeric(val[[j]])
+      thresh <- criteria$thresholds[which(names(criteria$format)[j] == names(criteria$thresholds))]
+      value <- if(criteria$format[j] == "percentage") as.numerical(thresh) * 100 else as.numeric(thresh)
       abline(v=value, col='brown')
     }
     legend('bottomright', legend=c('Pass', "Fail"), col=c('green', 'red'), pch=19, cex=0.4, bty='n', inset=c(0,1), xpd=T,horiz=T)
-    title(main=names(criteria$thresholds)[j], cex.main=1)
+    title(main=names(criteria$thresholdNames)[j], cex.main=1)
   } 
 }
 ```
