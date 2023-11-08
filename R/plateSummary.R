@@ -5,6 +5,7 @@
 #' NCs
 #' SCs
 #' Bridge samples
+#' Calibrator samples
 #' 
 #' @export
 #' 
@@ -108,7 +109,7 @@ typeSummary <- function(well_type, plate_data, total_plate_reads){
 #'
 #' @export
 #' 
-plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Bridges=NULL){
+plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Bridges=NULL, Calibrators=NULL){
   ##############################
   # main output
   ##############################
@@ -184,7 +185,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
                    IC_table=IC_table)
   }
   ############
-  # IPCs, SCs, Bridges
+  # IPCs, SCs, Bridges, Calibrators
   ############
   IPCinds <- if(!is.null(IPCs)) IPCs else which(plate_data$samples$sampleType == "IPC")
   if(length(IPCinds) > 0 ){
@@ -200,6 +201,11 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   if(length(Bridgeinds)>0){
     Bridge_table <- typeSummary(Bridgeinds, plate_data, total_plate_reads)
     output <- if (is.list(output)==TRUE) c(output, list(Bridge_table=Bridge_table)) else list(readsTable=output, Bridge_table=Bridge_table)
+  }
+  Calibratorinds <- if(!is.null(Calibrators)) Calibrators else which(plate_data$samples$sampleType == "Calibrator")
+  if(length(Calibratorinds)>0){
+    Calibrator_table <- typeSummary(Calibratorinds, plate_data, total_plate_reads)
+    output <- if (is.list(output)==TRUE) c(output, list(Calibrator_table=Calibrator_table)) else list(readsTable=output, Calibrator_table=Calibrator_table)
   }
   
   ############

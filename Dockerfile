@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN set -eu; \
-    install.r future pagedown uuid XML xml2 ggrepel fields plumber optparse kableExtra pheatmap corrplot pander gdata dplyr testthat qs \
+    install.r future pagedown uuid XML xml2 ggrepel fields plumber optparse kableExtra pheatmap corrplot pander gdata dplyr testthat qs lmerTest logger \
     > /tmp/install.log 2>&1; \
     cat /tmp/install.log; \
     if grep -qi "not available for this version of R" /tmp/install.log; then \

@@ -39,7 +39,7 @@ QCSampleCriteria <- function(){
 MAX_IC_CV <- 0.25                # (ICRead_CV) CV of IC reads across all samples
 MAX_IPC_CV <- 0.25               # (IPCRead_CV) CV of total read count for each IPC sample
 MAX_MEDIAN_IPC_TARGET_CV <- 0.1  # (IPCTarget_CV) Median of CVs of all IPC targets (Performed on normalized data) 
-DETECTABILITY_FRAC <- 0.9        # (Detectability) Target-wise Detectability fraction (target is detected if >50% of samples > LOD)
+DETECTABILITY_FRAC <- 0.90       # (Detectability) Target-wise Detectability fraction (target is detected if >50% of samples > LOD)
 MIN_READS <- 1e8                 # (MinReads) Minimum number of reads
 
 #' QCPlateCriteria
