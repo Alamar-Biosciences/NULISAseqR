@@ -1,5 +1,5 @@
 # Sample QC criteria
-MIN_FRAC_DETECTABILITY <- c(plasma=0.9, serum=0.9, csf=0.5, urine=0.5,cell_culture=0.5, nhp=0.5, ipc = 0.9 )  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
+MIN_FRAC_DETECTABILITY <- c(plasma=0.9, serum=0.9, csf=0.5, urine=0.5, cell_culture=0.5, nhp=0.5, control=0.9 )  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
 MIN_IC_READS_PER_SAMPLE <- 1000    # Minimum number (ICReads) of IC reads within a sample
 MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a sample
 MIN_IC_MEDIAN <- "-0.3,0.3"# +/- of sample IC read count about the median
