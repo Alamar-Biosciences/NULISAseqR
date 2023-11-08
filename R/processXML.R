@@ -129,11 +129,24 @@ QCThresholds_XML <- function(){
   QCplate <- QCPlateCriteria()
   sample <- newXMLNode("Sample")
   plate <- newXMLNode("Plate")
+  detectability_ind <- 0
+  detectabilities <- 1
   for (i in 1:length(QCsample$thresholds)){
-    addChildren(sample, newXMLNode("Threshold", attrs=c(name=names(QCsample$thresholds[i]), value=QCsample$thresholds[[i]], operator=QCsample$operators[[i]])))
+    if (startsWith(names(QCsample$thresholds[i]), "Detectability.") && detectability_ind == 0){
+      detectability_ind <- i
+      j = i
+    } else if(startsWith(names(QCsample$thresholds[i]), "Detectability.")){
+      j = detectability_ind
+      detectabilities <- detectabilities + 1
+    } else if (detectability_ind == 0){
+      j = 1
+    }else{
+      j = i - detectabilities 
+    }
+    addChildren(sample, newXMLNode("Threshold", attrs=c(name=names(QCsample$thresholds[i]), value=QCsample$thresholds[[i]], operator=QCsample$operators[[j]])))
   }
   for (i in 1:length(QCplate$thresholds)){
-    addChildren(plate, newXMLNode("Threshold", attrs=c(name=names(QCplate$thresholds[i]), value=QCplate$thresholds[[i]], operator=QCplate$operators[[i]])))
+    addChildren(plate, newXMLNode("Threshold", attrs=c(name=names(QCplate$thresholds[i]), value=QCplate$thresholds[[i]], operator=QCplate$operators[[j]])))
   }
   addChildren(QCthresh, sample)
   addChildren(QCthresh, plate)
