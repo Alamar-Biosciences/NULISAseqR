@@ -1,5 +1,5 @@
 # Sample QC criteria
-MIN_FRAC_DETECTABILITY <- c(plasma=0.9, serum=0.9, csf=0.5, urine=0.5,cell_culture=0.5, nhp=0.5 )  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
+MIN_FRAC_DETECTABILITY <- c(plasma=0.9, serum=0.9, csf=0.5, urine=0.5,cell_culture=0.5, nhp=0.5, ipc = 0.9 )  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
 MIN_IC_READS_PER_SAMPLE <- 1000    # Minimum number (ICReads) of IC reads within a sample
 MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a sample
 MIN_IC_MEDIAN <- "-0.3,0.3"# +/- of sample IC read count about the median
@@ -185,7 +185,7 @@ QCFlagSample <- function(raw, normed, samples, targets,
   format <- criteria$format[which(criteria$thresholdNames=="MIN_FRAC_DETECTABILITY")]
   for (j in 1:length(perc_tar)){
     i <- well_order[j]
-    set <- if(is.na(perc_tar[i])) NA else evalCriterion("Detectability", perc_tar[i], op, MIN_FRAC_DETECTABILITY[tolower(samples$SAMPLE_MATRIX[i])])
+    set <- if(is.na(perc_tar[i])) NA else evalCriterion("Detectability", perc_tar[i], op, criteria$thresholds[paste0('Detectability.', tolower(samples$SAMPLE_MATRIX[i]))])
     type <- "Sample"
     if(i %in% NCs){
       type <- "NC"
@@ -195,7 +195,7 @@ QCFlagSample <- function(raw, normed, samples, targets,
       type <- "SC"
     }
     QCFlagReturn <- rbind(QCFlagReturn, c(names(perc_tar)[i], "Detectability", "IC", set, perc_tar[i], "", samples$sampleBarcode[i], type, 
-                                          as.character(MIN_FRAC_DETECTABILITY[tolower(samples$SAMPLE_MATRIX[i])]), as.character(op), format))
+                                          as.character(criteria$thresholds[paste0('Detectability.', tolower(samples$SAMPLE_MATRIX[i]))]), as.character(op), format))
   }
 
   
