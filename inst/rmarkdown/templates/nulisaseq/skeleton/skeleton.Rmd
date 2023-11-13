@@ -916,7 +916,11 @@ pandoc.list(c(
               paste0("Detectability - Percentage of targets above LOD for a sample - CSF (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.csf'])*100,"%)"),
               paste0("Detectability - Percentage of targets above LOD for a sample - Urine (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.urine'])*100,"%)"),
               paste0("Detectability - Percentage of targets above LOD for a sample - Cell Culture Media (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.cell_culture'])*100,"%)"),
-              paste0("Detectability - Percentage of targets above LOD for a sample - NHP (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.nhp'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - NHP Plasma (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.nhp_plasma'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - NHP Serum (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.nhp_serum'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - Dried Blood Spot (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.dried_blood_spot'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - Control (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.control'])*100,"%)"),
+              paste0("Detectability - Percentage of targets above LOD for a sample - Other (minimum = ", as.numeric(QCSampleCriteria()$thresholds['Detectability.other'])*100,"%)"),
               paste0("ICReads - Number of IC reads for a sample (minimum = ", QCSampleCriteria()$thresholds['ICReads'],")"),
               paste0("NumReads - Number of total Parseable Match (signal) reads for a sample (minimum = ", QCSampleCriteria()$thresholds['NumReads'],")"),
               paste0("IC_Median - % deviation from the overall plate median IC reads (within +/-", as.numeric(unname(unlist(strsplit(QCSampleCriteria()$thresholds['IC_Median'], ',')))[2])*100, "% of plate median)")
