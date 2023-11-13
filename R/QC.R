@@ -18,12 +18,10 @@ QCSampleCriteria <- function(){
                         ICReads=MIN_IC_READS_PER_SAMPLE, 
                         NumReads=MIN_NUM_READS_PER_SAMPLE, 
                         IC_Median=MIN_IC_MEDIAN)
-#  retVal$operators <-c(Detectability=c(plasma = "<", serum = "<", csf = "<", urine = "<", cell_culture = "<", nhp = "<"),
   retVal$operators <-c(Detectability="<",
                        ICReads="<", 
                        NumReads="<", 
                        IC_Median="<,>")
-#  retVal$format <- c(Detectability=c(plasma = "percentage", serum ="percentage", csf = "percentage", urine = "percentage", cell_culture = "<", nhp = "<"),
   retVal$format <- c(Detectability="percentage",
                        ICReads="integer", 
                        NumReads="integer", 
