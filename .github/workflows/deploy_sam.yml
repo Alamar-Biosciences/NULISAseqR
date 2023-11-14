@@ -2,12 +2,12 @@ name: Deploy SAM
 
 on:
 
-  pull_request:
-    types: closed
-    branches: 'main' # ['main', 'dev']
-    paths-ignore:
-      - '**.md'
-      - '.gitignore'
+  # pull_request:
+  #   types: closed
+  #   branches: 'main' # ['main', 'dev']
+  #   paths-ignore:
+  #     - '**.md'
+  #     - '.gitignore'
 
   workflow_dispatch:
 
