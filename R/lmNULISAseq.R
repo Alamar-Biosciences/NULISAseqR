@@ -92,27 +92,36 @@ lmNULISAseq <- function(data,
   names(stats_list) <- targets
   # loop over targets and fit model
   for(i in 1:length(targets)){
-    target <- targets[i]
-    target_data <- data.frame(sampleName=colnames(data),
-                              target_data=data[target,])
-    model_data <- merge(sampleInfo, target_data,
-                        all.x=TRUE, all.y=FALSE,
-                        by.x=sampleName_var, by.y='sampleName')
-    model_formula <- as.formula(paste0('target_data ~ ', modelFormula))
-    model_fit <- lm(model_formula, data=model_data)
-    coef_table <- summary(model_fit)$coefficients
-    coefs <- coef_table[2:nrow(coef_table),1]
-    t_vals <- coef_table[2:nrow(coef_table),3]
-    p_vals <- coef_table[2:nrow(coef_table),4]
-    modelFits[[i]] <- model_fit
-    stats_list[[i]] <- list(coefs=coefs,
-                            t_vals=t_vals,
-                            p_vals=p_vals)
+    tryCatch({
+      target <- targets[i]
+      target_data <- data.frame(sampleName=colnames(data),
+                                target_data=data[target,])
+      model_data <- merge(sampleInfo, target_data,
+                          all.x=TRUE, all.y=FALSE,
+                          by.x=sampleName_var, by.y='sampleName')
+      model_formula <- as.formula(paste0('target_data ~ ', modelFormula))
+      model_data <- model_data[complete.cases(model_data[,all.vars(model_formula)]),]
+      model_fit <- lm(model_formula, data=model_data)
+      coef_table <- summary(model_fit)$coefficients
+      coefs <- coef_table[2:nrow(coef_table),1]
+      t_vals <- coef_table[2:nrow(coef_table),3]
+      p_vals <- coef_table[2:nrow(coef_table),4]
+      modelFits[[i]] <- model_fit
+      stats_list[[i]] <- list(coefs=coefs,
+                              t_vals=t_vals,
+                              p_vals=p_vals)
+    }, error = function(e){
+      cat(format(Sys.time()), "Index:",i," Target:", targets[i],"\n")
+      cat(format(Sys.time()), "Error:", conditionMessage(e),"\n")
+    })
   }
+  
+  all_predictors <- unique(unlist(lapply(stats_list, function(x) names(x$coefs))))
   # format output
-  coef <- do.call(rbind, lapply(stats_list, function(x) x$coefs))
-  t_val <- do.call(rbind, lapply(stats_list, function(x) x$t_vals))
-  p_val <- do.call(rbind, lapply(stats_list, function(x) x$p_vals))
+  coef <- do.call('rbind', lapply(stats_list, function(x) fill_predictors(x$coefs, all_predictors)))
+  t_val <- do.call('rbind', lapply(stats_list, function(x) fill_predictors(x$t_vals, all_predictors)))
+  p_val <- do.call('rbind', lapply(stats_list, function(x) fill_predictors(x$p_vals, all_predictors)))
+  
   p_val_FDR <- apply(p_val, 2, p.adjust, method='BH')
   p_val_bonf <- apply(p_val, 2, p.adjust, method='bonferroni')
   colnames(coef) <- paste0(colnames(coef), '_coef')
@@ -128,6 +137,7 @@ lmNULISAseq <- function(data,
     Fstats_list <- vector(mode='list', length=length(targets))
     names(Fstats_list) <- targets
     for(i in 1:length(targets)){
+      tryCatch({
       target <- targets[i]
       target_data <- data.frame(sampleName=colnames(data),
                                 target_data=data[target,])
@@ -135,11 +145,16 @@ lmNULISAseq <- function(data,
                           all.x=TRUE, all.y=FALSE,
                           by.x=sampleName_var, by.y='sampleName')
       model_formula <- as.formula(paste0('target_data ~ ', reduced_modelFormula))
+      model_data <- model_data[complete.cases(model_data[,all.vars(formula(modelFits[[i]]))]),]
       model_fit <- lm(model_formula, data=model_data)
       anova_test <- anova(model_fit, modelFits[[i]])
       Fstats_list[[i]] <- c(Fstat=anova_test$F[2], 
                             Df=anova_test$Df[2],
                             Ftest_pval=anova_test$`Pr(>F)`[2])
+      }, error = function(e){
+        cat(format(Sys.time()), "Index:",i," Target:", targets[i],"\n")
+        cat(format(Sys.time()), "Error:", conditionMessage(e),"\n")
+      })
     }
     # format output
     Fstats <- do.call(rbind, Fstats_list)
@@ -161,4 +176,16 @@ lmNULISAseq <- function(data,
                    modelFits=modelFits)
   }
   return(output)
+}
+
+
+# A convenience function to be used in conjunction with `do.call('rbind', ...)`
+# this fills NA when certain levels of predictors are not present for any targets 
+fill_predictors <- function(x, all){
+  fill <- sapply(setdiff(all, names(x)), function(x) NA)
+  if(length(fill) !=0){
+    c(x, fill)
+  } else{
+    x 
+  }
 }

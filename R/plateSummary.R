@@ -5,12 +5,14 @@
 #' NCs
 #' SCs
 #' Bridge samples
+#' Calibrator samples
 #' 
 #' @export
 #' 
 #' 
 typeSummary <- function(well_type, plate_data, total_plate_reads){    
   well_type_data <- plate_data$Data[,well_type]
+  well_type_data_ICnormed <- plate_data$IC_normed$normData[,well_type]
   # total counts and percent
   well_type_total <- sum(well_type_data, na.rm=TRUE)
   well_type_total_perc <- format(round(well_type_total/total_plate_reads*100, 1), nsmall=1)
@@ -55,17 +57,38 @@ typeSummary <- function(well_type, plate_data, total_plate_reads){
   well_type_cv_median <- c(paste0(format(round(median(well_type_cvs, na.rm=TRUE), 1), nsmall=1), '%'),
                            rep('', length(well_type)),
                            '')
+  
+  well_type_means_ICnormed <- rowMeans(well_type_data_ICnormed, na.rm=TRUE)
+  well_type_sds_ICnormed <- apply(well_type_data_ICnormed, 1, sd, na.rm=TRUE)
+  well_type_cvs_ICnormed <- well_type_sds_ICnormed/well_type_means_ICnormed*100
+  well_type_cv_mean_ICnormed <- c(paste0(format(round(mean(well_type_cvs_ICnormed, na.rm=TRUE), 1), nsmall=1), '%'),
+                         rep('', length(well_type)),
+                         '')
+  well_type_cv_median_ICnormed <- c(paste0(format(round(median(well_type_cvs_ICnormed, na.rm=TRUE), 1), nsmall=1), '%'),
+                           rep('', length(well_type)),
+                           '')
+
+  well_type_cv_mean_ICnormed <- c(paste0(format(round(mean(well_type_cvs_ICnormed, na.rm=TRUE), 1), nsmall=1), '%'),
+                         rep('', length(well_type)),
+                         '')
+  well_type_cv_median_ICnormed <- c(paste0(format(round(median(well_type_cvs_ICnormed, na.rm=TRUE), 1), nsmall=1), '%'),
+                           rep('', length(well_type)),
+                           '')
   # create table
   well_type_table <- cbind(total_well_type_count_perc,
                            well_type_means_per_target,
                            well_type_missing,
                            well_type_cv_mean,
-                           well_type_cv_median)
+                           well_type_cv_median,
+                           well_type_cv_mean_ICnormed,
+                           well_type_cv_median_ICnormed)
   colnames(well_type_table) <- c('Total count (%)',
                                  'Mean count per target',
-                                 'Zeros n (%)',
+                                 '# of zeros (%)',
                                  'CV% mean',
-                                 'CV% median')
+                                 'CV% median',
+                                 'CV% mean (IC-normalized)',
+                                 'CV% median (IC-normalized)')
   rownames(well_type_table) <- c('Total',
                                  colnames(well_type_data),
                                  'Median')
@@ -108,7 +131,7 @@ typeSummary <- function(well_type, plate_data, total_plate_reads){
 #'
 #' @export
 #' 
-plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Bridges=NULL){
+plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Bridges=NULL, Calibrators=NULL){
   ##############################
   # main output
   ##############################
@@ -149,10 +172,10 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   row.names(reads_percents) <- c('Total reads', 'Parseable',
                                  'Parseable Match', 'Parseable Non-match',
                                  'Unparseable',
-                                 'Total samples',
+                                 'Total wells',
                                  'Total targets',
                                  'Total samples * targets',
-                                 'Zero values')
+                                 '# of zeros (%)')
   output <- reads_percents
   # check if total reads in Data equals parseable match reads in Run Summary
   total_plate_reads <- sum(plate_data$Data, na.rm=TRUE)
@@ -174,17 +197,18 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
     IC_missing_perc <- format(round(IC_missing_n/ncol(IC_data)*100, 1), nsmall=1)
     IC_missing_n_perc <- paste0(format(IC_missing_n, big.mark=","), ' (', IC_missing_perc, '%)')
     IC_means <- format(round(rowMeans(IC_data, na.rm=TRUE), 1), nsmall=1, big.mark=",")
+    IC_medians <- format(round(apply(IC_data, 1, median, na.rm=TRUE), 1), nsmall=1, big.mark=",")
     IC_sd <- format(round(apply(IC_data, 1, sd, na.rm=TRUE), 1), nsmall=1, big.mark=",")
     IC_cv <- paste0(format(round(apply(IC_data, 1, sd, na.rm=TRUE)/rowMeans(IC_data, na.rm=TRUE)*100, 1), nsmall=1),
                     '%')
-    IC_table <- cbind(IC_missing_n_perc, IC_total_percent, IC_means, IC_sd, IC_cv)
-    colnames(IC_table) <- c('Zeros n (%)', 'Total reads (%)', 'Mean', 'SD', 'CV%')
+    IC_table <- cbind(IC_missing_n_perc, IC_total_percent, IC_means, IC_medians, IC_sd, IC_cv)
+    colnames(IC_table) <- c('# of zeros (%)', 'Total reads (%)', 'Mean', 'Median', 'SD', 'CV%')
     rownames(IC_table) <- rownames(IC_data)
     output <- list(readsTable=output,
                    IC_table=IC_table)
   }
   ############
-  # IPCs, SCs, Bridges
+  # IPCs, SCs, Bridges, Calibrators
   ############
   IPCinds <- if(!is.null(IPCs)) IPCs else which(plate_data$samples$sampleType == "IPC")
   if(length(IPCinds) > 0 ){
@@ -200,6 +224,11 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   if(length(Bridgeinds)>0){
     Bridge_table <- typeSummary(Bridgeinds, plate_data, total_plate_reads)
     output <- if (is.list(output)==TRUE) c(output, list(Bridge_table=Bridge_table)) else list(readsTable=output, Bridge_table=Bridge_table)
+  }
+  Calibratorinds <- if(!is.null(Calibrators)) Calibrators else which(plate_data$samples$sampleType == "Calibrator")
+  if(length(Calibratorinds)>0){
+    Calibrator_table <- typeSummary(Calibratorinds, plate_data, total_plate_reads)
+    output <- if (is.list(output)==TRUE) c(output, list(Calibrator_table=Calibrator_table)) else list(readsTable=output, Calibrator_table=Calibrator_table)
   }
   
   ############
@@ -254,7 +283,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
     colnames(NC_table) <- c('Total count (%)',
                             'Mean count per target',
                             'Max target count',
-                            'Missing n (%)')
+                            '# of zeros (%)')
     rownames(NC_table) <- c('NC total',
                             colnames(NC_data),
                             'NC means')

@@ -4,7 +4,15 @@
 \alias{lod}
 \title{Calculate Limits of Detection}
 \usage{
-lod(data_matrix, blanks, min_count = 0)
+lod(
+  data_matrix,
+  blanks,
+  min_count = 0,
+  min_blank_no = 4,
+  mad_threshold = 2.5,
+  ignore_target_blank = NULL,
+  targetNoOutlierDetection = NULL
+)
 }
 \arguments{
 \item{data_matrix}{The Data matrix output from readNULISAseq.R
@@ -15,6 +23,20 @@ data_matrix.}
 
 \item{min_count}{Optional count threshold to apply in addition
 to the LoD. Default is 0.}
+
+\item{min_blank_no}{Optional numeric parameter defining the minimum number of
+blanks required to enable MAD outlier detection and removal. Default is 4.}
+
+\item{mad_threshold}{Optional numeric parameter defining the threshold used for
+MAD outlier identification. Default is 2.5.}
+
+\item{ignore_target_blank}{List of targets and corresponding blanks/NCs to exclude.
+Names of the list represent targets and
+values which are arrays represent blank/NC names to ignore during LoD calculation.}
+
+\item{targetNoOutlierDetection}{Option to provide targets which should NOT have 
+outlier detection applied
+Defaults to NULL.}
 
 \item{LOD}{Vector of limits of detection.}
 

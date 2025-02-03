@@ -1,12 +1,9 @@
 # NULISAseqR
 
-![AWS CodeBuild](https://codebuild.us-west-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoib045RnFOTFB4Wmo5OHBDTGJySnNJK3dtN2I3a0MwQm96UVZyMnp1anl3cGZtMWs5dVowMVl5TVlLUEw4RnNiZWlscnNTdE5KV2xQSlVyN3YrZUVvYTZRPSIsIml2UGFyYW1ldGVyU3BlYyI6InNtclNBUGloQjJEdytnMUQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
-[![Deploy SAM](https://github.com/Alamar-Biosciences/NULISAseqR/actions/workflows/deploy_sam.yml/badge.svg)](https://github.com/Alamar-Biosciences/NULISAseqR/actions/workflows/deploy_sam.yml)
-
-NULISAseq R package
+NULISAseq R package v1.2
 
 ## System Requirements:
-1. R (version 4.3+)
+1. R (version 4.4+)
 
 ## How to install
 
@@ -15,16 +12,37 @@ NULISAseq R package
     install.packages('devtools')
     devtools::install_github('Alamar-Biosciences/NULISAseqR',
                               ref = 'main'
-                              )
+                            )
 ```
 
 2. Load the package in R with `library(NULISAseqR)`.
 
-## Demo: Loading Data
+## Demo: Loading Data (XML)
 
 ```
-    library('NULISAseqR')
-    data <- loadNULISAseq('<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton/detectability_P1_Tr03.xml')
+    # Load the NULISAseqR library
+    library(NULISAseqR)
+
+    # This is an input XML file example that is included with NULISAseqR. You could
+    # alternatively change the variable inputFile to be one of your own XML files,
+    # e.g. inputFile <- "filename.xml"
+    inputFile <- paste0(
+                         dirname(system.file("rmarkdown/templates/nulisaseq/skeleton", "skeleton.Rmd", package="NULISAseqR")),
+                         "/detectability_P1_Tr03.xml"
+                       )
+
+    # Load the XML data
+    dataXML <- loadNULISAseq(inputFile)
+
+```
+## Demo: Loading Data (XLSX)
+
+```
+    # Load the NULISAseqR library
+    library(NULISAseqR)
+
+    # Load the XLSX data where "XLSX inputFile" is the name of your XLSX file
+    dataXLSX <- readNULISAseq("XLSX inputFile", file_type="xlsx") # example of loading an XLSX file
 
 ```
 
@@ -32,7 +50,18 @@ NULISAseq R package
 
 Run the following to generate a QC report ( < 5 minutes)
 ```
-    rmarkdown::render("<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd", params=list(dataDir="<NULISAseqR Directory>/inst/rmarkdown/templates/nulisaseq/skeleton", xmlFiles=c("detectability_P1_Tr03.xml"")))
-    [Report](/inst/rmarkdown/templates/nulisaseq/skeleton/skeleton.html)
+  # Location of QC report template included with NULISAseqR
+  template <- system.file("rmarkdown/templates/nulisaseq/skeleton", "skeleton.Rmd", package="NULISAseqR")
+
+  # Command to create the QC report (Note that QC reports can only be created using XML files)
+  rmarkdown::render(
+                      template, 
+                      output_file = "~/output.html",
+                      params = list(
+                        dataDir = dirname(template), 
+                        xmlFiles = c("detectability_P1_Tr03.xml")
+                      )
+                   )
+
 ```
 

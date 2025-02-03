@@ -2,26 +2,80 @@
 % Please edit documentation in R/readNULISAseq.R
 \name{loadNULISAseq}
 \alias{loadNULISAseq}
-\title{Convenience function for use by SAM
+\title{Convenience function for use by NAS
 Read NULISAseq XML, perform normalization, and QC}
 \usage{
-loadNULISAseq(file, IPC = NULL, IC = "mCherry", SC = NULL, NC = NULL, ...)
+loadNULISAseq(
+  file,
+  IC = "mCherry",
+  IPC = NULL,
+  SC = NULL,
+  NC = NULL,
+  TAP = TRUE,
+  Bridge = NULL,
+  sample_group_covar = NULL,
+  plateID = NULL,
+  scaleFactor = 10^4,
+  transformReverse_scaleFactor = 10^4,
+  nonCogEncrypt = FALSE,
+  replace_cal_blank_zeros = FALSE,
+  replace_zeros_with_NA = TRUE,
+  ...
+)
 }
 \arguments{
 \item{file}{Character string. Path and name of the file.}
 
-\item{IPC}{String(s) that represent the inter-plate control wells. 
-For example, \code{'IPC'} (default). Set to \code{NULL} if there are no IPCs.
-Only used for xml file formats.}
-
 \item{IC}{string(s) that represents the names of internal control targets. 
 Default is \code{'mCherry'}.Only used for xml file formats.}
+
+\item{IPC}{string(s) present in the sample names
+that represent the inter-plate control wells. 
+For example, \code{'IPC'}. Set to \code{NULL} (default) to use the 
+type variable from the Barcode B file or if there are no IPCs.
+Only used for xml file formats.}
+
+\item{SC}{string(s) present in the sample names
+that represent the sample control wells. 
+For example, \code{'SC'}. Set to \code{NULL} (default) to use the 
+type variable from the Barcode B file or if there are no IPCs.
+Only used for xml file formats.}
+
+\item{NC}{string(s) present in the sample names
+that represent the negative control wells. 
+For example, \code{'NC'}. Set to \code{NULL} (default) to use the 
+type variable from the Barcode B file or if there are no NCs.
+Only used for xml file formats.}
+
+\item{Bridge}{string(s) present in the sample names
+that represent the bridge sample wells. 
+Set to \code{NULL} (default) to use the 
+type variable from the Barcode B file or 
+if there are no bridge samples (default).
+Only used for xml file formats.}
+
+\item{sample_group_covar}{Optional column name in the Barcode B file 
+and samples data matrix output by readNULISAseq that represents subgroups
+for which detectability will be calculated separately, in addition to 
+overall detectability.}
+
+\item{replace_cal_blank_zeros}{Logical TRUE / FALSE. Default is FALSE.
+This parameter is passed to the applyAQ function.
+If FALSE, the "a" parameter for targets with a zero blank calibrator (NC) mean
+is set using the blank calibrator mean value (which would equal zero in these cases).
+IF TRUE, the "a" parameter for targets with a zero blank calibrator mean
+is set using the nonzero master curve "a" parameter
+estimate instead.}
+
+\item{replace_zeros_with_NA}{Logical TRUE / FALSE.
+This parameter is passed to the applyAQ function.
+When TRUE (default), any zero values
+in the AQ data output will be replaced with NA. When FALSE, these values remain as zero.}
 }
 \value{
 List of lists, data frames, and matrices.
 Output will differ slightly depending on the input file type.
 }
 \description{
-Reads NULISAseq XML file, where XML file is output from the Alamar
-Biosciences Galaxy NULISAseq (Beta) tool or the NULISAseq Normalization (Alpha) tool.
+Reads NULISAseq XML file
 }

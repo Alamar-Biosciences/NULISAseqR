@@ -19,10 +19,11 @@ Rows are targets and columns are samples.}
 represent the sample subset that detectability will be calculated for. 
 Default uses all columns. NCs and IPCs should probably be excluded.}
 
-\item{sample_groups}{A string vector defining sample types/identities that
+\item{sample_groups}{A string vector defining sample types / identities that
 represent the sample type subsets that detectability should be calculated 
 for. Default value NULL provides overall detectability assuming all samples
-are of the same type (e.g., plasma).}
+are of the same type (e.g., plasma). NOTE that sample groups must be the 
+same length and in the same order as \code{sample_subset}.}
 
 \item{exclude_targets}{A vector of row names or numeric row indices 
 representing the 

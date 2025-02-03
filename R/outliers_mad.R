@@ -3,7 +3,7 @@
 #' This function detects outliers in a numeric dataset using the Median Absolute Deviation (MAD) method.
 #'
 #' @param data A numeric vector or data frame containing the data from which outliers should be detected.
-#' @param threshold A numeric value representing the threshold for identifying outliers. Default is 2.
+#' @param threshold A numeric value representing the threshold for identifying outliers. Default is 2.5.
 #' @param maxRemoval An integer specifying the maximum number of the worst outliers to remove. Default is 0 (no removal).
 #' @param returnVal A character string specifying the type of result to return. Options are "indices" (default), "outliers", or "keeps".
 #'
@@ -27,7 +27,7 @@
 #' 'mad' function from the 'stats' package for calculating the MAD.
 #'
 #' @export
-outliers_mad <- function(data, threshold = 2, maxRemoval = 0, returnVal = "indices") {
+outliers_mad <- function(data, threshold = 2.5, maxRemoval = 0, returnVal = "indices") {
   if(maxRemoval + 1 > length(data)){
     stop("Error: maxRemoval must be less than the number of data points provided!")
   }

@@ -4,12 +4,16 @@
 \alias{QC2XML}
 \title{Write Processed XML from QC table}
 \usage{
-QC2XML(input, QCNode, sample = F, combined = F)
+QC2XML(input, QCNode, type = "plate", combined = F)
 }
 \arguments{
 \item{input}{QC table}
 
-\item{sample}{whether the table is sample or plate}
+\item{type}{whether the table is sample, target or plate}
+
+\item{combined}{}
+
+\item{QC}{QC XML node to add to}
 }
 \value{
 QC XML
