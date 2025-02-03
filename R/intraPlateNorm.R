@@ -58,7 +58,7 @@ intraPlateNorm <- function(data_matrix,
     }
     IC_missing <- sum(is.na(data_matrix[IC,])) + sum(data_matrix[IC,]==0, na.rm=TRUE)
     if (IC_missing > 0) {
-      cat(paste0('Warning: ' , IC_missing, ' missing or zero values in internal control data. 
+      cat(paste0('Warning: ', IC_missing, ' missing or zero values in internal control data. 
                  Normalized data for these samples will all be missing values.'))
     }
     if (length(IC) == 1){

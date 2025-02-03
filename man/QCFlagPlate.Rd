@@ -7,26 +7,38 @@
 QCFlagPlate(
   raw,
   normed,
+  aboveLOD,
   targets,
   samples,
   ICs = NULL,
   IPCs = NULL,
   NCs = NULL,
-  SCs = NULL
+  SCs = NULL,
+  AQ = TRUE,
+  AQ_QC = NULL,
+  Sample_QC = NULL
 )
 }
 \arguments{
 \item{raw}{unnormalized data}
 
-\item{ICs}{indices of IC samples}
+\item{normed}{normalized data}
 
-\item{IPCs}{indices of IPC samples}
+\item{aboveLOD}{aboveLOD from lod function}
 
-\item{NCs}{indices of NC samples}
+\item{ICs}{names of IC samples}
 
-\item{SCs}{indices of SC samples}
+\item{IPCs}{names of IPC samples}
 
-\item{normednormalized}{data}
+\item{NCs}{names of NC samples}
+
+\item{SCs}{names of SC samples}
+
+\item{AQ}{Whether this assay is AQ}
+
+\item{AQ_QC}{AQ QC metrics, these are necessary to calculate a plate QC metric for AQ}
+
+\item{Sample_QC}{Sample QC metrics, one of these is necessary to calculate a plate QC metric for AQ}
 }
 \value{
 QC table

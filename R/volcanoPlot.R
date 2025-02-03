@@ -102,7 +102,15 @@ volcanoPlot <- function(coefs,
     xmin <- xlimits[1]
   }
   if(is.null(ylimits)){
-    if (log_y==TRUE) ymax <- max(-log10(p_vals))
+    if (log_y == TRUE) {
+      max_val <- max(-log10(p_vals))
+      if (is.finite(max_val)) {
+        ymax <- max_val
+      } else {
+        ymax <- max(-log10(p_vals)[is.finite(-log10(p_vals))])
+        warning("Some targets have p-values that are numerically equal to zero.")
+      }
+    }
     if (log_y==FALSE) ymax <- max(p_vals)
     ylimits <- c(0, ymax)
   }

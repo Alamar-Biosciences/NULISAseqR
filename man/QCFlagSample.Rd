@@ -6,28 +6,41 @@
 \usage{
 QCFlagSample(
   raw,
-  normed,
+  aboveLOD,
   samples,
   targets,
+  QCS = NULL,
+  SN = NULL,
   well_order = NULL,
   ICs = NULL,
   IPCs = NULL,
   NCs = NULL,
-  SCs = NULL
+  SCs = NULL,
+  TAP = TRUE
 )
 }
 \arguments{
 \item{raw}{unnormalized data}
 
-\item{normed}{normalized data}
+\item{aboveLOD}{aboveLOD from the lod function}
 
-\item{ICs}{indices of IC samples}
+\item{samples}{samples data frame}
 
-\item{IPCs}{indices of IPC samples}
+\item{targets}{targets data frame}
 
-\item{NCs}{indices of NC samples}
+\item{QCS}{QCS values}
 
-\item{SCs}{indices of SC samples}
+\item{SN}{SN values}
+
+\item{ICs}{name of IC samples}
+
+\item{IPCs}{names of IPC samples}
+
+\item{NCs}{names of NC samples}
+
+\item{SCs}{names of SC samples}
+
+\item{TAP}{whether this is a TAP run}
 }
 \value{
 QC table

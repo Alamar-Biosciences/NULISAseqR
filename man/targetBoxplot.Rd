@@ -10,6 +10,7 @@ targetBoxplot(
   sortBy = "median",
   subtractLOD = FALSE,
   blanks = NULL,
+  targetNoOutlierDetection = NULL,
   horizontal = FALSE,
   log2transform = TRUE,
   replace_zero_LOD = FALSE,
@@ -20,7 +21,8 @@ targetBoxplot(
   detectHighColor = "pink",
   detectLowColor = "blue",
   showLegend = TRUE,
-  cex.targets = 0.4
+  cex.targets = 0.4,
+  axis_limits = NULL
 )
 }
 \arguments{
@@ -40,6 +42,10 @@ Default is `FALSE`. If `TRUE`, will color boxplots by detectability.}
 
 \item{blanks}{A vector of column names that represent the negative controls.
 Required when `subtractLOD = TRUE`. This is passed to the `lod()` function.}
+
+\item{targetNoOutlierDetection}{Targets for which NC outlier detection should 
+not be performed. Typically these are targets with no NC reads above 100. 
+This is passed to the `lod()` function.}
 
 \item{horizontal}{Should the boxplots be horizontal (target names along the 
 y-axis)? Default is `FALSE` (target names along x-axis).}

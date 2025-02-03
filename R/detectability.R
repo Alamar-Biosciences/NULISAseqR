@@ -9,10 +9,11 @@
 #' @param sample_subset A vector of column names or numeric column indices that
 #' represent the sample subset that detectability will be calculated for. 
 #' Default uses all columns. NCs and IPCs should probably be excluded.
-#' @param sample_groups A string vector defining sample types/identities that
+#' @param sample_groups A string vector defining sample types / identities that
 #' represent the sample type subsets that detectability should be calculated 
 #' for. Default value NULL provides overall detectability assuming all samples
-#' are of the same type (e.g., plasma).
+#' are of the same type (e.g., plasma). NOTE that sample groups must be the 
+#' same length and in the same order as \code{sample_subset}. 
 #' @param exclude_targets A vector of row names or numeric row indices 
 #' representing the 
 #' targets that should be excluded from detectability calculation. For example,
@@ -50,43 +51,44 @@ detectability <- function(aboveLOD_matrix,
     aboveLOD_matrix <- aboveLOD_matrix[-exclude_targets,]
   }
   
-  # get detectability data for samples: Plasma, serum, etc.
-  if (!is.null(sample_groups)){
-    # make case insensitive
-    sample_groups <- tolower(sample_groups)
-    
-    # set all samples if sample_subset == NULL
-    if (is.null(sample_subset)){
-      all_samples <- colnames(aboveLOD_matrix)
-    } else{
-      all_samples <- sample_subset
-    }
-
-    # collect sample group specific detectability data
-    for (i in unique(sample_groups)){
-      sample_group_inds <- which(sample_groups %in% i)
-      sample_subset_inds <- which(colnames(aboveLOD_matrix) %in% all_samples[sample_group_inds])
-      sample_aboveLOD_matrix <- aboveLOD_matrix[,sample_subset_inds]
-      
-      detectability_data$sample_group$sampleNumber[[i]] <- length(sample_group_inds)
-      detectability_data$sample_group$detectability[[i]] <- apply(sample_aboveLOD_matrix, 1, function(x) sum(x)/length(x)*100)
-      detectability_data$sample_group$detectable[[i]] <- detectability_data$sample_group$detectability[[i]] > 50
-    }
-  }
-  
-  # get overall detectability data: Apply sample_subset if applicable
+  # get sample subset
   if (!is.null(sample_subset)){
     if (!is.numeric(sample_subset)){
       sample_subset <- which(colnames(aboveLOD_matrix) %in% sample_subset)
     }
     aboveLOD_matrix <- aboveLOD_matrix[,sample_subset]
   }
-  detect <- apply(aboveLOD_matrix, 1, function(x) sum(x)/length(x)*100)
-  detectable <- detect > 50
-  names(detect) <- rownames(aboveLOD_matrix)
-  names(detectable) <- rownames(aboveLOD_matrix)
   
-  detectability_data$all$sampleNumber <- length(colnames(aboveLOD_matrix))
+  # get detectability data for samples: Plasma, serum, etc.
+  if (!is.null(sample_groups)){
+    # make case insensitive
+    sample_groups <- tolower(sample_groups)
+    
+    # collect sample group specific detectability data
+    for (i in unique(sample_groups)){
+      if(is.null(dim(aboveLOD_matrix))){
+        aboveLOD_matrix <- matrix(aboveLOD_matrix, ncol=1)
+      }
+      sample_aboveLOD_matrix <- as.matrix(aboveLOD_matrix[,sample_groups %in% i], nrow=nrow(aboveLOD_matrix))
+
+      detectability_data$sample_group$sampleNumber[[i]] <- ncol(sample_aboveLOD_matrix)
+      detectability_data$sample_group$detectability[[i]] <- apply(as.matrix(sample_aboveLOD_matrix), 1, function(x) sum(x)/length(x)*100)
+      detectability_data$sample_group$detectable[[i]] <- detectability_data$sample_group$detectability[[i]] > 50
+    }
+  }
+  
+  # get overall detectability data
+  detect <- apply(as.matrix(aboveLOD_matrix), 1, function(x) sum(x)/length(x)*100)
+  detectable <- detect > 50
+  if(is.null(dim(aboveLOD_matrix))){
+    names(detect) <- rownames(as.matrix(aboveLOD_matrix))
+    names(detectable) <- rownames(as.matrix(aboveLOD_matrix))
+  } else{
+    names(detect) <- rownames(aboveLOD_matrix)
+    names(detectable) <- rownames(aboveLOD_matrix)
+  }
+  
+  detectability_data$all$sampleNumber <- ncol(aboveLOD_matrix)
   detectability_data$all$detectability <- detect
   detectability_data$all$detectable <- detectable
   

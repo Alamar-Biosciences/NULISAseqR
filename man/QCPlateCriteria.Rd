@@ -4,7 +4,10 @@
 \alias{QCPlateCriteria}
 \title{QCPlateCriteria}
 \usage{
-QCPlateCriteria()
+QCPlateCriteria(AQ = FALSE)
+}
+\arguments{
+\item{AQ}{whether the experiment is an AQ experiment}
 }
 \value{
 criteria

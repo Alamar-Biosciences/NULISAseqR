@@ -4,7 +4,10 @@
 \alias{QCSampleCriteria}
 \title{QCSampleCriteria}
 \usage{
-QCSampleCriteria()
+QCSampleCriteria(TAP = TRUE)
+}
+\arguments{
+\item{TAP}{Whether the run is a TAP experiment}
 }
 \value{
 criteria

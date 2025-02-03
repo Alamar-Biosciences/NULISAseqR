@@ -1,3 +1,0 @@
-name: NULISAseq Report
-description: Generates data summary and QC for one or more NULISAseq XML file inputs
-create_dir: false

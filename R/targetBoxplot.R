@@ -17,6 +17,9 @@
 #' Default is `FALSE`. If `TRUE`, will color boxplots by detectability.
 #' @param blanks A vector of column names that represent the negative controls.
 #' Required when `subtractLOD = TRUE`. This is passed to the `lod()` function.
+#' @param targetNoOutlierDetection Targets for which NC outlier detection should 
+#' not be performed. Typically these are targets with no NC reads above 100. 
+#' This is passed to the `lod()` function.
 #' @param horizontal Should the boxplots be horizontal (target names along the 
 #' y-axis)? Default is `FALSE` (target names along x-axis).
 #' @param log2transform If TRUE (default), each value `x` will be transformed 
@@ -59,6 +62,7 @@ targetBoxplot <- function(data_matrix,
                           sortBy = 'median',
                           subtractLOD=FALSE,
                           blanks=NULL,
+                          targetNoOutlierDetection=NULL,
                           horizontal=FALSE,
                           log2transform=TRUE,
                           replace_zero_LOD=FALSE,
@@ -69,7 +73,8 @@ targetBoxplot <- function(data_matrix,
                           detectHighColor='pink',
                           detectLowColor='blue',
                           showLegend=TRUE,
-                          cex.targets=0.4){
+                          cex.targets=0.4,
+                          axis_limits=NULL){
   # exclude targets
   if(!is.null(excludeTargets)){
     data_matrix <- data_matrix[!(rownames(data_matrix) %in% excludeTargets),]
@@ -92,7 +97,7 @@ targetBoxplot <- function(data_matrix,
     if(log2transform==TRUE){
       data_matrix <- log2(data_matrix + 1)
       if(axis_lab_normalized==FALSE) axis_label <- 'log2(count)'
-      else if (axis_lab_normalized==TRUE) axis_label <- 'log2(normalized count)'
+      else if (axis_lab_normalized==TRUE) axis_label <- 'NPQ'
     } else if(log2transform==FALSE){
       if(axis_lab_normalized==FALSE) axis_label <- 'count'
       else if (axis_lab_normalized==TRUE) axis_label <- 'normalized count'
@@ -122,7 +127,8 @@ targetBoxplot <- function(data_matrix,
               staplelty=0,
               cex.axis=cex.targets,
               yaxt='n',
-              col=colors)
+              col=colors,
+              ylim=ylimits)
       axis(side=2, las=1)
       grid(nx=NA, ny=NULL)
       
@@ -140,7 +146,8 @@ targetBoxplot <- function(data_matrix,
               staplelty=0,
               cex.axis=cex.targets,
               xaxt='n',
-              col=rev(colors))
+              col=rev(colors),
+              xlim=axis_limits)
       grid(nx=NULL, ny=NA)
       axis(side=1, las=1)
     } # end horizontal==TRUE
@@ -156,7 +163,8 @@ targetBoxplot <- function(data_matrix,
     
     # calculate LODs
     LOD <- lod(data_matrix,
-               blanks=blanks)
+               blanks=blanks,
+               targetNoOutlierDetection = targetNoOutlierDetection)
     
     # exclude samples
     if(!is.null(excludeSamples)){
@@ -175,18 +183,23 @@ targetBoxplot <- function(data_matrix,
         LOD$LOD[LOD_count_scale == 0] <- 0
       }
       if(axis_lab_normalized==FALSE) axis_label <- 'log2(count) - LOD'
-      else if (axis_lab_normalized==TRUE) axis_label <- 'log2(normalized count) - LOD'
+      else if (axis_lab_normalized==TRUE) axis_label <- 'NPQ - LOD'
     } else if(log2transform==FALSE){
       if(axis_lab_normalized==FALSE) axis_label <- 'count - LOD'
       else if (axis_lab_normalized==TRUE) axis_label <- 'normalized count - LOD'
     }
     
     # subtract the LODs from data
+    if(is.null(dim(data_matrix))){
+      rownames <- names(data_matrix)
+      data_matrix <- matrix(data_matrix, ncol=1)
+      rownames(data_matrix) <- rownames
+    }
     data_matrix <- sweep(data_matrix, MARGIN=1, STATS=LOD$LOD)
     
     # sort targets
     if(sortBy=='median'){
-      target_medians <- apply(data_matrix, 1, median)
+      target_medians <- apply(as.matrix(data_matrix), 1, median)
       target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
       detect <- detect[names(target_medians)]
       data_matrix <- data_matrix[names(detect),]
@@ -198,8 +211,13 @@ targetBoxplot <- function(data_matrix,
     # create colors to indicate detectability
     makeColors <- colorRamp(colors=c(detectLowColor, detectHighColor))
     detectColors <- makeColors(detect/100)
-    detectColors <- apply(detectColors, 1, 
-                          function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
+    detectColors <- apply(detectColors, 1, function(x) {
+      if (any(is.na(x))) {
+        "grey"
+      } else {
+        rgb(x[1], x[2], x[3], maxColorValue = 255)
+      }
+    })
     
     # if colors are provided, override the detectColors
     if(!is.null(colors)){
@@ -221,7 +239,8 @@ targetBoxplot <- function(data_matrix,
               staplelty=0,
               cex.axis=cex.targets,
               yaxt='n',
-              col=detectColors)
+              col=detectColors,
+              ylim=axis_limits)
       axis(side=2, las=1)
       grid(nx=NA, ny=NULL)
       abline(h=0, col='darkred')
@@ -257,7 +276,7 @@ targetBoxplot <- function(data_matrix,
       
     } else if(horizontal==TRUE){
       # make plot
-      boxplot(t(apply(data_matrix, 2, rev)), 
+      boxplot(t(apply(as.matrix(data_matrix), 2, rev)), 
               horizontal=TRUE,
               xlab=axis_label,
               ylab='',
@@ -269,7 +288,8 @@ targetBoxplot <- function(data_matrix,
               staplelty=0,
               cex.axis=cex.targets,
               xaxt='n',
-              col=rev(detectColors))
+              col=rev(detectColors),
+              xlim=axis_limits)
       axis(side=1, las=1)
       grid(nx=NULL, ny=NA)
       abline(v=0, col='darkred')
