@@ -377,7 +377,6 @@ readNULISAseq <- function(file,
     Data <- targets[,c('targetBarcode', 'targetName')]
     sampleBarcode <- character(length(SampleData))
     noncog <- vector("list", length(SampleData))
-    key <- "awebke3j38djwj22dodl5kkk6" |>charToRaw() |>sodium::sha256() |> cyphr::key_sodium()
     A <- if(nonCogEncrypt) 'A' else 'barcodeA1'
     B <- if(nonCogEncrypt) 'B' else 'barcodeA2'
     for(i in 1:length(SampleData)){
@@ -410,7 +409,7 @@ readNULISAseq <- function(file,
       mat <- matrix(0, nrow = length(uA1), ncol = length(uA2), dimnames=list(uA1, uA2))
 
       mat[cbind(match(A1, uA1), 
-                match(A2, uA2))] <- if(nonCogEncrypt & requireNamespace("NULISAseqAQ", quietly=T)) as.numeric(NULISAseqAQ::decrypt(xml2::xml_text(sampleDataChildren[offtarget_ind]), key)) else as.numeric(xml2::xml_text(sampleDataChildren[offtarget_ind]))
+                match(A2, uA2))] <- as.numeric(xml2::xml_text(sampleDataChildren[offtarget_ind]))
       noncog[[sampleBarcode[i]]] = mat
       Data_i <- cbind(targetBarcode, 
                       xml2::xml_double(sampleDataChildren[target_ind]))
