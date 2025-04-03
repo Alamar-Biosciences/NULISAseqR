@@ -574,6 +574,7 @@ readNULISAseq <- function(file,
     if(file_type == 'xlsx'){
       sheets <- readxl::excel_sheets(file)
       AQ <- ifelse(any(grepl("^AQ", sheets)), TRUE, FALSE)
+      AQdata <- NULL
       if(AQ){
         aqData <- suppressWarnings(data.frame(readxl::read_excel(file, sheet=sheets[which(grepl("^AQ", sheets))])))
         aqData$SampleName <- renameSC(aqData$SampleName, n=numSCs(aqData, AQ))
