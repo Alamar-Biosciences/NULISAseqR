@@ -1,3 +1,96 @@
+#' Read and Parse XML, Removing Duplicate Attributes
+#'
+#' This function reads an XML file as plain text, removes duplicate attributes within XML tags,
+#' and parses the cleaned XML using the `xml2::read_xml` function. For each tag, only the first 
+#' occurrence of each attribute is retained, and any subsequent duplicate attributes are removed.
+#' The cleaned XML is then returned as an `xml_document` object.
+#'
+#' @param xml_file A character string representing the path to the XML file to be read and cleaned.
+#'
+#' @return An `xml_document` object representing the cleaned XML with duplicate attributes removed.
+#'
+#' @details
+#' The function processes the XML file in three main steps:
+#' 1. Reads the XML file as plain text and combines it into a single string.
+#' 2. For each XML tag, the function identifies and removes any duplicate attributes, retaining 
+#'    only the first occurrence of each attribute.
+#' 3. The cleaned XML string is parsed and returned as an `xml_document` object using `xml2::read_xml`.
+#'
+#' The function is designed to handle the violation of XML specifications where tags may contain
+#' duplicated attribute names.
+#'
+#' @examples
+#' # Example usage:
+#' # xml_doc <- readXML_remove_duplicate_attributes("path_to_file.xml")
+#'
+#' @import xml2
+#' @export
+readXML_remove_duplicate_attributes <- function(xml_file) {
+  # Try reading the file using traditional method
+  tryCatch({
+    cleaned_xml_doc <- xml2::read_xml(xml_file)
+    return(cleaned_xml_doc)
+  },
+  error = function(cond){
+    # Read the XML file as plain text
+    xml_data <- readLines(xml_file, warn = FALSE)
+
+    # Concatenate lines into a single string
+    xml_text <- paste(xml_data, collapse = "\n")
+
+    # Function to clean a single tag's attributes
+    clean_tag <- function(tag_text) {
+      # Extract the tag name and attributes
+      tag_name <- sub("^<([a-zA-Z0-9]+).*", "\\1", tag_text)
+      attr_string <- sub("^<[a-zA-Z0-9]+\\s([^>]+)>", "\\1", tag_text)
+
+      # Split the attribute string into individual attributes
+      attrs <- unlist(strsplit(attr_string, "\\s+"))
+
+      # Set to track seen attribute names
+      seen_attrs <- c()
+      cleaned_attrs <- c()
+
+      # Loop through the attributes and remove duplicates
+      for (attr in attrs) {
+        # Extract the attribute name (before the "=" sign)
+        attr_name <- sub("=.*", "", attr)
+
+        # If the attribute hasn't been seen, keep it
+        if (!(attr_name %in% seen_attrs)) {
+          seen_attrs <- c(seen_attrs, attr_name)
+          cleaned_attrs <- c(cleaned_attrs, attr)
+        }
+      }
+
+      # Rebuild the cleaned tag with unique attributes
+      cleaned_tag <- paste0("<", tag_name, " ", paste(cleaned_attrs, collapse = " "), ">")
+      return(cleaned_tag)
+    }
+
+    # Use regular expressions to match tags and clean attributes
+    tag_pattern <- "<[a-zA-Z0-9]+\\s[^>]+>"
+
+    # Find all matching tags in the XML text
+    matches <- gregexpr(tag_pattern, xml_text)
+    matched_tags <- regmatches(xml_text, matches)[[1]]
+
+    # Clean each tag by removing duplicate attributes
+    cleaned_tags <- sapply(matched_tags, clean_tag, USE.NAMES = FALSE)
+
+    # Replace the original tags with the cleaned versions
+    cleaned_xml_text <- xml_text
+    regmatches(cleaned_xml_text, matches) <- list(cleaned_tags)
+
+    tempStore <- paste(cleaned_xml_text, collapse="\n")
+
+    # Now that attributes are cleaned, use xml2::read_xml to parse the cleaned XML
+    cleaned_xml_doc <- read_xml(tempStore)
+
+    return(cleaned_xml_doc)
+  })
+}
+
 #' Rename Duplicates in a List with Incrementing Values
 #'
 #' This function renames duplicate entries in a list by adding an incrementing
@@ -199,11 +292,7 @@ readNULISAseq <- function(file,
     # from sucessfully loading the file. This finds and removes duplicate attributes
     # read in xml file
     tryCatch({
-      if(requireNamespace("NULISAseqAQ", quietly=T)){
-        xml <- NULISAseqAQ::readXML_remove_duplicate_attributes(file)
-      } else{
-        xml <- xml2::read_xml(file)
-      }
+      xml <- readXML_remove_duplicate_attributes(file)
     },
       error = function(cond){
         stop("Error: Input file is not a valid NAS XML file\n")
