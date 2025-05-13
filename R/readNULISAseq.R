@@ -452,7 +452,7 @@ readNULISAseq <- function(file,
     ###########################
     # save Data section
     ###########################
-    SampleData <- xml2::xml_find_all(xml, './/Sample')
+    SampleData <- xml2::xml_find_all(xml, './/Data//Sample')
     # save matching / non-matching
     matchNonMatch <- do.call(rbind, xml2::xml_attrs(SampleData))
     matchNonMatch <- as.data.frame(matchNonMatch)
