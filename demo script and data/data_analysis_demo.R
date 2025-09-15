@@ -26,20 +26,29 @@ library(ComplexHeatmap)
 ## read in data
 ###################################################
 # XML files -- Data matrix has raw counts
-plate1 <- readNULISAseq(file='detectability_P1_Tr03.xml')
-plate2 <- readNULISAseq(file='detectability_P2_Tr03.xml')
+file <- c('detectability_P1_Tr03.xml', 'detectability_P2_Tr03.xml')
+runs <- lapply(file, function(i) loadNULISAseq(file = i))
 
-plate1_IC_normalized <- intraPlateNorm(data_matrix = plate1$Data,
-                                       IC = plate1$IC)
-plate2_IC_normalized <- intraPlateNorm(data_matrix = plate2$Data,
-                                       IC = plate2$IC)
-
-IPC_normalized <- interPlateNorm(data_list = list(plate1_IC_normalized$normData,
-                                                  plate2_IC_normalized$normData),
-                                 IPC_wells = list(plate1$IPC, plate2$IPC))
-
-plate1_NPQ <- IPC_normalized$log2_interNormData[[1]]
-plate2_NPQ <- IPC_normalized$log2_interNormData[[2]]
+# Read in xml then perfom normalization
+# plate1 <- readNULISAseq(file='detectability_P1_Tr03.xml')
+# plate2 <- readNULISAseq(file='detectability_P2_Tr03.xml')
+# 
+# plate1_IC_normalized <- intraPlateNorm(data_matrix = plate1$Data,
+#                                        IC = plate1$IC)
+# plate2_IC_normalized <- intraPlateNorm(data_matrix = plate2$Data,
+#                                        IC = plate2$IC)
+# 
+# IPC_normalized <- interPlateNorm(data_list = list(plate1_IC_normalized$normData,
+#                                                   plate2_IC_normalized$normData),
+#                                  IPC_wells = list(plate1$IPC, plate2$IPC))   
+# for reverse curve targets (CRP and APOE in CNS Disease Panle), use transformReverse parameter to specify the targets
+# IPC_normalized <- interPlateNorm(data_list = list(plate1_IC_normalized$normData,
+#                                                   plate2_IC_normalized$normData),
+#                                  IPC_wells = list(plate1$IPC, plate2$IPC),
+#                                  transformReverse = c("CRP", "APOE"))  
+#
+# plate1_NPQ <- IPC_normalized$log2_interNormData[[1]]
+# plate2_NPQ <- IPC_normalized$log2_interNormData[[2]]
 
 # CSV files
 ## first option (with readNULISAseq())
