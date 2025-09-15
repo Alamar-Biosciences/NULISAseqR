@@ -41,7 +41,7 @@ runs <- lapply(file, function(i) loadNULISAseq(file = i))
 # IPC_normalized <- interPlateNorm(data_list = list(plate1_IC_normalized$normData,
 #                                                   plate2_IC_normalized$normData),
 #                                  IPC_wells = list(plate1$IPC, plate2$IPC))   
-# for reverse curve targets (CRP and APOE in CNS Disease Panle), use transformReverse parameter to specify the targets
+# for reverse curve targets (CRP and APOE in CNS Disease Panel), use transformReverse parameter to specify the targets
 # IPC_normalized <- interPlateNorm(data_list = list(plate1_IC_normalized$normData,
 #                                                   plate2_IC_normalized$normData),
 #                                  IPC_wells = list(plate1$IPC, plate2$IPC),
