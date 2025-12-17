@@ -134,24 +134,13 @@ interPlateNorm <- function(data_list,
   
   # intensity normalization
   if (IN==TRUE){
-    # get the matching subset of targets
+    # get all unique targets across all plates
     target_list <- list()
     for (i in 1:length(data_list)){
       target_list[[i]] <- rownames(data_list[[i]])
     }
-    matching_targets <- Reduce(intersect, target_list)
     all_targets <- unique(unlist(target_list))
-    omitted_targets <- all_targets[!(all_targets %in% matching_targets)]
-    if(length(omitted_targets) > 0){
-      warning(paste0('The following targets are missing from some plates and will be omitted from intensity normalization:\n', 
-                     paste(omitted_targets, collapse='\n')))
-    }
-    # remove the omitted targets
-    for (i in 1:length(data_list)){
-      data_list[[i]] <- data_list[[i]][rownames(data_list[[i]]) %in% matching_targets,]
-      # make sure rows are sorted in the same order
-      data_list[[i]] <- data_list[[i]][match(matching_targets, rownames(data_list[[i]])),]
-    }
+    
     # if IN_samples is undefined
     # omit the IPC and / or NC wells if specified
     if (is.null(IN_samples)){
@@ -178,49 +167,75 @@ interPlateNorm <- function(data_list,
         }
       }
     } # end defining IN_samples
-    # get the subset of data used for IN
-    # and get target medians
+    
+    # Initialize matrices to store medians for each target and plate
+    IN_medians <- matrix(NA, nrow=length(all_targets), ncol=length(data_list))
+    rownames(IN_medians) <- all_targets
+    
+    # Calculate plate-specific medians for each target
     data_list_IN_samples <- list()
-    IN_medians <- matrix(nrow=length(matching_targets), ncol=length(data_list))
-    rownames(IN_medians) <- matching_targets
     for (i in 1:length(data_list)){
+      # Get the targets present in this plate
+      plate_targets <- rownames(data_list[[i]])
+      # Extract sample data
       data_list_IN_samples[[i]] <- data_list[[i]][,IN_samples[[i]]]
-      IN_medians[,i] <- apply(data_list_IN_samples[[i]], 1, median, na.rm=TRUE)
+      # Calculate medians for present targets
+      plate_medians <- apply(data_list_IN_samples[[i]], 1, median, na.rm=TRUE)
+      # Store in the correct rows of IN_medians
+      IN_medians[plate_targets,i] <- plate_medians
     }
-    # replace zeros with 1s
+    
+    # Calculate global medians for each target
+    global_medians <- numeric(length(all_targets))
+    names(global_medians) <- all_targets
+    
+    for (target in all_targets) {
+      # Collect all values for this target across plates where it exists
+      target_values <- numeric()
+      for (i in 1:length(data_list_IN_samples)) {
+        if (target %in% rownames(data_list_IN_samples[[i]])) {
+          target_values <- c(target_values, unlist(data_list_IN_samples[[i]][target,]))
+        }
+      }
+      global_medians[target] <- median(target_values, na.rm=TRUE)
+    }
+    
+    # replace zeros with 1s for count data
     IN_medians[IN_medians==0] <- 1
-    # combine data to calculate global medians
-    all_IN_sample_data <- do.call(cbind, data_list_IN_samples)
-    global_medians <- apply(all_IN_sample_data, 1, median, na.rm=TRUE)
-    # replace zeros with 1s
     global_medians[global_medians==0] <- 1
+    
     # save normFactors
     normFactors <- list()
     if (dataScale=='count'){
-      # intensity normalization -- count scale
-      IN_factors <- (1/IN_medians)*global_medians
-      # IN rescale data
+      # For each plate
       for (i in 1:length(data_list)){
-        data_list[[i]] <- data_list[[i]]*IN_factors[,i]
-        normFactors[[i]] <- IN_factors[,i]
+        plate_targets <- rownames(data_list[[i]])
+        # Calculate normalization factors for present targets
+        IN_factors <- global_medians[plate_targets]/IN_medians[plate_targets,i]
+        # Apply normalization
+        data_list[[i]] <- data_list[[i]] * IN_factors
+        normFactors[[i]] <- IN_factors
       } 
     } else if (dataScale=='log'){
-      # intensity normalization -- log scale
-      IN_factors <- global_medians - IN_medians
-      # IN shift data
+      # For each plate
       for (i in 1:length(data_list)){
-        data_list[[i]] <- data_list[[i]] + IN_factors[,i]
-        normFactors[[i]] <- IN_factors[,i]
+        plate_targets <- rownames(data_list[[i]])
+        # Calculate normalization factors for present targets
+        IN_factors <- global_medians[plate_targets] - IN_medians[plate_targets,i]
+        # Apply normalization
+        data_list[[i]] <- data_list[[i]] + IN_factors
+        normFactors[[i]] <- IN_factors
       }
     }
   } # end intensity normalization
-  
+
   # generate the plate assignment vector
   plateNs <- unlist(lapply(data_list, ncol))
   plate <- NULL
   for (i in 1:length(plateNs)){
     plate <- c(plate, rep(i, plateNs[i]))
   }
+  
   # apply the reverse curve transformation to specified targets
   if(!is.null(transformReverse)){
     reverses <- which(names(data_list[[i]][,1]) %in% transformReverse) 
@@ -228,15 +243,23 @@ interPlateNorm <- function(data_list,
       data_list[[i]][reverses, ] <- (transformReverse_scaleFactor * scaleFactor) / (data_list[[i]][reverses,] + 1)
     } 
   } 
-  # log2 transform the output
-  log2_interNormData <- lapply(data_list, function(x) log2(x + 1))
   
+  if(dataScale=='count'){
+    # log2 transform the output
+    log2_interNormData <- lapply(data_list, function(x) log2(x + 1)) 
+  } else if(dataScale=='log'){
+    # if already log, interNormData and log2_interNormData are the same
+    log2_interNormData <- data_list
+  }
+  
+  output <- list(interNormData=data_list,
+                 log2_interNormData=log2_interNormData,
+                 plate=plate,
+                 normFactors=normFactors,
+                 scaleFactor=scaleFactor,
+                 transformReverse=transformReverse,
+                 transformReverse_scaleFactor=transformReverse_scaleFactor)
+
   # return output
-  return(list(interNormData=data_list,
-              log2_interNormData=log2_interNormData,
-              plate=plate,
-              normFactors=normFactors,
-              scaleFactor=scaleFactor,
-              transformReverse=transformReverse,
-              transformReverse_scaleFactor=transformReverse_scaleFactor))
+  return(output)
 }

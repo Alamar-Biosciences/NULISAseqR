@@ -1,0 +1,382 @@
+# Understanding NULISAseq Data {-}
+
+Before diving into data analysis, it's important to understand how NULISAseq technology works and how the data is generated and normalized.
+
+## What is NULISA™ Technology? {-}
+
+NULISA (NUcleic acid-Linked Immuno-Sandwich Assay) is a highly sensitive protein quantification platform that combines immunoassay specificity with next-generation sequencing readout.
+
+The NULISAseq platform uses a proprietary **dual selection proximity ligation** approach to obtain high sensitivity and high signal-to-noise ratio for multiplexed protein detection:
+
+ <img src="figures/nulisa_tech.png" style="width:100%; max-width:800px;">
+ 
+**Key Components:**
+
+1. **Verified antigen-specific antibody pairs** - Two antibodies that bind different epitopes on the target protein
+2. **Antibody-specific barcodes** - Unique DNA sequences attached to each antibody
+3. **Bridging oligos** - Connect the barcodes only when both antibodies bind the same target
+4. **Biotinylated oligos** - Enable sequential capture on beads
+5. **PolyA-tailed oligos** - Allow for sequencing readout
+
+
+### Technical Workflow {-}
+
+The assay follows these steps:
+
+<img src="figures/nulisa_tech2.png" style="width:100%; max-width:800px;">
+
+This dual selection removes assay background and **drastically improves signal-to-noise ratio**.
+
+### Learn More About NULISA™ Technology {-}
+
+For a comprehensive understanding of the NULISA™ platform, we recommend:
+
+**NULISA™ Publication**  
+Feng, W., Beer, J.C., Hao, Q. et al. (2023). "NULISA: a proteomic liquid biopsy platform with attomolar sensitivity and high multiplexing." *Nature Communications* 14, 7238.  
+[Read the full article](https://doi.org/10.1038/s41467-023-42834-x)
+
+**NULISA™ Platform Overview**  
+Watch the [NULISA<sup>TM</sup> Platform Video](https://www.youtube.com/watch?v=24nVyCoJv4w) for a visual explanation of the technology and workflow.
+
+**Technical Documentation**  
+For detailed technical notes on assay design, normalization methods, and quality control:  
+See [Technical Documentation](#technical-documentation) in the Additional Resources chapter.
+
+### Available NULISAseq Panels {-}
+Alamar Biosciences offers several curated panels for disease-specific research, including:
+
+- **Inflammation Panel**: 250+ immune response markers including 120+ cytokines and chemokines
+- **CNS Disease Panel**: 120+ neuro-specific and neuro inflammation-related proteins
+- **Mouse Panel**: 120+ inflammation, neuro-degeneration and oncogenesis proteins specific to mouse model
+- **Custom assays**: Develop your own biomarker assays with the NULISAqpcr Custom Assay Development Kit
+
+[**Explore Current Panels**](https://alamarbio.com/nulisa-panels/)
+
+For detailed panel specifications, target lists, and custom assay options, visit the [Alamar Biosciences website](https://alamarbio.com/) 
+
+## Data Normalization {-}
+
+NULISAseq uses a multi-step normalization process to make protein measurements comparable across samples and plates.
+
+### Raw Data: Sequencing Counts {-}
+
+The output from the sequencer is **read counts** for each target protein in each sample:
+
+- Each protein has a unique barcode
+- More reads = more protein present
+- Raw counts range from 0 to millions
+
+### Step 1: Internal Control (IC) Normalization {-}
+
+**Purpose:** Correct for sample-to-sample technical variation
+
+**Method:**
+
+1. Each sample includes internal control spike-ins
+2. Divide each target's read count by the sample's IC count
+
+**Formula:**
+
+$$ \text{IC} - \text{normalized count} = \text{Raw count} / \text{IC count} $$
+
+### Step 2: Inter-Plate Control (IPC) Normalization {-}
+
+**Purpose:** Correct for plate-to-plate variation
+
+**Method:**
+
+1. Calculate target-specific medians across 3 inter-plate controls (IPCs)
+2. Divide IC-normalized counts by these IPC target-specific medians
+3. Rescale by multiplying by 10⁴
+
+**Formula:**
+
+$$ \text{IPC} - \text{normalized count} = (\text{IC} - \text{normalized count} / \text{IPC median}) × 10⁴ $$
+
+### Step 3: Log2 Transformation {-}
+
+**Purpose:** Create NPQ (NULISA Protein Quantification) values in log2 scale
+
+**Method:**
+
+1. Add 1 to all values (avoid log(0))
+2. Take log2 transformation
+
+**Formula:**
+
+$$ \text{NPQ} = log_2(\text{IPC} - \text{normalized count} + 1) $$
+
+#### Special normalization for high-abundance targets {-}
+
+Most targets in NULISAseq panels are measured at their lower limit of detection. However, certain targets have exceptionally high endogenous levels that would saturate standard detection:
+
+**High-abundance targets:**
+
+- **Inflammation Panel:** **CRP** and **KNG1** in human plasma and serum samples
+- **CNS Panel:** **APOE** and **CRP** in human plasma and serum samples
+- **Mouse Panel:** **Crp** in mouse plasma and serum samples
+
+**Special tuning strategy:** To accommodate both high-abundance and low-abundance targets in the same panel, these targets use a designed algorithm during normalization.This transformation is applied **before** the log₂ transformation step.
+
+**Key Note:**
+
+- The listed LOD for these targets represents the **upper limit of detection** 
+- **NPQ values are valid and comparable for downstream analysis**
+- Detectability is not a concern given the naturally high levels of these proteins
+- For novel sample types beyond validated matrices, the algorithm may not apply if abundance levels differ significantly, and NPQ may not be reported
+
+### Why Log Transform? {-}
+
+Using NPQ (log2-transformed values) instead of raw counts has many advantages:
+
+✅ **Stabilizes variance** - Makes data more homoscedastic  
+✅ **Reduces skewness** - Data becomes more normally distributed  
+✅ **Linearizes relationships** - Easier to model  
+✅ **Improves interpretability** - Differences = fold changes  
+✅ **Compresses range** - Large values don't dominate  
+✅ **Reveals clearer patterns** - Easier to see biological signals  
+
+## NPQ vs Fold Change {-}
+
+### Understanding the Relationship {-}
+
+**Fold Change** is calculated as:
+
+$$ \text{Fold Change} = 2^{(\text{Difference in NPQ})} $$
+
+**Example:**
+
+| Sample | ΔNPQ | Fold Change |
+|--------|------|-------------|
+| 1      | 2.3  | 5           |
+| 2      | 4.1  | 17          |
+| 3      | 5.7  | 53          |
+| 4      | 7.3  | 161         |
+| 5      | 8.9  | 485         |
+| 6      | 10.5 | 1457        |
+
+```{r npq_comparison, echo=FALSE, fig.width=10, fig.height=4}
+library(ggplot2)
+library(patchwork)
+
+# Create example data
+samples <- 1:6
+npq_values <- c(2.3, 4.1, 5.7, 7.3, 8.9, 10.5)
+fold_change <- 2^npq_values
+
+plot_data <- data.frame(
+  Sample = samples,
+  NPQ = npq_values,
+  FoldChange = fold_change
+)
+
+# NPQ plot (linear scale)
+p1 <- ggplot(plot_data, aes(x = Sample, y = NPQ)) +
+  geom_line(color = "#FFA500", size = 1.5) +
+  geom_point(color = "#FFA500", size = 3) +
+  scale_y_continuous(breaks = seq(0, 12, 2)) +
+  labs(title = "Target A: ΔNPQ in samples",
+       x = "Sample", y = "ΔNPQ") +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
+
+# Fold Change plot (exponential scale)
+p2 <- ggplot(plot_data, aes(x = Sample, y = FoldChange)) +
+  geom_line(color = "#FFA500", size = 1.5) +
+  geom_point(color = "#FFA500", size = 3) +
+  scale_y_continuous(breaks = c(0, 200, 400, 600, 800, 1000, 1200, 1400)) +
+  labs(title = "Target A: Fold Change in samples",
+       x = "Sample", y = "Fold Change") +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
+
+# Combine plots
+p1 + p2
+```
+
+**Key Point:** NPQ differences are linear and easier to interpret than exponential fold changes!
+
+## Working with NPQ Values {-}
+
+**While you cannot directly compare abundances across targets using NPQ, it is possible to calculate fold changes or ratios in relative abundances between individuals or groups.**
+
+### Calculating Fold Changes from NPQ {-}
+
+If you need fold changes for interpretation:
+
+```{r fold_change_calc, eval=FALSE}
+# Given NPQ values
+npq_disease <- 7.0
+npq_healthy <- 4.0
+
+# Calculate difference
+delta_npq <- npq_disease - npq_healthy  # 3.0
+
+# Convert to fold change
+fold_change <- 2^delta_npq  # 2^3 = 8
+```
+**Interpretation:** Protein is 8 times higher in the disease group compared to healthy.
+
+### Comparing Across Targets {-}
+
+NPQ values can be compared across targets because:
+
+- All targets go through same normalization
+- Values are on same scale
+- Useful for calculating protein ratios
+
+**Example use case:** Aβ42/Aβ40 ratio for Alzheimer's diagnosis
+
+```{r compare_targets, echo=FALSE}
+comparison_data <- data.frame(
+  Sample = c("Sample A (Healthy)", "Sample A (Healthy)", 
+             "Sample B (Alzheimer's)", "Sample B (Alzheimer's)"),
+  Target = c("Aβ42", "Aβ40", "Aβ42", "Aβ40"),
+  NPQ = c(9, 6, 5, 7)
+)
+```
+
+```{r, echo=FALSE}
+knitr::kable(comparison_data)
+```           
+#### Calculating Protein Ratios {-}
+
+Since NPQ values are log₂-transformed, calculating ratios is straightforward: **subtract the NPQ values**.
+
+**Formula for comparisons:**
+
+$$ log_2(A/B) = log_2(A) - log_2(B) $$
+$$ log_2(A/B) = \text{NPQ}_A - \text{NPQ}_B $$
+**Calculations:**
+
+For **Sample A (Healthy control)**:
+
+- NPQ(Aβ42) = 9, NPQ(Aβ40) = 6
+- Log₂(Aβ42/Aβ40) = 9 - 6 = **3**
+- Actual ratio = 2³ = **8** 
+
+For **Sample B (Alzheimer's patient)**:
+
+- NPQ(Aβ42) = 5, NPQ(Aβ40) = 7  
+- Log₂(Aβ42/Aβ40) = 5 - 7 = **-2**
+- Actual ratio = 2⁻² = **0.25** 
+
+```{r ratio_calculation, echo=FALSE}
+ratio_results <- data.frame(
+  Sample = c("Sample A (Healthy)", "Sample B (Alzheimer's)"),
+  `NPQ_Ab42` = c(9, 5),
+  `NPQ_Ab40` = c(6, 7),
+  `Log2_Ratio` = c(3, -2),
+  `Ratio` = c(8.0, 0.25)
+)
+
+knitr::kable(ratio_results, 
+             col.names = c("Sample", "NPQ Aβ42", "NPQ Aβ40", "Log₂ Ratio", "Ratio"))
+```
+
+**Interpretation:**
+
+- **Healthy brain:** Aβ42/Aβ40 ratio = 8.0 
+- **Alzheimer's brain:** Aβ42/Aβ40 ratio = 0.25 
+
+The Aβ42/Aβ40 ratio reflects the amyloid pathology, making this ratio a powerful biomarker for Alzheimer's disease diagnosis and monitoring.
+
+## Data Analysis FAQ {-}
+
+### 1. How is the limit of detection (LOD) defined for NULISAseq? <br> Why do some targets have LOD of 0? {-}
+
+- LOD is calculated separately for each analyte / target using the negative control (NC) samples. 
+- For NULISAseq, the LOD is defined as follow: 
+
+**Formula:**
+$$ \text{LOD} = mean(\text{NC}) + 3 × sd(\text{NC}) $$
+
+- LOD is calculated on the normalized count scale, and then log2-transformed to be on the NPQ scale.
+- LOD = 0: Occurs when negative controls show no detectable signal at the current NGS depth.
+
+### 2. Should I exclude samples below LOD? {-}
+
+**We don't recommend excluding individual values below LOD or replacing NPQ values with LOD.**
+
+Why not?
+
+- Excluding or replacing values creates skewed, non-normal distributions
+- Violates statistical assumptions for model assumptions for analysis
+- Reduces statistical power
+
+**Instead, we recommend using different detectability cutoff to exclude targets with low detectability**
+
+### 3. How do I calculate coefficient of variation (CV) for samples? {-}
+
+**IMPORTANT: Unlog NPQ values before calculating CV.**
+
+NPQ values are in log₂ scale, but CV is only meaningful on the linear scale.
+
+**Step-by-step process:**
+
+1. **Back-transform NPQ to linear scale:**
+   $$ \text{Linear value} = 2^{\text{NPQ}} - 1 $$
+
+2. **Calculate mean and standard deviation on linear scale:**
+   $$ \text{Mean}_{\text{linear}} = \text{mean(linear values)} $$
+   $$ \text{SD}_{\text{linear}} = \text{sd(linear values)} $$
+
+3. **Calculate CV:**
+   $$ \text{CV} = \frac{\text{SD}_{\text{linear}}}{\text{Mean}_{\text{linear}}} \times 100\% $$
+
+**Example in R:**
+
+```{r cv_calculation, eval=TRUE}
+# For replicate samples of a single target
+npq_values <- c(8.5, 8.7, 8.3)  # NPQ values (log2 scale)
+
+# Back-transform to linear scale
+linear_values <- 2^npq_values - 1
+
+# Calculate CV
+mean_linear <- mean(linear_values)
+sd_linear <- sd(linear_values)
+cv_percent <- (sd_linear / mean_linear) * 100
+
+print(paste0("CV = ", round(cv_percent, 2), "%"))
+```
+
+### 4. Can I compare data across different runs? {-}
+
+**Yes!** IPC normalization is designed to make data comparable across runs.
+
+Quality metrics supporting cross-run comparability include:
+
+- Mean and median IPC CVs typically <10%
+- High inter-sample correlations (inter-run Pearson correlation ~ $r = 0.95$)
+
+In some cases intensity normalization or bridge samples (3-5 samples) can be used for further normalization. This enables longitudinal studies and meta-analyses.
+
+### 5. How do you assess correlation between NPQ and absolute quantification data from other platforms? {-}
+
+**Transform datasets from other platforms to log2 scale first!**
+
+**Recommended approach:**
+
+- Convert absolute quantification values (e.g., pg/mL) to log2 scale
+- Compare log2-transformed values against NPQ values
+- Visualize with scatterplots before choosing correlation method
+
+**Choosing the appropriate correlation method:**
+
+✅ **Use Pearson correlation (r)** when:
+
+- Scatterplot shows approximately linear relationship
+- No extreme outliers present
+- Data appears normally distributed
+
+✅ **Use non-parametric methods (Spearman ρ or Kendall τ)** when:
+
+- Scatterplot shows nonlinear trend
+- Extreme outliers present
+- Very small sample size
+- Data far from normal distribution
+
+**Note:** For non-parametric methods, the specific data transformation is less critical, but log2 transformation still helps with visualization and interpretability.
+
+**Continue to:** [Chapter 1: Data Import](#data-import)

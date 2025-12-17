@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>NULISAseqR User Guide</title>
+  <meta name="description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="generator" content="bookdown 0.45 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="NULISAseqR User Guide" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="github-repo" content="Alamar-Biosciences/NULISAseqR" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="NULISAseqR User Guide" />
+  
+  <meta name="twitter:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+<link rel="next" href="understanding-nulisaseq-data.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.34.0/datatables.js"></script>
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li style="text-align: center; padding: 20px;">
+  <a href="https://www.alamarbio.com" target="_blank">
+    <img src="figures/alamar_logo.png" style="height:70px;">
+  </a>
+</li>
+<li><a href="./">NULISAseqR User Guide</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#what-is-nulisaseqr"><i class="fa fa-check"></i>What is NULISAseqR?</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#installation"><i class="fa fa-check"></i>Installation</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#getting-help"><i class="fa fa-check"></i>Getting Help</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html"><i class="fa fa-check"></i>Understanding NULISAseq Data</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#what-is-nulisa-technology"><i class="fa fa-check"></i>What is NULISA™ Technology?</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#technical-workflow"><i class="fa fa-check"></i>Technical Workflow</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#learn-more-about-nulisa-technology"><i class="fa fa-check"></i>Learn More About NULISA™ Technology</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#available-nulisaseq-panels"><i class="fa fa-check"></i>Available NULISAseq Panels</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-normalization"><i class="fa fa-check"></i>Data Normalization</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#raw-data-sequencing-counts"><i class="fa fa-check"></i>Raw Data: Sequencing Counts</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-1-internal-control-ic-normalization"><i class="fa fa-check"></i>Step 1: Internal Control (IC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-2-inter-plate-control-ipc-normalization"><i class="fa fa-check"></i>Step 2: Inter-Plate Control (IPC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-3-log2-transformation"><i class="fa fa-check"></i>Step 3: Log2 Transformation</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#why-log-transform"><i class="fa fa-check"></i>Why Log Transform?</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#npq-vs-fold-change"><i class="fa fa-check"></i>NPQ vs Fold Change</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#understanding-the-relationship"><i class="fa fa-check"></i>Understanding the Relationship</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#working-with-npq-values"><i class="fa fa-check"></i>Working with NPQ Values</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-from-npq"><i class="fa fa-check"></i>Calculating Fold Changes from NPQ</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#comparing-across-targets"><i class="fa fa-check"></i>Comparing Across Targets</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-analysis-faq"><i class="fa fa-check"></i>Data Analysis FAQ</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-is-the-limit-of-detection-lod-defined-for-nulisaseq-why-do-some-targets-have-lod-of-0"><i class="fa fa-check"></i>1. How is the limit of detection (LOD) defined for NULISAseq? <br> Why do some targets have LOD of 0?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#should-i-exclude-samples-below-lod"><i class="fa fa-check"></i>2. Should I exclude samples below LOD?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-i-calculate-coefficient-of-variation-cv-for-samples"><i class="fa fa-check"></i>3. How do I calculate coefficient of variation (CV) for samples?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#can-i-compare-data-across-different-runs"><i class="fa fa-check"></i>4. Can I compare data across different runs?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-you-assess-correlation-between-npq-and-absolute-quantification-data-from-other-platforms"><i class="fa fa-check"></i>5. How do you assess correlation between NPQ and absolute quantification data from other platforms?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="data-import.html"><a href="data-import.html"><i class="fa fa-check"></i><b>1</b> Data Import</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="data-import.html"><a href="data-import.html#the-importnulisaseq-function"><i class="fa fa-check"></i><b>1.1</b> The <code>importNULISAseq()</code> Function</a></li>
+<li class="chapter" data-level="1.2" data-path="data-import.html"><a href="data-import.html#understanding-the-data-structure"><i class="fa fa-check"></i><b>1.2</b> Understanding the Data Structure</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="data-import.html"><a href="data-import.html#key-components"><i class="fa fa-check"></i><b>1.2.1</b> Key Components</a></li>
+<li class="chapter" data-level="1.2.2" data-path="data-import.html"><a href="data-import.html#summary-statistics"><i class="fa fa-check"></i><b>1.2.2</b> Summary Statistics</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="data-import.html"><a href="data-import.html#working-with-your-own-data"><i class="fa fa-check"></i><b>1.3</b> Working with Your Own Data</a></li>
+<li class="chapter" data-level="1.4" data-path="data-import.html"><a href="data-import.html#loading-metadata"><i class="fa fa-check"></i><b>1.4</b> Loading Metadata</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="data-import.html"><a href="data-import.html#metadata-structure"><i class="fa fa-check"></i><b>1.4.1</b> Metadata Structure</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="data-import.html"><a href="data-import.html#merging-data-with-metadata"><i class="fa fa-check"></i><b>1.5</b> Merging Data with Metadata</a></li>
+<li class="chapter" data-level="1.6" data-path="data-import.html"><a href="data-import.html#filtering-samples"><i class="fa fa-check"></i><b>1.6</b> Filtering Samples</a></li>
+<li class="chapter" data-level="1.7" data-path="data-import.html"><a href="data-import.html#complete-import-workflow"><i class="fa fa-check"></i><b>1.7</b> Complete Import Workflow</a></li>
+<li class="chapter" data-level="1.8" data-path="data-import.html"><a href="data-import.html#tips-and-best-practices"><i class="fa fa-check"></i><b>1.8</b> Tips and Best Practices</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="quality-control.html"><a href="quality-control.html"><i class="fa fa-check"></i><b>2</b> Quality Control</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="quality-control.html"><a href="quality-control.html#why-quality-control-matters"><i class="fa fa-check"></i><b>2.1</b> Why Quality Control Matters</a></li>
+<li class="chapter" data-level="2.2" data-path="quality-control.html"><a href="quality-control.html#qc-report"><i class="fa fa-check"></i><b>2.2</b> Automated QC Report</a></li>
+<li class="chapter" data-level="2.3" data-path="quality-control.html"><a href="quality-control.html#qc-report-structure"><i class="fa fa-check"></i><b>2.3</b> QC Report Structure</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="quality-control.html"><a href="quality-control.html#plate-layout"><i class="fa fa-check"></i><b>2.3.1</b> Plate Layout</a></li>
+<li class="chapter" data-level="2.3.2" data-path="quality-control.html"><a href="quality-control.html#run-summary"><i class="fa fa-check"></i><b>2.3.2</b> Run Summary</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#quality-control-metrics"><i class="fa fa-check"></i>Quality Control Metrics</a></li>
+<li class="chapter" data-level="2.3.3" data-path="quality-control.html"><a href="quality-control.html#platerun-qc"><i class="fa fa-check"></i><b>2.3.3</b> Plate/Run QC</a></li>
+<li class="chapter" data-level="2.3.4" data-path="quality-control.html"><a href="quality-control.html#sample-qc"><i class="fa fa-check"></i><b>2.3.4</b> Sample QC</a></li>
+<li class="chapter" data-level="2.3.5" data-path="quality-control.html"><a href="quality-control.html#target-qc"><i class="fa fa-check"></i><b>2.3.5</b> Target QC</a></li>
+<li class="chapter" data-level="2.3.6" data-path="quality-control.html"><a href="quality-control.html#coefficient-of-variation-cv"><i class="fa fa-check"></i><b>2.3.6</b> Coefficient of Variation (CV)</a></li>
+<li class="chapter" data-level="2.3.7" data-path="quality-control.html"><a href="quality-control.html#plate-effect-assessment"><i class="fa fa-check"></i><b>2.3.7</b> Plate Effect Assessment</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="quality-control.html"><a href="quality-control.html#qc-thresholds-summary"><i class="fa fa-check"></i><b>2.4</b> Summary of QC Thresholds</a></li>
+<li class="chapter" data-level="2.5" data-path="quality-control.html"><a href="quality-control.html#manual-qc-checks"><i class="fa fa-check"></i><b>2.5</b> Manual QC Checks</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="quality-control.html"><a href="quality-control.html#check-for-missing-data"><i class="fa fa-check"></i><b>2.5.1</b> Check for Missing Data</a></li>
+<li class="chapter" data-level="2.5.2" data-path="quality-control.html"><a href="quality-control.html#low-detectability-targets"><i class="fa fa-check"></i><b>2.5.2</b> Low Detectability Targets</a></li>
+<li class="chapter" data-level="2.5.3" data-path="quality-control.html"><a href="quality-control.html#calculate-targets-detectability-by-subgroups"><i class="fa fa-check"></i><b>2.5.3</b> Calculate Targets Detectability by Subgroups</a></li>
+<li class="chapter" data-level="2.5.4" data-path="quality-control.html"><a href="quality-control.html#batch-effect-correction"><i class="fa fa-check"></i><b>2.5.4</b> Batch Effect Correction</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="quality-control.html"><a href="quality-control.html#qc-best-practices"><i class="fa fa-check"></i><b>2.6</b> Best Practices</a>
+<ul>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#documentation"><i class="fa fa-check"></i>Documentation</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#consistency"><i class="fa fa-check"></i>Consistency</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#collaboration"><i class="fa fa-check"></i>Collaboration</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#when-in-doubt"><i class="fa fa-check"></i>When in Doubt</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="quality-control.html"><a href="quality-control.html#complete-qc-workflow"><i class="fa fa-check"></i><b>2.7</b> Complete QC Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="visualization.html"><a href="visualization.html"><i class="fa fa-check"></i><b>3</b> Visualization</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="visualization.html"><a href="visualization.html#why-visualize"><i class="fa fa-check"></i><b>3.1</b> Why Visualize?</a></li>
+<li class="chapter" data-level="3.2" data-path="visualization.html"><a href="visualization.html#heatmaps"><i class="fa fa-check"></i><b>3.2</b> Heatmaps</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="visualization.html"><a href="visualization.html#basic-heatmap"><i class="fa fa-check"></i><b>3.2.1</b> Basic Heatmap</a></li>
+<li class="chapter" data-level="3.2.2" data-path="visualization.html"><a href="visualization.html#heatmap-with-annotations"><i class="fa fa-check"></i><b>3.2.2</b> Heatmap with Annotations</a></li>
+<li class="chapter" data-level="3.2.3" data-path="visualization.html"><a href="visualization.html#understanding-the-heatmap"><i class="fa fa-check"></i><b>3.2.3</b> Understanding the Heatmap</a></li>
+<li class="chapter" data-level="3.2.4" data-path="visualization.html"><a href="visualization.html#interpreting-clusters"><i class="fa fa-check"></i><b>3.2.4</b> Interpreting Clusters</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="visualization.html"><a href="visualization.html#principal-component-analysis-pca"><i class="fa fa-check"></i><b>3.3</b> Principal Component Analysis (PCA)</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="visualization.html"><a href="visualization.html#pca-with-multiple-visual-encodings"><i class="fa fa-check"></i><b>3.3.1</b> PCA with Multiple Visual Encodings</a></li>
+<li class="chapter" data-level="3.3.2" data-path="visualization.html"><a href="visualization.html#understanding-pca-plots"><i class="fa fa-check"></i><b>3.3.2</b> Understanding PCA Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="visualization.html"><a href="visualization.html#custom-visualizations-with-ggplot2"><i class="fa fa-check"></i><b>3.4</b> Custom Visualizations with <code>ggplot2</code></a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="visualization.html"><a href="visualization.html#npq-distribution---histogram"><i class="fa fa-check"></i><b>3.4.1</b> NPQ Distribution - Histogram</a></li>
+<li class="chapter" data-level="3.4.2" data-path="visualization.html"><a href="visualization.html#npq-distribution-by-group---density-plot"><i class="fa fa-check"></i><b>3.4.2</b> NPQ Distribution by Group - Density Plot</a></li>
+<li class="chapter" data-level="3.4.3" data-path="visualization.html"><a href="visualization.html#single-protein-across-groups"><i class="fa fa-check"></i><b>3.4.3</b> Single Protein Across Groups</a></li>
+<li class="chapter" data-level="3.4.4" data-path="visualization.html"><a href="visualization.html#multiple-proteins-across-groups"><i class="fa fa-check"></i><b>3.4.4</b> Multiple Proteins Across Groups</a></li>
+<li class="chapter" data-level="3.4.5" data-path="visualization.html"><a href="visualization.html#protein-protein-correlation"><i class="fa fa-check"></i><b>3.4.5</b> Protein-Protein Correlation</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="visualization.html"><a href="visualization.html#saving-plots"><i class="fa fa-check"></i><b>3.5</b> Saving Plots</a>
+<ul>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-heatmap"><i class="fa fa-check"></i>Save Heatmap</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-pca"><i class="fa fa-check"></i>Save PCA</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-ggplot-objects"><i class="fa fa-check"></i>Save ggplot Objects</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="visualization.html"><a href="visualization.html#visualization-best-practices"><i class="fa fa-check"></i><b>3.6</b> Visualization Best Practices</a></li>
+<li class="chapter" data-level="3.7" data-path="visualization.html"><a href="visualization.html#complete-visualization-workflow"><i class="fa fa-check"></i><b>3.7</b> Complete Visualization Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html"><i class="fa fa-check"></i><b>4</b> Differential Expression Analysis</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#overview"><i class="fa fa-check"></i><b>4.1</b> Overview</a></li>
+<li class="chapter" data-level="4.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#basic-differential-expression"><i class="fa fa-check"></i><b>4.2</b> Basic Differential Expression</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#group-comparison"><i class="fa fa-check"></i><b>4.2.1</b> Group Comparison</a></li>
+<li class="chapter" data-level="4.2.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#understanding-the-model"><i class="fa fa-check"></i><b>4.2.2</b> Understanding the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#model-results"><i class="fa fa-check"></i><b>4.3</b> Model Results</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#key-columns-in-results"><i class="fa fa-check"></i><b>4.3.1</b> Key Columns in Results</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#finding-significant-proteins"><i class="fa fa-check"></i><b>4.4</b> Finding Significant Proteins</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#filter-by-fdr-threshold"><i class="fa fa-check"></i><b>4.4.1</b> Filter by FDR Threshold</a></li>
+<li class="chapter" data-level="4.4.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#upregulated-vs-downregulated"><i class="fa fa-check"></i><b>4.4.2</b> Upregulated vs Downregulated</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#volcano-plots"><i class="fa fa-check"></i><b>4.5</b> Volcano Plots</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#inflammation-vs-normal"><i class="fa fa-check"></i><b>4.5.1</b> Inflammation vs Normal</a></li>
+<li class="chapter" data-level="4.5.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#understanding-volcano-plots"><i class="fa fa-check"></i><b>4.5.2</b> Understanding Volcano Plots</a></li>
+<li class="chapter" data-level="4.5.3" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#cancer-vs-normal"><i class="fa fa-check"></i><b>4.5.3</b> Cancer vs Normal</a></li>
+<li class="chapter" data-level="4.5.4" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#saving-volcano-plots"><i class="fa fa-check"></i><b>4.5.4</b> Saving Volcano Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#visualization-of-significant-targets"><i class="fa fa-check"></i><b>4.6</b> Visualization of Significant Targets</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#inflammation-vs-normal-1"><i class="fa fa-check"></i><b>4.6.1</b> Inflammation vs Normal</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#multiple-comparisons"><i class="fa fa-check"></i><b>4.7</b> Multiple Comparisons</a></li>
+<li class="chapter" data-level="4.8" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#model-considerations"><i class="fa fa-check"></i><b>4.8</b> Model Considerations</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#reference-level"><i class="fa fa-check"></i><b>4.8.1</b> Reference Level</a></li>
+<li class="chapter" data-level="4.8.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#including-covariates"><i class="fa fa-check"></i><b>4.8.2</b> Including Covariates</a></li>
+<li class="chapter" data-level="4.8.3" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#model-formula-options"><i class="fa fa-check"></i><b>4.8.3</b> Model Formula Options</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#interpreting-results"><i class="fa fa-check"></i><b>4.9</b> Interpreting Results</a>
+<ul>
+<li class="chapter" data-level="4.9.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#effect-size-coefficient"><i class="fa fa-check"></i><b>4.9.1</b> Effect Size (Coefficient)</a></li>
+<li class="chapter" data-level="4.9.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#p-values"><i class="fa fa-check"></i><b>4.9.2</b> P-values</a></li>
+<li class="chapter" data-level="4.9.3" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#significance-thresholds"><i class="fa fa-check"></i><b>4.9.3</b> Significance Thresholds</a></li>
+</ul></li>
+<li class="chapter" data-level="4.10" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#exporting-results"><i class="fa fa-check"></i><b>4.10</b> Exporting Results</a>
+<ul>
+<li class="chapter" data-level="4.10.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#save-results-table"><i class="fa fa-check"></i><b>4.10.1</b> Save Results Table</a></li>
+<li class="chapter" data-level="4.10.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#create-summary-table"><i class="fa fa-check"></i><b>4.10.2</b> Create Summary Table</a></li>
+</ul></li>
+<li class="chapter" data-level="4.11" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#complete-differential-expression-workflow"><i class="fa fa-check"></i><b>4.11</b> Complete Differential Expression Workflow</a></li>
+<li class="chapter" data-level="4.12" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#best-practices"><i class="fa fa-check"></i><b>4.12</b> Best Practices</a></li>
+<li class="chapter" data-level="4.13" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#common-issues"><i class="fa fa-check"></i><b>4.13</b> Common Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html"><i class="fa fa-check"></i><b>5</b> Longitudinal Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overview-1"><i class="fa fa-check"></i><b>5.1</b> Overview</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="predictive-modeling.html"><a href="predictive-modeling.html"><i class="fa fa-check"></i><b>6</b> Predictive Modeling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#overview-2"><i class="fa fa-check"></i><b>6.1</b> Overview</a></li>
+<li class="chapter" data-level="6.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#continuous-outcomes"><i class="fa fa-check"></i><b>6.2</b> Continuous Outcomes</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#example-predicting-a-clinical-score"><i class="fa fa-check"></i><b>6.2.1</b> Example: Predicting a Clinical Score</a></li>
+<li class="chapter" data-level="6.2.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#understanding-the-model-1"><i class="fa fa-check"></i><b>6.2.2</b> Understanding the Model</a></li>
+<li class="chapter" data-level="6.2.3" data-path="predictive-modeling.html"><a href="predictive-modeling.html#examining-results"><i class="fa fa-check"></i><b>6.2.3</b> Examining Results</a></li>
+<li class="chapter" data-level="6.2.4" data-path="predictive-modeling.html"><a href="predictive-modeling.html#key-columns"><i class="fa fa-check"></i><b>6.2.4</b> Key Columns</a></li>
+<li class="chapter" data-level="6.2.5" data-path="predictive-modeling.html"><a href="predictive-modeling.html#finding-predictive-proteins"><i class="fa fa-check"></i><b>6.2.5</b> Finding Predictive Proteins</a></li>
+<li class="chapter" data-level="6.2.6" data-path="predictive-modeling.html"><a href="predictive-modeling.html#interpreting-coefficients"><i class="fa fa-check"></i><b>6.2.6</b> Interpreting Coefficients</a></li>
+<li class="chapter" data-level="6.2.7" data-path="predictive-modeling.html"><a href="predictive-modeling.html#visualizing-predictions"><i class="fa fa-check"></i><b>6.2.7</b> Visualizing Predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="predictive-modeling.html"><a href="predictive-modeling.html#binary-outcomes"><i class="fa fa-check"></i><b>6.3</b> Binary Outcomes</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#example-predicting-disease-status"><i class="fa fa-check"></i><b>6.3.1</b> Example: Predicting Disease Status</a></li>
+<li class="chapter" data-level="6.3.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#understanding-the-model-2"><i class="fa fa-check"></i><b>6.3.2</b> Understanding the Model</a></li>
+<li class="chapter" data-level="6.3.3" data-path="predictive-modeling.html"><a href="predictive-modeling.html#examining-results-1"><i class="fa fa-check"></i><b>6.3.3</b> Examining Results</a></li>
+<li class="chapter" data-level="6.3.4" data-path="predictive-modeling.html"><a href="predictive-modeling.html#key-columns-1"><i class="fa fa-check"></i><b>6.3.4</b> Key Columns</a></li>
+<li class="chapter" data-level="6.3.5" data-path="predictive-modeling.html"><a href="predictive-modeling.html#finding-predictive-proteins-1"><i class="fa fa-check"></i><b>6.3.5</b> Finding Predictive Proteins</a></li>
+<li class="chapter" data-level="6.3.6" data-path="predictive-modeling.html"><a href="predictive-modeling.html#interpreting-odds-ratios"><i class="fa fa-check"></i><b>6.3.6</b> Interpreting Odds Ratios</a></li>
+<li class="chapter" data-level="6.3.7" data-path="predictive-modeling.html"><a href="predictive-modeling.html#visualizing-binary-predictions"><i class="fa fa-check"></i><b>6.3.7</b> Visualizing Binary Predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="predictive-modeling.html"><a href="predictive-modeling.html#comparing-approaches"><i class="fa fa-check"></i><b>6.4</b> Comparing Approaches</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#when-to-use-each-function"><i class="fa fa-check"></i><b>6.4.1</b> When to Use Each Function</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="predictive-modeling.html"><a href="predictive-modeling.html#advanced-model-comparisons"><i class="fa fa-check"></i><b>6.5</b> Advanced: Model Comparisons</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#compare-model-performance"><i class="fa fa-check"></i><b>6.5.1</b> Compare Model Performance</a></li>
+<li class="chapter" data-level="6.5.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#multi-protein-models"><i class="fa fa-check"></i><b>6.5.2</b> Multi-protein Models</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="predictive-modeling.html"><a href="predictive-modeling.html#model-validation"><i class="fa fa-check"></i><b>6.6</b> Model Validation</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#cross-validation"><i class="fa fa-check"></i><b>6.6.1</b> Cross-Validation</a></li>
+<li class="chapter" data-level="6.6.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#test-set-validation"><i class="fa fa-check"></i><b>6.6.2</b> Test Set Validation</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="predictive-modeling.html"><a href="predictive-modeling.html#exporting-results-1"><i class="fa fa-check"></i><b>6.7</b> Exporting Results</a></li>
+<li class="chapter" data-level="6.8" data-path="predictive-modeling.html"><a href="predictive-modeling.html#complete-predictive-modeling-workflow"><i class="fa fa-check"></i><b>6.8</b> Complete Predictive Modeling Workflow</a></li>
+<li class="chapter" data-level="6.9" data-path="predictive-modeling.html"><a href="predictive-modeling.html#best-practices-1"><i class="fa fa-check"></i><b>6.9</b> Best Practices</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html"><i class="fa fa-check"></i><b>7</b> Complete Workflow: <br> Identifying Proteomic Signatures in Lupus and Rheumatoid Arthritis</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#overview-3"><i class="fa fa-check"></i><b>7.1</b> Overview</a></li>
+<li class="chapter" data-level="7.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#data-preparation"><i class="fa fa-check"></i><b>7.2</b> Data Preparation</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#load-required-libraries"><i class="fa fa-check"></i><b>7.2.1</b> Load Required Libraries</a></li>
+<li class="chapter" data-level="7.2.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#import-data"><i class="fa fa-check"></i><b>7.2.2</b> Import Data</a></li>
+<li class="chapter" data-level="7.2.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#prepare-sample-metadata"><i class="fa fa-check"></i><b>7.2.3</b> Prepare Sample Metadata</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#apply-detectability-threshold"><i class="fa fa-check"></i><b>7.3</b> Apply Detectability Threshold</a></li>
+<li class="chapter" data-level="7.4" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#global-data-visualization"><i class="fa fa-check"></i><b>7.4</b> Global Data Visualization</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#prepare-metadata-for-visualization"><i class="fa fa-check"></i><b>7.4.1</b> Prepare Metadata for Visualization</a></li>
+<li class="chapter" data-level="7.4.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#hierarchical-clustering-heatmap"><i class="fa fa-check"></i><b>7.4.2</b> Hierarchical Clustering Heatmap</a></li>
+<li class="chapter" data-level="7.4.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#principal-component-analysis"><i class="fa fa-check"></i><b>7.4.3</b> Principal Component Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#statistical-testing"><i class="fa fa-check"></i><b>7.5</b> Statistical Testing</a></li>
+<li class="chapter" data-level="7.6" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#systemic-lupus-erythematosus-sle-analysis"><i class="fa fa-check"></i><b>7.6</b> Systemic Lupus Erythematosus (SLE) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#background"><i class="fa fa-check"></i><b>7.6.1</b> Background</a></li>
+<li class="chapter" data-level="7.6.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#volcano-plot"><i class="fa fa-check"></i><b>7.6.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.6.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#visualizations"><i class="fa fa-check"></i><b>7.6.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.6.4" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#directional-analysis"><i class="fa fa-check"></i><b>7.6.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#rheumatoid-arthritis-ra-analysis"><i class="fa fa-check"></i><b>7.7</b> Rheumatoid Arthritis (RA) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.7.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#background-1"><i class="fa fa-check"></i><b>7.7.1</b> Background</a></li>
+<li class="chapter" data-level="7.7.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#volcano-plot-1"><i class="fa fa-check"></i><b>7.7.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.7.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#visualizations-1"><i class="fa fa-check"></i><b>7.7.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.7.4" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#directional-analysis-1"><i class="fa fa-check"></i><b>7.7.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.8" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#comparing-disease-signatures"><i class="fa fa-check"></i><b>7.8</b> Comparing Disease Signatures</a>
+<ul>
+<li class="chapter" data-level="7.8.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#overlap-analysis"><i class="fa fa-check"></i><b>7.8.1</b> Overlap Analysis</a></li>
+<li class="chapter" data-level="7.8.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#summary-statistics-table"><i class="fa fa-check"></i><b>7.8.2</b> Summary Statistics Table</a></li>
+</ul></li>
+<li class="chapter" data-level="7.9" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#next-steps"><i class="fa fa-check"></i><b>7.9</b> Next Steps</a></li>
+<li class="chapter" data-level="7.10" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#complete-workflow-example-code"><i class="fa fa-check"></i><b>7.10</b> Complete Workflow Example Code</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html"><i class="fa fa-check"></i>Additional Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisaseq-resources"><i class="fa fa-check"></i>NULISAseq Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#package-documentation"><i class="fa fa-check"></i>Package Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#github-repository"><i class="fa fa-check"></i>GitHub Repository</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#support-and-issues"><i class="fa fa-check"></i>Support and Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisa-analysis-software-nas"><i class="fa fa-check"></i>NULISA Analysis Software (NAS)</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#technical-documentation"><i class="fa fa-check"></i>Technical Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-resources"><i class="fa fa-check"></i>R Programming Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-install"><i class="fa fa-check"></i>Installing R and RStudio</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#tidyverse-resources"><i class="fa fa-check"></i>Tidyverse Resources</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#visualization-resources"><i class="fa fa-check"></i>Data Visualization Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#ggplot2"><i class="fa fa-check"></i>ggplot2</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#complexheatmap"><i class="fa fa-check"></i>ComplexHeatmap</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#pcatools"><i class="fa fa-check"></i>PCAtools</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citations"><i class="fa fa-check"></i>Citing This Book and Packages</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-this-book"><i class="fa fa-check"></i>Citing This Book</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-r-and-packages"><i class="fa fa-check"></i>Citing R and Packages</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#key-citations"><i class="fa fa-check"></i>Key Citations</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank">GitHub Repository</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">NULISAseqR User Guide</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="header">
+<h1 class="title">NULISAseqR User Guide</h1>
+</div>
+<div id="welcome" class="section level1 unnumbered hasAnchor">
+<h1>Welcome<a href="index.html#welcome" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>This guide will walk you through analysis of NULISAseq proteomic data using R.</p>
+<div id="what-is-nulisaseqr" class="section level2 unnumbered hasAnchor">
+<h2>What is NULISAseqR?<a href="index.html#what-is-nulisaseqr" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><strong>NULISAseqR</strong> is an R package designed specifically for working with NULISAseq proteomic data. It provides:</p>
+<ul>
+<li><strong>Data Import</strong>: Read XML files from NULISAseq multiplex proteomic panels</li>
+<li><strong>Quality Control</strong>: Automated QC reporting and metrics</li>
+<li><strong>Visualization</strong>: Heatmaps, PCA plots, volcano plots, boxplots, etc.</li>
+<li><strong>Statistical Analysis</strong>: Differential expression testing and longitudinal analysis</li>
+<li><strong>Predictive Modeling</strong>: Linear models using protein expression to predict an outcome</li>
+</ul>
+</div>
+<div id="installation" class="section level2 unnumbered hasAnchor">
+<h2>Installation<a href="index.html#installation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><strong>New to R?</strong> If you haven’t installed R and RStudio yet, see the <a href="additional-resources.html#r-install">Installing R and RStudio</a> guide in the Additional Resources page.</p>
+<p>Install NULISAseqR from GitHub:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="index.html#cb1-1" tabindex="-1"></a><span class="co"># Install devtools if needed</span></span>
+<span id="cb1-2"><a href="index.html#cb1-2" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;devtools&quot;</span>)</span>
+<span id="cb1-3"><a href="index.html#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="index.html#cb1-4" tabindex="-1"></a><span class="co"># Install NULISAseqR</span></span>
+<span id="cb1-5"><a href="index.html#cb1-5" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;Alamar-Biosciences/NULISAseqR&#39;</span>, <span class="at">ref =</span> <span class="st">&#39;main&#39;</span>)</span>
+<span id="cb1-6"><a href="index.html#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="index.html#cb1-7" tabindex="-1"></a><span class="co"># Install other packages</span></span>
+<span id="cb1-8"><a href="index.html#cb1-8" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;tidyverse&quot;</span>)</span></code></pre></div>
+<p><br>
+Load the packages:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="index.html#cb2-1" tabindex="-1"></a><span class="fu">library</span>(NULISAseqR)</span>
+<span id="cb2-2"><a href="index.html#cb2-2" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+</div>
+<div id="getting-help" class="section level2 unnumbered hasAnchor">
+<h2>Getting Help<a href="index.html#getting-help" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<ul>
+<li><strong>Function help</strong>: Type <code>?function_name</code> in the R console</li>
+<li><strong>GitHub Issues</strong>: <a href="https://github.com/Alamar-Biosciences/NULISAseqR/issues">Report bugs or request features</a></li>
+</ul>
+<hr>
+<p style="text-align: center; font-size: 0.9em; color: #666;">
+© 2025 Alamar Biosciences Bioinformatics Team<br>
+Generated with <a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank"><strong>NULISAseqR</strong></a> version 1.4.0<br>
+Last updated: November 07, 2025
+</p>
+<p style="text-align: center;">
+</p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+<a href="understanding-nulisaseq-data.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": false,
+    "twitter": false,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": {},
+    "google": false
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section",
+    "scroll_highlight": true
+  },
+  "toolbar": {
+    "position": "fixed"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

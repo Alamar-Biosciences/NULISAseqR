@@ -1,0 +1,269 @@
+# Functions are now in mergeNULISAseq.R
+# No need to source separately - they're part of the package
+
+test_that("prepare_sample_qc_for_long creates correct structure", {
+  # Create mock qcSample data
+  qc_sample <- data.frame(
+    sampleName = c("Sample_1", "Sample_1", "Sample_2", "Sample_2"),
+    plateID = c("Plate1", "Plate1", "Plate1", "Plate1"),
+    flagName = c("Detectability", "ICReads", "Detectability", "ICReads"),
+    val = c(0.95, 1200, 0.88, 1100),
+    status = c(FALSE, FALSE, FALSE, FALSE),
+    stringsAsFactors = FALSE
+  )
+
+  result <- prepare_sample_qc_for_long(qc_sample)
+
+  # Check structure
+  expect_true("SampleName" %in% names(result))
+  expect_true("PlateID" %in% names(result))
+  expect_true("Sample_QC_Status" %in% names(result))
+  expect_true("Sample_QC_Detectability" %in% names(result))
+  expect_true("Sample_QC_ICReads" %in% names(result))
+  expect_true("Sample_QC_Detectability_Status" %in% names(result))
+  expect_true("Sample_QC_ICReads_Status" %in% names(result))
+
+  # Check values
+  expect_equal(nrow(result), 2)  # Two unique samples
+  expect_equal(result$Sample_QC_Status, c("passed", "passed"))
+  expect_equal(result$Sample_QC_Detectability, c(0.95, 0.88))
+
+  # Check status columns are character labels (using "warning" not "failed")
+  expect_equal(result$Sample_QC_Detectability_Status, c("passed", "passed"))
+  expect_equal(result$Sample_QC_ICReads_Status, c("passed", "passed"))
+})
+
+test_that("prepare_sample_qc_for_long handles character status values", {
+  qc_sample <- data.frame(
+    sampleName = c("Sample_1", "Sample_1", "Sample_2", "Sample_2"),
+    plateID = c("Plate1", "Plate1", "Plate1", "Plate1"),
+    flagName = c("Detectability", "ICReads", "Detectability", "ICReads"),
+    val = c(0.95, 1200, 0.88, 1100),
+    status = c("OK", "OK", "TRUE", "OK"),  # Character status
+    stringsAsFactors = FALSE
+  )
+
+  result <- prepare_sample_qc_for_long(qc_sample)
+
+  expect_equal(nrow(result), 2)
+  expect_equal(result$Sample_QC_Status, c("passed", "warning"))  # Sample_2 has warning
+})
+
+test_that("prepare_sample_qc_for_long handles failed QC", {
+  qc_sample <- data.frame(
+    sampleName = c("Sample_1", "Sample_1"),
+    plateID = c("Plate1", "Plate1"),
+    flagName = c("Detectability", "ICReads"),
+    val = c(0.85, 800),
+    status = c(TRUE, FALSE),  # Detectability failed
+    stringsAsFactors = FALSE
+  )
+
+  result <- prepare_sample_qc_for_long(qc_sample)
+
+  expect_equal(result$Sample_QC_Status, "warning")  # Uses "warning" not "failed"
+})
+
+test_that("prepare_target_qc_for_long creates correct structure", {
+  # Create mock qcTarget data
+  qc_target <- data.frame(
+    target = c("Target_1", "Target_1", "Target_2", "Target_2"),
+    plateID = c("Plate1", "Plate1", "Plate1", "Plate1"),
+    flagName = c("Target_Conc_Accuracy", "Target_Conc_CV", "Target_Conc_Accuracy", "Target_Conc_CV"),
+    val = c(0.05, 0.12, -0.08, 0.25),
+    status = c(FALSE, FALSE, FALSE, FALSE),
+    stringsAsFactors = FALSE
+  )
+
+  result <- prepare_target_qc_for_long(qc_target)
+
+  # Check structure
+  expect_true("Target" %in% names(result))
+  expect_true("PlateID" %in% names(result))
+  expect_true("Target_QC_Status" %in% names(result))
+  expect_true("Target_QC_Conc_Accuracy" %in% names(result))
+  expect_true("Target_QC_Conc_CV" %in% names(result))
+
+  # Check values
+  expect_equal(nrow(result), 2)  # Two unique targets
+  expect_equal(result$Target_QC_Status, c("passed", "passed"))
+
+  # Check status columns are character labels
+  expect_equal(result$Target_QC_Conc_Accuracy_Status, c("passed", "passed"))
+  expect_equal(result$Target_QC_Conc_CV_Status, c("passed", "passed"))
+})
+
+test_that("prepare_target_qc_for_long uses warning for failed targets", {
+  # Create mock qcTarget data with one failure
+  qc_target <- data.frame(
+    target = c("Target_1", "Target_1"),
+    plateID = c("Plate1", "Plate1"),
+    flagName = c("Target_Conc_Accuracy", "Target_Conc_CV"),
+    val = c(0.05, 0.45),
+    status = c(FALSE, TRUE),  # CV failed
+    stringsAsFactors = FALSE
+  )
+
+  result <- prepare_target_qc_for_long(qc_target)
+
+  # Target QC uses "warning" not "failed"
+  expect_equal(result$Target_QC_Status, "warning")
+})
+
+test_that("format_wide_to_long_with_qc integrates QC columns", {
+  skip_if_not(requireNamespace("NULISAseqR", quietly = TRUE))
+  skip_if_not(rlang::is_function(get0("format_wide_to_long", envir = asNamespace("NULISAseqR"), inherits = FALSE)))
+
+  # Create minimal mock data object
+  mock_data <- list(
+    targets = data.frame(
+      plateID = c("Plate1", "Plate1"),
+      targetName = c("Target_1", "Target_2"),
+      logged_LOD = c(5.0, 5.5),
+      stringsAsFactors = FALSE
+    ),
+    samples = data.frame(
+      plateID = c("Plate1", "Plate1"),
+      sampleName = c("Sample_1", "Sample_2"),
+      sampleType = c("Sample", "Sample"),
+      stringsAsFactors = FALSE
+    ),
+    Data_NPQ = matrix(
+      c(6.0, 6.5, 7.0, 7.5),
+      nrow = 2,
+      dimnames = list(c("Target_1", "Target_2"), c("Sample_1", "Sample_2"))
+    ),
+    Data_raw = matrix(
+      c(100, 120, 150, 180),
+      nrow = 2,
+      dimnames = list(c("Target_1", "Target_2"), c("Sample_1", "Sample_2"))
+    ),
+    ExecutionDetails = list(
+      Plate1 = list(
+        Assay = "Test Panel",
+        TargetKitLotNumber = "LOT123",
+        InstrumentSerial = "INST001"
+      )
+    ),
+    qcSample = data.frame(
+      sampleName = c("Sample_1", "Sample_1", "Sample_2", "Sample_2"),
+      plateID = c("Plate1", "Plate1", "Plate1", "Plate1"),
+      flagName = c("Detectability", "ICReads", "Detectability", "ICReads"),
+      val = c(0.95, 1200, 0.88, 1100),
+      status = c(FALSE, FALSE, FALSE, FALSE),
+      stringsAsFactors = FALSE
+    ),
+    qcTarget = data.frame(
+      target = c("Target_1", "Target_1", "Target_2", "Target_2"),
+      plateID = c("Plate1", "Plate1", "Plate1", "Plate1"),
+      flagName = c("Metric1", "Metric2", "Metric1", "Metric2"),
+      val = c(0.05, 0.12, -0.08, 0.25),
+      status = c(FALSE, FALSE, FALSE, FALSE),
+      stringsAsFactors = FALSE
+    ),
+    plateID = "Plate1"
+  )
+
+  result <- format_wide_to_long_with_qc(mock_data, AQ = FALSE, include_qc = TRUE)
+
+  # Check that result has QC columns
+  expect_true("Sample_QC_Status" %in% names(result))
+  expect_true("Target_QC_Status" %in% names(result))
+  expect_true("Sample_QC_Detectability" %in% names(result))
+  expect_true("Target_QC_Metric1" %in% names(result))
+
+  # Should have 4 rows (2 targets × 2 samples)
+  expect_equal(nrow(result), 4)
+
+  # All samples should have passed QC
+  expect_true(all(result$Sample_QC_Status == "passed"))
+  # All targets should have passed QC
+  expect_true(all(result$Target_QC_Status == "passed"))
+})
+
+test_that("format_wide_to_long_with_qc works without QC data", {
+  skip_if_not(requireNamespace("NULISAseqR", quietly = TRUE))
+  skip_if_not(rlang::is_function(get0("format_wide_to_long", envir = asNamespace("NULISAseqR"), inherits = FALSE)))
+
+  # Create minimal mock data without QC
+  mock_data <- list(
+    targets = data.frame(
+      plateID = c("Plate1"),
+      targetName = c("Target_1"),
+      logged_LOD = c(5.0),
+      stringsAsFactors = FALSE
+    ),
+    samples = data.frame(
+      plateID = c("Plate1"),
+      sampleName = c("Sample_1"),
+      sampleType = c("Sample"),
+      stringsAsFactors = FALSE
+    ),
+    Data_NPQ = matrix(
+      c(6.0),
+      nrow = 1,
+      dimnames = list(c("Target_1"), c("Sample_1"))
+    ),
+    Data_raw = matrix(
+      c(100),
+      nrow = 1,
+      dimnames = list(c("Target_1"), c("Sample_1"))
+    ),
+    ExecutionDetails = list(
+      Plate1 = list(Assay = "Test Panel")
+    ),
+    plateID = "Plate1"
+  )
+
+  # Should not error when QC data is missing
+  result <- format_wide_to_long_with_qc(mock_data, AQ = FALSE, include_qc = TRUE)
+
+  expect_equal(nrow(result), 1)
+  expect_false("Sample_QC_Status" %in% names(result))
+  expect_false("Target_QC_Status" %in% names(result))
+})
+
+test_that("reorder_long_format_columns puts QC columns in correct position", {
+  # Create mock long data with QC columns
+  mock_long <- data.frame(
+    Covariate1 = c(1, 2),
+    Target = c("T1", "T2"),
+    Sample_QC_Status = c("passed", "passed"),
+    NPQ = c(5.0, 6.0),
+    PlateID = c("P1", "P1"),
+    Target_QC_Metric1 = c(0.1, 0.2),
+    SampleName = c("S1", "S2"),
+    Sample_QC_Detectability = c(0.95, 0.88),
+    Target_QC_Status = c("passed", "passed"),
+    Panel = c("Panel1", "Panel1"),
+    stringsAsFactors = FALSE
+  )
+
+  result <- reorder_long_format_columns(mock_long, AQ = FALSE)
+
+  col_names <- names(result)
+
+  # Check that base columns come first
+  expect_true(which(col_names == "Panel") < which(col_names == "Target"))
+  expect_true(which(col_names == "PlateID") < which(col_names == "SampleName"))
+
+  # Check that identifiers come before values
+  expect_true(which(col_names == "Target") < which(col_names == "NPQ"))
+
+  # Check that values come before QC status
+  expect_true(which(col_names == "NPQ") < which(col_names == "Sample_QC_Status"))
+
+  # Check that Sample QC status comes before Sample QC details
+  expect_true(which(col_names == "Sample_QC_Status") < which(col_names == "Sample_QC_Detectability"))
+
+  # Check that Sample QC comes before Target QC
+  expect_true(which(col_names == "Sample_QC_Detectability") < which(col_names == "Target_QC_Status"))
+
+  # Check that Target QC status comes right before Target QC details
+  expect_true(which(col_names == "Target_QC_Status") < which(col_names == "Target_QC_Metric1"))
+  expect_equal(which(col_names == "Target_QC_Status") + 1, which(col_names == "Target_QC_Metric1"))
+
+  # Check that covariates come last
+  expect_true(which(col_names == "Covariate1") == length(col_names))
+})
+

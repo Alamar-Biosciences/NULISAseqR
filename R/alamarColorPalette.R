@@ -1,11 +1,12 @@
 
 #' Make color palette based on Alamar colors
 #'
-#'@param n number of main colors to output. For `palette=1`, maximum is 13 
-#' when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`. For `palette=2`, 
+#'@param n number of main colors to output. For `palette=1`, maximum is 13
+#' when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`. For `palette=2`,
 #' maximum is 9 when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`
+#' If n exceeds the maximum colors available, `interpolate=TRUE` will be turned on.
 #'@param nReps optional, number of sub-colors to output 
-#' for each of the main colors. Useful for when there are technical replicates.
+#' for each of the main colors. Useful for when there are technical replicates, for example.
 #' Function will output n*nReps total colors.
 #' @param tint optional, used when sub-colors are created.
 #' `"light"` blends main colors with white.
@@ -17,9 +18,10 @@
 #' argument.
 #' @param interpolateIndex indices of colors to interpolate. For `palette=1`, 
 #' default is 1:5. For `palette=2`, default is `c(1,2,4,3,5,6)`.
-#' @param palette Which set of colors to use. Integer. `"palette=1"` (default) 
+#' @param palette Which set of colors to use. Integer. `palette=1` (default) 
 #' is based on the original website color palette. `palette=2` is the new 
-#' palette used in the NULISA manuscript.
+#' palette used in the NULISA manuscript. `palette=3` is the updated palette
+#' as of 2024 and 2025. 
 #'
 #' @return A vector or list of vectors of colors in hex format
 #'
@@ -46,7 +48,8 @@ alamarColorPalette <- function(n,
                                palette=1){
   if (palette==1){
     if (n > 13 & interpolate==FALSE){
-      stop('number of colors cannot exceed 13 unless interpolate==TRUE')
+      interpolate <- TRUE
+      warning('NOTE: interpolate was set to TRUE because number of colors exceeded the maximum of 13 available.')
     }
     allColors <- c('#FFBD03', # yellow  
                    '#00C28C', # light green 
@@ -64,7 +67,8 @@ alamarColorPalette <- function(n,
     if(is.null(interpolateIndex)) interpolateIndex <- 1:5
   } else if (palette==2){
     if (n > 9 & interpolate==FALSE){
-      stop('number of colors cannot exceed 9 unless interpolate==TRUE')
+      interpolate <- TRUE
+      warning('NOTE: interpolate was set to TRUE because number of colors exceeded the maximum of 9 available.')
     }
     allColors <- c('#005292', # blue (secondary color)
                    '#C91846', # red (secondary color)
@@ -76,6 +80,21 @@ alamarColorPalette <- function(n,
                    '#5A595C', # medium grey (text color)
                    '#BABCBE') # light grey (text color)
     if(is.null(interpolateIndex)) interpolateIndex <- c(1,2,4,3,5,6)
+  } else if (palette==3){
+    if (n > 9 & interpolate==FALSE){
+      interpolate <- TRUE
+      warning('NOTE: interpolate was set to TRUE because number of colors exceeded the maximum of 9 available.')
+    }
+    allColors <- c('#FFCE00', # gold
+                   '#1C3775', # dark blue
+                   '#407EC9', # blue
+                   '#C0DF16', # lime
+                   '#FE5000', # orange
+                   '#C3D7EE', # light blue
+                   '#232323', # dark grey (text color)
+                   '#5A595C', # medium grey (text color)
+                   '#BABCBE') # light grey (text color)
+    if(is.null(interpolateIndex)) interpolateIndex <- c(1,2,3,4,5,6)
   }
   if (interpolate==FALSE){
     mainColors <- allColors[1:n]

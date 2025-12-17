@@ -1,0 +1,150 @@
+url: https://vignettes.nulisaseqr.alamarbio.com/reference
+
+template:
+  bootstrap: 3
+  bootswatch: null
+
+home:
+  title: NULISAseqR - Analysis of NULISAseq Proteomic Data
+  description: >
+    R package for comprehensive analysis of NULISAseq proteomic data including
+    data import, normalization, quality control, statistical analysis, and visualization.
+  links:
+  - text: User Guide
+    href: https://vignettes.nulisaseqr.alamarbio.com/
+
+navbar:
+  structure:
+    left:  [articles, reference, news]
+    right: [github]
+  components:
+    articles:
+      text: User Guide
+      href: https://vignettes.nulisaseqr.alamarbio.com/
+    reference:
+      text: Reference
+      href: reference/index.html
+    news:
+      text: News
+      href: news/index.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/Alamar-Biosciences/NULISAseqR
+
+# Skip building articles/vignettes (they're built separately)
+build:
+  articles: false
+
+reference:
+  - title: Data Import & Loading
+    desc: >
+      Functions to load NULISAseq XML files and sample metadata
+    contents:
+    - importNULISAseq
+    - loadNULISAseq
+    - readNULISAseq
+    - readCovariates
+    - readCovariateFile
+
+  - title: Data Normalization
+    desc: >
+      Normalize proteomic data using internal controls (IC) and inter-plate controls (IPC)
+    contents:
+    - intraPlateNorm
+    - interPlateNorm
+    - intraCV
+    - interCV
+
+  - title: Quality Control
+    desc: >
+      Quality control criteria, flagging, and reporting functions
+    contents:
+    - render_QC_report
+    - QCSampleCriteria
+    - QCPlateCriteria
+    - QCTargetCriteria
+    - QCFlagSample
+    - QCFlagPlate
+    - QCFlagTarget
+    - sampleQCplot
+    - targetQCplot
+    - QCplateHeatmap
+    - plateSummary
+
+  - title: Protein Metrics
+    desc: >
+      Calculate protein detection rates, quantification metrics, and quality measures
+    contents:
+    - detectability
+    - detectability_summary
+    - quantifiability
+    - lod
+    - CV_AQ
+    - CV_AQ_Hist
+
+  - title: Statistical Analysis
+    desc: >
+      Differential expression testing and predictive modeling functions
+    contents:
+    - lmNULISAseq
+    - lmerNULISAseq
+    - lmNULISAseq_predict
+    - lmerNULISAseq_predict
+    - glmNULISAseq_predict
+    - glmerNULISAseq_predict
+    - permutation_anova
+
+  - title: Visualization
+    desc: >
+      Create plots for exploratory analysis and publication-quality figures
+    contents:
+    - volcanoPlot
+    - sampleBoxplot
+    - targetBoxplot
+    - generate_heatmap
+    - generate_pca
+    - plateHeatmap
+    - plot_plateLayout
+    - spaghetti_plot
+    - quantHist
+
+  - title: Data Export
+    desc: >
+      Write NULISAseq data and QC information to files
+    contents:
+    - writeNULISAseq
+    - writeUpdatedXML
+    - QC2XML
+
+  - title: XML Processing Utilities
+    desc: >
+      Low-level functions for XML file manipulation
+    contents:
+    - getXMLVersion
+    - insertCovariatesXML
+    - readQCXMLNode
+    - readQCThresholdXMLNode
+    - readXML_remove_duplicate_attributes
+    - removeBarcodeAndSamples
+    - splitXML
+
+  - title: Helper Functions
+    desc: >
+      Utility functions for data processing and visualization
+    contents:
+    - alamarColorPalette
+    - calcSampleTargetNAs
+    - column_summary_stats
+    - fill_predictors
+    - numSCs
+    - outliers_mad
+    - renameDuplicateNames
+    - renameSC
+    - safe_extract_matrix
+    - typeSummary
+
+  - title: Package Documentation
+    desc: >
+      Package-level documentation
+    contents:
+    - NULISAseqR

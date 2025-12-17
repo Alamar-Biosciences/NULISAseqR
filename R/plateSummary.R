@@ -187,7 +187,7 @@ plateSummary <- function(plate_data, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, Br
   ##############################
   # ICs
   ############
-  ICinds <- if(!is.null(ICs)) ICs else which(plate_data$targets$targetType == "Control")
+  ICinds <- if(!is.null(ICs)) ICs else intersect(which(tolower(plate_data$targets$targetType) == tolower("Control")), which(!plate_data$targets$hide))
   if (length(ICinds) > 0){
     IC_data <- plate_data$Data[ICinds,, drop=F]
     IC_totals <- rowSums(IC_data, na.rm=TRUE)

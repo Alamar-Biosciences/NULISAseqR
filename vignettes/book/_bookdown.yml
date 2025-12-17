@@ -1,0 +1,17 @@
+book_filename: "NULISAseqR-guide"
+language:
+  ui:
+    chapter_name: "Chapter "
+delete_merged_file: true
+
+rmd_files:
+  - "index.Rmd"
+  - "00-understanding-nulisaseq-data.Rmd"
+  - "01-data-import.Rmd"
+  - "02-quality-control.Rmd"
+  - "03-visualization.Rmd"
+  - "04-differential-expression.Rmd"
+  - "05-longitudinal_analysis.Rmd"
+  - "06-outcome-modeling.Rmd"
+  - "07-case-study-example-1.Rmd"
+  - "99-additional-resources.Rmd"

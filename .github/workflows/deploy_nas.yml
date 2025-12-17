@@ -1,0 +1,128 @@
+name: Deploy NAS
+
+on:
+  pull_request:
+    types: closed
+    branches:
+      - 'main'
+      - 'RC*'
+      - '1.*'
+      - '2.*'
+      - '3.*'
+      # Pattern is version-flexible: add new major versions as needed
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Target NAS branch to deploy (defaults to PR base branch or current branch)'
+        required: false
+        type: string
+
+jobs:
+  deploy-nas:
+    # Trigger conditions:
+    # 1. PR merged with "deploy nas" in title OR "Deploy NAS" label
+    # 2. Manual workflow dispatch
+    if: |
+      (github.event.pull_request.merged == true &&
+       (contains(github.event.pull_request.title, 'deploy nas') ||
+        contains(github.event.pull_request.labels.*.name, 'Deploy NAS'))) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine deployment parameters
+        id: deployment_params
+        env:
+          GH_TOKEN: ${{ secrets.UTILITY_ACCESS_TOKEN }}
+        run: |
+          # Determine target branch
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # Manual trigger: use input or current branch
+            TARGET_BRANCH="${{ inputs.target_branch }}"
+            if [ -z "$TARGET_BRANCH" ]; then
+              TARGET_BRANCH="${{ github.ref_name }}"
+            fi
+          else
+            # PR trigger: use base branch
+            TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
+          fi
+
+          # Validate that target branch exists in NAS repository (version-agnostic)
+          echo "Validating target branch '$TARGET_BRANCH' exists in NAS repository..."
+          if ! gh api repos/Alamar-Biosciences/NULISA-Analysis-Software/branches/"$TARGET_BRANCH" > /dev/null 2>&1; then
+            echo "❌ Error: Branch '$TARGET_BRANCH' does not exist in NULISA-Analysis-Software repository"
+            echo ""
+            echo "Available branches can be viewed at:"
+            echo "  https://github.com/Alamar-Biosciences/NULISA-Analysis-Software/branches"
+            exit 1
+          fi
+          echo "✓ Branch '$TARGET_BRANCH' exists in NAS repository"
+
+          echo "target_branch=${TARGET_BRANCH}" >> $GITHUB_OUTPUT
+
+          # Determine workflow file based on branch
+          if [ "$TARGET_BRANCH" == "main" ]; then
+            WORKFLOW_FILE="deploy_prod.yml"
+          else
+            WORKFLOW_FILE="deploy_dev.yml"
+          fi
+          echo "workflow_file=${WORKFLOW_FILE}" >> $GITHUB_OUTPUT
+
+          # Generate cache-bust value
+          # For PR: use merge commit SHA (ensures NAS pulls this specific version)
+          # For manual: use current commit SHA
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            CACHE_BUST="${{ github.event.pull_request.merge_commit_sha }}"
+          else
+            CACHE_BUST="${{ github.sha }}"
+          fi
+          echo "cache_bust=${CACHE_BUST}" >> $GITHUB_OUTPUT
+
+      - name: Display deployment details
+        run: |
+          echo "Deploying NULISA Analysis Software (NAS)"
+          echo "========================================"
+          echo "Trigger: ${{ github.event_name }}"
+          echo "Source repo: ${{ github.repository }}"
+          echo "Source branch: ${{ github.ref_name }}"
+          echo "Target NAS branch: ${{ steps.deployment_params.outputs.target_branch }}"
+          echo "Workflow file: ${{ steps.deployment_params.outputs.workflow_file }}"
+          echo "Cache bust value: ${{ steps.deployment_params.outputs.cache_bust }}"
+          echo ""
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
+            echo "Merged by: ${{ github.event.pull_request.merged_by.login }}"
+          fi
+
+      - name: Trigger NAS deployment
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: Alamar-Biosciences
+          repo: NULISA-Analysis-Software
+          github_token: ${{ secrets.UTILITY_ACCESS_TOKEN }}
+          ref: ${{ steps.deployment_params.outputs.target_branch }}
+          workflow_file_name: ${{ steps.deployment_params.outputs.workflow_file }}
+          workflow_inputs: |
+            {
+              "cache-bust": "${{ steps.deployment_params.outputs.cache_bust }}"
+            }
+          wait_workflow: true
+          propagate_failure: true
+          trigger_workflow: true
+          wait_interval: 30
+
+      - name: Deployment result
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ NAS deployment completed successfully"
+            echo "Package version: ${{ github.repository }}@${{ steps.deployment_params.outputs.target_branch }}"
+            echo "Cache bust: ${{ steps.deployment_params.outputs.cache_bust }}"
+          else
+            echo "❌ NAS deployment failed"
+            echo "Check NAS workflow logs: https://github.com/Alamar-Biosciences/NULISA-Analysis-Software/actions"
+          fi

@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 7 Complete Workflow: Identifying Proteomic Signatures in Lupus and Rheumatoid Arthritis | NULISAseqR User Guide</title>
+  <meta name="description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="generator" content="bookdown 0.45 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 7 Complete Workflow: Identifying Proteomic Signatures in Lupus and Rheumatoid Arthritis | NULISAseqR User Guide" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="github-repo" content="Alamar-Biosciences/NULISAseqR" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 7 Complete Workflow: Identifying Proteomic Signatures in Lupus and Rheumatoid Arthritis | NULISAseqR User Guide" />
+  
+  <meta name="twitter:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="predictive-modeling.html"/>
+<link rel="next" href="additional-resources.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.34.0/datatables.js"></script>
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li style="text-align: center; padding: 20px;">
+  <a href="https://www.alamarbio.com" target="_blank">
+    <img src="figures/alamar_logo.png" style="height:70px;">
+  </a>
+</li>
+<li><a href="./">NULISAseqR User Guide</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#what-is-nulisaseqr"><i class="fa fa-check"></i>What is NULISAseqR?</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#installation"><i class="fa fa-check"></i>Installation</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#getting-help"><i class="fa fa-check"></i>Getting Help</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html"><i class="fa fa-check"></i>Understanding NULISAseq Data</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#what-is-nulisa-technology"><i class="fa fa-check"></i>What is NULISA™ Technology?</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#technical-workflow"><i class="fa fa-check"></i>Technical Workflow</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#learn-more-about-nulisa-technology"><i class="fa fa-check"></i>Learn More About NULISA™ Technology</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#available-nulisaseq-panels"><i class="fa fa-check"></i>Available NULISAseq Panels</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-normalization"><i class="fa fa-check"></i>Data Normalization</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#raw-data-sequencing-counts"><i class="fa fa-check"></i>Raw Data: Sequencing Counts</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-1-internal-control-ic-normalization"><i class="fa fa-check"></i>Step 1: Internal Control (IC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-2-inter-plate-control-ipc-normalization"><i class="fa fa-check"></i>Step 2: Inter-Plate Control (IPC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-3-log2-transformation"><i class="fa fa-check"></i>Step 3: Log2 Transformation</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#why-log-transform"><i class="fa fa-check"></i>Why Log Transform?</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#npq-vs-fold-change"><i class="fa fa-check"></i>NPQ vs Fold Change</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#understanding-the-relationship"><i class="fa fa-check"></i>Understanding the Relationship</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#working-with-npq-values"><i class="fa fa-check"></i>Working with NPQ Values</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-from-npq"><i class="fa fa-check"></i>Calculating Fold Changes from NPQ</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#comparing-across-targets"><i class="fa fa-check"></i>Comparing Across Targets</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-analysis-faq"><i class="fa fa-check"></i>Data Analysis FAQ</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-is-the-limit-of-detection-lod-defined-for-nulisaseq-why-do-some-targets-have-lod-of-0"><i class="fa fa-check"></i>1. How is the limit of detection (LOD) defined for NULISAseq? <br> Why do some targets have LOD of 0?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#should-i-exclude-samples-below-lod"><i class="fa fa-check"></i>2. Should I exclude samples below LOD?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-i-calculate-coefficient-of-variation-cv-for-samples"><i class="fa fa-check"></i>3. How do I calculate coefficient of variation (CV) for samples?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#can-i-compare-data-across-different-runs"><i class="fa fa-check"></i>4. Can I compare data across different runs?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-you-assess-correlation-between-npq-and-absolute-quantification-data-from-other-platforms"><i class="fa fa-check"></i>5. How do you assess correlation between NPQ and absolute quantification data from other platforms?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="data-import.html"><a href="data-import.html"><i class="fa fa-check"></i><b>1</b> Data Import</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="data-import.html"><a href="data-import.html#the-importnulisaseq-function"><i class="fa fa-check"></i><b>1.1</b> The <code>importNULISAseq()</code> Function</a></li>
+<li class="chapter" data-level="1.2" data-path="data-import.html"><a href="data-import.html#understanding-the-data-structure"><i class="fa fa-check"></i><b>1.2</b> Understanding the Data Structure</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="data-import.html"><a href="data-import.html#key-components"><i class="fa fa-check"></i><b>1.2.1</b> Key Components</a></li>
+<li class="chapter" data-level="1.2.2" data-path="data-import.html"><a href="data-import.html#summary-statistics"><i class="fa fa-check"></i><b>1.2.2</b> Summary Statistics</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="data-import.html"><a href="data-import.html#working-with-your-own-data"><i class="fa fa-check"></i><b>1.3</b> Working with Your Own Data</a></li>
+<li class="chapter" data-level="1.4" data-path="data-import.html"><a href="data-import.html#loading-metadata"><i class="fa fa-check"></i><b>1.4</b> Loading Metadata</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="data-import.html"><a href="data-import.html#metadata-structure"><i class="fa fa-check"></i><b>1.4.1</b> Metadata Structure</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="data-import.html"><a href="data-import.html#merging-data-with-metadata"><i class="fa fa-check"></i><b>1.5</b> Merging Data with Metadata</a></li>
+<li class="chapter" data-level="1.6" data-path="data-import.html"><a href="data-import.html#filtering-samples"><i class="fa fa-check"></i><b>1.6</b> Filtering Samples</a></li>
+<li class="chapter" data-level="1.7" data-path="data-import.html"><a href="data-import.html#complete-import-workflow"><i class="fa fa-check"></i><b>1.7</b> Complete Import Workflow</a></li>
+<li class="chapter" data-level="1.8" data-path="data-import.html"><a href="data-import.html#tips-and-best-practices"><i class="fa fa-check"></i><b>1.8</b> Tips and Best Practices</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="quality-control.html"><a href="quality-control.html"><i class="fa fa-check"></i><b>2</b> Quality Control</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="quality-control.html"><a href="quality-control.html#why-quality-control-matters"><i class="fa fa-check"></i><b>2.1</b> Why Quality Control Matters</a></li>
+<li class="chapter" data-level="2.2" data-path="quality-control.html"><a href="quality-control.html#qc-report"><i class="fa fa-check"></i><b>2.2</b> Automated QC Report</a></li>
+<li class="chapter" data-level="2.3" data-path="quality-control.html"><a href="quality-control.html#qc-report-structure"><i class="fa fa-check"></i><b>2.3</b> QC Report Structure</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="quality-control.html"><a href="quality-control.html#plate-layout"><i class="fa fa-check"></i><b>2.3.1</b> Plate Layout</a></li>
+<li class="chapter" data-level="2.3.2" data-path="quality-control.html"><a href="quality-control.html#run-summary"><i class="fa fa-check"></i><b>2.3.2</b> Run Summary</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#quality-control-metrics"><i class="fa fa-check"></i>Quality Control Metrics</a></li>
+<li class="chapter" data-level="2.3.3" data-path="quality-control.html"><a href="quality-control.html#platerun-qc"><i class="fa fa-check"></i><b>2.3.3</b> Plate/Run QC</a></li>
+<li class="chapter" data-level="2.3.4" data-path="quality-control.html"><a href="quality-control.html#sample-qc"><i class="fa fa-check"></i><b>2.3.4</b> Sample QC</a></li>
+<li class="chapter" data-level="2.3.5" data-path="quality-control.html"><a href="quality-control.html#target-qc"><i class="fa fa-check"></i><b>2.3.5</b> Target QC</a></li>
+<li class="chapter" data-level="2.3.6" data-path="quality-control.html"><a href="quality-control.html#coefficient-of-variation-cv"><i class="fa fa-check"></i><b>2.3.6</b> Coefficient of Variation (CV)</a></li>
+<li class="chapter" data-level="2.3.7" data-path="quality-control.html"><a href="quality-control.html#plate-effect-assessment"><i class="fa fa-check"></i><b>2.3.7</b> Plate Effect Assessment</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="quality-control.html"><a href="quality-control.html#qc-thresholds-summary"><i class="fa fa-check"></i><b>2.4</b> Summary of QC Thresholds</a></li>
+<li class="chapter" data-level="2.5" data-path="quality-control.html"><a href="quality-control.html#manual-qc-checks"><i class="fa fa-check"></i><b>2.5</b> Manual QC Checks</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="quality-control.html"><a href="quality-control.html#check-for-missing-data"><i class="fa fa-check"></i><b>2.5.1</b> Check for Missing Data</a></li>
+<li class="chapter" data-level="2.5.2" data-path="quality-control.html"><a href="quality-control.html#low-detectability-targets"><i class="fa fa-check"></i><b>2.5.2</b> Low Detectability Targets</a></li>
+<li class="chapter" data-level="2.5.3" data-path="quality-control.html"><a href="quality-control.html#calculate-targets-detectability-by-subgroups"><i class="fa fa-check"></i><b>2.5.3</b> Calculate Targets Detectability by Subgroups</a></li>
+<li class="chapter" data-level="2.5.4" data-path="quality-control.html"><a href="quality-control.html#batch-effect-correction"><i class="fa fa-check"></i><b>2.5.4</b> Batch Effect Correction</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="quality-control.html"><a href="quality-control.html#qc-best-practices"><i class="fa fa-check"></i><b>2.6</b> Best Practices</a>
+<ul>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#documentation"><i class="fa fa-check"></i>Documentation</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#consistency"><i class="fa fa-check"></i>Consistency</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#collaboration"><i class="fa fa-check"></i>Collaboration</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#when-in-doubt"><i class="fa fa-check"></i>When in Doubt</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="quality-control.html"><a href="quality-control.html#complete-qc-workflow"><i class="fa fa-check"></i><b>2.7</b> Complete QC Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="visualization.html"><a href="visualization.html"><i class="fa fa-check"></i><b>3</b> Visualization</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="visualization.html"><a href="visualization.html#why-visualize"><i class="fa fa-check"></i><b>3.1</b> Why Visualize?</a></li>
+<li class="chapter" data-level="3.2" data-path="visualization.html"><a href="visualization.html#heatmaps"><i class="fa fa-check"></i><b>3.2</b> Heatmaps</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="visualization.html"><a href="visualization.html#basic-heatmap"><i class="fa fa-check"></i><b>3.2.1</b> Basic Heatmap</a></li>
+<li class="chapter" data-level="3.2.2" data-path="visualization.html"><a href="visualization.html#heatmap-with-annotations"><i class="fa fa-check"></i><b>3.2.2</b> Heatmap with Annotations</a></li>
+<li class="chapter" data-level="3.2.3" data-path="visualization.html"><a href="visualization.html#understanding-the-heatmap"><i class="fa fa-check"></i><b>3.2.3</b> Understanding the Heatmap</a></li>
+<li class="chapter" data-level="3.2.4" data-path="visualization.html"><a href="visualization.html#interpreting-clusters"><i class="fa fa-check"></i><b>3.2.4</b> Interpreting Clusters</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="visualization.html"><a href="visualization.html#principal-component-analysis-pca"><i class="fa fa-check"></i><b>3.3</b> Principal Component Analysis (PCA)</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="visualization.html"><a href="visualization.html#pca-with-multiple-visual-encodings"><i class="fa fa-check"></i><b>3.3.1</b> PCA with Multiple Visual Encodings</a></li>
+<li class="chapter" data-level="3.3.2" data-path="visualization.html"><a href="visualization.html#understanding-pca-plots"><i class="fa fa-check"></i><b>3.3.2</b> Understanding PCA Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="visualization.html"><a href="visualization.html#custom-visualizations-with-ggplot2"><i class="fa fa-check"></i><b>3.4</b> Custom Visualizations with <code>ggplot2</code></a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="visualization.html"><a href="visualization.html#npq-distribution---histogram"><i class="fa fa-check"></i><b>3.4.1</b> NPQ Distribution - Histogram</a></li>
+<li class="chapter" data-level="3.4.2" data-path="visualization.html"><a href="visualization.html#npq-distribution-by-group---density-plot"><i class="fa fa-check"></i><b>3.4.2</b> NPQ Distribution by Group - Density Plot</a></li>
+<li class="chapter" data-level="3.4.3" data-path="visualization.html"><a href="visualization.html#single-protein-across-groups"><i class="fa fa-check"></i><b>3.4.3</b> Single Protein Across Groups</a></li>
+<li class="chapter" data-level="3.4.4" data-path="visualization.html"><a href="visualization.html#multiple-proteins-across-groups"><i class="fa fa-check"></i><b>3.4.4</b> Multiple Proteins Across Groups</a></li>
+<li class="chapter" data-level="3.4.5" data-path="visualization.html"><a href="visualization.html#protein-protein-correlation"><i class="fa fa-check"></i><b>3.4.5</b> Protein-Protein Correlation</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="visualization.html"><a href="visualization.html#saving-plots"><i class="fa fa-check"></i><b>3.5</b> Saving Plots</a>
+<ul>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-heatmap"><i class="fa fa-check"></i>Save Heatmap</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-pca"><i class="fa fa-check"></i>Save PCA</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-ggplot-objects"><i class="fa fa-check"></i>Save ggplot Objects</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="visualization.html"><a href="visualization.html#visualization-best-practices"><i class="fa fa-check"></i><b>3.6</b> Visualization Best Practices</a></li>
+<li class="chapter" data-level="3.7" data-path="visualization.html"><a href="visualization.html#complete-visualization-workflow"><i class="fa fa-check"></i><b>3.7</b> Complete Visualization Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html"><i class="fa fa-check"></i><b>4</b> Differential Expression Analysis</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#overview"><i class="fa fa-check"></i><b>4.1</b> Overview</a></li>
+<li class="chapter" data-level="4.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#basic-differential-expression"><i class="fa fa-check"></i><b>4.2</b> Basic Differential Expression</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#group-comparison"><i class="fa fa-check"></i><b>4.2.1</b> Group Comparison</a></li>
+<li class="chapter" data-level="4.2.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#understanding-the-model"><i class="fa fa-check"></i><b>4.2.2</b> Understanding the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#model-results"><i class="fa fa-check"></i><b>4.3</b> Model Results</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#key-columns-in-results"><i class="fa fa-check"></i><b>4.3.1</b> Key Columns in Results</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#finding-significant-proteins"><i class="fa fa-check"></i><b>4.4</b> Finding Significant Proteins</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#filter-by-fdr-threshold"><i class="fa fa-check"></i><b>4.4.1</b> Filter by FDR Threshold</a></li>
+<li class="chapter" data-level="4.4.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#upregulated-vs-downregulated"><i class="fa fa-check"></i><b>4.4.2</b> Upregulated vs Downregulated</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#volcano-plots"><i class="fa fa-check"></i><b>4.5</b> Volcano Plots</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#inflammation-vs-normal"><i class="fa fa-check"></i><b>4.5.1</b> Inflammation vs Normal</a></li>
+<li class="chapter" data-level="4.5.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#understanding-volcano-plots"><i class="fa fa-check"></i><b>4.5.2</b> Understanding Volcano Plots</a></li>
+<li class="chapter" data-level="4.5.3" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#cancer-vs-normal"><i class="fa fa-check"></i><b>4.5.3</b> Cancer vs Normal</a></li>
+<li class="chapter" data-level="4.5.4" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#saving-volcano-plots"><i class="fa fa-check"></i><b>4.5.4</b> Saving Volcano Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#visualization-of-significant-targets"><i class="fa fa-check"></i><b>4.6</b> Visualization of Significant Targets</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#inflammation-vs-normal-1"><i class="fa fa-check"></i><b>4.6.1</b> Inflammation vs Normal</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#multiple-comparisons"><i class="fa fa-check"></i><b>4.7</b> Multiple Comparisons</a></li>
+<li class="chapter" data-level="4.8" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#model-considerations"><i class="fa fa-check"></i><b>4.8</b> Model Considerations</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#reference-level"><i class="fa fa-check"></i><b>4.8.1</b> Reference Level</a></li>
+<li class="chapter" data-level="4.8.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#including-covariates"><i class="fa fa-check"></i><b>4.8.2</b> Including Covariates</a></li>
+<li class="chapter" data-level="4.8.3" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#model-formula-options"><i class="fa fa-check"></i><b>4.8.3</b> Model Formula Options</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#interpreting-results"><i class="fa fa-check"></i><b>4.9</b> Interpreting Results</a>
+<ul>
+<li class="chapter" data-level="4.9.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#effect-size-coefficient"><i class="fa fa-check"></i><b>4.9.1</b> Effect Size (Coefficient)</a></li>
+<li class="chapter" data-level="4.9.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#p-values"><i class="fa fa-check"></i><b>4.9.2</b> P-values</a></li>
+<li class="chapter" data-level="4.9.3" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#significance-thresholds"><i class="fa fa-check"></i><b>4.9.3</b> Significance Thresholds</a></li>
+</ul></li>
+<li class="chapter" data-level="4.10" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#exporting-results"><i class="fa fa-check"></i><b>4.10</b> Exporting Results</a>
+<ul>
+<li class="chapter" data-level="4.10.1" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#save-results-table"><i class="fa fa-check"></i><b>4.10.1</b> Save Results Table</a></li>
+<li class="chapter" data-level="4.10.2" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#create-summary-table"><i class="fa fa-check"></i><b>4.10.2</b> Create Summary Table</a></li>
+</ul></li>
+<li class="chapter" data-level="4.11" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#complete-differential-expression-workflow"><i class="fa fa-check"></i><b>4.11</b> Complete Differential Expression Workflow</a></li>
+<li class="chapter" data-level="4.12" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#best-practices"><i class="fa fa-check"></i><b>4.12</b> Best Practices</a></li>
+<li class="chapter" data-level="4.13" data-path="differential-expression-analysis.html"><a href="differential-expression-analysis.html#common-issues"><i class="fa fa-check"></i><b>4.13</b> Common Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html"><i class="fa fa-check"></i><b>5</b> Longitudinal Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overview-1"><i class="fa fa-check"></i><b>5.1</b> Overview</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="predictive-modeling.html"><a href="predictive-modeling.html"><i class="fa fa-check"></i><b>6</b> Predictive Modeling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#overview-2"><i class="fa fa-check"></i><b>6.1</b> Overview</a></li>
+<li class="chapter" data-level="6.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#continuous-outcomes"><i class="fa fa-check"></i><b>6.2</b> Continuous Outcomes</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#example-predicting-a-clinical-score"><i class="fa fa-check"></i><b>6.2.1</b> Example: Predicting a Clinical Score</a></li>
+<li class="chapter" data-level="6.2.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#understanding-the-model-1"><i class="fa fa-check"></i><b>6.2.2</b> Understanding the Model</a></li>
+<li class="chapter" data-level="6.2.3" data-path="predictive-modeling.html"><a href="predictive-modeling.html#examining-results"><i class="fa fa-check"></i><b>6.2.3</b> Examining Results</a></li>
+<li class="chapter" data-level="6.2.4" data-path="predictive-modeling.html"><a href="predictive-modeling.html#key-columns"><i class="fa fa-check"></i><b>6.2.4</b> Key Columns</a></li>
+<li class="chapter" data-level="6.2.5" data-path="predictive-modeling.html"><a href="predictive-modeling.html#finding-predictive-proteins"><i class="fa fa-check"></i><b>6.2.5</b> Finding Predictive Proteins</a></li>
+<li class="chapter" data-level="6.2.6" data-path="predictive-modeling.html"><a href="predictive-modeling.html#interpreting-coefficients"><i class="fa fa-check"></i><b>6.2.6</b> Interpreting Coefficients</a></li>
+<li class="chapter" data-level="6.2.7" data-path="predictive-modeling.html"><a href="predictive-modeling.html#visualizing-predictions"><i class="fa fa-check"></i><b>6.2.7</b> Visualizing Predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="predictive-modeling.html"><a href="predictive-modeling.html#binary-outcomes"><i class="fa fa-check"></i><b>6.3</b> Binary Outcomes</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#example-predicting-disease-status"><i class="fa fa-check"></i><b>6.3.1</b> Example: Predicting Disease Status</a></li>
+<li class="chapter" data-level="6.3.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#understanding-the-model-2"><i class="fa fa-check"></i><b>6.3.2</b> Understanding the Model</a></li>
+<li class="chapter" data-level="6.3.3" data-path="predictive-modeling.html"><a href="predictive-modeling.html#examining-results-1"><i class="fa fa-check"></i><b>6.3.3</b> Examining Results</a></li>
+<li class="chapter" data-level="6.3.4" data-path="predictive-modeling.html"><a href="predictive-modeling.html#key-columns-1"><i class="fa fa-check"></i><b>6.3.4</b> Key Columns</a></li>
+<li class="chapter" data-level="6.3.5" data-path="predictive-modeling.html"><a href="predictive-modeling.html#finding-predictive-proteins-1"><i class="fa fa-check"></i><b>6.3.5</b> Finding Predictive Proteins</a></li>
+<li class="chapter" data-level="6.3.6" data-path="predictive-modeling.html"><a href="predictive-modeling.html#interpreting-odds-ratios"><i class="fa fa-check"></i><b>6.3.6</b> Interpreting Odds Ratios</a></li>
+<li class="chapter" data-level="6.3.7" data-path="predictive-modeling.html"><a href="predictive-modeling.html#visualizing-binary-predictions"><i class="fa fa-check"></i><b>6.3.7</b> Visualizing Binary Predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="predictive-modeling.html"><a href="predictive-modeling.html#comparing-approaches"><i class="fa fa-check"></i><b>6.4</b> Comparing Approaches</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#when-to-use-each-function"><i class="fa fa-check"></i><b>6.4.1</b> When to Use Each Function</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="predictive-modeling.html"><a href="predictive-modeling.html#advanced-model-comparisons"><i class="fa fa-check"></i><b>6.5</b> Advanced: Model Comparisons</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#compare-model-performance"><i class="fa fa-check"></i><b>6.5.1</b> Compare Model Performance</a></li>
+<li class="chapter" data-level="6.5.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#multi-protein-models"><i class="fa fa-check"></i><b>6.5.2</b> Multi-protein Models</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="predictive-modeling.html"><a href="predictive-modeling.html#model-validation"><i class="fa fa-check"></i><b>6.6</b> Model Validation</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="predictive-modeling.html"><a href="predictive-modeling.html#cross-validation"><i class="fa fa-check"></i><b>6.6.1</b> Cross-Validation</a></li>
+<li class="chapter" data-level="6.6.2" data-path="predictive-modeling.html"><a href="predictive-modeling.html#test-set-validation"><i class="fa fa-check"></i><b>6.6.2</b> Test Set Validation</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="predictive-modeling.html"><a href="predictive-modeling.html#exporting-results-1"><i class="fa fa-check"></i><b>6.7</b> Exporting Results</a></li>
+<li class="chapter" data-level="6.8" data-path="predictive-modeling.html"><a href="predictive-modeling.html#complete-predictive-modeling-workflow"><i class="fa fa-check"></i><b>6.8</b> Complete Predictive Modeling Workflow</a></li>
+<li class="chapter" data-level="6.9" data-path="predictive-modeling.html"><a href="predictive-modeling.html#best-practices-1"><i class="fa fa-check"></i><b>6.9</b> Best Practices</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html"><i class="fa fa-check"></i><b>7</b> Complete Workflow: <br> Identifying Proteomic Signatures in Lupus and Rheumatoid Arthritis</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#overview-3"><i class="fa fa-check"></i><b>7.1</b> Overview</a></li>
+<li class="chapter" data-level="7.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#data-preparation"><i class="fa fa-check"></i><b>7.2</b> Data Preparation</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#load-required-libraries"><i class="fa fa-check"></i><b>7.2.1</b> Load Required Libraries</a></li>
+<li class="chapter" data-level="7.2.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#import-data"><i class="fa fa-check"></i><b>7.2.2</b> Import Data</a></li>
+<li class="chapter" data-level="7.2.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#prepare-sample-metadata"><i class="fa fa-check"></i><b>7.2.3</b> Prepare Sample Metadata</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#apply-detectability-threshold"><i class="fa fa-check"></i><b>7.3</b> Apply Detectability Threshold</a></li>
+<li class="chapter" data-level="7.4" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#global-data-visualization"><i class="fa fa-check"></i><b>7.4</b> Global Data Visualization</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#prepare-metadata-for-visualization"><i class="fa fa-check"></i><b>7.4.1</b> Prepare Metadata for Visualization</a></li>
+<li class="chapter" data-level="7.4.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#hierarchical-clustering-heatmap"><i class="fa fa-check"></i><b>7.4.2</b> Hierarchical Clustering Heatmap</a></li>
+<li class="chapter" data-level="7.4.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#principal-component-analysis"><i class="fa fa-check"></i><b>7.4.3</b> Principal Component Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#statistical-testing"><i class="fa fa-check"></i><b>7.5</b> Statistical Testing</a></li>
+<li class="chapter" data-level="7.6" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#systemic-lupus-erythematosus-sle-analysis"><i class="fa fa-check"></i><b>7.6</b> Systemic Lupus Erythematosus (SLE) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#background"><i class="fa fa-check"></i><b>7.6.1</b> Background</a></li>
+<li class="chapter" data-level="7.6.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#volcano-plot"><i class="fa fa-check"></i><b>7.6.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.6.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#visualizations"><i class="fa fa-check"></i><b>7.6.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.6.4" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#directional-analysis"><i class="fa fa-check"></i><b>7.6.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#rheumatoid-arthritis-ra-analysis"><i class="fa fa-check"></i><b>7.7</b> Rheumatoid Arthritis (RA) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.7.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#background-1"><i class="fa fa-check"></i><b>7.7.1</b> Background</a></li>
+<li class="chapter" data-level="7.7.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#volcano-plot-1"><i class="fa fa-check"></i><b>7.7.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.7.3" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#visualizations-1"><i class="fa fa-check"></i><b>7.7.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.7.4" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#directional-analysis-1"><i class="fa fa-check"></i><b>7.7.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.8" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#comparing-disease-signatures"><i class="fa fa-check"></i><b>7.8</b> Comparing Disease Signatures</a>
+<ul>
+<li class="chapter" data-level="7.8.1" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#overlap-analysis"><i class="fa fa-check"></i><b>7.8.1</b> Overlap Analysis</a></li>
+<li class="chapter" data-level="7.8.2" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#summary-statistics-table"><i class="fa fa-check"></i><b>7.8.2</b> Summary Statistics Table</a></li>
+</ul></li>
+<li class="chapter" data-level="7.9" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#next-steps"><i class="fa fa-check"></i><b>7.9</b> Next Steps</a></li>
+<li class="chapter" data-level="7.10" data-path="complete-workflow-1.html"><a href="complete-workflow-1.html#complete-workflow-example-code"><i class="fa fa-check"></i><b>7.10</b> Complete Workflow Example Code</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html"><i class="fa fa-check"></i>Additional Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisaseq-resources"><i class="fa fa-check"></i>NULISAseq Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#package-documentation"><i class="fa fa-check"></i>Package Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#github-repository"><i class="fa fa-check"></i>GitHub Repository</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#support-and-issues"><i class="fa fa-check"></i>Support and Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisa-analysis-software-nas"><i class="fa fa-check"></i>NULISA Analysis Software (NAS)</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#technical-documentation"><i class="fa fa-check"></i>Technical Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-resources"><i class="fa fa-check"></i>R Programming Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-install"><i class="fa fa-check"></i>Installing R and RStudio</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#tidyverse-resources"><i class="fa fa-check"></i>Tidyverse Resources</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#visualization-resources"><i class="fa fa-check"></i>Data Visualization Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#ggplot2"><i class="fa fa-check"></i>ggplot2</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#complexheatmap"><i class="fa fa-check"></i>ComplexHeatmap</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#pcatools"><i class="fa fa-check"></i>PCAtools</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citations"><i class="fa fa-check"></i>Citing This Book and Packages</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-this-book"><i class="fa fa-check"></i>Citing This Book</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-r-and-packages"><i class="fa fa-check"></i>Citing R and Packages</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#key-citations"><i class="fa fa-check"></i>Key Citations</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank">GitHub Repository</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">NULISAseqR User Guide</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="complete-workflow-1" class="section level1 hasAnchor" number="7">
+<h1><span class="header-section-number">Chapter 7</span> Complete Workflow: <br> Identifying Proteomic Signatures in Lupus and Rheumatoid Arthritis<a href="complete-workflow-1.html#complete-workflow-1" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="overview-3" class="section level2 hasAnchor" number="7.1">
+<h2><span class="header-section-number">7.1</span> Overview<a href="complete-workflow-1.html#overview-3" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Differential expression analysis is a critical component of proteomic studies, enabling researchers to identify proteins that are significantly expressex between experimental conditions. In this chapter, we demonstrate a complete differential expression workflow using the NULISAseq Inflammation Panel to compare inflammatory diseases against healthy controls.</p>
+<p>We’ll analyze a dataset containing samples from patients with:</p>
+<ul>
+<li><strong>Systemic Lupus Erythematosus (SLE)</strong>: An autoimmune disease where the immune system attacks its own tissues, causing widespread inflammation and tissue damage</li>
+<li><strong>Rheumatoid Arthritis (RA)</strong>: A chronic inflammatory disorder primarily affecting joints, but potentially involving other organ systems</li>
+<li><strong>Normal controls</strong>: Healthy individuals without inflammatory disease</li>
+</ul>
+<p>This workflow will cover data import, target detectability filtering, visualization of target expression, statistical testing, and interpretation of disease-specific protein signatures.</p>
+</div>
+<div id="data-preparation" class="section level2 hasAnchor" number="7.2">
+<h2><span class="header-section-number">7.2</span> Data Preparation<a href="complete-workflow-1.html#data-preparation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="load-required-libraries" class="section level3 hasAnchor" number="7.2.1">
+<h3><span class="header-section-number">7.2.1</span> Load Required Libraries<a href="complete-workflow-1.html#load-required-libraries" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb125-1"><a href="complete-workflow-1.html#cb125-1" tabindex="-1"></a><span class="fu">library</span>(NULISAseqR)</span>
+<span id="cb125-2"><a href="complete-workflow-1.html#cb125-2" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+</div>
+<div id="import-data" class="section level3 hasAnchor" number="7.2.2">
+<h3><span class="header-section-number">7.2.2</span> Import Data<a href="complete-workflow-1.html#import-data" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We begin by importing the NULISAseq data file:</p>
+<div class="sourceCode" id="cb126"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb126-1"><a href="complete-workflow-1.html#cb126-1" tabindex="-1"></a>data_dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="at">package =</span> <span class="st">&quot;NULISAseqR&quot;</span>)</span>
+<span id="cb126-2"><a href="complete-workflow-1.html#cb126-2" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">importNULISAseq</span>(<span class="at">files =</span> <span class="fu">file.path</span>(data_dir, <span class="st">&quot;Inflammation_250_RQ_demo_2025-05-20-Lab-A.xml&quot;</span>))</span></code></pre></div>
+<pre><code>#&gt; Using single IC to normalize data.</code></pre>
+</div>
+<div id="prepare-sample-metadata" class="section level3 hasAnchor" number="7.2.3">
+<h3><span class="header-section-number">7.2.3</span> Prepare Sample Metadata<a href="complete-workflow-1.html#prepare-sample-metadata" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Next, we extract and prepare the sample metadata, filtering for experimental samples and setting the reference level for the Disease variable:</p>
+<div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb128-1"><a href="complete-workflow-1.html#cb128-1" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>samples <span class="sc">%&gt;%</span> </span>
+<span id="cb128-2"><a href="complete-workflow-1.html#cb128-2" tabindex="-1"></a>  <span class="fu">filter</span>(sampleType <span class="sc">==</span> <span class="st">&quot;Sample&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb128-3"><a href="complete-workflow-1.html#cb128-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Disease =</span> <span class="fu">relevel</span>(Disease, <span class="at">ref =</span> <span class="st">&quot;normal&quot;</span>))</span>
+<span id="cb128-4"><a href="complete-workflow-1.html#cb128-4" tabindex="-1"></a></span>
+<span id="cb128-5"><a href="complete-workflow-1.html#cb128-5" tabindex="-1"></a><span class="co"># Display sample distribution</span></span>
+<span id="cb128-6"><a href="complete-workflow-1.html#cb128-6" tabindex="-1"></a><span class="fu">table</span>(metadata<span class="sc">$</span>Disease)</span></code></pre></div>
+<pre><code>#&gt; 
+#&gt;              normal            lupusSle rheumatoidArthritis 
+#&gt;                  19                  12                  12</code></pre>
+<p>The <code>relevel()</code> function is important here as it sets “normal” as the reference group for all subsequent statistical comparisons. This means our differential expression results will show changes in diseased samples relative to healthy controls.</p>
+</div>
+</div>
+<div id="apply-detectability-threshold" class="section level2 hasAnchor" number="7.3">
+<h2><span class="header-section-number">7.3</span> Apply Detectability Threshold<a href="complete-workflow-1.html#apply-detectability-threshold" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>To ensure robust statistical analysis, we filter proteins based on the detectability across samples. We use a 50% detectability threshold for plasma samples, meaning a target must be detected in at least 50% of samples to be included:</p>
+<div class="sourceCode" id="cb130"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb130-1"><a href="complete-workflow-1.html#cb130-1" tabindex="-1"></a>detectability_threshold <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb130-2"><a href="complete-workflow-1.html#cb130-2" tabindex="-1"></a>targets_passed <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>detectability <span class="sc">%&gt;%</span> </span>
+<span id="cb130-3"><a href="complete-workflow-1.html#cb130-3" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">plasma (n = 43)</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">50</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb130-4"><a href="complete-workflow-1.html#cb130-4" tabindex="-1"></a>  <span class="fu">pull</span>(Target)</span>
+<span id="cb130-5"><a href="complete-workflow-1.html#cb130-5" tabindex="-1"></a></span>
+<span id="cb130-6"><a href="complete-workflow-1.html#cb130-6" tabindex="-1"></a><span class="co"># Identify excluded targets</span></span>
+<span id="cb130-7"><a href="complete-workflow-1.html#cb130-7" tabindex="-1"></a>excluded_targets <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">rownames</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ), targets_passed)</span>
+<span id="cb130-8"><a href="complete-workflow-1.html#cb130-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Number of targets excluded:&quot;</span>, <span class="fu">length</span>(excluded_targets), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Number of targets excluded: 5</code></pre>
+<div class="sourceCode" id="cb132"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb132-1"><a href="complete-workflow-1.html#cb132-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Targets excluded:&quot;</span>, <span class="fu">paste</span>(excluded_targets, <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Targets excluded: CNTF, CTSS, IFNW1, IL11, IL32</code></pre>
+</div>
+<div id="global-data-visualization" class="section level2 hasAnchor" number="7.4">
+<h2><span class="header-section-number">7.4</span> Global Data Visualization<a href="complete-workflow-1.html#global-data-visualization" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Before performing differential expression analysis, we examine the overall structure of the data using unsupervised visualization methods.</p>
+<div id="prepare-metadata-for-visualization" class="section level3 hasAnchor" number="7.4.1">
+<h3><span class="header-section-number">7.4.1</span> Prepare Metadata for Visualization<a href="complete-workflow-1.html#prepare-metadata-for-visualization" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>First, we clean up the metadata labels for better plot readability:</p>
+<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="complete-workflow-1.html#cb134-1" tabindex="-1"></a>metadata_rename <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span> </span>
+<span id="cb134-2"><a href="complete-workflow-1.html#cb134-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Disease =</span> <span class="fu">case_when</span>(</span>
+<span id="cb134-3"><a href="complete-workflow-1.html#cb134-3" tabindex="-1"></a>    Disease <span class="sc">==</span> <span class="st">&quot;lupusSle&quot;</span> <span class="sc">~</span> <span class="st">&quot;SLE&quot;</span>,</span>
+<span id="cb134-4"><a href="complete-workflow-1.html#cb134-4" tabindex="-1"></a>    Disease <span class="sc">==</span> <span class="st">&quot;rheumatoidArthritis&quot;</span> <span class="sc">~</span> <span class="st">&quot;RA&quot;</span>,</span>
+<span id="cb134-5"><a href="complete-workflow-1.html#cb134-5" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;Normal&quot;</span></span>
+<span id="cb134-6"><a href="complete-workflow-1.html#cb134-6" tabindex="-1"></a>  ),</span>
+<span id="cb134-7"><a href="complete-workflow-1.html#cb134-7" tabindex="-1"></a>  <span class="st">`</span><span class="at">Sample Matrix</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">tolower</span>(SAMPLE_MATRIX)</span>
+<span id="cb134-8"><a href="complete-workflow-1.html#cb134-8" tabindex="-1"></a>  )</span></code></pre></div>
+</div>
+<div id="hierarchical-clustering-heatmap" class="section level3 hasAnchor" number="7.4.2">
+<h3><span class="header-section-number">7.4.2</span> Hierarchical Clustering Heatmap<a href="complete-workflow-1.html#hierarchical-clustering-heatmap" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The heatmap provides a global view of protein expression patterns across all samples and identifies natural groupings:</p>
+<div class="sourceCode" id="cb135"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb135-1"><a href="complete-workflow-1.html#cb135-1" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fu">generate_heatmap</span>(<span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb135-2"><a href="complete-workflow-1.html#cb135-2" tabindex="-1"></a>                      <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb135-3"><a href="complete-workflow-1.html#cb135-3" tabindex="-1"></a>                      <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb135-4"><a href="complete-workflow-1.html#cb135-4" tabindex="-1"></a>                      <span class="at">sample_subset =</span> metadata_rename<span class="sc">$</span>sampleName, </span>
+<span id="cb135-5"><a href="complete-workflow-1.html#cb135-5" tabindex="-1"></a>                      <span class="at">target_subset =</span> targets_passed,</span>
+<span id="cb135-6"><a href="complete-workflow-1.html#cb135-6" tabindex="-1"></a>                      <span class="at">annotate_sample_by =</span> <span class="fu">c</span>(<span class="st">&quot;Disease&quot;</span>, <span class="st">&quot;Sample Matrix&quot;</span>, <span class="st">&quot;Lab&quot;</span>))</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/global-heatmap-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><strong>Interpretation</strong>: The heatmap shows hierarchical clustering of both samples (columns) and proteins (rows). Look for:</p>
+<ul>
+<li>Clustering of samples by disease type (indicated by the annotation bars)</li>
+<li>Groups of proteins with similar expression patterns</li>
+</ul>
+</div>
+<div id="principal-component-analysis" class="section level3 hasAnchor" number="7.4.3">
+<h3><span class="header-section-number">7.4.3</span> Principal Component Analysis<a href="complete-workflow-1.html#principal-component-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>PCA shows the clustering of samples by groups in reduced dimensional space, highlighting variance in the dataset:</p>
+<div class="sourceCode" id="cb136"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb136-1"><a href="complete-workflow-1.html#cb136-1" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">generate_pca</span>(<span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb136-2"><a href="complete-workflow-1.html#cb136-2" tabindex="-1"></a>                  <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb136-3"><a href="complete-workflow-1.html#cb136-3" tabindex="-1"></a>                  <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb136-4"><a href="complete-workflow-1.html#cb136-4" tabindex="-1"></a>                  <span class="at">sample_subset =</span> metadata_rename<span class="sc">$</span>sampleName, </span>
+<span id="cb136-5"><a href="complete-workflow-1.html#cb136-5" tabindex="-1"></a>                  <span class="at">target_subset =</span> targets_passed,</span>
+<span id="cb136-6"><a href="complete-workflow-1.html#cb136-6" tabindex="-1"></a>                  <span class="at">annotate_sample_by =</span> <span class="st">&quot;Disease&quot;</span>)</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/global-pca-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p><strong>Interpretation</strong>: In the PCA plot:</p>
+<ul>
+<li>Each point represents a sample</li>
+<li>Distance between points reflects similarity in overall protein expression</li>
+<li>Good separation between disease groups suggests distinct proteomic signatures</li>
+<li>PC1 and PC2 percentages indicate how much variation each component explains</li>
+</ul>
+</div>
+</div>
+<div id="statistical-testing" class="section level2 hasAnchor" number="7.5">
+<h2><span class="header-section-number">7.5</span> Statistical Testing<a href="complete-workflow-1.html#statistical-testing" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>We perform linear modeling to identify proteins that are significantly different between disease groups and controls:</p>
+<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb137-1"><a href="complete-workflow-1.html#cb137-1" tabindex="-1"></a>lmTest <span class="ot">&lt;-</span> <span class="fu">lmNULISAseq</span>(<span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ[targets_passed, metadata<span class="sc">$</span>sampleName],</span>
+<span id="cb137-2"><a href="complete-workflow-1.html#cb137-2" tabindex="-1"></a>                      <span class="at">sampleInfo =</span> metadata,</span>
+<span id="cb137-3"><a href="complete-workflow-1.html#cb137-3" tabindex="-1"></a>                      <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb137-4"><a href="complete-workflow-1.html#cb137-4" tabindex="-1"></a>                      <span class="at">modelFormula =</span> <span class="st">&quot;Disease&quot;</span>)</span></code></pre></div>
+<p>The <code>lmNULISAseq()</code> function fits a linear model for each protein, testing for differential expression while controlling for multiple comparisons using FDR adjustment.</p>
+</div>
+<div id="systemic-lupus-erythematosus-sle-analysis" class="section level2 hasAnchor" number="7.6">
+<h2><span class="header-section-number">7.6</span> Systemic Lupus Erythematosus (SLE) Analysis<a href="complete-workflow-1.html#systemic-lupus-erythematosus-sle-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="background" class="section level3 hasAnchor" number="7.6.1">
+<h3><span class="header-section-number">7.6.1</span> Background<a href="complete-workflow-1.html#background" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Systemic Lupus Erythematosus is characterized by chronic inflammation affecting multiple organ systems. The immune dysregulation in SLE involves abnormal B and T cell activation, autoantibody production, and inflammatory cytokine release. The proteomic signature of SLE typically shows:</p>
+<ul>
+<li>Elevated inflammatory cytokines and chemokines</li>
+<li>Increased acute phase proteins</li>
+<li>Markers of immune activation</li>
+<li>Proteins involved in tissue damage and repair</li>
+</ul>
+</div>
+<div id="volcano-plot" class="section level3 hasAnchor" number="7.6.2">
+<h3><span class="header-section-number">7.6.2</span> Volcano Plot<a href="complete-workflow-1.html#volcano-plot" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The volcano plot visualizes both the magnitude (fold change) and statistical significance of protein changes:</p>
+<div class="sourceCode" id="cb138"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb138-1"><a href="complete-workflow-1.html#cb138-1" tabindex="-1"></a><span class="fu">volcanoPlot</span>(<span class="at">coefs =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>DiseaselupusSle_coef,</span>
+<span id="cb138-2"><a href="complete-workflow-1.html#cb138-2" tabindex="-1"></a>            <span class="at">p_vals =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>DiseaselupusSle_pval_FDR,</span>
+<span id="cb138-3"><a href="complete-workflow-1.html#cb138-3" tabindex="-1"></a>            <span class="at">target_labels =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>target,</span>
+<span id="cb138-4"><a href="complete-workflow-1.html#cb138-4" tabindex="-1"></a>            <span class="at">title =</span> <span class="st">&quot;Systemic Lupus Erythematosus (SLE) vs Normal&quot;</span>)</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/sle-volcano-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><strong>Interpretation</strong>:</p>
+<ul>
+<li><strong>X-axis (coefficient)</strong>: Log2 fold change; positive values indicate upregulation in SLE</li>
+<li><strong>Y-axis (-log10 p-value)</strong>: Statistical significance; higher values = more significant</li>
+<li><strong>Colored points</strong>: Proteins passing the FDR &lt; 0.05 threshold</li>
+<li><strong>Upper left/right corners</strong>: Most significantly changed proteins</li>
+</ul>
+</div>
+<div id="visualizations" class="section level3 hasAnchor" number="7.6.3">
+<h3><span class="header-section-number">7.6.3</span> Visualizations<a href="complete-workflow-1.html#visualizations" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Now we examine only the samples and proteins relevant to the SLE comparison:</p>
+<div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb139-1"><a href="complete-workflow-1.html#cb139-1" tabindex="-1"></a><span class="co"># Select SLE and normal samples</span></span>
+<span id="cb139-2"><a href="complete-workflow-1.html#cb139-2" tabindex="-1"></a>sle_samples <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span></span>
+<span id="cb139-3"><a href="complete-workflow-1.html#cb139-3" tabindex="-1"></a>  <span class="fu">filter</span>(Disease <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;normal&quot;</span>, <span class="st">&quot;lupusSle&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb139-4"><a href="complete-workflow-1.html#cb139-4" tabindex="-1"></a>  <span class="fu">pull</span>(sampleName)</span>
+<span id="cb139-5"><a href="complete-workflow-1.html#cb139-5" tabindex="-1"></a></span>
+<span id="cb139-6"><a href="complete-workflow-1.html#cb139-6" tabindex="-1"></a><span class="co"># Identify significantly differential proteins</span></span>
+<span id="cb139-7"><a href="complete-workflow-1.html#cb139-7" tabindex="-1"></a>sig_targets_sle <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb139-8"><a href="complete-workflow-1.html#cb139-8" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaselupusSle_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb139-9"><a href="complete-workflow-1.html#cb139-9" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb139-10"><a href="complete-workflow-1.html#cb139-10" tabindex="-1"></a></span>
+<span id="cb139-11"><a href="complete-workflow-1.html#cb139-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Number of significant targets in SLE:&quot;</span>, <span class="fu">length</span>(sig_targets_sle), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Number of significant targets in SLE: 102</code></pre>
+<div id="sle-specific-heatmap" class="section level4 hasAnchor" number="7.6.3.1">
+<h4><span class="header-section-number">7.6.3.1</span> SLE-Specific Heatmap<a href="complete-workflow-1.html#sle-specific-heatmap" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb141-1"><a href="complete-workflow-1.html#cb141-1" tabindex="-1"></a>h_sle <span class="ot">&lt;-</span> <span class="fu">generate_heatmap</span>(<span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb141-2"><a href="complete-workflow-1.html#cb141-2" tabindex="-1"></a>                          <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb141-3"><a href="complete-workflow-1.html#cb141-3" tabindex="-1"></a>                          <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb141-4"><a href="complete-workflow-1.html#cb141-4" tabindex="-1"></a>                          <span class="at">sample_subset =</span> sle_samples, </span>
+<span id="cb141-5"><a href="complete-workflow-1.html#cb141-5" tabindex="-1"></a>                          <span class="at">target_subset =</span> sig_targets_sle,</span>
+<span id="cb141-6"><a href="complete-workflow-1.html#cb141-6" tabindex="-1"></a>                          <span class="at">annotate_sample_by =</span> <span class="fu">c</span>(<span class="st">&quot;Disease&quot;</span>, <span class="st">&quot;Sample Matrix&quot;</span>, <span class="st">&quot;Lab&quot;</span>))</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/sle-heatmap-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>This heatmap focuses exclusively on proteins significantly altered in SLE, making disease-specific patterns more apparent.</p>
+</div>
+<div id="sle-specific-pca" class="section level4 hasAnchor" number="7.6.3.2">
+<h4><span class="header-section-number">7.6.3.2</span> SLE-Specific PCA<a href="complete-workflow-1.html#sle-specific-pca" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb142"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb142-1"><a href="complete-workflow-1.html#cb142-1" tabindex="-1"></a>p_sle <span class="ot">&lt;-</span> <span class="fu">generate_pca</span>(<span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb142-2"><a href="complete-workflow-1.html#cb142-2" tabindex="-1"></a>                      <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb142-3"><a href="complete-workflow-1.html#cb142-3" tabindex="-1"></a>                      <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb142-4"><a href="complete-workflow-1.html#cb142-4" tabindex="-1"></a>                      <span class="at">sample_subset =</span> sle_samples, </span>
+<span id="cb142-5"><a href="complete-workflow-1.html#cb142-5" tabindex="-1"></a>                      <span class="at">target_subset =</span> sig_targets_sle,</span>
+<span id="cb142-6"><a href="complete-workflow-1.html#cb142-6" tabindex="-1"></a>                      <span class="at">annotate_sample_by =</span> <span class="st">&quot;Disease&quot;</span>)</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/sle-pca-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p>Using only significantly differential proteins often enhances separation between groups in PCA.</p>
+</div>
+</div>
+<div id="directional-analysis" class="section level3 hasAnchor" number="7.6.4">
+<h3><span class="header-section-number">7.6.4</span> Directional Analysis<a href="complete-workflow-1.html#directional-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We separate upregulated and downregulated proteins to understand the nature of proteomic changes:</p>
+<div class="sourceCode" id="cb143"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb143-1"><a href="complete-workflow-1.html#cb143-1" tabindex="-1"></a><span class="co"># Upregulated proteins (higher in SLE)</span></span>
+<span id="cb143-2"><a href="complete-workflow-1.html#cb143-2" tabindex="-1"></a>sig_targets_sle_up <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb143-3"><a href="complete-workflow-1.html#cb143-3" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaselupusSle_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>, DiseaselupusSle_coef <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb143-4"><a href="complete-workflow-1.html#cb143-4" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb143-5"><a href="complete-workflow-1.html#cb143-5" tabindex="-1"></a></span>
+<span id="cb143-6"><a href="complete-workflow-1.html#cb143-6" tabindex="-1"></a><span class="co"># Downregulated proteins (lower in SLE)</span></span>
+<span id="cb143-7"><a href="complete-workflow-1.html#cb143-7" tabindex="-1"></a>sig_targets_sle_down <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb143-8"><a href="complete-workflow-1.html#cb143-8" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaselupusSle_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>, DiseaselupusSle_coef <span class="sc">&lt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb143-9"><a href="complete-workflow-1.html#cb143-9" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb143-10"><a href="complete-workflow-1.html#cb143-10" tabindex="-1"></a></span>
+<span id="cb143-11"><a href="complete-workflow-1.html#cb143-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Upregulated targets:&quot;</span>, <span class="fu">length</span>(sig_targets_sle_up), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Upregulated targets: 100</code></pre>
+<div class="sourceCode" id="cb145"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb145-1"><a href="complete-workflow-1.html#cb145-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Downregulated targets:&quot;</span>, <span class="fu">length</span>(sig_targets_sle_down), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Downregulated targets: 2</code></pre>
+<div id="prepare-long-format-data" class="section level5 unnumbered hasAnchor">
+<h5>Prepare Long Format Data<a href="complete-workflow-1.html#prepare-long-format-data" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<p>We clean up the covariate names in the long data frame for better boxplot readability:</p>
+<div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb147-1"><a href="complete-workflow-1.html#cb147-1" tabindex="-1"></a>data_long <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long <span class="sc">%&gt;%</span> </span>
+<span id="cb147-2"><a href="complete-workflow-1.html#cb147-2" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb147-3"><a href="complete-workflow-1.html#cb147-3" tabindex="-1"></a>    <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">case_when</span>(</span>
+<span id="cb147-4"><a href="complete-workflow-1.html#cb147-4" tabindex="-1"></a>      Disease <span class="sc">==</span> <span class="st">&quot;lupusSle&quot;</span> <span class="sc">~</span> <span class="st">&quot;SLE&quot;</span>,</span>
+<span id="cb147-5"><a href="complete-workflow-1.html#cb147-5" tabindex="-1"></a>      Disease <span class="sc">==</span> <span class="st">&quot;rheumatoidArthritis&quot;</span> <span class="sc">~</span> <span class="st">&quot;RA&quot;</span>,</span>
+<span id="cb147-6"><a href="complete-workflow-1.html#cb147-6" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;Normal&quot;</span></span>
+<span id="cb147-7"><a href="complete-workflow-1.html#cb147-7" tabindex="-1"></a>    ))</span></code></pre></div>
+</div>
+<div id="upregulated-proteins-in-sle" class="section level4 hasAnchor" number="7.6.4.1">
+<h4><span class="header-section-number">7.6.4.1</span> Upregulated Proteins in SLE<a href="complete-workflow-1.html#upregulated-proteins-in-sle" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb148"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb148-1"><a href="complete-workflow-1.html#cb148-1" tabindex="-1"></a>data_long <span class="sc">%&gt;%</span></span>
+<span id="cb148-2"><a href="complete-workflow-1.html#cb148-2" tabindex="-1"></a>  <span class="fu">filter</span>(Target <span class="sc">%in%</span> sig_targets_sle_up, </span>
+<span id="cb148-3"><a href="complete-workflow-1.html#cb148-3" tabindex="-1"></a>         SampleName <span class="sc">%in%</span> sle_samples) <span class="sc">%&gt;%</span></span>
+<span id="cb148-4"><a href="complete-workflow-1.html#cb148-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>, <span class="at">y =</span> NPQ, <span class="at">fill =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb148-5"><a href="complete-workflow-1.html#cb148-5" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb148-6"><a href="complete-workflow-1.html#cb148-6" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Target, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb148-7"><a href="complete-workflow-1.html#cb148-7" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Upregulated Significant Differential Expression Targets - SLE vs Normal&quot;</span>,</span>
+<span id="cb148-8"><a href="complete-workflow-1.html#cb148-8" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;with FDR-adjusted p &lt; 0.05&quot;</span>) <span class="sc">+</span></span>
+<span id="cb148-9"><a href="complete-workflow-1.html#cb148-9" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb148-10"><a href="complete-workflow-1.html#cb148-10" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">16</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),      </span>
+<span id="cb148-11"><a href="complete-workflow-1.html#cb148-11" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>),                   </span>
+<span id="cb148-12"><a href="complete-workflow-1.html#cb148-12" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),                    </span>
+<span id="cb148-13"><a href="complete-workflow-1.html#cb148-13" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),                    </span>
+<span id="cb148-14"><a href="complete-workflow-1.html#cb148-14" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>), </span>
+<span id="cb148-15"><a href="complete-workflow-1.html#cb148-15" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),                     </span>
+<span id="cb148-16"><a href="complete-workflow-1.html#cb148-16" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),                      </span>
+<span id="cb148-17"><a href="complete-workflow-1.html#cb148-17" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>),                    </span>
+<span id="cb148-18"><a href="complete-workflow-1.html#cb148-18" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)                     </span>
+<span id="cb148-19"><a href="complete-workflow-1.html#cb148-19" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/sle-boxplots-up-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><strong>Interpretation</strong>: Elevated proteins in SLE may represent:</p>
+<ul>
+<li>Pro-inflammatory cytokines driving disease pathology</li>
+<li>Acute phase reactants responding to chronic inflammation</li>
+<li>Markers of immune cell activation</li>
+<li>Proteins released from damaged tissues</li>
+</ul>
+</div>
+<div id="downregulated-proteins-in-sle" class="section level4 hasAnchor" number="7.6.4.2">
+<h4><span class="header-section-number">7.6.4.2</span> Downregulated Proteins in SLE<a href="complete-workflow-1.html#downregulated-proteins-in-sle" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb149"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb149-1"><a href="complete-workflow-1.html#cb149-1" tabindex="-1"></a>data_long <span class="sc">%&gt;%</span></span>
+<span id="cb149-2"><a href="complete-workflow-1.html#cb149-2" tabindex="-1"></a>  <span class="fu">filter</span>(Target <span class="sc">%in%</span> sig_targets_sle_down, </span>
+<span id="cb149-3"><a href="complete-workflow-1.html#cb149-3" tabindex="-1"></a>         SampleName <span class="sc">%in%</span> sle_samples) <span class="sc">%&gt;%</span></span>
+<span id="cb149-4"><a href="complete-workflow-1.html#cb149-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>, <span class="at">y =</span> NPQ, <span class="at">fill =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb149-5"><a href="complete-workflow-1.html#cb149-5" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb149-6"><a href="complete-workflow-1.html#cb149-6" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Target, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb149-7"><a href="complete-workflow-1.html#cb149-7" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Downregulated Significant Differential Expression Targets - SLE vs Normal&quot;</span>,</span>
+<span id="cb149-8"><a href="complete-workflow-1.html#cb149-8" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;with FDR-adjusted p &lt; 0.05&quot;</span>) <span class="sc">+</span></span>
+<span id="cb149-9"><a href="complete-workflow-1.html#cb149-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>))</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/sle-boxplots-down-1.png" width="90%" height="90%" /></p>
+<p><strong>Interpretation</strong>: Decreased proteins in SLE might indicate:</p>
+<ul>
+<li>Consumption of regulatory proteins trying to control inflammation</li>
+<li>Impaired synthesis due to disease-related metabolic changes</li>
+<li>Negative acute phase reactants</li>
+<li>Protective factors depleted in chronic disease</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="rheumatoid-arthritis-ra-analysis" class="section level2 hasAnchor" number="7.7">
+<h2><span class="header-section-number">7.7</span> Rheumatoid Arthritis (RA) Analysis<a href="complete-workflow-1.html#rheumatoid-arthritis-ra-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="background-1" class="section level3 hasAnchor" number="7.7.1">
+<h3><span class="header-section-number">7.7.1</span> Background<a href="complete-workflow-1.html#background-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Rheumatoid Arthritis is a chronic inflammatory disorder that primarily affects synovial joints but can have systemic manifestations. The pathophysiology involves:</p>
+<ul>
+<li>Autoimmune targeting of joint tissues</li>
+<li>Synovial inflammation and proliferation</li>
+<li>Cartilage and bone destruction</li>
+<li>Systemic inflammation</li>
+</ul>
+<p>The proteomic profile of RA often shows markers of:</p>
+<ul>
+<li>Joint inflammation and damage</li>
+<li>Systemic inflammatory response</li>
+<li>Matrix degradation</li>
+<li>Immune activation</li>
+</ul>
+</div>
+<div id="volcano-plot-1" class="section level3 hasAnchor" number="7.7.2">
+<h3><span class="header-section-number">7.7.2</span> Volcano Plot<a href="complete-workflow-1.html#volcano-plot-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb150"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb150-1"><a href="complete-workflow-1.html#cb150-1" tabindex="-1"></a><span class="fu">volcanoPlot</span>(<span class="at">coefs =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>DiseaserheumatoidArthritis_coef,</span>
+<span id="cb150-2"><a href="complete-workflow-1.html#cb150-2" tabindex="-1"></a>            <span class="at">p_vals =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>DiseaserheumatoidArthritis_pval_FDR,</span>
+<span id="cb150-3"><a href="complete-workflow-1.html#cb150-3" tabindex="-1"></a>            <span class="at">target_labels =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>target,</span>
+<span id="cb150-4"><a href="complete-workflow-1.html#cb150-4" tabindex="-1"></a>            <span class="at">title =</span> <span class="st">&quot;Rheumatoid Arthritis (RA) vs Normal&quot;</span>)</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/ra-volcano-1.png" width="100%" height="100%" /></p>
+<p>Compare this volcano plot to the SLE plot above. Are there:</p>
+<ul>
+<li>Proteins significantly changed in both conditions (shared inflammatory pathways)?</li>
+<li>Disease-specific signatures unique to RA or SLE?</li>
+<li>Similar magnitude of changes between the two diseases?</li>
+</ul>
+</div>
+<div id="visualizations-1" class="section level3 hasAnchor" number="7.7.3">
+<h3><span class="header-section-number">7.7.3</span> Visualizations<a href="complete-workflow-1.html#visualizations-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb151-1"><a href="complete-workflow-1.html#cb151-1" tabindex="-1"></a><span class="co"># Select RA and normal samples</span></span>
+<span id="cb151-2"><a href="complete-workflow-1.html#cb151-2" tabindex="-1"></a>ra_samples <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span></span>
+<span id="cb151-3"><a href="complete-workflow-1.html#cb151-3" tabindex="-1"></a>  <span class="fu">filter</span>(Disease <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;normal&quot;</span>, <span class="st">&quot;rheumatoidArthritis&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb151-4"><a href="complete-workflow-1.html#cb151-4" tabindex="-1"></a>  <span class="fu">pull</span>(sampleName)</span>
+<span id="cb151-5"><a href="complete-workflow-1.html#cb151-5" tabindex="-1"></a></span>
+<span id="cb151-6"><a href="complete-workflow-1.html#cb151-6" tabindex="-1"></a><span class="co"># Identify significantly differential proteins</span></span>
+<span id="cb151-7"><a href="complete-workflow-1.html#cb151-7" tabindex="-1"></a>sig_targets_ra <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb151-8"><a href="complete-workflow-1.html#cb151-8" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaserheumatoidArthritis_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb151-9"><a href="complete-workflow-1.html#cb151-9" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb151-10"><a href="complete-workflow-1.html#cb151-10" tabindex="-1"></a></span>
+<span id="cb151-11"><a href="complete-workflow-1.html#cb151-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Number of significant targets in RA:&quot;</span>, <span class="fu">length</span>(sig_targets_ra), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Number of significant targets in RA: 96</code></pre>
+<div id="ra-specific-heatmap" class="section level4 hasAnchor" number="7.7.3.1">
+<h4><span class="header-section-number">7.7.3.1</span> RA-Specific Heatmap<a href="complete-workflow-1.html#ra-specific-heatmap" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb153"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb153-1"><a href="complete-workflow-1.html#cb153-1" tabindex="-1"></a>h_ra <span class="ot">&lt;-</span> <span class="fu">generate_heatmap</span>(<span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb153-2"><a href="complete-workflow-1.html#cb153-2" tabindex="-1"></a>                         <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb153-3"><a href="complete-workflow-1.html#cb153-3" tabindex="-1"></a>                         <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb153-4"><a href="complete-workflow-1.html#cb153-4" tabindex="-1"></a>                         <span class="at">sample_subset =</span> ra_samples, </span>
+<span id="cb153-5"><a href="complete-workflow-1.html#cb153-5" tabindex="-1"></a>                         <span class="at">target_subset =</span> sig_targets_ra,</span>
+<span id="cb153-6"><a href="complete-workflow-1.html#cb153-6" tabindex="-1"></a>                         <span class="at">annotate_sample_by =</span> <span class="fu">c</span>(<span class="st">&quot;Disease&quot;</span>, <span class="st">&quot;Sample Matrix&quot;</span>, <span class="st">&quot;Lab&quot;</span>),</span>
+<span id="cb153-7"><a href="complete-workflow-1.html#cb153-7" tabindex="-1"></a>                         <span class="at">row_fontsize =</span> <span class="dv">6</span>,</span>
+<span id="cb153-8"><a href="complete-workflow-1.html#cb153-8" tabindex="-1"></a>                         <span class="at">col_fontsize =</span> <span class="dv">6</span>)</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/ra-heatmap-1.png" width="100%" style="display: block; margin: auto;" /></p>
+</div>
+<div id="ra-specific-pca" class="section level4 hasAnchor" number="7.7.3.2">
+<h4><span class="header-section-number">7.7.3.2</span> RA-Specific PCA<a href="complete-workflow-1.html#ra-specific-pca" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb154"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb154-1"><a href="complete-workflow-1.html#cb154-1" tabindex="-1"></a>p_ra <span class="ot">&lt;-</span> <span class="fu">generate_pca</span>(<span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb154-2"><a href="complete-workflow-1.html#cb154-2" tabindex="-1"></a>                     <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb154-3"><a href="complete-workflow-1.html#cb154-3" tabindex="-1"></a>                     <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb154-4"><a href="complete-workflow-1.html#cb154-4" tabindex="-1"></a>                     <span class="at">sample_subset =</span> ra_samples, </span>
+<span id="cb154-5"><a href="complete-workflow-1.html#cb154-5" tabindex="-1"></a>                     <span class="at">target_subset =</span> sig_targets_ra,</span>
+<span id="cb154-6"><a href="complete-workflow-1.html#cb154-6" tabindex="-1"></a>                     <span class="at">annotate_sample_by =</span> <span class="st">&quot;Disease&quot;</span>)</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/ra-pca-1.png" width="90%" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="directional-analysis-1" class="section level3 hasAnchor" number="7.7.4">
+<h3><span class="header-section-number">7.7.4</span> Directional Analysis<a href="complete-workflow-1.html#directional-analysis-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="complete-workflow-1.html#cb155-1" tabindex="-1"></a><span class="co"># Upregulated proteins (higher in RA)</span></span>
+<span id="cb155-2"><a href="complete-workflow-1.html#cb155-2" tabindex="-1"></a>sig_targets_ra_up <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb155-3"><a href="complete-workflow-1.html#cb155-3" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaserheumatoidArthritis_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>, </span>
+<span id="cb155-4"><a href="complete-workflow-1.html#cb155-4" tabindex="-1"></a>         DiseaserheumatoidArthritis_coef <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb155-5"><a href="complete-workflow-1.html#cb155-5" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb155-6"><a href="complete-workflow-1.html#cb155-6" tabindex="-1"></a></span>
+<span id="cb155-7"><a href="complete-workflow-1.html#cb155-7" tabindex="-1"></a><span class="co"># Downregulated proteins (lower in RA)</span></span>
+<span id="cb155-8"><a href="complete-workflow-1.html#cb155-8" tabindex="-1"></a>sig_targets_ra_down <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb155-9"><a href="complete-workflow-1.html#cb155-9" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaserheumatoidArthritis_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>, </span>
+<span id="cb155-10"><a href="complete-workflow-1.html#cb155-10" tabindex="-1"></a>         DiseaserheumatoidArthritis_coef <span class="sc">&lt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb155-11"><a href="complete-workflow-1.html#cb155-11" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb155-12"><a href="complete-workflow-1.html#cb155-12" tabindex="-1"></a></span>
+<span id="cb155-13"><a href="complete-workflow-1.html#cb155-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Upregulated targets:&quot;</span>, <span class="fu">length</span>(sig_targets_ra_up), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Upregulated targets: 95</code></pre>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="complete-workflow-1.html#cb157-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Downregulated targets:&quot;</span>, <span class="fu">length</span>(sig_targets_ra_down), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Downregulated targets: 1</code></pre>
+<div id="upregulated-proteins-in-ra" class="section level4 hasAnchor" number="7.7.4.1">
+<h4><span class="header-section-number">7.7.4.1</span> Upregulated Proteins in RA<a href="complete-workflow-1.html#upregulated-proteins-in-ra" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb159-1"><a href="complete-workflow-1.html#cb159-1" tabindex="-1"></a>data_long <span class="sc">%&gt;%</span></span>
+<span id="cb159-2"><a href="complete-workflow-1.html#cb159-2" tabindex="-1"></a>  <span class="fu">filter</span>(Target <span class="sc">%in%</span> sig_targets_ra_up, </span>
+<span id="cb159-3"><a href="complete-workflow-1.html#cb159-3" tabindex="-1"></a>         SampleName <span class="sc">%in%</span> ra_samples) <span class="sc">%&gt;%</span></span>
+<span id="cb159-4"><a href="complete-workflow-1.html#cb159-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>, <span class="at">y =</span> NPQ, <span class="at">fill =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb159-5"><a href="complete-workflow-1.html#cb159-5" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb159-6"><a href="complete-workflow-1.html#cb159-6" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Target, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb159-7"><a href="complete-workflow-1.html#cb159-7" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Upregulated Significant Differential Expression Targets - RA vs Normal&quot;</span>,</span>
+<span id="cb159-8"><a href="complete-workflow-1.html#cb159-8" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;with FDR-adjusted p &lt; 0.05&quot;</span>) <span class="sc">+</span></span>
+<span id="cb159-9"><a href="complete-workflow-1.html#cb159-9" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb159-10"><a href="complete-workflow-1.html#cb159-10" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">16</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),      </span>
+<span id="cb159-11"><a href="complete-workflow-1.html#cb159-11" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>),                  </span>
+<span id="cb159-12"><a href="complete-workflow-1.html#cb159-12" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),                   </span>
+<span id="cb159-13"><a href="complete-workflow-1.html#cb159-13" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),                   </span>
+<span id="cb159-14"><a href="complete-workflow-1.html#cb159-14" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>), </span>
+<span id="cb159-15"><a href="complete-workflow-1.html#cb159-15" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),                    </span>
+<span id="cb159-16"><a href="complete-workflow-1.html#cb159-16" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),                     </span>
+<span id="cb159-17"><a href="complete-workflow-1.html#cb159-17" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>),                   </span>
+<span id="cb159-18"><a href="complete-workflow-1.html#cb159-18" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)                    </span>
+<span id="cb159-19"><a href="complete-workflow-1.html#cb159-19" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/ra-boxplots-up-1.png" width="100%" style="display: block; margin: auto;" /></p>
+<p><strong>Interpretation</strong>: Elevated proteins in RA may include:</p>
+<ul>
+<li>Matrix metalloproteinases and other degradative enzymes</li>
+<li>Inflammatory cytokines (particularly TNF-α pathway members)</li>
+<li>Proteins involved in bone remodeling</li>
+<li>Acute phase proteins</li>
+</ul>
+</div>
+<div id="downregulated-proteins-in-ra" class="section level4 hasAnchor" number="7.7.4.2">
+<h4><span class="header-section-number">7.7.4.2</span> Downregulated Proteins in RA<a href="complete-workflow-1.html#downregulated-proteins-in-ra" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="complete-workflow-1.html#cb160-1" tabindex="-1"></a>data_long <span class="sc">%&gt;%</span></span>
+<span id="cb160-2"><a href="complete-workflow-1.html#cb160-2" tabindex="-1"></a>  <span class="fu">filter</span>(Target <span class="sc">%in%</span> sig_targets_ra_down, </span>
+<span id="cb160-3"><a href="complete-workflow-1.html#cb160-3" tabindex="-1"></a>         SampleName <span class="sc">%in%</span> ra_samples) <span class="sc">%&gt;%</span></span>
+<span id="cb160-4"><a href="complete-workflow-1.html#cb160-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>, <span class="at">y =</span> NPQ, <span class="at">fill =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb160-5"><a href="complete-workflow-1.html#cb160-5" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb160-6"><a href="complete-workflow-1.html#cb160-6" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Target, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb160-7"><a href="complete-workflow-1.html#cb160-7" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Downregulated Significant Differential Expression </span><span class="sc">\n</span><span class="st"> Targets - RA vs Normal&quot;</span>,</span>
+<span id="cb160-8"><a href="complete-workflow-1.html#cb160-8" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;with FDR-adjusted p &lt; 0.05&quot;</span>) <span class="sc">+</span></span>
+<span id="cb160-9"><a href="complete-workflow-1.html#cb160-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>))</span></code></pre></div>
+<p><img src="NULISAseqR-guide_files/figure-html/ra-boxplots-down-1.png" width="80%" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+</div>
+<div id="comparing-disease-signatures" class="section level2 hasAnchor" number="7.8">
+<h2><span class="header-section-number">7.8</span> Comparing Disease Signatures<a href="complete-workflow-1.html#comparing-disease-signatures" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="overlap-analysis" class="section level3 hasAnchor" number="7.8.1">
+<h3><span class="header-section-number">7.8.1</span> Overlap Analysis<a href="complete-workflow-1.html#overlap-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>To understand shared versus disease-specific biology, we can examine the overlap of significant proteins:</p>
+<div class="sourceCode" id="cb161"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb161-1"><a href="complete-workflow-1.html#cb161-1" tabindex="-1"></a><span class="co"># Proteins significant in both diseases</span></span>
+<span id="cb161-2"><a href="complete-workflow-1.html#cb161-2" tabindex="-1"></a>shared_targets <span class="ot">&lt;-</span> <span class="fu">intersect</span>(sig_targets_sle, sig_targets_ra)</span>
+<span id="cb161-3"><a href="complete-workflow-1.html#cb161-3" tabindex="-1"></a></span>
+<span id="cb161-4"><a href="complete-workflow-1.html#cb161-4" tabindex="-1"></a><span class="co"># Disease-specific proteins</span></span>
+<span id="cb161-5"><a href="complete-workflow-1.html#cb161-5" tabindex="-1"></a>sle_specific <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(sig_targets_sle, sig_targets_ra)</span>
+<span id="cb161-6"><a href="complete-workflow-1.html#cb161-6" tabindex="-1"></a>ra_specific <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(sig_targets_ra, sig_targets_sle)</span>
+<span id="cb161-7"><a href="complete-workflow-1.html#cb161-7" tabindex="-1"></a></span>
+<span id="cb161-8"><a href="complete-workflow-1.html#cb161-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Shared significant targets:&quot;</span>, <span class="fu">length</span>(shared_targets), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Shared significant targets: 73</code></pre>
+<div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb163-1"><a href="complete-workflow-1.html#cb163-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;SLE-specific targets:&quot;</span>, <span class="fu">length</span>(sle_specific), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; SLE-specific targets: 29</code></pre>
+<div class="sourceCode" id="cb165"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb165-1"><a href="complete-workflow-1.html#cb165-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;RA-specific targets:&quot;</span>, <span class="fu">length</span>(ra_specific), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; RA-specific targets: 23</code></pre>
+<div class="sourceCode" id="cb167"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb167-1"><a href="complete-workflow-1.html#cb167-1" tabindex="-1"></a><span class="co"># Display shared targets if any</span></span>
+<span id="cb167-2"><a href="complete-workflow-1.html#cb167-2" tabindex="-1"></a><span class="cf">if</span>(<span class="fu">length</span>(shared_targets) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb167-3"><a href="complete-workflow-1.html#cb167-3" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Shared targets between SLE and RA:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb167-4"><a href="complete-workflow-1.html#cb167-4" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">paste</span>(shared_targets, <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb167-5"><a href="complete-workflow-1.html#cb167-5" tabindex="-1"></a>}</span></code></pre></div>
+<pre><code>#&gt; 
+#&gt; Shared targets between SLE and RA:
+#&gt; AREG, CCL1, CCL13, CCL2, CCL21, CCL22, CCL26, CCL27, CCL7, CD27, CD274, CD4, CD40, CD46, CD80, CD83, CSF1, CSF1R, CSF3R, CTLA4, CXCL11, CXCL13, CXCL6, FASLG, FURIN, GZMA, GZMB, HGF, IL10RB, IL12B, IL15RA, IL16, IL17RA, IL18, IL18BP, IL18R1, IL1B, IL1RN, IL2RA, KLRK1, LCN2, LGALS9, LIF, LILRB2, MMP8, MMP9, MPO, NAMPT, NCR1, OSM, OSMR, PDCD1, PDGFB, PTX3, S100A12, THBS2, TNFRSF11A, TNFRSF13C, TNFRSF14, TNFRSF18, TNFRSF1A, TNFRSF21, TNFRSF4, TNFRSF8, TNFRSF9, TNFSF10, TNFSF13, TNFSF18, TNFSF4, TNFSF8, TREM1, TREM2, TSLP</code></pre>
+<p><strong>Biological Interpretation</strong>:</p>
+<ul>
+<li><strong>Shared targets</strong> represent common inflammatory pathways activated in both autoimmune conditions</li>
+<li><strong>Disease-specific targets</strong> may reflect unique pathophysiological mechanisms</li>
+<li><strong>Directional concordance</strong>: Check if shared proteins change in the same direction in both diseases</li>
+</ul>
+</div>
+<div id="summary-statistics-table" class="section level3 hasAnchor" number="7.8.2">
+<h3><span class="header-section-number">7.8.2</span> Summary Statistics Table<a href="complete-workflow-1.html#summary-statistics-table" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="complete-workflow-1.html#cb169-1" tabindex="-1"></a>summary_stats <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb169-2"><a href="complete-workflow-1.html#cb169-2" tabindex="-1"></a>  <span class="at">Condition =</span> <span class="fu">c</span>(<span class="st">&quot;SLE vs Normal&quot;</span>, <span class="st">&quot;RA vs Normal&quot;</span>),</span>
+<span id="cb169-3"><a href="complete-workflow-1.html#cb169-3" tabindex="-1"></a>  <span class="at">Total_Significant =</span> <span class="fu">c</span>(<span class="fu">length</span>(sig_targets_sle), <span class="fu">length</span>(sig_targets_ra)),</span>
+<span id="cb169-4"><a href="complete-workflow-1.html#cb169-4" tabindex="-1"></a>  <span class="at">Upregulated =</span> <span class="fu">c</span>(<span class="fu">length</span>(sig_targets_sle_up), <span class="fu">length</span>(sig_targets_ra_up)),</span>
+<span id="cb169-5"><a href="complete-workflow-1.html#cb169-5" tabindex="-1"></a>  <span class="at">Downregulated =</span> <span class="fu">c</span>(<span class="fu">length</span>(sig_targets_sle_down), <span class="fu">length</span>(sig_targets_ra_down))</span>
+<span id="cb169-6"><a href="complete-workflow-1.html#cb169-6" tabindex="-1"></a>)</span>
+<span id="cb169-7"><a href="complete-workflow-1.html#cb169-7" tabindex="-1"></a></span>
+<span id="cb169-8"><a href="complete-workflow-1.html#cb169-8" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(summary_stats, </span>
+<span id="cb169-9"><a href="complete-workflow-1.html#cb169-9" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">&quot;Summary of Differential Expression Results&quot;</span>)</span></code></pre></div>
+<table>
+<caption><span id="tab:summary-table">Table 7.1: </span>Summary of Differential Expression Results</caption>
+<thead>
+<tr class="header">
+<th align="left">Condition</th>
+<th align="right">Total_Significant</th>
+<th align="right">Upregulated</th>
+<th align="right">Downregulated</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">SLE vs Normal</td>
+<td align="right">102</td>
+<td align="right">100</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">RA vs Normal</td>
+<td align="right">96</td>
+<td align="right">95</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="next-steps" class="section level2 hasAnchor" number="7.9">
+<h2><span class="header-section-number">7.9</span> Next Steps<a href="complete-workflow-1.html#next-steps" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>After identifying differentially expressed proteins, typical follow-up analyses include:</p>
+<ul>
+<li><strong>Pathway enrichment analysis</strong>: Identify biological pathways over-represented in significant proteins</li>
+<li><strong>Protein network analysis</strong>: Understand functional relationships between differential proteins</li>
+<li><strong>Biomarker evaluation</strong>: Assess individual proteins or combinations for diagnostic potential</li>
+<li><strong>Correlation with clinical variables</strong>: Link protein changes to disease severity or outcomes</li>
+<li><strong>Validation studies</strong>: Confirm findings in independent cohorts or using orthogonal methods</li>
+</ul>
+</div>
+<div id="complete-workflow-example-code" class="section level2 hasAnchor" number="7.10">
+<h2><span class="header-section-number">7.10</span> Complete Workflow Example Code<a href="complete-workflow-1.html#complete-workflow-example-code" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb170-1"><a href="complete-workflow-1.html#cb170-1" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb170-2"><a href="complete-workflow-1.html#cb170-2" tabindex="-1"></a><span class="co"># COMPLETE DIFFERENTIAL EXPRESSION WORKFLOW: SLE and RA Analysis</span></span>
+<span id="cb170-3"><a href="complete-workflow-1.html#cb170-3" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb170-4"><a href="complete-workflow-1.html#cb170-4" tabindex="-1"></a></span>
+<span id="cb170-5"><a href="complete-workflow-1.html#cb170-5" tabindex="-1"></a><span class="co"># 1. Load libraries and import data</span></span>
+<span id="cb170-6"><a href="complete-workflow-1.html#cb170-6" tabindex="-1"></a><span class="fu">library</span>(NULISAseqR)</span>
+<span id="cb170-7"><a href="complete-workflow-1.html#cb170-7" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb170-8"><a href="complete-workflow-1.html#cb170-8" tabindex="-1"></a></span>
+<span id="cb170-9"><a href="complete-workflow-1.html#cb170-9" tabindex="-1"></a>data_dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="at">package =</span> <span class="st">&quot;NULISAseqR&quot;</span>)</span>
+<span id="cb170-10"><a href="complete-workflow-1.html#cb170-10" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">importNULISAseq</span>(<span class="at">files =</span> <span class="fu">file.path</span>(data_dir,<span class="st">&quot;Inflammation_250_RQ_demo_2025-05-20-Lab-A.xml&quot;</span>))</span>
+<span id="cb170-11"><a href="complete-workflow-1.html#cb170-11" tabindex="-1"></a></span>
+<span id="cb170-12"><a href="complete-workflow-1.html#cb170-12" tabindex="-1"></a><span class="co"># 2. Prepare metadata</span></span>
+<span id="cb170-13"><a href="complete-workflow-1.html#cb170-13" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>samples <span class="sc">%&gt;%</span> </span>
+<span id="cb170-14"><a href="complete-workflow-1.html#cb170-14" tabindex="-1"></a>  <span class="fu">filter</span>(sampleType <span class="sc">==</span> <span class="st">&quot;Sample&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb170-15"><a href="complete-workflow-1.html#cb170-15" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Disease =</span> <span class="fu">relevel</span>(Disease, <span class="at">ref =</span> <span class="st">&quot;normal&quot;</span>))</span>
+<span id="cb170-16"><a href="complete-workflow-1.html#cb170-16" tabindex="-1"></a></span>
+<span id="cb170-17"><a href="complete-workflow-1.html#cb170-17" tabindex="-1"></a>metadata_rename <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span> </span>
+<span id="cb170-18"><a href="complete-workflow-1.html#cb170-18" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Disease =</span> <span class="fu">case_when</span>(</span>
+<span id="cb170-19"><a href="complete-workflow-1.html#cb170-19" tabindex="-1"></a>    Disease <span class="sc">==</span> <span class="st">&quot;lupusSle&quot;</span> <span class="sc">~</span> <span class="st">&quot;SLE&quot;</span>,</span>
+<span id="cb170-20"><a href="complete-workflow-1.html#cb170-20" tabindex="-1"></a>    Disease <span class="sc">==</span> <span class="st">&quot;rheumatoidArthritis&quot;</span> <span class="sc">~</span> <span class="st">&quot;RA&quot;</span>,</span>
+<span id="cb170-21"><a href="complete-workflow-1.html#cb170-21" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;Normal&quot;</span></span>
+<span id="cb170-22"><a href="complete-workflow-1.html#cb170-22" tabindex="-1"></a>  ),</span>
+<span id="cb170-23"><a href="complete-workflow-1.html#cb170-23" tabindex="-1"></a>  <span class="st">`</span><span class="at">Sample Matrix</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">tolower</span>(SAMPLE_MATRIX))</span>
+<span id="cb170-24"><a href="complete-workflow-1.html#cb170-24" tabindex="-1"></a></span>
+<span id="cb170-25"><a href="complete-workflow-1.html#cb170-25" tabindex="-1"></a><span class="co"># 3. Target detectability filtering</span></span>
+<span id="cb170-26"><a href="complete-workflow-1.html#cb170-26" tabindex="-1"></a>detectability_threshold <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb170-27"><a href="complete-workflow-1.html#cb170-27" tabindex="-1"></a>targets_passed <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>detectability <span class="sc">%&gt;%</span> </span>
+<span id="cb170-28"><a href="complete-workflow-1.html#cb170-28" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">plasma (n = 43)</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">50</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb170-29"><a href="complete-workflow-1.html#cb170-29" tabindex="-1"></a>  <span class="fu">pull</span>(Target)</span>
+<span id="cb170-30"><a href="complete-workflow-1.html#cb170-30" tabindex="-1"></a></span>
+<span id="cb170-31"><a href="complete-workflow-1.html#cb170-31" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Number of targets passing QC:&quot;</span>, <span class="fu">length</span>(targets_passed), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-32"><a href="complete-workflow-1.html#cb170-32" tabindex="-1"></a></span>
+<span id="cb170-33"><a href="complete-workflow-1.html#cb170-33" tabindex="-1"></a><span class="co"># 4. Run differential expression analysis</span></span>
+<span id="cb170-34"><a href="complete-workflow-1.html#cb170-34" tabindex="-1"></a>lmTest <span class="ot">&lt;-</span> <span class="fu">lmNULISAseq</span>(</span>
+<span id="cb170-35"><a href="complete-workflow-1.html#cb170-35" tabindex="-1"></a>  <span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ[targets_passed, metadata<span class="sc">$</span>sampleName],</span>
+<span id="cb170-36"><a href="complete-workflow-1.html#cb170-36" tabindex="-1"></a>  <span class="at">sampleInfo =</span> metadata,</span>
+<span id="cb170-37"><a href="complete-workflow-1.html#cb170-37" tabindex="-1"></a>  <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb170-38"><a href="complete-workflow-1.html#cb170-38" tabindex="-1"></a>  <span class="at">modelFormula =</span> <span class="st">&quot;Disease&quot;</span></span>
+<span id="cb170-39"><a href="complete-workflow-1.html#cb170-39" tabindex="-1"></a>)</span>
+<span id="cb170-40"><a href="complete-workflow-1.html#cb170-40" tabindex="-1"></a></span>
+<span id="cb170-41"><a href="complete-workflow-1.html#cb170-41" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb170-42"><a href="complete-workflow-1.html#cb170-42" tabindex="-1"></a><span class="co"># SLE ANALYSIS</span></span>
+<span id="cb170-43"><a href="complete-workflow-1.html#cb170-43" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb170-44"><a href="complete-workflow-1.html#cb170-44" tabindex="-1"></a></span>
+<span id="cb170-45"><a href="complete-workflow-1.html#cb170-45" tabindex="-1"></a><span class="co"># 5a. Filter significant SLE results</span></span>
+<span id="cb170-46"><a href="complete-workflow-1.html#cb170-46" tabindex="-1"></a>sig_targets_sle <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb170-47"><a href="complete-workflow-1.html#cb170-47" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaselupusSle_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb170-48"><a href="complete-workflow-1.html#cb170-48" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb170-49"><a href="complete-workflow-1.html#cb170-49" tabindex="-1"></a></span>
+<span id="cb170-50"><a href="complete-workflow-1.html#cb170-50" tabindex="-1"></a>sig_targets_sle_up <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb170-51"><a href="complete-workflow-1.html#cb170-51" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaselupusSle_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>, DiseaselupusSle_coef <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb170-52"><a href="complete-workflow-1.html#cb170-52" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb170-53"><a href="complete-workflow-1.html#cb170-53" tabindex="-1"></a></span>
+<span id="cb170-54"><a href="complete-workflow-1.html#cb170-54" tabindex="-1"></a>sig_targets_sle_down <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb170-55"><a href="complete-workflow-1.html#cb170-55" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaselupusSle_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>, DiseaselupusSle_coef <span class="sc">&lt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb170-56"><a href="complete-workflow-1.html#cb170-56" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb170-57"><a href="complete-workflow-1.html#cb170-57" tabindex="-1"></a></span>
+<span id="cb170-58"><a href="complete-workflow-1.html#cb170-58" tabindex="-1"></a><span class="co"># 6a. Get SLE and normal samples</span></span>
+<span id="cb170-59"><a href="complete-workflow-1.html#cb170-59" tabindex="-1"></a>sle_samples <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span></span>
+<span id="cb170-60"><a href="complete-workflow-1.html#cb170-60" tabindex="-1"></a>  <span class="fu">filter</span>(Disease <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;normal&quot;</span>, <span class="st">&quot;lupusSle&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb170-61"><a href="complete-workflow-1.html#cb170-61" tabindex="-1"></a>  <span class="fu">pull</span>(sampleName)</span>
+<span id="cb170-62"><a href="complete-workflow-1.html#cb170-62" tabindex="-1"></a></span>
+<span id="cb170-63"><a href="complete-workflow-1.html#cb170-63" tabindex="-1"></a><span class="co"># 7a. Create SLE volcano plot and save as PDF</span></span>
+<span id="cb170-64"><a href="complete-workflow-1.html#cb170-64" tabindex="-1"></a><span class="fu">volcanoPlot</span>(</span>
+<span id="cb170-65"><a href="complete-workflow-1.html#cb170-65" tabindex="-1"></a>  <span class="at">coefs =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>DiseaselupusSle_coef,</span>
+<span id="cb170-66"><a href="complete-workflow-1.html#cb170-66" tabindex="-1"></a>  <span class="at">p_vals =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>DiseaselupusSle_pval_FDR,</span>
+<span id="cb170-67"><a href="complete-workflow-1.html#cb170-67" tabindex="-1"></a>  <span class="at">target_labels =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>target,</span>
+<span id="cb170-68"><a href="complete-workflow-1.html#cb170-68" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">&quot;Systemic Lupus Erythematosus (SLE) vs Normal&quot;</span>,</span>
+<span id="cb170-69"><a href="complete-workflow-1.html#cb170-69" tabindex="-1"></a>  <span class="at">plot_name =</span> <span class="st">&quot;volcano_plot_sle_vs_normal.pdf&quot;</span>,</span>
+<span id="cb170-70"><a href="complete-workflow-1.html#cb170-70" tabindex="-1"></a>  <span class="at">data_dir =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-71"><a href="complete-workflow-1.html#cb170-71" tabindex="-1"></a>  <span class="at">plot_width =</span> <span class="dv">6</span>,</span>
+<span id="cb170-72"><a href="complete-workflow-1.html#cb170-72" tabindex="-1"></a>  <span class="at">plot_height =</span> <span class="dv">5</span></span>
+<span id="cb170-73"><a href="complete-workflow-1.html#cb170-73" tabindex="-1"></a>)</span>
+<span id="cb170-74"><a href="complete-workflow-1.html#cb170-74" tabindex="-1"></a></span>
+<span id="cb170-75"><a href="complete-workflow-1.html#cb170-75" tabindex="-1"></a><span class="co"># 8a. Create SLE heatmap and save as PDF</span></span>
+<span id="cb170-76"><a href="complete-workflow-1.html#cb170-76" tabindex="-1"></a>h_sle <span class="ot">&lt;-</span> <span class="fu">generate_heatmap</span>(</span>
+<span id="cb170-77"><a href="complete-workflow-1.html#cb170-77" tabindex="-1"></a>  <span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb170-78"><a href="complete-workflow-1.html#cb170-78" tabindex="-1"></a>  <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb170-79"><a href="complete-workflow-1.html#cb170-79" tabindex="-1"></a>  <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb170-80"><a href="complete-workflow-1.html#cb170-80" tabindex="-1"></a>  <span class="at">sample_subset =</span> sle_samples,</span>
+<span id="cb170-81"><a href="complete-workflow-1.html#cb170-81" tabindex="-1"></a>  <span class="at">target_subset =</span> sig_targets_sle,</span>
+<span id="cb170-82"><a href="complete-workflow-1.html#cb170-82" tabindex="-1"></a>  <span class="at">annotate_sample_by =</span> <span class="fu">c</span>(<span class="st">&quot;Disease&quot;</span>, <span class="st">&quot;Sample Matrix&quot;</span>, <span class="st">&quot;Lab&quot;</span>),</span>
+<span id="cb170-83"><a href="complete-workflow-1.html#cb170-83" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-84"><a href="complete-workflow-1.html#cb170-84" tabindex="-1"></a>  <span class="at">plot_name =</span> <span class="st">&quot;heatmap_sle_vs_normal.pdf&quot;</span>,</span>
+<span id="cb170-85"><a href="complete-workflow-1.html#cb170-85" tabindex="-1"></a>  <span class="at">plot_width =</span> <span class="dv">8</span>,</span>
+<span id="cb170-86"><a href="complete-workflow-1.html#cb170-86" tabindex="-1"></a>  <span class="at">plot_height =</span> <span class="dv">6</span></span>
+<span id="cb170-87"><a href="complete-workflow-1.html#cb170-87" tabindex="-1"></a>)</span>
+<span id="cb170-88"><a href="complete-workflow-1.html#cb170-88" tabindex="-1"></a></span>
+<span id="cb170-89"><a href="complete-workflow-1.html#cb170-89" tabindex="-1"></a><span class="co"># 9a. Create SLE PCA and save as PDF</span></span>
+<span id="cb170-90"><a href="complete-workflow-1.html#cb170-90" tabindex="-1"></a>p_sle <span class="ot">&lt;-</span> <span class="fu">generate_pca</span>(</span>
+<span id="cb170-91"><a href="complete-workflow-1.html#cb170-91" tabindex="-1"></a>  <span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb170-92"><a href="complete-workflow-1.html#cb170-92" tabindex="-1"></a>  <span class="at">plot_title =</span> <span class="st">&quot;PCA: SLE vs Normal</span><span class="sc">\n</span><span class="st">Significant DE Targets&quot;</span>,</span>
+<span id="cb170-93"><a href="complete-workflow-1.html#cb170-93" tabindex="-1"></a>  <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb170-94"><a href="complete-workflow-1.html#cb170-94" tabindex="-1"></a>  <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb170-95"><a href="complete-workflow-1.html#cb170-95" tabindex="-1"></a>  <span class="at">sample_subset =</span> sle_samples,</span>
+<span id="cb170-96"><a href="complete-workflow-1.html#cb170-96" tabindex="-1"></a>  <span class="at">target_subset =</span> sig_targets_sle,</span>
+<span id="cb170-97"><a href="complete-workflow-1.html#cb170-97" tabindex="-1"></a>  <span class="at">annotate_sample_by =</span> <span class="st">&quot;Disease&quot;</span>,</span>
+<span id="cb170-98"><a href="complete-workflow-1.html#cb170-98" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-99"><a href="complete-workflow-1.html#cb170-99" tabindex="-1"></a>  <span class="at">plot_name =</span> <span class="st">&quot;pca_plot_sle_vs_normal.pdf&quot;</span>,</span>
+<span id="cb170-100"><a href="complete-workflow-1.html#cb170-100" tabindex="-1"></a>  <span class="at">plot_width =</span> <span class="dv">5</span>,</span>
+<span id="cb170-101"><a href="complete-workflow-1.html#cb170-101" tabindex="-1"></a>  <span class="at">plot_height =</span> <span class="dv">4</span></span>
+<span id="cb170-102"><a href="complete-workflow-1.html#cb170-102" tabindex="-1"></a>)</span>
+<span id="cb170-103"><a href="complete-workflow-1.html#cb170-103" tabindex="-1"></a></span>
+<span id="cb170-104"><a href="complete-workflow-1.html#cb170-104" tabindex="-1"></a><span class="co"># 10a. Prepare long format data for boxplots</span></span>
+<span id="cb170-105"><a href="complete-workflow-1.html#cb170-105" tabindex="-1"></a>data_long <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long <span class="sc">%&gt;%</span> </span>
+<span id="cb170-106"><a href="complete-workflow-1.html#cb170-106" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb170-107"><a href="complete-workflow-1.html#cb170-107" tabindex="-1"></a>    <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">case_when</span>(</span>
+<span id="cb170-108"><a href="complete-workflow-1.html#cb170-108" tabindex="-1"></a>      Disease <span class="sc">==</span> <span class="st">&quot;lupusSle&quot;</span> <span class="sc">~</span> <span class="st">&quot;SLE&quot;</span>,</span>
+<span id="cb170-109"><a href="complete-workflow-1.html#cb170-109" tabindex="-1"></a>      Disease <span class="sc">==</span> <span class="st">&quot;rheumatoidArthritis&quot;</span> <span class="sc">~</span> <span class="st">&quot;RA&quot;</span>,</span>
+<span id="cb170-110"><a href="complete-workflow-1.html#cb170-110" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;Normal&quot;</span></span>
+<span id="cb170-111"><a href="complete-workflow-1.html#cb170-111" tabindex="-1"></a>    ))</span>
+<span id="cb170-112"><a href="complete-workflow-1.html#cb170-112" tabindex="-1"></a></span>
+<span id="cb170-113"><a href="complete-workflow-1.html#cb170-113" tabindex="-1"></a><span class="co"># 11a. Create upregulated SLE boxplots and save as PDF</span></span>
+<span id="cb170-114"><a href="complete-workflow-1.html#cb170-114" tabindex="-1"></a>boxplot_sle_up <span class="ot">&lt;-</span> data_long <span class="sc">%&gt;%</span></span>
+<span id="cb170-115"><a href="complete-workflow-1.html#cb170-115" tabindex="-1"></a>  <span class="fu">filter</span>(Target <span class="sc">%in%</span> sig_targets_sle_up, </span>
+<span id="cb170-116"><a href="complete-workflow-1.html#cb170-116" tabindex="-1"></a>         SampleName <span class="sc">%in%</span> sle_samples) <span class="sc">%&gt;%</span></span>
+<span id="cb170-117"><a href="complete-workflow-1.html#cb170-117" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>, <span class="at">y =</span> NPQ, <span class="at">fill =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb170-118"><a href="complete-workflow-1.html#cb170-118" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb170-119"><a href="complete-workflow-1.html#cb170-119" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Target, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb170-120"><a href="complete-workflow-1.html#cb170-120" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Upregulated Significant DE Targets - SLE vs Normal&quot;</span>,</span>
+<span id="cb170-121"><a href="complete-workflow-1.html#cb170-121" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;with FDR-adjusted p &lt; 0.05&quot;</span>,</span>
+<span id="cb170-122"><a href="complete-workflow-1.html#cb170-122" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Disease Type&quot;</span>, <span class="at">y =</span> <span class="st">&quot;NPQ&quot;</span>) <span class="sc">+</span></span>
+<span id="cb170-123"><a href="complete-workflow-1.html#cb170-123" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb170-124"><a href="complete-workflow-1.html#cb170-124" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),</span>
+<span id="cb170-125"><a href="complete-workflow-1.html#cb170-125" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb170-126"><a href="complete-workflow-1.html#cb170-126" tabindex="-1"></a></span>
+<span id="cb170-127"><a href="complete-workflow-1.html#cb170-127" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb170-128"><a href="complete-workflow-1.html#cb170-128" tabindex="-1"></a>  <span class="at">filename =</span> <span class="st">&quot;boxplot_sle_upregulated.pdf&quot;</span>,</span>
+<span id="cb170-129"><a href="complete-workflow-1.html#cb170-129" tabindex="-1"></a>  <span class="at">plot =</span> boxplot_sle_up,</span>
+<span id="cb170-130"><a href="complete-workflow-1.html#cb170-130" tabindex="-1"></a>  <span class="at">device =</span> <span class="st">&quot;pdf&quot;</span>,</span>
+<span id="cb170-131"><a href="complete-workflow-1.html#cb170-131" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-132"><a href="complete-workflow-1.html#cb170-132" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">12</span>,</span>
+<span id="cb170-133"><a href="complete-workflow-1.html#cb170-133" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">10</span></span>
+<span id="cb170-134"><a href="complete-workflow-1.html#cb170-134" tabindex="-1"></a>)</span>
+<span id="cb170-135"><a href="complete-workflow-1.html#cb170-135" tabindex="-1"></a></span>
+<span id="cb170-136"><a href="complete-workflow-1.html#cb170-136" tabindex="-1"></a><span class="co"># 12a. Create downregulated SLE boxplots and save as PDF</span></span>
+<span id="cb170-137"><a href="complete-workflow-1.html#cb170-137" tabindex="-1"></a>boxplot_sle_down <span class="ot">&lt;-</span> data_long <span class="sc">%&gt;%</span></span>
+<span id="cb170-138"><a href="complete-workflow-1.html#cb170-138" tabindex="-1"></a>  <span class="fu">filter</span>(Target <span class="sc">%in%</span> sig_targets_sle_down, </span>
+<span id="cb170-139"><a href="complete-workflow-1.html#cb170-139" tabindex="-1"></a>         SampleName <span class="sc">%in%</span> sle_samples) <span class="sc">%&gt;%</span></span>
+<span id="cb170-140"><a href="complete-workflow-1.html#cb170-140" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>, <span class="at">y =</span> NPQ, <span class="at">fill =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb170-141"><a href="complete-workflow-1.html#cb170-141" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb170-142"><a href="complete-workflow-1.html#cb170-142" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Target, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb170-143"><a href="complete-workflow-1.html#cb170-143" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Downregulated Significant DE Targets - SLE vs Normal&quot;</span>,</span>
+<span id="cb170-144"><a href="complete-workflow-1.html#cb170-144" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;with FDR-adjusted p &lt; 0.05&quot;</span>,</span>
+<span id="cb170-145"><a href="complete-workflow-1.html#cb170-145" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Disease Type&quot;</span>, <span class="at">y =</span> <span class="st">&quot;NPQ&quot;</span>) <span class="sc">+</span></span>
+<span id="cb170-146"><a href="complete-workflow-1.html#cb170-146" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb170-147"><a href="complete-workflow-1.html#cb170-147" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>))</span>
+<span id="cb170-148"><a href="complete-workflow-1.html#cb170-148" tabindex="-1"></a></span>
+<span id="cb170-149"><a href="complete-workflow-1.html#cb170-149" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb170-150"><a href="complete-workflow-1.html#cb170-150" tabindex="-1"></a>  <span class="at">filename =</span> <span class="st">&quot;boxplot_sle_downregulated.pdf&quot;</span>,</span>
+<span id="cb170-151"><a href="complete-workflow-1.html#cb170-151" tabindex="-1"></a>  <span class="at">plot =</span> boxplot_sle_down,</span>
+<span id="cb170-152"><a href="complete-workflow-1.html#cb170-152" tabindex="-1"></a>  <span class="at">device =</span> <span class="st">&quot;pdf&quot;</span>,</span>
+<span id="cb170-153"><a href="complete-workflow-1.html#cb170-153" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-154"><a href="complete-workflow-1.html#cb170-154" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb170-155"><a href="complete-workflow-1.html#cb170-155" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">3</span></span>
+<span id="cb170-156"><a href="complete-workflow-1.html#cb170-156" tabindex="-1"></a>)</span>
+<span id="cb170-157"><a href="complete-workflow-1.html#cb170-157" tabindex="-1"></a></span>
+<span id="cb170-158"><a href="complete-workflow-1.html#cb170-158" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb170-159"><a href="complete-workflow-1.html#cb170-159" tabindex="-1"></a><span class="co"># RA ANALYSIS</span></span>
+<span id="cb170-160"><a href="complete-workflow-1.html#cb170-160" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb170-161"><a href="complete-workflow-1.html#cb170-161" tabindex="-1"></a></span>
+<span id="cb170-162"><a href="complete-workflow-1.html#cb170-162" tabindex="-1"></a><span class="co"># 5b. Filter significant RA results</span></span>
+<span id="cb170-163"><a href="complete-workflow-1.html#cb170-163" tabindex="-1"></a>sig_targets_ra <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb170-164"><a href="complete-workflow-1.html#cb170-164" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaserheumatoidArthritis_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb170-165"><a href="complete-workflow-1.html#cb170-165" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb170-166"><a href="complete-workflow-1.html#cb170-166" tabindex="-1"></a></span>
+<span id="cb170-167"><a href="complete-workflow-1.html#cb170-167" tabindex="-1"></a>sig_targets_ra_up <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb170-168"><a href="complete-workflow-1.html#cb170-168" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaserheumatoidArthritis_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>, </span>
+<span id="cb170-169"><a href="complete-workflow-1.html#cb170-169" tabindex="-1"></a>         DiseaserheumatoidArthritis_coef <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb170-170"><a href="complete-workflow-1.html#cb170-170" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb170-171"><a href="complete-workflow-1.html#cb170-171" tabindex="-1"></a></span>
+<span id="cb170-172"><a href="complete-workflow-1.html#cb170-172" tabindex="-1"></a>sig_targets_ra_down <span class="ot">&lt;-</span> lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span></span>
+<span id="cb170-173"><a href="complete-workflow-1.html#cb170-173" tabindex="-1"></a>  <span class="fu">filter</span>(DiseaserheumatoidArthritis_pval_FDR <span class="sc">&lt;</span> <span class="fl">0.05</span>, </span>
+<span id="cb170-174"><a href="complete-workflow-1.html#cb170-174" tabindex="-1"></a>         DiseaserheumatoidArthritis_coef <span class="sc">&lt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb170-175"><a href="complete-workflow-1.html#cb170-175" tabindex="-1"></a>  <span class="fu">pull</span>(target)</span>
+<span id="cb170-176"><a href="complete-workflow-1.html#cb170-176" tabindex="-1"></a></span>
+<span id="cb170-177"><a href="complete-workflow-1.html#cb170-177" tabindex="-1"></a><span class="co"># 6b. Get RA and normal samples</span></span>
+<span id="cb170-178"><a href="complete-workflow-1.html#cb170-178" tabindex="-1"></a>ra_samples <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span></span>
+<span id="cb170-179"><a href="complete-workflow-1.html#cb170-179" tabindex="-1"></a>  <span class="fu">filter</span>(Disease <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;normal&quot;</span>, <span class="st">&quot;rheumatoidArthritis&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb170-180"><a href="complete-workflow-1.html#cb170-180" tabindex="-1"></a>  <span class="fu">pull</span>(sampleName)</span>
+<span id="cb170-181"><a href="complete-workflow-1.html#cb170-181" tabindex="-1"></a></span>
+<span id="cb170-182"><a href="complete-workflow-1.html#cb170-182" tabindex="-1"></a><span class="co"># 7b. Create RA volcano plot and save as PDF</span></span>
+<span id="cb170-183"><a href="complete-workflow-1.html#cb170-183" tabindex="-1"></a><span class="fu">volcanoPlot</span>(</span>
+<span id="cb170-184"><a href="complete-workflow-1.html#cb170-184" tabindex="-1"></a>  <span class="at">coefs =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>DiseaserheumatoidArthritis_coef,</span>
+<span id="cb170-185"><a href="complete-workflow-1.html#cb170-185" tabindex="-1"></a>  <span class="at">p_vals =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>DiseaserheumatoidArthritis_pval_FDR,</span>
+<span id="cb170-186"><a href="complete-workflow-1.html#cb170-186" tabindex="-1"></a>  <span class="at">target_labels =</span> lmTest<span class="sc">$</span>modelStats<span class="sc">$</span>target,</span>
+<span id="cb170-187"><a href="complete-workflow-1.html#cb170-187" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">&quot;Rheumatoid Arthritis (RA) vs Normal&quot;</span>,</span>
+<span id="cb170-188"><a href="complete-workflow-1.html#cb170-188" tabindex="-1"></a>  <span class="at">plot_name =</span> <span class="st">&quot;volcano_plot_ra_vs_normal.pdf&quot;</span>,</span>
+<span id="cb170-189"><a href="complete-workflow-1.html#cb170-189" tabindex="-1"></a>  <span class="at">data_dir =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-190"><a href="complete-workflow-1.html#cb170-190" tabindex="-1"></a>  <span class="at">plot_width =</span> <span class="dv">6</span>,</span>
+<span id="cb170-191"><a href="complete-workflow-1.html#cb170-191" tabindex="-1"></a>  <span class="at">plot_height =</span> <span class="dv">5</span></span>
+<span id="cb170-192"><a href="complete-workflow-1.html#cb170-192" tabindex="-1"></a>)</span>
+<span id="cb170-193"><a href="complete-workflow-1.html#cb170-193" tabindex="-1"></a></span>
+<span id="cb170-194"><a href="complete-workflow-1.html#cb170-194" tabindex="-1"></a><span class="co"># 8b. Create RA heatmap and save as PDF</span></span>
+<span id="cb170-195"><a href="complete-workflow-1.html#cb170-195" tabindex="-1"></a>h_ra <span class="ot">&lt;-</span> <span class="fu">generate_heatmap</span>(</span>
+<span id="cb170-196"><a href="complete-workflow-1.html#cb170-196" tabindex="-1"></a>  <span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb170-197"><a href="complete-workflow-1.html#cb170-197" tabindex="-1"></a>  <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb170-198"><a href="complete-workflow-1.html#cb170-198" tabindex="-1"></a>  <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb170-199"><a href="complete-workflow-1.html#cb170-199" tabindex="-1"></a>  <span class="at">sample_subset =</span> ra_samples,</span>
+<span id="cb170-200"><a href="complete-workflow-1.html#cb170-200" tabindex="-1"></a>  <span class="at">target_subset =</span> sig_targets_ra,</span>
+<span id="cb170-201"><a href="complete-workflow-1.html#cb170-201" tabindex="-1"></a>  <span class="at">annotate_sample_by =</span> <span class="fu">c</span>(<span class="st">&quot;Disease&quot;</span>, <span class="st">&quot;Sample Matrix&quot;</span>, <span class="st">&quot;Lab&quot;</span>),</span>
+<span id="cb170-202"><a href="complete-workflow-1.html#cb170-202" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-203"><a href="complete-workflow-1.html#cb170-203" tabindex="-1"></a>  <span class="at">plot_name =</span> <span class="st">&quot;heatmap_ra_vs_normal.pdf&quot;</span>,</span>
+<span id="cb170-204"><a href="complete-workflow-1.html#cb170-204" tabindex="-1"></a>  <span class="at">plot_width =</span> <span class="dv">8</span>,</span>
+<span id="cb170-205"><a href="complete-workflow-1.html#cb170-205" tabindex="-1"></a>  <span class="at">plot_height =</span> <span class="dv">6</span></span>
+<span id="cb170-206"><a href="complete-workflow-1.html#cb170-206" tabindex="-1"></a>)</span>
+<span id="cb170-207"><a href="complete-workflow-1.html#cb170-207" tabindex="-1"></a></span>
+<span id="cb170-208"><a href="complete-workflow-1.html#cb170-208" tabindex="-1"></a><span class="co"># 9b. Create RA PCA and save as PDF</span></span>
+<span id="cb170-209"><a href="complete-workflow-1.html#cb170-209" tabindex="-1"></a>p_ra <span class="ot">&lt;-</span> <span class="fu">generate_pca</span>(</span>
+<span id="cb170-210"><a href="complete-workflow-1.html#cb170-210" tabindex="-1"></a>  <span class="at">data =</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ,</span>
+<span id="cb170-211"><a href="complete-workflow-1.html#cb170-211" tabindex="-1"></a>  <span class="at">plot_title =</span> <span class="st">&quot;PCA: RA vs Normal</span><span class="sc">\n</span><span class="st">Significant DE Targets&quot;</span>,</span>
+<span id="cb170-212"><a href="complete-workflow-1.html#cb170-212" tabindex="-1"></a>  <span class="at">sampleInfo =</span> metadata_rename,</span>
+<span id="cb170-213"><a href="complete-workflow-1.html#cb170-213" tabindex="-1"></a>  <span class="at">sampleName_var =</span> <span class="st">&quot;sampleName&quot;</span>,</span>
+<span id="cb170-214"><a href="complete-workflow-1.html#cb170-214" tabindex="-1"></a>  <span class="at">sample_subset =</span> ra_samples,</span>
+<span id="cb170-215"><a href="complete-workflow-1.html#cb170-215" tabindex="-1"></a>  <span class="at">target_subset =</span> sig_targets_ra,</span>
+<span id="cb170-216"><a href="complete-workflow-1.html#cb170-216" tabindex="-1"></a>  <span class="at">annotate_sample_by =</span> <span class="st">&quot;Disease&quot;</span>,</span>
+<span id="cb170-217"><a href="complete-workflow-1.html#cb170-217" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-218"><a href="complete-workflow-1.html#cb170-218" tabindex="-1"></a>  <span class="at">plot_name =</span> <span class="st">&quot;pca_plot_ra_vs_normal.pdf&quot;</span>,</span>
+<span id="cb170-219"><a href="complete-workflow-1.html#cb170-219" tabindex="-1"></a>  <span class="at">plot_width =</span> <span class="dv">5</span>,</span>
+<span id="cb170-220"><a href="complete-workflow-1.html#cb170-220" tabindex="-1"></a>  <span class="at">plot_height =</span> <span class="dv">4</span></span>
+<span id="cb170-221"><a href="complete-workflow-1.html#cb170-221" tabindex="-1"></a>)</span>
+<span id="cb170-222"><a href="complete-workflow-1.html#cb170-222" tabindex="-1"></a></span>
+<span id="cb170-223"><a href="complete-workflow-1.html#cb170-223" tabindex="-1"></a><span class="co"># 10b. Create upregulated RA boxplots and save as PDF</span></span>
+<span id="cb170-224"><a href="complete-workflow-1.html#cb170-224" tabindex="-1"></a>boxplot_ra_up <span class="ot">&lt;-</span> data_long <span class="sc">%&gt;%</span></span>
+<span id="cb170-225"><a href="complete-workflow-1.html#cb170-225" tabindex="-1"></a>  <span class="fu">filter</span>(Target <span class="sc">%in%</span> sig_targets_ra_up, </span>
+<span id="cb170-226"><a href="complete-workflow-1.html#cb170-226" tabindex="-1"></a>         SampleName <span class="sc">%in%</span> ra_samples) <span class="sc">%&gt;%</span></span>
+<span id="cb170-227"><a href="complete-workflow-1.html#cb170-227" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>, <span class="at">y =</span> NPQ, <span class="at">fill =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb170-228"><a href="complete-workflow-1.html#cb170-228" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb170-229"><a href="complete-workflow-1.html#cb170-229" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Target, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb170-230"><a href="complete-workflow-1.html#cb170-230" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Upregulated Significant DE Targets - RA vs Normal&quot;</span>,</span>
+<span id="cb170-231"><a href="complete-workflow-1.html#cb170-231" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;with FDR-adjusted p &lt; 0.05&quot;</span>,</span>
+<span id="cb170-232"><a href="complete-workflow-1.html#cb170-232" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Disease Type&quot;</span>, <span class="at">y =</span> <span class="st">&quot;NPQ&quot;</span>) <span class="sc">+</span></span>
+<span id="cb170-233"><a href="complete-workflow-1.html#cb170-233" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb170-234"><a href="complete-workflow-1.html#cb170-234" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>))</span>
+<span id="cb170-235"><a href="complete-workflow-1.html#cb170-235" tabindex="-1"></a></span>
+<span id="cb170-236"><a href="complete-workflow-1.html#cb170-236" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb170-237"><a href="complete-workflow-1.html#cb170-237" tabindex="-1"></a>  <span class="at">filename =</span> <span class="st">&quot;boxplot_ra_upregulated.pdf&quot;</span>,</span>
+<span id="cb170-238"><a href="complete-workflow-1.html#cb170-238" tabindex="-1"></a>  <span class="at">plot =</span> boxplot_ra_up,</span>
+<span id="cb170-239"><a href="complete-workflow-1.html#cb170-239" tabindex="-1"></a>  <span class="at">device =</span> <span class="st">&quot;pdf&quot;</span>,</span>
+<span id="cb170-240"><a href="complete-workflow-1.html#cb170-240" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-241"><a href="complete-workflow-1.html#cb170-241" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">12</span>,</span>
+<span id="cb170-242"><a href="complete-workflow-1.html#cb170-242" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">10</span></span>
+<span id="cb170-243"><a href="complete-workflow-1.html#cb170-243" tabindex="-1"></a>)</span>
+<span id="cb170-244"><a href="complete-workflow-1.html#cb170-244" tabindex="-1"></a></span>
+<span id="cb170-245"><a href="complete-workflow-1.html#cb170-245" tabindex="-1"></a><span class="co"># 11b. Create downregulated RA boxplots and save as PDF</span></span>
+<span id="cb170-246"><a href="complete-workflow-1.html#cb170-246" tabindex="-1"></a>boxplot_ra_down <span class="ot">&lt;-</span> data_long <span class="sc">%&gt;%</span></span>
+<span id="cb170-247"><a href="complete-workflow-1.html#cb170-247" tabindex="-1"></a>  <span class="fu">filter</span>(Target <span class="sc">%in%</span> sig_targets_ra_down, </span>
+<span id="cb170-248"><a href="complete-workflow-1.html#cb170-248" tabindex="-1"></a>         SampleName <span class="sc">%in%</span> ra_samples) <span class="sc">%&gt;%</span></span>
+<span id="cb170-249"><a href="complete-workflow-1.html#cb170-249" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>, <span class="at">y =</span> NPQ, <span class="at">fill =</span> <span class="st">`</span><span class="at">Disease Type</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb170-250"><a href="complete-workflow-1.html#cb170-250" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb170-251"><a href="complete-workflow-1.html#cb170-251" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Target, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb170-252"><a href="complete-workflow-1.html#cb170-252" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Downregulated Significant DE Targets - RA vs Normal&quot;</span>,</span>
+<span id="cb170-253"><a href="complete-workflow-1.html#cb170-253" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;with FDR-adjusted p &lt; 0.05&quot;</span>,</span>
+<span id="cb170-254"><a href="complete-workflow-1.html#cb170-254" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Disease Type&quot;</span>, <span class="at">y =</span> <span class="st">&quot;NPQ&quot;</span>) <span class="sc">+</span></span>
+<span id="cb170-255"><a href="complete-workflow-1.html#cb170-255" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb170-256"><a href="complete-workflow-1.html#cb170-256" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),</span>
+<span id="cb170-257"><a href="complete-workflow-1.html#cb170-257" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb170-258"><a href="complete-workflow-1.html#cb170-258" tabindex="-1"></a></span>
+<span id="cb170-259"><a href="complete-workflow-1.html#cb170-259" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb170-260"><a href="complete-workflow-1.html#cb170-260" tabindex="-1"></a>  <span class="at">filename =</span> <span class="st">&quot;boxplot_ra_downregulated.pdf&quot;</span>,</span>
+<span id="cb170-261"><a href="complete-workflow-1.html#cb170-261" tabindex="-1"></a>  <span class="at">plot =</span> boxplot_ra_down,</span>
+<span id="cb170-262"><a href="complete-workflow-1.html#cb170-262" tabindex="-1"></a>  <span class="at">device =</span> <span class="st">&quot;pdf&quot;</span>,</span>
+<span id="cb170-263"><a href="complete-workflow-1.html#cb170-263" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;figures&quot;</span>,</span>
+<span id="cb170-264"><a href="complete-workflow-1.html#cb170-264" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb170-265"><a href="complete-workflow-1.html#cb170-265" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">3</span></span>
+<span id="cb170-266"><a href="complete-workflow-1.html#cb170-266" tabindex="-1"></a>)</span>
+<span id="cb170-267"><a href="complete-workflow-1.html#cb170-267" tabindex="-1"></a></span>
+<span id="cb170-268"><a href="complete-workflow-1.html#cb170-268" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb170-269"><a href="complete-workflow-1.html#cb170-269" tabindex="-1"></a><span class="co"># COMPARATIVE ANALYSIS AND EXPORT</span></span>
+<span id="cb170-270"><a href="complete-workflow-1.html#cb170-270" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb170-271"><a href="complete-workflow-1.html#cb170-271" tabindex="-1"></a></span>
+<span id="cb170-272"><a href="complete-workflow-1.html#cb170-272" tabindex="-1"></a><span class="co"># 13. Analyze overlap between diseases</span></span>
+<span id="cb170-273"><a href="complete-workflow-1.html#cb170-273" tabindex="-1"></a>shared_targets <span class="ot">&lt;-</span> <span class="fu">intersect</span>(sig_targets_sle, sig_targets_ra)</span>
+<span id="cb170-274"><a href="complete-workflow-1.html#cb170-274" tabindex="-1"></a>sle_specific <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(sig_targets_sle, sig_targets_ra)</span>
+<span id="cb170-275"><a href="complete-workflow-1.html#cb170-275" tabindex="-1"></a>ra_specific <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(sig_targets_ra, sig_targets_sle)</span>
+<span id="cb170-276"><a href="complete-workflow-1.html#cb170-276" tabindex="-1"></a></span>
+<span id="cb170-277"><a href="complete-workflow-1.html#cb170-277" tabindex="-1"></a><span class="co"># 14. Export all results to CSV</span></span>
+<span id="cb170-278"><a href="complete-workflow-1.html#cb170-278" tabindex="-1"></a><span class="fu">write_csv</span>(lmTest<span class="sc">$</span>modelStats, <span class="st">&quot;results/all_de_results.csv&quot;</span>)</span>
+<span id="cb170-279"><a href="complete-workflow-1.html#cb170-279" tabindex="-1"></a></span>
+<span id="cb170-280"><a href="complete-workflow-1.html#cb170-280" tabindex="-1"></a><span class="co"># Export SLE results</span></span>
+<span id="cb170-281"><a href="complete-workflow-1.html#cb170-281" tabindex="-1"></a><span class="fu">write_csv</span>(</span>
+<span id="cb170-282"><a href="complete-workflow-1.html#cb170-282" tabindex="-1"></a>  lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span> <span class="fu">filter</span>(target <span class="sc">%in%</span> sig_targets_sle),</span>
+<span id="cb170-283"><a href="complete-workflow-1.html#cb170-283" tabindex="-1"></a>  <span class="st">&quot;results/sig_sle_proteins.csv&quot;</span></span>
+<span id="cb170-284"><a href="complete-workflow-1.html#cb170-284" tabindex="-1"></a>)</span>
+<span id="cb170-285"><a href="complete-workflow-1.html#cb170-285" tabindex="-1"></a></span>
+<span id="cb170-286"><a href="complete-workflow-1.html#cb170-286" tabindex="-1"></a><span class="co"># Export RA results</span></span>
+<span id="cb170-287"><a href="complete-workflow-1.html#cb170-287" tabindex="-1"></a><span class="fu">write_csv</span>(</span>
+<span id="cb170-288"><a href="complete-workflow-1.html#cb170-288" tabindex="-1"></a>  lmTest<span class="sc">$</span>modelStats <span class="sc">%&gt;%</span> <span class="fu">filter</span>(target <span class="sc">%in%</span> sig_targets_ra),</span>
+<span id="cb170-289"><a href="complete-workflow-1.html#cb170-289" tabindex="-1"></a>  <span class="st">&quot;results/sig_ra_proteins.csv&quot;</span></span>
+<span id="cb170-290"><a href="complete-workflow-1.html#cb170-290" tabindex="-1"></a>)</span>
+<span id="cb170-291"><a href="complete-workflow-1.html#cb170-291" tabindex="-1"></a></span>
+<span id="cb170-292"><a href="complete-workflow-1.html#cb170-292" tabindex="-1"></a><span class="co"># Export overlap results</span></span>
+<span id="cb170-293"><a href="complete-workflow-1.html#cb170-293" tabindex="-1"></a><span class="fu">write_csv</span>(</span>
+<span id="cb170-294"><a href="complete-workflow-1.html#cb170-294" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">target =</span> shared_targets),</span>
+<span id="cb170-295"><a href="complete-workflow-1.html#cb170-295" tabindex="-1"></a>  <span class="st">&quot;results/shared_sle_ra_proteins.csv&quot;</span></span>
+<span id="cb170-296"><a href="complete-workflow-1.html#cb170-296" tabindex="-1"></a>)</span>
+<span id="cb170-297"><a href="complete-workflow-1.html#cb170-297" tabindex="-1"></a></span>
+<span id="cb170-298"><a href="complete-workflow-1.html#cb170-298" tabindex="-1"></a><span class="co"># 15. Print comprehensive summary</span></span>
+<span id="cb170-299"><a href="complete-workflow-1.html#cb170-299" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">========================================</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-300"><a href="complete-workflow-1.html#cb170-300" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;DIFFERENTIAL EXPRESSION SUMMARY</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-301"><a href="complete-workflow-1.html#cb170-301" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;========================================</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-302"><a href="complete-workflow-1.html#cb170-302" tabindex="-1"></a></span>
+<span id="cb170-303"><a href="complete-workflow-1.html#cb170-303" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Quality Control:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-304"><a href="complete-workflow-1.html#cb170-304" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Targets passing detectability threshold:&quot;</span>, <span class="fu">length</span>(targets_passed), <span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-305"><a href="complete-workflow-1.html#cb170-305" tabindex="-1"></a></span>
+<span id="cb170-306"><a href="complete-workflow-1.html#cb170-306" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;SLE vs Normal:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-307"><a href="complete-workflow-1.html#cb170-307" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Total significant proteins:&quot;</span>, <span class="fu">length</span>(sig_targets_sle), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-308"><a href="complete-workflow-1.html#cb170-308" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Upregulated:&quot;</span>, <span class="fu">length</span>(sig_targets_sle_up), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-309"><a href="complete-workflow-1.html#cb170-309" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Downregulated:&quot;</span>, <span class="fu">length</span>(sig_targets_sle_down), <span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-310"><a href="complete-workflow-1.html#cb170-310" tabindex="-1"></a></span>
+<span id="cb170-311"><a href="complete-workflow-1.html#cb170-311" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;RA vs Normal:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-312"><a href="complete-workflow-1.html#cb170-312" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Total significant proteins:&quot;</span>, <span class="fu">length</span>(sig_targets_ra), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-313"><a href="complete-workflow-1.html#cb170-313" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Upregulated:&quot;</span>, <span class="fu">length</span>(sig_targets_ra_up), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-314"><a href="complete-workflow-1.html#cb170-314" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Downregulated:&quot;</span>, <span class="fu">length</span>(sig_targets_ra_down), <span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-315"><a href="complete-workflow-1.html#cb170-315" tabindex="-1"></a></span>
+<span id="cb170-316"><a href="complete-workflow-1.html#cb170-316" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Disease Comparison:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-317"><a href="complete-workflow-1.html#cb170-317" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Shared significant targets:&quot;</span>, <span class="fu">length</span>(shared_targets), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-318"><a href="complete-workflow-1.html#cb170-318" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  SLE-specific targets:&quot;</span>, <span class="fu">length</span>(sle_specific), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-319"><a href="complete-workflow-1.html#cb170-319" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  RA-specific targets:&quot;</span>, <span class="fu">length</span>(ra_specific), <span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-320"><a href="complete-workflow-1.html#cb170-320" tabindex="-1"></a></span>
+<span id="cb170-321"><a href="complete-workflow-1.html#cb170-321" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Output files created in:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-322"><a href="complete-workflow-1.html#cb170-322" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  - figures/  (all plots as PDFs)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-323"><a href="complete-workflow-1.html#cb170-323" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  - results/  (all statistical results as CSVs)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb170-324"><a href="complete-workflow-1.html#cb170-324" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;========================================</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="predictive-modeling.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="additional-resources.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": false,
+    "twitter": false,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": {},
+    "google": false
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section",
+    "scroll_highlight": true
+  },
+  "toolbar": {
+    "position": "fixed"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+Dockerfile
+Dockerfile.test
+docker-compose.test.yml
+renv.lock
+/inst/rmarkdown/templates/nasreport
+/inst/rmarkdown/templates/tapsummary
+/renv
+Files2RemoveForPublicRelease.txt
+/docs
+.github

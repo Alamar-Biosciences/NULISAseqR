@@ -1,0 +1,15 @@
+pandoc: '3.5'
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  book/00-understanding-nulisaseq-data: book/00-understanding-nulisaseq-data.html
+  book/01-data-import: book/01-data-import.html
+  book/02-quality-control: book/02-quality-control.html
+  book/03-visualization: book/03-visualization.html
+  book/04-differential-expression: book/04-differential-expression.html
+  book/05-longitudinal_analysis: book/05-longitudinal_analysis.html
+  book/06-predictive-modeling: book/06-predictive-modeling.html
+  book/07-complete-workflow-example-1: book/07-complete-workflow-example-1.html
+  book/99-additional-resources: book/99-additional-resources.html
+  book/index: book/index.html
+last_built: 2025-11-10T16:31Z

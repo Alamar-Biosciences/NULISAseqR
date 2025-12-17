@@ -1,33 +1,92 @@
 Package: NULISAseqR
 Type: Package
 Title: Analysis of NULISAseq Data
-Version: 1.2.0
-Author: Alamar Biosciences
-Maintainer: Joanne C. Beer <jbeer@alamarbio.com>
-Description: NULISAseqR package loads NULISAseq data from XML and XLSX files
-    Includes functions to normalize, calculate CV, and visualize data, among others.
-License: GPL3.0 + file LICENSE
-Imports:
+Version: 1.4.0
+Authors@R: c(
+    person("Alamar Biosciences Bioinformatics Team", role = c("aut", "cre", "cph"),
+           email = "bioinfo@alamarbio.com",
+           comment = "Contributors: Dwight Kuo, Joanne C. Beer, Eliza Chai, Sumedh Sankhe, Kasun Buddika")
+    )
+Description: Provides comprehensive analysis tools for NULISAseq proteomic data
+    including data import, normalization, quality control, statistical analysis,
+    and visualization.
+License: GPL-3
+URL: https://nulisaseqr.alamarbio.com, https://github.com/Alamar-Biosciences/NULISAseqR
+BugReports: https://github.com/Alamar-Biosciences/NULISAseqR/issues
+Imports: base64enc,
+    bookdown,
+    circlize,
+    coin,
+    ComplexHeatmap,
     corrplot,
+    data.table,
+    devtools,
+    dplyr,
+    DT,
+    emmeans,
     fields,
+    forcats,
+    fs,
     future,
+    future.apply,
+    future.callr,
     gdata,
     ggplot2,
+    ggpubr,
     ggrepel,
     glue,
+    graphics,
+    grDevices,
+    grid,
+    gridExtra,
+    htmltools,
+    janitor,
+    jsonlite,
     kableExtra,
+    knitr,
+    lme4,
     lmerTest,
+    logger,
+    magrittr,
+    openxlsx,
+    optparse,
     pagedown,
     pander,
+    parallel,
+    parallelly,
+    patchwork,
     pheatmap,
+    pkgdown,
+    plotly,
     promises,
+    purrr,
+    qs,
+    ragg,
+    RColorBrewer,
+    rcompanion,
+    reactable,
+    readr,
     readxl,
+    renv,
+    rlang,
+    rmarkdown,
+    scales,
+    shiny,
+    showtext,
+    stats,
+    svglite,
+    tibble,
+    tidyr,
+    tidyverse,
+    tools,
+    utils,
     uuid,
+    withr,
     XML,
     xml2
 Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.3.2
-Suggests: 
-    testthat (>= 3.0.0)
+LazyData: false
+RoxygenNote: 7.3.3
+Suggests: bookdown, pkgdown, testthat (>= 3.0.0)
 Config/testthat/edition: 3
+VignetteBuilder: knitr

@@ -49,8 +49,10 @@
 #' @param showLegend Should a legend appear in the plot? Only used when 
 #' `subtractLOD = TRUE`. 
 #' @param cex.targets Character expansion factor for target labels.
-#' 
-#' 
+#' @param match_matrix Matrix of indices provided by calcSampleTargetNAs. 
+#' Lists samples/targets that should not be reported 
+#' @param targets Data frame containing target information including Curve_Quant attribute.
+#' If provided, target names with Curve_Quant == "R" will be prefixed with "* ".
 #'
 #' @return Draws boxplots of target expression.
 #'
@@ -74,10 +76,28 @@ targetBoxplot <- function(data_matrix,
                           detectLowColor='blue',
                           showLegend=TRUE,
                           cex.targets=0.4,
-                          axis_limits=NULL){
+                          axis_limits=NULL,
+                          match_matrix=NULL,
+                          targets=NULL){
   # exclude targets
   if(!is.null(excludeTargets)){
     data_matrix <- data_matrix[!(rownames(data_matrix) %in% excludeTargets),]
+  }
+  
+  # Function to get display names for targets
+  get_display_names <- function(target_names, targets_df) {
+    if(is.null(targets_df)) return(target_names)
+    
+    display_names <- target_names
+    for(i in seq_along(target_names)){
+      target_name <- target_names[i]
+      # Find matching target in targets data frame
+      target_row <- which(targets_df$targetName == target_name)
+      if(length(target_row) > 0 && targets_df$Curve_Quant[target_row[1]] == "R"){
+        display_names[i] <- paste0("* ", target_name)
+      }
+    }
+    return(display_names)
   }
   
   # boxplot if not subtracting LOD
@@ -114,7 +134,8 @@ targetBoxplot <- function(data_matrix,
     }
     
     if(horizontal==FALSE){
-      # make plot
+      # make plot with display names
+      display_names <- get_display_names(rownames(data_matrix), targets)
       boxplot(t(data_matrix), 
               horizontal=FALSE,
               xlab='',
@@ -128,12 +149,17 @@ targetBoxplot <- function(data_matrix,
               cex.axis=cex.targets,
               yaxt='n',
               col=colors,
-              ylim=ylimits)
+              ylim=axis_limits,
+              names=display_names)
       axis(side=2, las=1)
       grid(nx=NA, ny=NULL)
       
     } else if(horizontal==TRUE){
-      # make plot
+      # make plot with display names
+      # Get display names for targets in reverse order
+      original_rownames <- rownames(data_matrix)
+      reversed_rownames <- rev(original_rownames)
+      display_rownames <- get_display_names(reversed_rownames, targets)
       boxplot(t(apply(data_matrix, 2, rev)), 
               horizontal=TRUE,
               xlab=axis_label,
@@ -147,7 +173,8 @@ targetBoxplot <- function(data_matrix,
               cex.axis=cex.targets,
               xaxt='n',
               col=rev(colors),
-              xlim=axis_limits)
+              xlim=axis_limits,
+              names=display_rownames)
       grid(nx=NULL, ny=NA)
       axis(side=1, las=1)
     } # end horizontal==TRUE
@@ -164,7 +191,8 @@ targetBoxplot <- function(data_matrix,
     # calculate LODs
     LOD <- lod(data_matrix,
                blanks=blanks,
-               targetNoOutlierDetection = targetNoOutlierDetection)
+               targetNoOutlierDetection = targetNoOutlierDetection,
+               match_matrix = match_matrix)
     
     # exclude samples
     if(!is.null(excludeSamples)){
@@ -224,9 +252,10 @@ targetBoxplot <- function(data_matrix,
       detectColors <- colors
     }
     
+    par(mar=c(4,3,2,0.5), mgp=c(2,1,0))
     if(horizontal==FALSE){
-      # make plot
-      par(mar=c(4,4,2,0.5))
+      # make plot with display names
+      display_names <- get_display_names(rownames(data_matrix), targets)
       boxplot(t(data_matrix), 
               horizontal=FALSE,
               xlab='',
@@ -240,14 +269,12 @@ targetBoxplot <- function(data_matrix,
               cex.axis=cex.targets,
               yaxt='n',
               col=detectColors,
-              ylim=axis_limits)
+              ylim=axis_limits,
+              names=display_names)
       axis(side=2, las=1)
       grid(nx=NA, ny=NULL)
       abline(h=0, col='darkred')
-      axis_limits <- par('usr')
-      text(x=axis_limits[1] + (axis_limits[2] - axis_limits[1])/20, y=0,
-           labels='LOD', col='darkred', cex=0.8, pos=3)
-      
+
       # make legend
       if(showLegend==TRUE){
         # add color gradient legend
@@ -270,12 +297,16 @@ targetBoxplot <- function(data_matrix,
              y = legend_bottom - y_axis_length/40,
              labels = seq(0,100,l=6), 
              cex=0.8, adj=0.5)
-        text(x=(legend_left+legend_right)/2, y=legend_top, 
-             labels='detectability (%)', pos=3, cex=0.8)
+        text(x=(legend_left+legend_right)/2, y=legend_top,
+             labels='Detectability', pos=3, cex=0.8)
       } # end legend
       
     } else if(horizontal==TRUE){
-      # make plot
+      # make plot with display names
+      # Get display names for targets in reverse order
+      original_rownames <- rownames(data_matrix)
+      reversed_rownames <- rev(original_rownames)
+      display_rownames <- get_display_names(reversed_rownames, targets)
       boxplot(t(apply(as.matrix(data_matrix), 2, rev)), 
               horizontal=TRUE,
               xlab=axis_label,
@@ -289,13 +320,12 @@ targetBoxplot <- function(data_matrix,
               cex.axis=cex.targets,
               xaxt='n',
               col=rev(detectColors),
-              xlim=axis_limits)
+              xlim=axis_limits,
+              names=display_rownames)
       axis(side=1, las=1)
       grid(nx=NULL, ny=NA)
       abline(v=0, col='darkred')
       axis_limits <- par('usr')
-      text(x=0, y=axis_limits[4] - (axis_limits[4] - axis_limits[3])/20,
-           labels='LOD', col='darkred', cex=0.8, pos=4)
       
       # make legend
       if(showLegend==TRUE){
@@ -319,8 +349,8 @@ targetBoxplot <- function(data_matrix,
              y = seq(legend_bottom, legend_top, l=6),
              labels = seq(0,100, l=6), 
              cex=0.8, adj=0.5)
-        text(x=(legend_left+legend_right)/2, y=legend_top, 
-             labels='detectability (%)', pos=3, cex=0.8)
+        text(x=(legend_left+legend_right)/2, y=legend_top,
+             labels='Detectability', pos=3, cex=0.8)
       } # end legend
     } # end horizontal==TRUE
   } # end subtractLOD==TRUE 

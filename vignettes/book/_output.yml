@@ -1,0 +1,39 @@
+bookdown::gitbook:
+  config:
+    toc:
+      collapse: section
+      scroll_highlight: yes
+      before: |
+        <li style="text-align: left; padding: 20px;">
+          <a href="https://www.alamarbio.com" target="_blank">
+            <img src="figures/alamar_logo.png" style="height:70px;">
+          </a>
+        </li>
+        <li><a href="./">NULISAseqR User Guide</a></li>
+      after: |
+        <li><a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank">GitHub Repository</a></li>
+    sharing:
+      facebook: no
+      twitter: no
+      google: no
+      linkedin: no
+      weibo: no
+      instapaper: no
+      vk: no
+      all: []
+    toolbar:
+      position: fixed
+  split_by: chapter
+  highlight: tango
+  info: no
+  dev: "png"
+  dpi: 300
+  
+bookdown::pdf_book:
+  includes:
+    in_header: preamble.tex
+  latex_engine: xelatex
+  citation_package: natbib
+  keep_tex: yes
+  
+bookdown::epub_book: default

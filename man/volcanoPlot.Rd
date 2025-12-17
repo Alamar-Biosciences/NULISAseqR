@@ -16,6 +16,8 @@ volcanoPlot(
   sig_threshold = 0.05,
   sig_label = "FDR = 5\%",
   label_all_targets = FALSE,
+  upper_log2FC_threshold = NULL,
+  lower_log2FC_threshold = NULL,
   target_labels_off = FALSE,
   target_label_colors = NULL,
   target_point_colors = NULL,
@@ -28,13 +30,19 @@ volcanoPlot(
   axis_label_font_size = 12,
   tick_label_font_size = 12,
   plot_aspect_ratio = 1,
-  log_y = TRUE
+  log_y = TRUE,
+  output_dir = NULL,
+  plot_name = NULL,
+  plot_width = 7,
+  plot_height = 7
 )
 }
 \arguments{
 \item{coefs}{Vector of coefficients.}
 
-\item{p_vals}{Vector of p-values.}
+\item{p_vals}{Vector of p-values OR a named list with 'unadj' and 'fdr' p-values.
+If a list, the y-axis will plot unadjusted p-values with light colors for unadjusted
+significant targets and darker colors for FDR significant targets.}
 
 \item{target_labels}{Vector of target names.}
 
@@ -42,21 +50,34 @@ volcanoPlot(
 
 \item{xlabel}{X axis label.}
 
-\item{ylabel}{Y axis label.}
+\item{ylabel}{Y axis label; defaults to \code{expression('-log'[10]*'(FDR-adjusted p-value)')}.
+Automatically overridden to show unadjusted p-value when in dual mode.}
 
 \item{xlimits}{X axis limits}
 
 \item{ylimits}{Y axis limits}
 
-\item{sig_threshold}{P-value significance threshold.}
+\item{sig_threshold}{P-value significance threshold OR a named list with 'unadj' and 
+'fdr' thresholds. Must match the structure of p_vals.}
 
-\item{sig_label}{Label to mark significance threshold on plot.}
+\item{sig_label}{Label to mark significance threshold on plot; defaults to \code{"FDR = 5\%"}.
+Automatically overridden to \code{"Unadj = X\%"} when in dual mode (where X is the unadj threshold percentage).
+Always a single string.}
 
 \item{label_all_targets}{Logical TRUE or FALSE. 
 Should all targets be labelled? Default is FALSE 
 and will only label significant targets.}
 
-\item{target_labels_off}{Logical TRUE or FALSE. Should no targets be labelled?}
+\item{upper_log2FC_threshold}{Coefficients/fold change upper threshold cutoff for 
+labeling insignificant targets. Insignificant targets above the upper threshold will be labelled.
+Default is \code{NULL}}
+
+\item{lower_log2FC_threshold}{Coefficients/fold change lower threshold cutoff for 
+labeling insignificant targets. Insignificant targets below the lower threshold will be labelled.
+Default is \code{NULL}.}
+
+\item{target_labels_off}{Logical TRUE or FALSE. Should no targets be labelled? 
+Default is \code{FALSE}.}
 
 \item{target_label_colors}{A vector of the same length as number of targets
 and same order as targets with colors for the target labels. Default is to 
@@ -89,12 +110,25 @@ will have labels. "Inf" (default) labels all targets.}
 
 \item{log_y}{Logical \code{TRUE} (default) or \code{FALSE}. Should y-axis be 
 -log10 transformed? (\code{TRUE} recommended for plotting p-values.)}
+
+\item{output_dir}{Directory path where plot should be saved; defaults to \code{NULL} 
+(plot not saved to file).}
+
+\item{plot_name}{File name for saved plot including extension (.pdf, .png, .jpg, .svg); 
+defaults to \code{NULL}. If \code{output_dir} is specified but \code{plot_name} is \code{NULL}, 
+the plot will be saved as "volcano_plot_YYYYMMDD.pdf" with current date.}
+
+\item{plot_width}{Numeric value for the width of the saved plot in inches; defaults to 7.}
+
+\item{plot_height}{Numeric value for the height of the saved plot in inches; defaults to 7.}
 }
 \value{
-Outputs a ggplot object.
+Outputs a ggplot object. If \code{output_dir} is specified, also saves the plot 
+in the specified format (PDF, PNG, JPG, or SVG based on file extension in \code{plot_name}).
 }
 \description{
 Draws a volcano plot for a set of coefficients and p-values. Uses ggplot
 for plotting and ggrepel package for labels. By default, plot labeling
-assumes FDR-corrected p-values.
+assumes FDR-corrected p-values. Can plot both unadjusted and FDR-adjusted
+p-values with different colors.
 }

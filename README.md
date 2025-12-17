@@ -1,67 +1,52 @@
 # NULISAseqR
 
-NULISAseq R package v1.2
+**NULISAseqR** is an R package designed for comprehensive analysis of proteomic data from the **NULISAseq** platform (Alamar Biosciences). NULISAseq is a high-multiplexed proteomic assay that uses nucleic acid-linked immunosandwich assays to measure hundreds of proteins simultaneously.
 
-## System Requirements:
-1. R (version 4.4+)
+## Features
 
-## How to install
+- **Data Import**: Read and parse NULISAseq XML output files
+- **Quality Control**: Automated QC reporting with metrics and visualizations
+- **Normalization**: Intra-plate and inter-plate normalization using internal controls
+- **Statistical Analysis**: Differential expression testing and predictive modeling
+- **Visualization**: Heatmaps, PCA plots, volcano plots, and more
+- **Reporting**: Generate comprehensive HTML QC reports
 
-1. Run the following R code (typical installation time < 5 minutes):
-```
-    install.packages('devtools')
-    devtools::install_github('Alamar-Biosciences/NULISAseqR',
-                              ref = 'main'
-                            )
-```
+## Installation
 
-2. Load the package in R with `library(NULISAseqR)`.
+### System Requirements
 
-## Demo: Loading Data (XML)
+- R version 4.4 or higher
+- Installation time: < 5 minutes
 
-```
-    # Load the NULISAseqR library
-    library(NULISAseqR)
+### Install from GitHub
 
-    # This is an input XML file example that is included with NULISAseqR. You could
-    # alternatively change the variable inputFile to be one of your own XML files,
-    # e.g. inputFile <- "filename.xml"
-    inputFile <- paste0(
-                         dirname(system.file("rmarkdown/templates/nulisaseq/skeleton", "skeleton.Rmd", package="NULISAseqR")),
-                         "/detectability_P1_Tr03.xml"
-                       )
+Run the following R code (typical installation time < 5 minutes).
 
-    # Load the XML data
-    dataXML <- loadNULISAseq(inputFile)
-
-```
-## Demo: Loading Data (XLSX)
-
-```
-    # Load the NULISAseqR library
-    library(NULISAseqR)
-
-    # Load the XLSX data where "XLSX inputFile" is the name of your XLSX file
-    dataXLSX <- readNULISAseq("XLSX inputFile", file_type="xlsx") # example of loading an XLSX file
-
+```r
+install.packages("devtools")
+devtools::install_github(
+  "Alamar-Biosciences/NULISAseqR",
+  ref = "main"
+)
 ```
 
-## Demo: Generating Report
+Load the package:
 
-Run the following to generate a QC report ( < 5 minutes)
-```
-  # Location of QC report template included with NULISAseqR
-  template <- system.file("rmarkdown/templates/nulisaseq/skeleton", "skeleton.Rmd", package="NULISAseqR")
-
-  # Command to create the QC report (Note that QC reports can only be created using XML files)
-  rmarkdown::render(
-                      template, 
-                      output_file = "~/output.html",
-                      params = list(
-                        dataDir = dirname(template), 
-                        xmlFiles = c("detectability_P1_Tr03.xml")
-                      )
-                   )
-
+```r
+library(NULISAseqR)
 ```
 
+## Resources
+
+### Complete User Guide
+
+For detailed tutorials, workflows, and examples, visit the [**NULISAseqR User Guide**](https://vignettes.nulisaseqr.alamarbio.com/) 
+
+### Function Reference
+
+Browse all functions organized by category at [Reference](https://nulisaseqr.alamarbio.com/reference/index.html)
+
+### Getting Help
+
+- **Function documentation**: Type `?function_name` in R (e.g., `?loadNULISAseq`)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/Alamar-Biosciences/NULISAseqR/issues)

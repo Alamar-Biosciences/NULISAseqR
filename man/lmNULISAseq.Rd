@@ -2,7 +2,8 @@
 % Please edit documentation in R/lmNULISAseq.R
 \name{lmNULISAseq}
 \alias{lmNULISAseq}
-\title{Linear regression model for NULISAseq differential expression test}
+\title{Linear Regression Model for NULISAseq Data - 
+targets as outcome}
 \usage{
 lmNULISAseq(
   data,
@@ -14,12 +15,13 @@ lmNULISAseq(
   exclude_samples = NULL,
   target_subset = NULL,
   sample_subset = NULL,
-  return_model_fits = FALSE
+  return_model_fits = FALSE,
+  analysis_context = NULL
 )
 }
 \arguments{
-\item{data}{A matrix with targets in rows, samples in columns. 
-Row names should be the target names, and column names are the sample names.
+\item{data}{A matrix of normalized NULISAseq data with targets in rows, 
+samples in columns. Row names should be the target names, and column names are the sample names. 
 It is assumed that data has already been transformed
 using \code{log2(x + 1)} for each NULISAseq normalized count value \code{x}.}
 
@@ -54,31 +56,35 @@ excluded from the differential expression analysis. Internal control targets,
 for example, should probably always be excluded.}
 
 \item{exclude_samples}{A vector of sample names for samples that will be excluded
-from differential expression analysis. External control wells (IPCs, NCs, SC,)
+from the differential expression analysis. External control wells (IPCs, NCs, SC,)
 should usually be excluded.}
 
 \item{target_subset}{Overrides exclude_targets. A vector of target names 
-for targets that will be included in differential expression analysis.}
+for targets that will be included in the differential expression analysis.}
 
 \item{sample_subset}{Overrides exclude_samples. A vector of sample names 
-for samples that will be included in differential expression analysis.}
+for samples that will be included in the differential expression analysis.}
 
 \item{return_model_fits}{Logical \code{TRUE} or \code{FALSE} (default).
-Should a list of the model fits be returned? Might be useful for more 
+Should a list of the model fits be returned? Might be useful for more
 detailed analyses and plotting. However, also requires using more memory.}
+
+\item{analysis_context}{Optional string to provide context in error messages.
+Useful when calling lmNULISAseq from different analyses (e.g., "plate effect test").}
 }
 \value{
 A list including the following:
 \item{modelStats}{A data frame with rows corresponding to targets and columns 
 corresponding to estimated model coefficients, unadjusted p-values, 
 Bonferroni adjusted p-values, and Benjamini-Hochberg false discovery rate
-adjusted p-values (see \code{?p.adjust()})}
+adjusted p-values (see \code{?p.adjust()}).}
 \item{modelFits}{A list of length equal to number of targets containing
 the model fit output from \code{lm()}. Only returned when 
 \code{return_model_fits=TRUE}.}
-\item{Fstats}{A data frame with rows corresponding to targets and columns }
+\item{Fstats}{A data frame with rows corresponding to targets and columns.}
 }
 \description{
-Fits linear regression model to each target in the NULISAseq data set. 
+Fits linear regression model to each target in the NULISAseq data set,
+using univariate targets as outcome in the model. 
 Outputs coefficients, t-statistics, unadjusted and adjusted p-values.
 }

@@ -56,13 +56,13 @@ detectability <- function(aboveLOD_matrix,
     if (!is.numeric(sample_subset)){
       sample_subset <- which(colnames(aboveLOD_matrix) %in% sample_subset)
     }
-    aboveLOD_matrix <- aboveLOD_matrix[,sample_subset]
+    aboveLOD_matrix <- aboveLOD_matrix[,sample_subset, drop=FALSE]
   }
   
   # get detectability data for samples: Plasma, serum, etc.
   if (!is.null(sample_groups)){
     # make case insensitive
-    sample_groups <- tolower(sample_groups)
+    sample_groups <- toupper(sample_groups)
     
     # collect sample group specific detectability data
     for (i in unique(sample_groups)){
@@ -70,15 +70,15 @@ detectability <- function(aboveLOD_matrix,
         aboveLOD_matrix <- matrix(aboveLOD_matrix, ncol=1)
       }
       sample_aboveLOD_matrix <- as.matrix(aboveLOD_matrix[,sample_groups %in% i], nrow=nrow(aboveLOD_matrix))
-
+      
       detectability_data$sample_group$sampleNumber[[i]] <- ncol(sample_aboveLOD_matrix)
-      detectability_data$sample_group$detectability[[i]] <- apply(as.matrix(sample_aboveLOD_matrix), 1, function(x) sum(x)/length(x)*100)
+      detectability_data$sample_group$detectability[[i]] <- apply(as.matrix(sample_aboveLOD_matrix), 1, function(x) sum(x, na.rm=TRUE) / sum(!is.na(x))*100)
       detectability_data$sample_group$detectable[[i]] <- detectability_data$sample_group$detectability[[i]] > 50
     }
   }
   
   # get overall detectability data
-  detect <- apply(as.matrix(aboveLOD_matrix), 1, function(x) sum(x)/length(x)*100)
+  detect <- apply(as.matrix(aboveLOD_matrix), 1, function(x) sum(x, na.rm=TRUE) / sum(!is.na(x))*100)
   detectable <- detect > 50
   if(is.null(dim(aboveLOD_matrix))){
     names(detect) <- rownames(as.matrix(aboveLOD_matrix))
@@ -93,4 +93,109 @@ detectability <- function(aboveLOD_matrix,
   detectability_data$all$detectable <- detectable
   
   return(detectability_data)
+}
+
+
+
+
+#' Summarize Detectability Across Multiple Runs and Sample Groups
+#'
+#' Summarizes detectability across multiple runs and if applicable 
+#' broken down by sample groups based on the sample_group_covar input
+#' to loadNULISAseq.
+#'
+#' @param runs A named list of run data output from \code{laodNULISAseq()} function 
+#' or a list of these outputs for multiple runs. To make output more interpretable,
+#' it is recommended to name each run according to the plate ID for that run.
+#'
+#'
+#' @return A list with items "sample_group", if applicable, "all", and "run_detectability".
+#' Items sample_group and all each have a data frame with a row for each target 
+#' and detectability in columns. "all" has only one column summarizing detectability for all 
+#' samples. "sample_group" has a column summarizing detectability for each 
+#' sample group. Each of there items also has a sampleNumber vector which gives the 
+#' sample size for the groups. The run_detectability output is a list of the 
+#' original individual run detectability objects from loadNULISAseq.
+#' 
+#'
+#'
+#' @export
+#' 
+detectability_summary <- function(runs){
+  
+  # check if run data is not in a list and if so put into a list
+  if('RunSummary' %in% names(runs)){
+    runs <- list(runs)
+    names(runs) <- 'Plate 01'
+  } 
+  
+  # get detectability data for each run
+  detect <- lapply(runs, function(x) x$detectability)
+  
+  # summarize detectability for all samples 
+  all <- list()
+  all$sampleNumber <- sum(sapply(detect, function(x) x$all$sampleNumber))
+  all_detectability <- lapply(detect, function(x) {
+    all_detect <- data.frame(Target=names(x$all$detectability), 
+                             detectability=x$all$detectability / 100 * x$all$sampleNumber)
+    return(all_detect)
+  })
+  all_detectability <- suppressWarnings(Reduce(function(dtf1, dtf2) merge(dtf1, dtf2, by = "Target", all = TRUE),
+                                               all_detectability))
+  all_detectability$total_detectability <- rowSums(as.matrix(all_detectability[,2:ncol(all_detectability)])) / all$sampleNumber * 100
+  all$detectability <- data.frame(Target=all_detectability$Target, 
+                                  detectability=all_detectability$total_detectability)
+  rownames(all$detectability) <- all$detectability$Target
+  colnames(all$detectability)[2] <- paste0('detectability (n = ', all$sampleNumber, ')')
+  
+  output <- list(all=all,
+                 run_detectability=detect)
+  
+  # get sample group names for each run
+  group_names <- unique(unlist(lapply(detect, function(x) names(x$sample_group$sampleNumber))))
+  names(group_names) <- group_names
+  if(length(group_names) > 0){
+    sample_group_detect <- lapply(group_names, function(x) {
+      sampleNumber <- sum(unlist(lapply(detect, function(y) {
+        sampleNumber <- y$sample_group$sampleNumber[[x]]
+      })))
+      sample_group_detectability <- lapply(detect, function(y) {
+        if(x %in% names(y$sample_group$detectability)){
+          data.frame(Target=names(y$sample_group$detectability[[x]]), 
+                     detectability=y$sample_group$detectability[[x]] / 100 * y$sample_group$sampleNumber[[x]])
+        } else {
+          NULL
+        }
+      })
+      
+      sample_group_detectability <- sample_group_detectability[sapply(sample_group_detectability, function(x) !is.null(x))]
+      sample_group_detectability <- suppressWarnings(Reduce(function(dtf1, dtf2) merge(dtf1, dtf2, by = "Target", all = TRUE),
+                                                            sample_group_detectability))
+      sample_group_detectability$total_detectability <- rowSums(as.matrix(sample_group_detectability[,2:ncol(sample_group_detectability)])) / sampleNumber * 100
+      sample_group_detectability <- data.frame(Target=sample_group_detectability$Target, 
+                                               detectability=sample_group_detectability$total_detectability)
+      rownames(sample_group_detectability) <- sample_group_detectability$Target
+      colnames(sample_group_detectability)[2] <- paste0(x, ' (n = ', sampleNumber, ')')
+      
+      return(list(sampleNumber=sampleNumber,
+                  sample_group_detectability=sample_group_detectability))
+    })
+    
+    # combine into a single sampleNumber vector and detectability data frame
+    sampleNumber <- sapply(sample_group_detect, function(x) x$sampleNumber)
+    sample_group_detectability <- lapply(sample_group_detect, function(x) x$sample_group_detectability)
+    sample_group_detectability <- suppressWarnings(Reduce(function(dtf1, dtf2) merge(dtf1, dtf2, by = "Target", all = TRUE),
+                                                          sample_group_detectability))
+    rownames(sample_group_detectability) <- sample_group_detectability$Target
+    
+    sample_group <- list()
+    sample_group$sampleNumber <- sampleNumber
+    sample_group$detectability <- sample_group_detectability
+    
+    output <- list(sample_group=sample_group,
+                   all=all,
+                   run_detectability=detect)
+  }
+  
+  return(output)
 }
