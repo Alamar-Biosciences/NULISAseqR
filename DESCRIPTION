@@ -1,33 +1,72 @@
-Package: NULISAseqR
 Type: Package
+Package: NULISAseqR
 Title: Analysis of NULISAseq Data
-Version: 1.2.0
-Author: Alamar Biosciences
-Maintainer: Joanne C. Beer <jbeer@alamarbio.com>
-Description: NULISAseqR package loads NULISAseq data from XML and XLSX files
-    Includes functions to normalize, calculate CV, and visualize data, among others.
-License: GPL3.0 + file LICENSE
-Imports:
+Version: 1.4.0
+Authors@R: 
+    person("Alamar Biosciences Bioinformatics Team", , , "bioinfo@alamarbio.com", role = c("aut", "cre", "cph"),
+           comment = "Contributors: Dwight Kuo, Joanne C. Beer, Eliza Chai, Sumedh Sankhe, Kasun Buddika")
+Description: Provides comprehensive analysis tools for NULISAseq proteomic
+    data including data import, normalization, quality control,
+    statistical analysis, and visualization.
+License: GPL-3
+URL: https://nulisaseqr.alamarbio.com,
+    https://github.com/Alamar-Biosciences/NULISAseqR
+BugReports: https://github.com/Alamar-Biosciences/NULISAseqR/issues
+Imports: circlize,
+    ComplexHeatmap,
     corrplot,
-    fields,
+    data.table,
+    dplyr,
+    emmeans,
+    forcats,
+    fs,
     future,
+    future.apply,
+    future.callr,
     gdata,
     ggplot2,
+    ggpubr,
     ggrepel,
     glue,
+    htmltools,
+    janitor,
     kableExtra,
+    knitr,
+    lme4,
     lmerTest,
-    pagedown,
+    logger,
+    openxlsx,
     pander,
+    parallelly,
     pheatmap,
-    promises,
+    plotly,
+    purrr,
+    qs,
+    ragg,
+    RColorBrewer,
+    reactable,
+    readr,
     readxl,
+    rlang,
+    scales,
+    showtext,
+    svglite,
+    tibble,
+    tidyr,
     uuid,
-    XML,
     xml2
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.3.2
 Suggests: 
+    bookdown,
+    devtools,
+    pagedown,
+    pkgdown,
+    renv,
+    rmarkdown,
+    shiny,
     testthat (>= 3.0.0)
+VignetteBuilder: 
+    knitr
 Config/testthat/edition: 3
+Encoding: UTF-8
+LazyData: false
+RoxygenNote: 7.3.3

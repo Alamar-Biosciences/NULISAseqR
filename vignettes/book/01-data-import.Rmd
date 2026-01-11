@@ -1,0 +1,519 @@
+# Data Import
+
+This chapter covers importing NULISAseq data from XML files and understanding the data structure.
+
+## The `importNULISAseq()` Function
+
+NULISAseq data is typically stored in XML files, with one file per plate. The `importNULISAseq()` function reads these files and organizes the data into a structured format.
+
+```{r import_example, results='hide'}
+# Path to example XML files included with the package
+data_dir <- system.file("extdata", package = "NULISAseqR")
+
+# Specify which XML files to import (usually multiple plates)
+xml_files <- file.path(
+  data_dir,
+  c("INF_Panel_V1_detectability_study_plate01.xml",
+    "INF_Panel_V1_detectability_study_plate02.xml")
+)
+
+# Import XML files
+data <- importNULISAseq(files = xml_files)
+```
+
+## Understanding the Data Structure
+
+The imported `data` object is a list containing multiple components:
+
+```{r examine_structure}
+# View the top-level structure
+names(data)
+
+# The merged component contains combined data from all plates
+names(data$merged)
+```
+
+### Key Components
+
+The most important components are:
+
+#### Wide-Format Matrix: `data$merged$Data_NPQ`
+
+This is a matrix where:
+
+- **Rows** = protein targets
+- **Columns** = samples  
+- **Values** = NULISA Protein Quantification (NPQ), a normalized, log2-scale measure of relative protein abundance
+- Note that control samples (IPC: inter-plate control, SC: sample control, NC: negative control) are included
+
+```{r show_wide_format}
+# Check dimensions of the wide-format matrix
+dim(data$merged$Data_NPQ)
+
+# Number of proteins: 
+nrow(data$merged$Data_NPQ)
+# Number of samples:
+ncol(data$merged$Data_NPQ)
+```
+
+```{r preview_wide, echo=FALSE}
+cat("Preview of NPQ matrix (first 10 proteins × 10 samples, rounded to 3 digits):\n")
+
+DT::datatable(
+  data$merged$Data_NPQ[1:min(10, nrow(data$merged$Data_NPQ)), 
+                       1:min(10, ncol(data$merged$Data_NPQ))] %>% round(3),
+  options = list(
+    scrollX = TRUE,
+    paging = FALSE,        
+    searching = FALSE,     
+    info = FALSE,          
+    dom = 't'              
+  ),
+  caption = "Preview of NPQ matrix"
+)
+```
+
+#### Long-Format Data Frame: `data$merged$Data_NPQ_long`
+
+This is a "tidy" format where:
+
+- **One row per protein-sample combination**
+- Easier for plotting with ggplot2
+- Note that control samples are included in this data frame as well and can be filtered using the `SampleType` column
+
+
+```{r preview_long, echo=FALSE}
+cat("Preview of NPQ long data frame (first 20 rows):\n")
+
+DT::datatable(
+  data$merged$Data_NPQ_long %>% head(20),
+  options = list(
+    scrollX = TRUE,
+    scrollY = "600px",
+    pageLength = 20,
+    searching = FALSE,     # Disable search box
+    info = FALSE,          # Disable "Showing X entries" text
+    dom = 't'              # Show table only (t = table)
+  ),
+  caption = "Preview of NPQ long data frame"
+)
+
+```
+
+
+```{r dimensions_long}
+# Check Long-format dimensions
+# Total rows
+nrow(data$merged$Data_NPQ_long)
+# Total columns
+ncol(data$merged$Data_NPQ_long)
+```
+
+```{r column_info}
+# Show column information
+str(data$merged$Data_NPQ_long)
+```
+
+#### Samples Metadata Data Frame: `data$merged$samples`
+
+This is a "tidy" format where:
+
+- **One row per sample**
+- `sampleName` column corresponds to column names of wide data `data$merged$Data_NPQ` and `SampleName` column of long data `data$merged$Data_NPQ_long`
+- Control samples are included and can be identified using the `sampleType` column
+
+```{r preview_samples, echo=FALSE}
+cat("Preview of sample data frame (first 20 samples):\n")
+
+DT::datatable(
+  data$merged$samples %>% head(20),
+  options = list(
+    scrollX = TRUE,
+    scrollY = "500px",
+    pageLength = 20,
+    searching = FALSE,     
+    info = FALSE,          
+    dom = 't'              
+  ),
+  caption = "Preview of samples data frame"
+)
+
+```
+
+```{r samples_column_info}
+# Show column information
+str(data$merged$samples)
+```
+
+```{r control_samples}
+# Tabulate sample type to see control sample numbers
+# Typically each run will have 3 IPC, 3 SC, and 4 NC
+# These runs are missing some IPC and SC 
+table(data$merged$samples$sampleType)
+```
+
+#### Targets Metadata Data Frame: `data$merged$targets`
+
+This is a data frame where:
+
+- **One row per target**
+- `targetName` column corresponds to row names of wide data `data$merged$Data_NPQ` and `Target` column of long data `data$merged$Data_NPQ_long`
+- Targets data frame also includes a row for the internal control spike-in target(s) (internal controls are removed from `Data_NPQ` matrices)
+
+```{r preview_targets, echo=FALSE}
+cat("Preview of targets data frame (first 20 targets):\n")
+
+DT::datatable(
+  data$merged$targets %>% head(20),
+  options = list(
+    scrollX = TRUE,
+    scrollY = "500px",
+    pageLength = 20,
+    searching = FALSE,     
+    info = FALSE,          
+    dom = 't'              
+  ),
+  caption = "Preview of NPQ targets data frame"
+)
+
+```
+
+```{r targets_column_info}
+# Show column information
+str(data$merged$targets)
+```
+
+```{r show_IC_targets}
+# Show internal control target rows using targetType
+data$merged$targets[data$merged$targets$targetType=='control',]
+```
+
+#### Need More Details? 
+
+For complete function documentation and additional options of `importNULISAseq()`, use:
+```{r help_function, eval=FALSE}
+?importNULISAseq
+```
+
+This will show:
+
+- All available parameters
+- Detailed descriptions
+- Return value structure
+- Usage examples
+
+### Summary Statistics
+
+Get a quick overview of your data:
+
+```{r data_summary}
+# NPQ value distribution
+summary(data$merged$Data_NPQ_long$NPQ)
+
+# Count missing values
+n_missing <- sum(is.na(data$merged$Data_NPQ_long$NPQ))
+n_total <- nrow(data$merged$Data_NPQ_long)
+```
+```{r data_summary_1, echo=FALSE}
+cat("\nMissing values:", n_missing, "out of", n_total, 
+    "(", round(100 * n_missing / n_total, 1), "%)\n")
+```
+
+```{r proteins_samples_summary, echo=FALSE}
+# Unique proteins and samples
+cat("\nData summary:\n")
+cat("  Unique proteins:", length(unique(data$merged$Data_NPQ_long$Target)), "\n")
+cat("  Unique samples:", length(unique(data$merged$Data_NPQ_long$SampleName)), "\n")
+cat("  Unique plates:", length(unique(data$merged$Data_NPQ_long$PlateID)), "\n")
+```
+
+## Working with Your Own Data
+
+When working with your own XML files:
+
+```{r own_data, eval=FALSE}
+# Option 1: Specify full paths
+my_xml_files <- c(
+  "/path/to/plate01.xml",
+  "/path/to/plate02.xml"
+)
+my_data <- importNULISAseq(files = my_xml_files)
+
+# Option 2: Import all XML files in a directory
+data_dir <- "/path/to/my/data/"
+xml_files <- list.files(data_dir, pattern = "\\.xml$", full.names = TRUE)
+my_data <- importNULISAseq(files = xml_files)
+```
+
+## Loading Metadata
+
+Metadata provides critical information about your samples (disease status, demographics, experimental conditions, etc.).
+
+```{r load_metadata, eval=TRUE}
+# Read metadata from CSV
+metadata <- read_csv(
+  system.file("extdata", "Alamar_NULISAseq_Detectability_metadata.csv", 
+              package = "NULISAseqR")
+)
+
+# Prepare metadata with proper factor levels
+metadata <- metadata %>% 
+  mutate(
+    # Set factor levels in meaningful order (reference group first)
+    disease_type = factor(
+      disease_type, 
+      levels = c("normal", "inflam", "cancer", "kidney", "metab", "neuro")
+    ),
+    # Ensure numeric variables are properly typed
+    age = as.numeric(age)
+  )
+```
+
+### Metadata Structure
+
+Your metadata should contain:
+
+- **Sample identifiers**: Must match `SampleName` column in the XML data `data$merged$Data_NPQ_long` or `data$merged$samples`
+- **Experimental variables**: Disease type, treatment, etc.
+- **Covariates**: Age, sex, batch, etc.
+- **Optional**: Sample matrix type, collection date, etc.
+
+```{r preview_metadata, echo=FALSE}
+cat("Preview of metadata (first 20 rows):\n")
+
+DT::datatable(
+  metadata %>% head(20),
+  options = list(
+    scrollX = TRUE,
+    scrollY = "500px",
+    pageLength = 20,
+    searching = FALSE,     
+    info = FALSE,          
+    dom = 't'              
+  ),
+  caption = "Preview of metadata"
+)
+```
+
+```{r metadata_structure}
+# Check variable types
+str(metadata)
+```
+
+```{r metadata_summary, eval=FALSE}
+# Summary of key variables
+table(metadata$disease_type, useNA='always')
+```
+
+**Example output:**
+```
+disease_type
+normal inflam cancer kidney  metab  neuro 
+    79     21     32      4      9      6 
+```
+
+```{r metadata_crosstab, eval=FALSE}
+# Cross-tabulation of disease type by sex
+table(metadata$disease_type, metadata$sex, useNA='always')
+```
+
+**Example output:**
+```
+              F  M
+  normal     34 45
+  inflam     18  3
+  cancer     11 21
+  kidney      2  2
+  metab       8  1
+  neuro       3  3
+```
+
+## Merging Data with Metadata
+
+Combining expression data with metadata enables integrated analysis:
+
+### Understanding Sample Names
+
+When importing multi-plate data, NULISAseqR processes sample names to ensure uniqueness:
+
+- **`sampleName_original`**: The original sample name as it appears in the XML file, preserved exactly as input by the user
+- **`SampleName`**: The processed sample name used throughout the analysis, which may be modified to:
+  - Rename control samples for consistency across plates (e.g., IPC_1, IPC_2, etc.)
+  - Resolve duplicate sample names when combining multiple plates (e.g., Sample_A becomes Sample_A_P1, Sample_A_P2)
+
+### Merging Options
+
+**Option 1: Merge using processed `SampleName`** (recommended for most cases)
+
+Use this when your metadata uses the standardized sample names:
+
+```{r merge_data}
+# Merge using processed SampleName
+data_long <- data$merged$Data_NPQ_long %>%
+  left_join(metadata, by = c("SampleName", "PlateID"))
+```
+
+**Option 2: Merge using original sample names**
+
+Use this when your metadata contains the original sample names as they appeared in the XML files:
+
+```{r merge_data_original, eval=FALSE}
+# Merge using original sample names from XML
+data_long <- data$merged$Data_NPQ_long %>%
+  left_join(metadata, by = c("sampleName_original" = "YourOriginalNameColumn", "PlateID"))
+```
+```{r merge_data_1, echo=FALSE}
+# Preview merged data
+cat("First 20 rows of merged data:\n")
+
+DT::datatable(
+  data_long %>% head(20),
+  options = list(
+    scrollX = TRUE,
+    scrollY = "500px",
+    pageLength = 20,
+    searching = FALSE,     
+    info = FALSE,          
+    dom = 't'              
+  ),
+  caption = "Preview of NPQ data merged with sample metadata"
+)
+
+```
+
+```{r verify_merge, eco=FALSE}
+# Verify the merge
+# Original NPQ data rows:
+nrow(data$merged$Data_NPQ_long)
+# Merged data rows 
+nrow(data_long)
+cat("  Match:", nrow(data_long) == nrow(data$merged$Data_NPQ_long), "\n\n")
+
+# Show what metadata columns were added
+new_cols <- setdiff(names(data_long), names(data$merged$Data_NPQ_long))
+# Metadata columns added
+paste(new_cols, collapse = ", ")
+```
+
+```{r check_merge_quality}
+# Check for any unmatched samples
+unmatched_data <- anti_join(
+  data$merged$Data_NPQ_long, 
+  metadata, 
+  by = c("SampleName", "PlateID")
+)
+
+unmatched_meta <- anti_join(
+  metadata,
+  data$merged$Data_NPQ_long,
+  by = c("SampleName", "PlateID")
+)
+
+# Merge quality check
+# Samples in data but not in metadata:
+length(unique(unmatched_data$SampleName)) 
+# Samples in metadata but not in data:
+length(unique(unmatched_meta$SampleName))
+
+if (length(unique(unmatched_data$SampleName)) > 0) {
+  cat("\n⚠ Warning: Some samples lack metadata:\n")
+  print(unique(unmatched_data$SampleName))
+}
+```
+Sample Controls were not included in metadata. Also, some samples in the XML data did not have corresponding metadata entries. Ensure all samples of interest are included in the metadata.
+
+## Filtering Samples
+
+Often you'll want to analyze a subset of samples:
+
+```{r filter_samples}
+# Example: Filter for plasma samples only
+sample_list <- metadata %>% 
+  filter(SampleMatrix == "Plasma") %>% 
+  pull(SampleName)
+
+# Number of plasma samples
+length(sample_list)
+
+# Subset the expression matrix
+data_plasma <- data$merged$Data_NPQ[, sample_list]
+dim(data_plasma)
+```
+
+## Complete Import Workflow
+
+Here's a complete example putting it all together:
+
+```{r complete_import, eval=FALSE}
+# Load libraries
+library(NULISAseqR)
+library(tidyverse)
+
+# 1. Import XML data
+data_dir <- system.file("extdata", package = "NULISAseqR")
+xml_files <- file.path(
+  data_dir,
+  c("INF_Panel_V1_detectability_study_plate01.xml",
+    "INF_Panel_V1_detectability_study_plate02.xml")
+)
+data <- importNULISAseq(files = xml_files)
+
+# 2. Load metadata
+metadata <- read_csv(
+  system.file("extdata", "Alamar_NULISAseq_Detectability_metadata.csv", 
+              package = "NULISAseqR")
+)
+
+metadata <- metadata %>% 
+  mutate(
+    # Set factor levels in meaningful order (reference group first)
+    disease_type = factor(
+      disease_type, 
+      levels = c("normal", "inflam", "cancer", "kidney", "metab", "neuro")
+    ),
+    # Ensure numeric variables are properly typed
+    age = as.numeric(age)
+  )
+
+# 3. Merge data with metadata
+data_long <- data$merged$Data_NPQ_long %>% 
+  left_join(metadata, by = c("SampleName", "PlateID"))
+
+# 4. Filter to samples of interest
+sample_list <- metadata %>%
+  filter(SampleMatrix == "Plasma") %>%
+  pull(SampleName)
+
+## Ready for analysis!
+nrow(data$merged$Data_NPQ)
+length(sample_list)
+```
+
+## Tips and Best Practices
+
+**File Organization**
+
+- Keep XML files in a dedicated directory
+- Use consistent naming conventions
+- Document which files correspond to which experiments
+
+**Metadata Management**
+
+- Store metadata in CSV format for easy editing
+- Include all relevant variables from the start
+- Use meaningful, consistent variable names
+- Set factor levels explicitly (don't rely on alphabetical order)
+
+**Quality Checks**
+
+- Verify sample names match between XML and metadata
+- Check for missing values
+- Confirm data dimensions make sense
+
+**Common Issues**
+
+- **Mismatched names**: Ensure sample names in XML match metadata exactly
+- **Factor levels**: Always set reference level first for interpretable results
+- **Missing metadata**: Filter out samples without metadata before analysis
+
+**Continue to:** [Chapter 2: Quality Control](#quality-control)

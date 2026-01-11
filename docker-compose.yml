@@ -1,0 +1,58 @@
+services:
+  base:
+    image: nulisaseq_r_internal:test
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GH_PAT: ${GH_PAT}
+        SOURCE_BRANCH: ${SOURCE_BRANCH:-main}
+        NULISASEQAQ_BRANCH: ${NULISASEQAQ_BRANCH:-main}
+    command: "true"
+    restart: "no"
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      base:
+        condition: service_completed_successfully
+    environment:
+      HASHVAL: ${HASHVAL}
+    command: >
+      Rscript --vanilla -e "library(NULISAseqR);
+      testthat::test_dir('/workingDir/tests/testthat/')"
+    restart: "no"
+
+  vignette:
+    build:
+      context: .
+      dockerfile: Dockerfile.docs
+    depends_on:
+      base:
+        condition: service_completed_successfully
+    command: >
+      Rscript --vanilla -e "
+      setwd('/workingDir/vignettes/book');
+      bookdown::render_book('index.Rmd', 'bookdown::gitbook')"
+    volumes:
+      - ./vignettes/book/_book:/workingDir/vignettes/book/_book
+    restart: "no"
+
+  pkgdown:
+    build:
+      context: .
+      dockerfile: Dockerfile.docs
+    depends_on:
+      base:
+        condition: service_completed_successfully
+    command: >
+      Rscript --vanilla -e "
+      pkgdown::init_site();
+      pkgdown::build_home();
+      pkgdown::build_reference();
+      pkgdown::build_news()"
+    volumes:
+      - ./docs:/workingDir/docs
+    restart: "no"

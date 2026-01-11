@@ -11,7 +11,8 @@ lod(
   min_blank_no = 4,
   mad_threshold = 2.5,
   ignore_target_blank = NULL,
-  targetNoOutlierDetection = NULL
+  targetNoOutlierDetection = NULL,
+  match_matrix = NULL
 )
 }
 \arguments{
@@ -37,6 +38,9 @@ values which are arrays represent blank/NC names to ignore during LoD calculatio
 \item{targetNoOutlierDetection}{Option to provide targets which should NOT have 
 outlier detection applied
 Defaults to NULL.}
+
+\item{match_matrix}{Matrix of indices provided by calcSampleTargetNAs. 
+Lists samples/targets that should not be reported}
 
 \item{LOD}{Vector of limits of detection.}
 

@@ -2,7 +2,8 @@
 % Please edit documentation in R/lmerNULISAseq.R
 \name{lmerNULISAseq}
 \alias{lmerNULISAseq}
-\title{Linear regression model for NULISAseq differential expression test}
+\title{Linear Mixed Effect Model for NULISAseq Data - 
+targets as outcome}
 \usage{
 lmerNULISAseq(
   data,
@@ -27,7 +28,7 @@ It is assumed that data has already been transformed
 using \code{log2(x + 1)} for each NULISAseq normalized count value \code{x}.}
 
 \item{sampleInfo}{A data frame with sample metadata. Rows are samples, 
-columns are sample metadata variables. Differential expression analysis will 
+columns are sample metadata variables. Linear mixed effect models will 
 only be done on the samples in sampleInfo, or a subset of those samples as 
 specified using arguments \code{exclude_samples} or \code{sample_subset}. 
 \code{sampleInfo} should have a column for each 
@@ -57,7 +58,7 @@ slopes (not recommended when time is categorical),
 use \code{modelFormula_random = "(1 + time|participant_ID)"}. For random 
 subject nested within plate (which may be useful when analyzing
 a large number of plates together), use \code{modelFormula_random = 
-"(1|plate_ID) + (1|participant_ID:plate_ID)"}.
+"(1|plate_ID:participant_ID)"}.
 See \code{?lmer()}.}
 
 \item{reduced_modelFormula_fixed}{Optional reduced model formula 
@@ -70,19 +71,26 @@ variables with more than 2 levels, for example, testing the overall significance
 of a categorical time effect. The reduced model uses the same random effects 
 as specified in \code{modelFormula_random}.}
 
+\item{reduced_modelFormula_random}{Optional reduced random effects formula. 
+If not specified, the reduced model will use the same random effects structure 
+as the full model. Specifying this allows testing the significance of random effects
+components. For example, to test if participant random effects are needed, you could
+specify \code{reduced_modelFormula_random = "(1|plate_ID)"} when the full model has
+\code{modelFormula_random = "(1|plate_ID:participant_ID)"}.}
+
 \item{exclude_targets}{A vector of target names for targets that will be 
-excluded from the differential expression analysis. Internal control targets, 
+excluded from the linear mixed effect models. Internal control targets, 
 for example, should probably always be excluded.}
 
 \item{exclude_samples}{A vector of sample names for samples that will be excluded
-from differential expression analysis. External control wells (IPCs, NCs, SC,)
+from the linear mixed effect models. External control wells (IPCs, NCs, SC,)
 should usually be excluded.}
 
 \item{target_subset}{Overrides exclude_targets. A vector of target names 
-for targets that will be included in differential expression analysis.}
+for targets that will be included in the linear mixed effect models.}
 
 \item{sample_subset}{Overrides exclude_samples. A vector of sample names 
-for samples that will be included in differential expression analysis.}
+for samples that will be included in the linear mixed effect models.}
 
 \item{return_model_fits}{Logical \code{TRUE} or \code{FALSE} (default).
 Should a list of the model fits be returned? Might be useful for more 
@@ -93,14 +101,15 @@ A list including the following:
 \item{modelStats}{A data frame with rows corresponding to targets and columns 
 corresponding to estimated model coefficients, unadjusted p-values, 
 Bonferroni adjusted p-values, and Benjamini-Hochberg false discovery rate
-adjusted p-values (see \code{?p.adjust()})}
+adjusted p-values (see \code{?p.adjust()}).}
 \item{modelFits}{A list of length equal to number of targets containing
 the model fit output from \code{lm()}. Only returned when 
 \code{return_model_fits=TRUE}.}
-\item{LRTstats}{A data frame with rows corresponding to targets and columns }
+\item{LRTstats}{A data frame with rows corresponding to targets and columns.}
 }
 \description{
-Fits linear mixed effects model to each target in the NULISAseq data set. 
+Fits linear mixed effects model to each target in the NULISAseq data set,
+using univariate targets as outcome in the model. 
 Outputs coefficients, t-statistics, unadjusted and adjusted p-values.
 Uses \code{lme4} and \code{lmerTest} packages.
 }

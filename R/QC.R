@@ -6,7 +6,6 @@ MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a
 #MAX_QCS <- 3
 #MIN_SN <- 4
 MIN_IC_MEDIAN <- "-0.4,0.4"# +/- of sample IC read count about the median
-
 #' QCSampleCriteria
 #'
 #' Sample QC Criteria
@@ -49,13 +48,13 @@ QCSampleCriteria <- function(TAP=TRUE){
                           NumReads="Reads",
                           IC_Median="IC Median"
                          )
-  retVal$explanations <- c(Detectability="Percentage of targets with reads above the Limit of Detection (LOD) (Minimum threshold = plasma-90%, serum-90%, csf-70%, other-0%)",
-                          ICReads="Number of Internal Control (IC) reads within a sample (Minimum threshold = 1,000)",
-                          NumReads="Number of reads within a sample (Minimum threshold = 500,000)",
-                          IC_Median="Sample IC reads relative to the median (within +/- 40% of the plate median)"
+  retVal$explanations <- c(Detectability=paste0("Percentage of targets with reads above the Limit of Detection (LOD) (Minimum threshold = plasma-", 100*MIN_FRAC_DETECTABILITY[["plasma"]], "%, serum-", 100*MIN_FRAC_DETECTABILITY[["serum"]], "%, csf-", 100*MIN_FRAC_DETECTABILITY[["csf"]], "%, other-", 100*MIN_FRAC_DETECTABILITY[["other"]], "%)"),
+                          ICReads=paste0("Number of Internal Control (IC) reads within a sample (Minimum threshold = ", format(MIN_IC_READS_PER_SAMPLE, big.mark = ",", scientific = FALSE), ")"),
+                          NumReads=paste0("Number of reads within a sample (Minimum threshold = ", format(MIN_NUM_READS_PER_SAMPLE, big.mark = ",", scientific = FALSE), ")"),
+                          IC_Median=paste0("Sample IC reads relative to the median (Within +/-", 100*as.numeric(strsplit(MIN_IC_MEDIAN, ",")[[1]][2]), "% of the plate median)")
                          )
   if(TAP){
-    retVal$explanations["Detectability"] = "Percentage of targets with reads above the Limit of Detection (LOD) (Minimum threshold = plasma-90%, serum-90%, csf-70%, urine-65%, cell_culture-30%, nhp_pasma-55%, nhp_csf-35%, dried_blood_spot-75%, control-90%, other-0%)"
+  retVal$explanations <- c(retVal$explanations, Detectability=paste0("Percentage of targets with reads above the Limit of Detection (LOD) (Minimum threshold = plasma-", 100*MIN_FRAC_DETECTABILITY_TAP[["plasma"]], "%, serum-", 100*MIN_FRAC_DETECTABILITY_TAP[["serum"]], "%, csf-", 100*MIN_FRAC_DETECTABILITY_TAP[["csf"]], "%, urine-", 100*MIN_FRAC_DETECTABILITY_TAP[["urine"]], "%, cell_culture-", 100*MIN_FRAC_DETECTABILITY_TAP[["cell_culture"]], "%, nhp_plasma-", 100*MIN_FRAC_DETECTABILITY_TAP[["nhp_plasma"]], "%, nhp_csf-", 100*MIN_FRAC_DETECTABILITY_TAP[["nhp_csf"]], "%, dried_blood_spot-", 100*MIN_FRAC_DETECTABILITY_TAP[["dried_blood_spot"]], "%, control-", 100*MIN_FRAC_DETECTABILITY_TAP[["control"]], "%, other-", 100*MIN_FRAC_DETECTABILITY[["other"]],"%)"))
   }
   return(retVal)
 }
@@ -91,7 +90,7 @@ QCPlateCriteria <- function(AQ=FALSE){
                          MinReads=as.numeric(MIN_READS))
   retVal$operators <- c(ICRead_CV=">", IPCRead_CV=">", IPCTarget_CV=">", Detectability="<", MinReads="<")
   retVal$format <- c(ICRead_CV="percentage", IPCRead_CV="percentage", IPCTarget_CV="percentage", Detectability="percentage", MinReads="integer")
-  retVal$thresholdNames<-c(IC_Read_CV="MAX_IC_CV",
+  retVal$thresholdNames<-c(ICRead_CV="MAX_IC_CV",
                          IPCRead_CV="MAX_IPC_CV", 
                          IPCTarget_CV="MAX_MEDIAN_IPC_TARGET_CV", 
                          Detectability="DETECTABILITY_FRAC", 
@@ -103,11 +102,11 @@ QCPlateCriteria <- function(AQ=FALSE){
                           Detectability="Run Detectability",
                           MinReads="Reads")
 
-  retVal$explanations <- c(ICRead_CV="Coefficient of variation of internal control Parseable Matching reads across all wells (Maximum threshold = 25%)",
-                          IPCRead_CV="Coefficient of variation of Parseable Matching reads across all IPCs (Maximum threshold = 25%)",
-                          IPCTarget_CV="Median coefficient of variation of all IPC targets (Maximum threshold = 10%)",
-                          Detectability="Percentage of targets that are detectable (target is considered detectable if > 50% of samples are above LOD) (Minimum threshold = 90%)",
-                          MinReads="Minimum number of Parseable Matching reads for the run (Minimum threshold = 100,000,000)")
+  retVal$explanations <- c(ICRead_CV=paste0("Coefficient of variation of internal control Parseable Matching reads across all wells (Maximum threshold = ", 100*as.numeric(MAX_IC_CV), "%)"),
+                          IPCRead_CV=paste0("Coefficient of variation of Parseable Matching reads across all IPCs (Maximum threshold = ", 100*as.numeric(MAX_IPC_CV), "%)"),
+                          IPCTarget_CV=paste0("Median coefficient of variation of all IPC targets (Maximum threshold = ", 100*as.numeric(MAX_MEDIAN_IPC_TARGET_CV), "%)"),
+                          Detectability=paste0("Percentage of targets that are detectable (target is considered detectable if > 50% of samples are above LOD) (Minimum threshold = ",100*as.numeric(DETECTABILITY_FRAC), "%)"),
+                          MinReads=paste0("Minimum number of Parseable Matching reads for the run (Minimum threshold = ", format(MIN_READS, big.mark = ",", scientific = FALSE), ")"))
   if(AQ){
     retVal$thresholds <- c(retVal$thresholds, 
                            SCRead_CV=as.numeric(MAX_SC_CV),
@@ -135,16 +134,16 @@ QCPlateCriteria <- function(AQ=FALSE){
                             Failed_SC="AQSC Sample Warning",
                             Failed_IPC="CAL Sample Warning"
                             )
-    retVal$explanations <- c( ICRead_CV="Coefficient of variation of internal control Parseable Matching reads across all wells (Maximum threshold = 25%)",
-                              IPCRead_CV="Coefficient of variation of Parseable Matching reads across all CALs (Maximum threshold = 25%)",
-                              IPCTarget_CV="Median coefficient of variation of all CAL targets (Maximum threshold = 10%)",
-                              Detectability="Percentage of targets that are detectable (target is considered detectable if > 50% of samples are above LOD) (Minimum threshold = 90%)",
-                              MinReads="Minimum number of Parseable Matching reads for the run (Minimum threshold = 100,000,000)",
-                              SCRead_CV="Coefficient of variation of Parseable Matching reads across all AQSCs (Maximum threshold = 25%)",
-                              SCTarget_CV="Median of coefficient of variation of all AQSC targets (Maximum threshold = 10%)",
-                              Failed_Targets="Percentage of Targets with Target QC warnings (Maximum threshold = 10%)",
-                              Failed_SC="Number of AQSC samples with Sample QC warnings (Maximum threshold = 0)",
-                              Failed_IPC="Number of CAL samples with Sample QC warnings (Maximum threshold = 0)"
+    retVal$explanations <- c(ICRead_CV=paste0("Coefficient of variation of internal control Parseable Matching reads across all wells (Maximum threshold = ", 100*as.numeric(MAX_IC_CV), "%)"),
+                            IPCRead_CV=paste0("Coefficient of variation of Parseable Matching reads across all IPCs (Maximum threshold = ", 100*as.numeric(MAX_IPC_CV), "%)"),
+                            IPCTarget_CV=paste0("Median coefficient of variation of all IPC targets (Maximum threshold = ", 100*as.numeric(MAX_MEDIAN_IPC_TARGET_CV), "%)"),
+                            Detectability=paste0("Percentage of targets that are detectable (target is considered detectable if > 50% of samples are above LOD) (Minimum threshold = ",100*as.numeric(DETECTABILITY_FRAC), "%)"),
+                            MinReads=paste0("Minimum number of Parseable Matching reads for the run (Minimum threshold = ", format(MIN_READS, big.mark = ",", scientific = FALSE), ")"),
+                            SCRead_CV=paste0("Coefficient of variation of Parseable Matching reads across all AQSCs (Maximum threshold = ", 100*MAX_SC_CV, "%)"),
+                            SCTarget_CV=paste0("Median of coefficient of variation of normalized reads of all AQSC targets (Maximum threshold = ", 100*MAX_MEDIAN_SC_TARGET_CV, "%)"),
+                            Failed_Targets=paste0("Percentage of Targets with Target QC warnings (Maximum threshold = ", 100*MAX_FAILED_TARGET_PERC, "%)"),
+                            Failed_SC=paste0("Number of AQSC samples with Sample QC warnings (Maximum threshold = ", MAX_FAILED_SC,")"),
+                            Failed_IPC=paste0("Number of CAL samples with Sample QC warnings (Maximum threshold = ", MAX_FAILED_IPC, ")")
                            )
   }
   return(retVal)
@@ -153,7 +152,11 @@ QCPlateCriteria <- function(AQ=FALSE){
 # Target QC criteria
 TARGET_CONC_ACCURACY <- "-0.3,0.3"
 TARGET_CONC_CV <- 0.3
-
+MIN_TARGET_READS <- 200 # Minimum number of reads for a Target
+PERC_MIN_TARGET_READS <- 0.5
+TARGET_DETECTABILITY <- 0.5
+TARGET_CONC_CV_RQ <- 0.3
+TARGET_IPC_MIN_READS <- 200
 #' QCTargetCriteria
 #'
 #' Target QC Criteria
@@ -162,14 +165,60 @@ TARGET_CONC_CV <- 0.3
 #' # QCTargetCriteria()
 #'
 #' @export
-QCTargetCriteria <- function(){
+QCTargetCriteria <- function(AQ=FALSE, advancedQC=FALSE){
   retVal <- NULL
-  retVal$thresholds <- c(Target_Conc_Accuracy=TARGET_CONC_ACCURACY, Target_Conc_CV=as.numeric(TARGET_CONC_CV))
-  retVal$operators <- c(Target_Conc_Accuracy="<,>", Target_Conc_CV=">")
-  retVal$format <- c(Target_Conc_Accuracy="percentage", Target_Conc_CV="percentage")
-  retVal$thresholdNames <- c(Target_Conc_Accuracy="TARGET_CONC_ACCURACY", Target_Conc_CV="TARGET_CONC_CV")
-  retVal$properNames <- c(Target_Conc_Accuracy="Accuracy", Target_Conc_CV="CV")
-  retVal$explanations <- c(Target_Conc_Accuracy="Experimental vs Theoretical average AQSC concentration accuracy (Within +/-30% of theoretical)", Target_Conc_CV="Target-specific AQSC coefficient of variation (Maximum threshold = 30%)")
+  if(advancedQC){
+    AQSCname = if(AQ) "AQSC" else "SC"
+    retVal$thresholds <- c(Target_Min_Reads=as.numeric(PERC_MIN_TARGET_READS), 
+                           Target_Conc_CV_RQ=as.numeric(TARGET_CONC_CV_RQ),
+                           Target_Detectability=as.numeric(TARGET_DETECTABILITY)#,
+  #                         Target_IPC_Min_Reads=as.numeric(TARGET_IPC_MIN_READS)
+                           )
+    retVal$operators <- c(Target_Min_Reads="<",
+                          Target_Conc_CV_RQ=">",
+                          Target_Detectability="<"#,
+  #                        Target_IPC_Min_Reads="<"
+                          )
+    retVal$format <- c(Target_Min_Reads="percentage",
+                       Target_Conc_CV_RQ="percentage",
+                       Target_Detectability="percentage"#,
+  #                     Target_IPC_Min_Reads="integer"
+                       )
+    retVal$thresholdNames <- c(Target_Min_Reads="TARGET_MIN_READS",
+                               Target_Conc_CV_RQ="TARGET_CONC_CV_RQ",
+                               Target_Detectability="TARGET_DETECTABILITY"#,
+  #                             Target_IPC_Min_Reads="TARGET_IPC_MIN_READS"
+                               )
+    retVal$properNames <- c(Target_Min_Reads="Target Signal",
+                            Target_Conc_CV_RQ="CV Normalized Reads",
+                            Target_Detectability="Target Detectability"#,
+  #                          Target_IPC_Min_Reads="IPC Reads"
+                            )
+    retVal$explanations <- c(Target_Min_Reads=paste0("Percentage of samples with raw reads of at least ", MIN_TARGET_READS, " (Minimum threshold = ", PERC_MIN_TARGET_READS*100, "%)"),
+                             Target_Conc_CV_RQ=paste0("Target-specific ", AQSCname, " intra-plate coefficient of variation of normalized reads (Maximum threshold = ", TARGET_CONC_CV_RQ*100, "%)"),
+                             Target_Detectability=paste0("Percentage of samples with signal above the limit of detection (Minimum threshold = ", TARGET_DETECTABILITY*100, "%)")#,
+  #                           Target_IPC_Min_Reads=paste0("Median of IPC raw reads (Minimum threshold = ", TARGET_IPC_MIN_READS, ")")
+                             )
+  }
+  if(AQ){
+    retVal$thresholds <- c(retVal$thresholds,
+                           Target_Conc_Accuracy=TARGET_CONC_ACCURACY,
+                           Target_Conc_CV=as.numeric(TARGET_CONC_CV))
+    retVal$operators <- c(retVal$operators,
+                          Target_Conc_Accuracy="<,>",
+                          Target_Conc_CV=">")
+    retVal$format <- c(retVal$format,
+                       Target_Conc_Accuracy="percentage",
+                       Target_Conc_CV="percentage")
+    retVal$thresholdNames <- c(retVal$thresholdNames, Target_Conc_Accuracy="TARGET_CONC_ACCURACY",
+                             Target_Conc_CV="TARGET_CONC_CV")
+    retVal$properNames <- c(retVal$properNames, 
+                            Target_Conc_Accuracy="Accuracy",
+                            Target_Conc_CV="CV")
+    retVal$explanations <- c(retVal$explanations, 
+                             Target_Conc_Accuracy=paste0("Experimental vs Theoretical average AQSC concentration accuracy (Within +/-", 100*as.numeric(strsplit(TARGET_CONC_ACCURACY, ",")[[1]][2]), "% of theoretical, calculated on AQ targets)"),
+                             Target_Conc_CV=paste0("Target-specific AQSC coefficient of variation (Maximum threshold = ", TARGET_CONC_CV*100, "%, calculated on AQ targets)"))
+  }
   return(retVal)
 }
 
@@ -252,14 +301,14 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
 
   criteria <- QCSampleCriteria(TAP)
 
-  QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
+  QCFlagList <- vector("list", length(columns))
   if(is.null(well_order)){
     #well_order <- 1:length(raw[1,])
     well_order <-colnames(raw)
   }else{
     well_order <- rev(well_order)
   }
-  ICs  <- if(!is.null(ICs))   ICs else targets$targetName[which(targets$targetType == "Control")]
+  ICs  <- if(!is.null(ICs))   ICs else targets$targetName[which(tolower(targets$targetType) == "control")]
   IPCs <- if(!is.null(IPCs)) IPCs else samples$sampleName[which(samples$sampleType == "IPC")]
   NCs  <- if(!is.null(NCs))   NCs else samples$sampleName[which(samples$sampleType == "NC")]
   SCs  <- if(!is.null(SCs))   SCs else samples$sampleName[which(samples$sampleType == "SC")]
@@ -344,24 +393,24 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
     i <- well_order[j]
     set <- if(is.na(medVals[i])) "T" else evalCriterion("IC_Median", medVals[i], op, MIN_IC_MEDIAN)
     type <- "Sample"
-    if(i %in% NCs){
-      type <- "NC"
-    } else if (i %in% IPCs){
-      type <- "IPC"
-    } else if (i %in% SCs){
-      type <- "SC"
-    }
-    QCFlagReturn <- rbind(QCFlagReturn, c(i, "IC_Median", "raw", set, medVals[i], "", samples$sampleBarcode[which(samples$sampleName==i)], type, 
-                                          as.character(paste(MIN_IC_MEDIAN, collapse=',')), as.character(op), format))
+    type <- if(i %in% NCs) "NC" 
+           else if(i %in% IPCs) "IPC"
+           else if(i %in% SCs) "SC"
+           else type
+    QCFlagList[[j]] <- c(i, "IC_Median", "raw", set, medVals[i], "", samples$sampleBarcode[which(samples$sampleName==i)], type, 
+                                          as.character(paste(MIN_IC_MEDIAN, collapse=',')), as.character(op), format)
   }
-
+  curIndex <- length(medVals)
   # Minimim fraction (Target_Detectability): # Targets with reads above LOD
-  aboveLOD <- aboveLOD[!rownames(aboveLOD) %in% ICs, ] # remove controls from calculation
-  perc_tar <- colSums(aboveLOD == TRUE)/ nrow(aboveLOD)
-  perc_tar[NCs] <-NA
+  # Exclude ICs and noDetectability targets from detectability calculation
+  noDetectTargets <- if("noDetectability" %in% colnames(targets)) targets$targetName[which(targets$noDetectability == TRUE)] else character(0)
+  aboveLOD <- aboveLOD[!rownames(aboveLOD) %in% c(ICs, noDetectTargets), ] # remove controls and noDetectability targets
+  perc_tar <- colSums(aboveLOD == TRUE, na.rm=TRUE)/ colSums(!is.na(aboveLOD))
+  perc_tar[NCs] <- NA
   min_frac_detect <- if(TAP) "MIN_FRAC_DETECTABILITY_TAP" else "MIN_FRAC_DETECTABILITY"
   op <- criteria$operators[which(criteria$thresholdNames==min_frac_detect)]
   format <- criteria$format[which(criteria$thresholdNames==min_frac_detect)]
+
   for (j in 1:length(perc_tar)){
     i <- well_order[j]
     #samplematrix <- if(tolower(samples$SAMPLE_MATRIX[i]) == "ipc") "plasma" else tolower(samples$SAMPLE_MATRIX[i])
@@ -377,11 +426,16 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
     } else if (i %in% SCs){
       type <- "SC"
     }
-    QCFlagReturn <- rbind(QCFlagReturn, c(i, "Detectability", "IPC", set, perc_tar[i], "", samples$sampleBarcode[which(samples$sampleName==i)], type, 
-                                          as.character(criteria$thresholds[paste0('Detectability.', samplematrix)]), as.character(op), format))
+    val <- samples$sampleBarcode[which(samples$sampleName==i)]
+    if(length(val) == 0 ) val <- "NA"
+    QCFlagList[[curIndex + j]] <- c(i, "Detectability", "IPC", set, perc_tar[i], "", 
+                                          val, 
+                                          type, 
+                                          as.character(criteria$thresholds[paste0('Detectability.', samplematrix)]), 
+                                          as.character(op), format)
   }
 
-  
+  curIndex <- curIndex + length(perc_tar)
   # Minimum number (ICReads) of IC reads within a sample
   ICvals <- raw[ICs[1], ]
   ICvals[is.na(ICvals)] <- 0
@@ -398,8 +452,8 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
     } else if (i %in% SCs){
       type <- "SC"
     }
-    QCFlagReturn <- rbind(QCFlagReturn, c(i, "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[which(samples$sampleName==i)], type, 
-                                          as.character(MIN_IC_READS_PER_SAMPLE), as.character(op), format))
+    QCFlagList[[curIndex + j]] <- c(i, "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[which(samples$sampleName==i)], type, 
+                                          as.character(MIN_IC_READS_PER_SAMPLE), as.character(op), format)
   }
 
   # Minimum number (NumReads) of reads within a sample
@@ -408,6 +462,7 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
   val <- colSums(raw2, na.rm=T)
   op <- criteria$operators[which(criteria$thresholdNames=="MIN_NUM_READS_PER_SAMPLE")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_NUM_READS_PER_SAMPLE")]
+  curIndex <- curIndex + length(ICvals)
   for(j in 1:length(val)){
     i <- well_order[j]
     set <- NULL
@@ -425,9 +480,11 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
     } else if (i %in% SCs){
       type <- "SC"
     }
-    QCFlagReturn <- rbind(QCFlagReturn, c(i, "NumReads", "raw", set, val[i], "", samples$sampleBarcode[which(samples$sampleName ==i)], type, 
-                                          as.character(MIN_NUM_READS_PER_SAMPLE), as.character(op), format))
+    QCFlagList[[curIndex + j]] <- c(i, "NumReads", "raw", set, val[i], "", samples$sampleBarcode[which(samples$sampleName ==i)], type, 
+                                          as.character(MIN_NUM_READS_PER_SAMPLE), as.character(op), format)
   }
+  # Convert to matrix/data.frame at the end
+  QCFlagReturn <- data.frame(do.call(rbind, QCFlagList), stringsAsFactors=FALSE)
   colnames(QCFlagReturn) <- columns
   QCFlagReturn$val <- as.numeric(QCFlagReturn$val)
   QCFlagReturn$QCthreshold <- as.character(QCFlagReturn$QCthreshold)
@@ -436,21 +493,50 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
 
 # Return TRUE if criteria is violated (fail)
 evalCriterion <- function(name, value, operator, threshold){
-  operators <- unlist(strsplit(unname(as.character(operator)), ","))
-  thresholds <- unlist(strsplit(unname(as.character(threshold)), ","))
-  if(length(operators) != length(thresholds)){
-    stop(paste("Error: Specification of QC criteria is incorrect, unequal number of operators and thresholds for ", name)) 
-  }else{
-    input <- data.frame(rep(value, length(operators)), operators, thresholds)
-    flags <- apply(input, 1, function(x) eval(parse(text=paste(x[1], x[2], x[3]))))
-    return (any(flags))
+  # Convert to character only once
+  op_char <- as.character(operator)
+  th_char <- as.character(threshold)
+
+  # Split strings
+  operators <- strsplit(op_char, ",", fixed = TRUE)[[1]]
+  thresholds <- as.numeric(strsplit(th_char, ",", fixed = TRUE)[[1]])
+
+  # Length check
+  if (length(operators) != length(thresholds)) {
+    stop("Error: Specification of QC criteria is incorrect, unequal number of operators and thresholds for ", name)
   }
+
+  # Direct comparison without eval/parse
+  for (i in seq_along(operators)) {
+    op <- operators[i]
+    th <- thresholds[i]
+
+    result <- switch(op,
+      ">" = value > th,
+      "<" = value < th,
+      ">=" = value >= th,
+      "<=" = value <= th,
+      "==" = value == th,
+      "!=" = value != th,
+      stop("Unsupported operator: ", op)
+    )
+
+    if (is.na(value) || (!is.na(result) && result)) return(TRUE)
+  }
+
+  return(FALSE)
 }
 
 #' Write Target QC table
 #'
 #' Writes NULISAseq QC target flags 
 #' @param AQdata Absolute quantification data
+#' @param raw Raw data
+#' @param IPCnormed IPC-normalized data
+#' @param detectability detectability
+#' @param aboveLOD aboveLOD
+#' @param withinDR withinDR
+#' @param absRun whether the assay is absolute quantification
 #' @param targets targets data
 #' @param samples samples data
 #' @param SCparams SC concentrations 
@@ -463,48 +549,130 @@ evalCriterion <- function(name, value, operator, threshold){
 #' # QCFlagTarget(inputtable)
 #'
 #' @export
-QCFlagTarget <- function(AQdata, targets, samples, SCparams,
-                        ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL){
-  criteria <- QCTargetCriteria()
-  SCs  <- if(!is.null(SCs))   SCs else samples$sampleName[which(samples$sampleType == "SC")]
-  columns <- c("target", "flagName", "normMethod", "status", "val", "QCthreshold", "QCoperator", "QCformat")
-  QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
-
-  # Calculate TARGET_CONC_ACCURACY
-  op1 <- criteria$operators[which(criteria$thresholdNames=="TARGET_CONC_ACCURACY")]
-  format1 <- criteria$format[which(criteria$thresholdNames=="TARGET_CONC_ACCURACY")]
-  threshold1 <- criteria$thresholds[which(criteria$thresholdNames=="TARGET_CONC_ACCURACY")]
-  meanSC <- apply(AQdata[, SCs], 1, mean, na.rm=T)
-
-  Target_Conc_Acc <- (meanSC - SCparams) / SCparams
-
-  # Calculate TARGET_CONC_CV
-  op2 <- criteria$operators[which(criteria$thresholdNames=="TARGET_CONC_CV")]
-  format2 <- criteria$format[which(criteria$thresholdNames=="TARGET_CONC_CV")]
-  threshold2 <- criteria$thresholds[which(criteria$thresholdNames=="TARGET_CONC_CV")]
-  Target_CV <- apply(AQdata[, SCs], 1, sd, na.rm=TRUE) / meanSC
-  for (i in 1:nrow(AQdata)){
-
-    ## Target_Conc_Accuracy
-    # Target_Conc_Accuracy=as.numeric(TARGET_CONC_ACCURACY)
-    set <- evalCriterion("Target_Conc_Accuracy", Target_Conc_Acc[i], op1, threshold1)
-    if(is.na(set)){
-      set = TRUE
-    }
-    QCFlagReturn <- rbind(QCFlagReturn, c(rownames(AQdata)[i], "Target_Conc_Accuracy", "AQ_aM", set, Target_Conc_Acc[i], threshold1, op1, format1))
-    
-    ## Target_Conc_CV
-    # Target_Conc_CV=as.numeric(TARGET_CONC_CV))
-    set <- evalCriterion("Target_Conc_CV", Target_CV[i], op2, threshold2)
-    if(is.na(set)){
-      set = TRUE
-    }
-    QCFlagReturn <- rbind(QCFlagReturn, c(rownames(AQdata)[i], "Target_Conc_CV", "AQ_aM", set, Target_CV[i], threshold2, op2, format2))
-
-    colnames(QCFlagReturn) <- columns
+QCFlagTarget <- function(AQdata, raw, IPCnormed, detectability, aboveLOD, withinDR, absRun, targets, samples, SCparams,
+                        ICs = NULL, IPCs = NULL, NCs = NULL, SCs = NULL, advancedQC=FALSE) {
+  # Load QC criteria
+  criteria <- QCTargetCriteria(absRun, advancedQC)
+  if(length(criteria) == 0){
+    return(NULL)
   }
+  # Determine SCs based on sample types if not provided
+  SCs <- if (!is.null(SCs)) SCs else samples$sampleName[which(samples$sampleType == "SC")]
+  IPCs <- if (!is.null(IPCs)) IPCs else samples$sampleName[which(samples$sampleType == "IPC")]
+  # Determine Samples based on sample types if not provided
+  Samples <- samples$sampleName[which(tolower(samples$sampleType) == "sample")]
+  Targets <- targets$targetName[which(tolower(targets$targetType) == "target")]
+  # For detectability metric only, also exclude noDetectability targets
+  Targets_detect <- Targets
+  if("noDetectability" %in% colnames(targets)){
+    noDetectTargets <- targets$targetName[which(targets$noDetectability == TRUE)]
+    Targets_detect <- Targets[!Targets %in% noDetectTargets]
+  }
+  AQtargets <- rownames(AQdata)
+
+# Define column names for QCFlagReturn
+  columns <- c("target", "flagName", "normMethod", "status", "val", "QCthreshold", "QCoperator", "QCformat")
+
+  # Create copy of IPCnormed and set values to NA where aboveLOD is FALSE
+  IPCnormed_filtered <- IPCnormed
+  IPCnormed_filtered[!aboveLOD] <- NA
+  meanSC_RQ <- apply(IPCnormed_filtered[Targets, SCs], 1, mean, na.rm = TRUE)
+  sdevSC_RQ <- apply(IPCnormed_filtered[Targets, SCs], 1, sd, na.rm = TRUE)
+
+  # Define evaluation items with their respective calculations
+  eval_info <- list(
+    list(name = "TARGET_MIN_READS", method = "raw", calc = apply(raw[Targets, Samples, drop=FALSE], 1, function(row){
+      mean(row > MIN_TARGET_READS)
+      })
+    ),
+    list(name = "TARGET_DETECTABILITY", method = "IPC", calc = detectability[Targets_detect]/100),
+    list(name = "TARGET_CONC_CV_RQ", method = "IPC", calc = sdevSC_RQ / meanSC_RQ)#,
+#    list(name = "TARGET_IPC_MIN_READS", method = "IPC", calc = apply(raw[Targets, IPCs], 1, median))
+  )
+
+  if(absRun){
+    # Calculate mean and standard deviation for SC samples across AQdata
+    AQdata_filtered <- AQdata
+    if(!is.null(withinDR)){
+      AQdata_filtered[!withinDR] <- NA
+    }
+    meanSC <- apply(AQdata_filtered[, SCs], 1, mean, na.rm = TRUE)
+    sdevSC <- apply(AQdata_filtered[, SCs], 1, sd, na.rm = TRUE)
+    SCparamsNull <- rep(NA, length(meanSC))
+    names(SCparamsNull) <- names(meanSC)
+    eval_info <- append(eval_info, list(
+      list(name = "TARGET_CONC_ACCURACY", method = "AQ_aM", calc = if(is.null(SCparams)) SCparamsNull else (meanSC - SCparams) / SCparams),
+      list(name = "TARGET_CONC_CV", method = "AQ_aM", calc = sdevSC / meanSC)
+    ))
+  }
+
+  # Process all evaluation items into a single list with parameters
+  eval_list <- lapply(seq_along(criteria$thresholdNames), function(i) {
+    name <- names(criteria$properNames)[i]
+    result_name <- criteria$thresholdNames[i]
+    result_info <- eval_info[[which(sapply(eval_info, function(x) x$name == result_name))]]
+    list(
+      name = name,
+      result = result_info$calc,
+      method = result_info$method,
+      op = criteria$operators[i],
+      threshold = criteria$thresholds[i],
+      format = criteria$format[i]
+    )
+  })
+
+  # Pre-calculate total number of rows needed
+  total_rows <- sum(sapply(eval_list, function(item) {
+    if(item$name == "Target_Detectability") {
+      sum(!is.na(item$result))
+    } else {
+      length(item$result)
+    }
+  }))
+
+  QCFlagList <- vector("list", total_rows)
+  row_idx <- 1
+  # Loop through AQdata and evaluate criteria for each row
+  for (j in 1:length(eval_list)) {
+    eval_item <- eval_list[[j]]
+    for (i in 1:length(eval_item$result)) {
+      if(is.na(eval_item$result[i]) & eval_item$name =="Target_Detectability"){ # don't consider NA for Target_Detectability to be TRUE
+        next;
+      }
+      # Evaluate the criterion for the current row
+      set <- evalCriterion(eval_item$name, eval_item$result[i], eval_item$op, eval_item$threshold)
+      if (is.na(set)) {
+        set <- TRUE
+      }
+      # Add to list instead of rbind
+      QCFlagList[[row_idx]] <- c(
+        names(eval_item$result[i]),
+        eval_item$name,
+        eval_item$method,
+        set,
+        eval_item$result[i],
+        eval_item$threshold,
+        eval_item$op,
+        eval_item$format
+      )
+      row_idx <- row_idx + 1
+    }
+  }
+  # Remove any unused pre-allocated slots (in case of skipped NA values)
+  if(row_idx <= total_rows) {
+    QCFlagList <- QCFlagList[1:(row_idx-1)]
+  }
+
+  # Set column names for QCFlagReturn
+  QCFlagReturn <- data.frame(do.call(rbind, QCFlagList), stringsAsFactors=FALSE)
+  colnames(QCFlagReturn) <- columns
+
+  # Convert column types as needed
+  QCFlagReturn$val <- as.numeric(QCFlagReturn$val)
+  QCFlagReturn$status <- as.logical(QCFlagReturn$status)
   return(QCFlagReturn)
 }
+
 
 #' Write Plate QC table
 #'
@@ -527,13 +695,15 @@ QCFlagTarget <- function(AQdata, targets, samples, SCparams,
 QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples, 
                         ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, AQ=TRUE, AQ_QC=NULL, Sample_QC=NULL){
   criteria <- QCPlateCriteria(AQ)
-  ICs  <- if(!is.null(ICs))   ICs else targets$targetName[which(targets$targetType == "Control")]
+  ICs  <- if(!is.null(ICs))   ICs else targets$targetName[which(tolower(targets$targetType) == "control")]
   IPCs <- if(!is.null(IPCs)) IPCs else samples$sampleName[which(samples$sampleType == "IPC")]
   NCs  <- if(!is.null(NCs))   NCs else samples$sampleName[which(samples$sampleType == "NC")]
   SCs  <- if(!is.null(SCs))   SCs else samples$sampleName[which(samples$sampleType == "SC")]
   columns <- c("flagName", "normMethod", "status", "val", "QCthreshold", "QCoperator", "QCformat")
-  QCFlagReturn <- data.frame(matrix(nrow=0, ncol=length(columns)))
-
+  
+  max_rows <- if(AQ) 10 else 5
+  QCFlagList <- vector("list", max_rows)
+  row_idx <- 1
   # Calculate Plate-wide QC vals
   if(AQ){
     ## MAX_SC_CV
@@ -544,7 +714,8 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
     op <- criteria$operators[which(criteria$thresholdNames=="MAX_SC_CV")]
     format <- criteria$format[which(criteria$thresholdNames=="MAX_SC_CV")]
     set <- evalCriterion("SCRead_CV", SC_CV, op, MAX_SC_CV)
-    QCFlagReturn <- rbind(QCFlagReturn, c("SCRead_CV", "raw", set, SC_CV, MAX_SC_CV, op, format))
+    QCFlagList[[row_idx]] <- c("SCRead_CV", "raw", set, SC_CV, MAX_SC_CV, op, format)
+    row_idx <- row_idx + 1
 
     ## MAX_SC_Target_CV
     SCnormvals <- normed[, SCs]
@@ -553,14 +724,16 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
     op <- criteria$operators[which(criteria$thresholdNames=="MAX_MEDIAN_SC_TARGET_CV")]
     format <- criteria$format[which(criteria$thresholdNames=="MAX_MEDIAN_SC_TARGET_CV")]
     set <- evalCriterion("SCTarget_CV", median_SC_targetCV, op, MAX_MEDIAN_SC_TARGET_CV)
-    QCFlagReturn <- rbind(QCFlagReturn, c("SCTarget_CV", "IPC", set, median_SC_targetCV, MAX_MEDIAN_SC_TARGET_CV, op, format))
+    QCFlagList[[row_idx]] <- c("SCTarget_CV", "IPC", set, median_SC_targetCV, MAX_MEDIAN_SC_TARGET_CV, op, format)
+    row_idx <- row_idx + 1
 
     ## Failed Assays <10% of total AQ Targets 
     op <- criteria$operators[which(criteria$thresholdNames == "MAX_FAILED_TARGET_PERC")]
     format <- criteria$format[which(criteria$thresholdNames=="MAX_FAILED_TARGET_PERC")]
     val <- length(unique(AQ_QC[which(AQ_QC$status == "TRUE"),]$target)) / length(unique(AQ_QC$target))
     set <- evalCriterion("Failed_Targets", val, op, MAX_FAILED_TARGET_PERC) 
-    QCFlagReturn <- rbind(QCFlagReturn, c("Failed_Targets", "IPC", set, val, MAX_FAILED_TARGET_PERC, op, format))
+    QCFlagList[[row_idx]] <- c("Failed_Targets", "IPC", set, val, MAX_FAILED_TARGET_PERC, op, format)
+    row_idx <- row_idx + 1
 
     ## Flagged sample control from sample QC
     op <- criteria$operators[which(criteria$thresholdNames == "MAX_FAILED_SC")]
@@ -568,7 +741,8 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
     inds <- (which(Sample_QC$sampleName %in% SCs & Sample_QC$status == TRUE))
     val = length(unique(Sample_QC[inds,]$sampleName))
     set <- evalCriterion("Failed_SC", val, op, MAX_FAILED_SC) 
-    QCFlagReturn <- rbind(QCFlagReturn, c("Failed_SC", "IPC", set, val, MAX_FAILED_SC, op, format))
+    QCFlagList[[row_idx]] <- c("Failed_SC", "IPC", set, val, MAX_FAILED_SC, op, format)
+    row_idx <- row_idx + 1
     
     ## Flagged IPC from sample QC
     op <- criteria$operators[which(criteria$thresholdNames == "MAX_FAILED_IPC")]
@@ -576,7 +750,8 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
     inds <- (which(Sample_QC$sampleName %in% IPCs & Sample_QC$status == TRUE))
     val = length(unique(Sample_QC[inds,]$sampleName))
     set <- evalCriterion("Failed_IPC", val, op, MAX_FAILED_IPC) 
-    QCFlagReturn <- rbind(QCFlagReturn, c("Failed_IPC", "IPC", set, val, MAX_FAILED_IPC, op, format))
+    QCFlagList[[row_idx]] <- c("Failed_IPC", "IPC", set, val, MAX_FAILED_IPC, op, format)
+    row_idx <- row_idx + 1
   }
 
   ## MAX_IC_CV (V)
@@ -586,7 +761,8 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
   op <- criteria$operators[which(criteria$thresholdNames=="MAX_IC_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_IC_CV")]
   set <- evalCriterion("ICRead_CV", IC_CV, op, MAX_IC_CV)
-  QCFlagReturn <- rbind(QCFlagReturn, c("ICRead_CV", "raw", set, IC_CV, MAX_IC_CV, op, format))
+  QCFlagList[[row_idx]] <- c("ICRead_CV", "raw", set, IC_CV, MAX_IC_CV, op, format)
+  row_idx <- row_idx + 1
 
   ## MAX_IPC_CV (I)
   IPCvals <- raw[, IPCs]
@@ -596,7 +772,8 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
   op <- criteria$operators[which(criteria$thresholdNames=="MAX_IPC_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_IPC_CV")]
   set <- evalCriterion("IPCRead_CV", IPC_CV, op, MAX_IPC_CV)
-  QCFlagReturn <- rbind(QCFlagReturn, c("IPCRead_CV", "raw", set, IPC_CV, MAX_IPC_CV, op, format))
+  QCFlagList[[row_idx]] <- c("IPCRead_CV", "raw", set, IPC_CV, MAX_IPC_CV, op, format)
+  row_idx <- row_idx + 1
 
   ## MAX_MEDIAN_IPC_TARGET_CV (P)
   IPCnormvals <- normed[, IPCs]
@@ -605,28 +782,39 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
   op <- criteria$operators[which(criteria$thresholdNames=="MAX_MEDIAN_IPC_TARGET_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_MEDIAN_IPC_TARGET_CV")]
   set <- evalCriterion("IPCTarget_CV", median_IPC_targetCV, op, MAX_MEDIAN_IPC_TARGET_CV)
-  QCFlagReturn <- rbind(QCFlagReturn, c("IPCTarget_CV", "IPC", set, median_IPC_targetCV, MAX_MEDIAN_IPC_TARGET_CV, op, format))
+  QCFlagList[[row_idx]] <- c("IPCTarget_CV", "IPC", set, median_IPC_targetCV, MAX_MEDIAN_IPC_TARGET_CV, op, format)
+  row_idx <- row_idx + 1
 
   ## Detectability fraction (D)
-  aboveLOD <- aboveLOD[!rownames(aboveLOD) %in% ICs, !colnames(aboveLOD) %in% c(IPCs, NCs, SCs)] # remove controls from calculation
+  # Exclude ICs and noDetectability targets from detectability calculation
+  noDetectTargets <- if("noDetectability" %in% colnames(targets)) targets$targetName[which(targets$noDetectability == TRUE)] else character(0)
+  aboveLOD <- aboveLOD[!rownames(aboveLOD) %in% c(ICs, noDetectTargets), !colnames(aboveLOD) %in% c(IPCs, NCs, SCs)] # remove controls and noDetectability targets
   if(!is.null(dim(aboveLOD))){
-    perc_tar <- rowSums(aboveLOD == TRUE)/ ncol(aboveLOD)
-    perc_all <- length(which(perc_tar > 0.5))/ nrow(aboveLOD)
-  }else{
-    perc_tar <- as.integer(aboveLOD)
-    perc_all <- sum(perc_tar) / length(perc_tar)
+    perc_tar <- rowSums(aboveLOD == TRUE, na.rm=TRUE)/ rowSums(!is.na(aboveLOD))
+    perc_all <- sum(perc_tar > 0.5, na.rm=TRUE)/ nrow(aboveLOD)
+  } else{
+    perc_all <- mean(aboveLOD, na.rm=TRUE)
   }
   op <- criteria$operators[which(criteria$thresholdNames=="DETECTABILITY_FRAC")]
   format <- criteria$format[which(criteria$thresholdNames=="DETECTABILITY_FRAC")]
   set <- evalCriterion("Detectability", perc_all, op, DETECTABILITY_FRAC)
-  QCFlagReturn <- rbind(QCFlagReturn, c("Detectability", "IPC", set, perc_all, DETECTABILITY_FRAC, op, format))
+  QCFlagList[[row_idx]] <- c("Detectability", "IPC", set, perc_all, DETECTABILITY_FRAC, op, format)
+  row_idx <- row_idx + 1
 
   ## Min number of reads (R)
   nReads <- sum(raw, na.rm=T)
   op <- criteria$operators[which(criteria$thresholdNames=="MIN_READS")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_READS")]
   set <- evalCriterion("MinReads", nReads, op, MIN_READS)
-  QCFlagReturn <- rbind(QCFlagReturn, c("MinReads", "raw", set, nReads, MIN_READS, op, format))
+  QCFlagList[[row_idx]] <- c("MinReads", "raw", set, nReads, MIN_READS, op, format)
+
+  # Trim list if needed (e.g. when AQ=FALSE)
+  if(row_idx <= max_rows){
+    QCFlagList <- QCFlagList[1:row_idx]
+  }
+
+  # Convert to data.frame
+  QCFlagReturn <- as.data.frame(do.call(rbind, QCFlagList), stringsAsFactors = FALSE)
   colnames(QCFlagReturn) <- columns
   QCFlagReturn$val <- as.numeric(QCFlagReturn$val)
   QCFlagReturn$QCthreshold <- as.numeric(QCFlagReturn$QCthreshold)

@@ -41,6 +41,8 @@ outliers_index_mad <- function(col, min_blanks = 4, threshold = 2.5) {
 #' @param targetNoOutlierDetection Option to provide targets which should NOT have 
 #' outlier detection applied
 #' Defaults to NULL.
+#' @param match_matrix Matrix of indices provided by calcSampleTargetNAs. 
+#' Lists samples/targets that should not be reported 
 #'
 #'
 #' @return A list.
@@ -50,7 +52,7 @@ outliers_index_mad <- function(col, min_blanks = 4, threshold = 2.5) {
 #'
 #' @export
 #' 
-lod <- function(data_matrix, blanks, min_count = 0, min_blank_no = 4, mad_threshold = 2.5, ignore_target_blank = NULL, targetNoOutlierDetection = NULL) {
+lod <- function(data_matrix, blanks, min_count = 0, min_blank_no = 4, mad_threshold = 2.5, ignore_target_blank = NULL, targetNoOutlierDetection = NULL, match_matrix = NULL) {
   # Determine blank names if blank indices are provided
   if (is.numeric(blanks)) {
     blank_names <- colnames(data_matrix)[blanks]
@@ -142,6 +144,11 @@ lod <- function(data_matrix, blanks, min_count = 0, min_blank_no = 4, mad_thresh
     result[is.na(result)] <- FALSE
     return(result)
   })
+
+  # Do not report values for a specific target / sample_matrix combination if specified in barcodeA
+  if(!is.null(match_matrix) && nrow(match_matrix) > 0 ) {
+    aboveLOD[cbind(match_matrix[,"row"], match_matrix[,"col"])] <- NA
+  }
   return(list(LOD=LOD, 
               aboveLOD=aboveLOD,
               blank_outlier_table=blank_outlier_table))
