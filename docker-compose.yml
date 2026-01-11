@@ -49,6 +49,7 @@ services:
         condition: service_completed_successfully
     command: >
       Rscript --vanilla -e "
+      pkgdown::clean_site();
       pkgdown::init_site();
       pkgdown::build_home();
       pkgdown::build_reference();
