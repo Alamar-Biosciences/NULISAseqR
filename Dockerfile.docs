@@ -23,5 +23,6 @@ COPY ./man /workingDir/man
 COPY ./_pkgdown.yml /workingDir/_pkgdown.yml
 COPY ./pkgdown /workingDir/pkgdown
 COPY ./NEWS.md /workingDir/NEWS.md
+COPY ./README.md /workingDir/README.md
 
 CMD ["bash"]
