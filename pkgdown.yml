@@ -1,0 +1,18 @@
+pandoc: 3.1.3
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  book/00-understanding-nulisaseq-data: book/00-understanding-nulisaseq-data.html
+  book/01-data-import: book/01-data-import.html
+  book/02-quality-control: book/02-quality-control.html
+  book/03-visualization: book/03-visualization.html
+  book/04-differential-abundance: book/04-differential-abundance.html
+  book/05-longitudinal_analysis: book/05-longitudinal_analysis.html
+  book/06-outcome-modeling: book/06-outcome-modeling.html
+  book/07-case-study-example-1: book/07-case-study-example-1.html
+  book/99-additional-resources: book/99-additional-resources.html
+  book/index: book/index.html
+last_built: 2026-01-11T18:32Z
+urls:
+  reference: https://nulisaseqr.alamarbio.com/reference
+  article: https://nulisaseqr.alamarbio.com/articles
