@@ -74,7 +74,120 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-Provides comprehensive analysis tools for NULISAseq proteomic data including data import, normalization, quality control, statistical analysis, and visualization.
+<div class="section level1">
+<div class="page-header"><h1 id="nulisaseqr-">NULISAseqR <a href="https://nulisaseqr.alamarbio.com/reference/index.html"><img src="reference/figures/logo.png" align="right" height="138" alt="NULISAseqR logo"></a>
+<a class="anchor" aria-label="anchor" href="#nulisaseqr-"></a>
+</h1></div>
+<p><strong>NULISAseqR</strong> is an R package designed for comprehensive analysis of proteomic data from the <strong>NULISAseq</strong> platform (Alamar Biosciences). NULISAseq is a high-multiplexed proteomic assay that uses nucleic acid-linked immunosandwich assays to measure hundreds of proteins simultaneously.</p>
+<div class="section level2">
+<h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
+</h2>
+<ul>
+<li>
+<strong>Data Import</strong>: Read and parse NULISAseq XML output files</li>
+<li>
+<strong>Quality Control</strong>: QC metrics and visualizations</li>
+<li>
+<strong>Normalization</strong>: Intra-plate and inter-plate normalization using internal controls</li>
+<li>
+<strong>Statistical Analysis</strong>: Differential abundance testing and outcome modeling</li>
+<li>
+<strong>Visualization</strong>: Heatmaps, PCA plots, volcano plots, and more</li>
+<li>
+<strong>Reporting</strong>: Generate comprehensive automated HTML QC reports with metrics and figures</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="section level3">
+<h3 id="system-requirements">System Requirements<a class="anchor" aria-label="anchor" href="#system-requirements"></a>
+</h3>
+<ul>
+<li>R version 4.4 or higher</li>
+<li>Installation time: &lt; 5 minutes</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="macos-users">macOS Users<a class="anchor" aria-label="anchor" href="#macos-users"></a>
+</h3>
+<p><strong>Important</strong>: Before installing NULISAseqR on macOS, you need to install Xcode Command Line Tools:</p>
+<ol style="list-style-type: decimal">
+<li>Install Xcode from the App Store (if not already installed)</li>
+<li>Open Terminal and run:</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">sudo</span> xcodebuild <span class="at">-license</span> accept</span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="windows-users">Windows Users<a class="anchor" aria-label="anchor" href="#windows-users"></a>
+</h3>
+<p><strong>Important</strong>: Before installing NULISAseqR on Windows, you need to install Rtools:</p>
+<ol style="list-style-type: decimal">
+<li>Go to <a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link">https://cran.r-project.org/bin/windows/Rtools/</a>
+</li>
+<li>Download and install the appropriate Rtools version for your R installation</li>
+<li>Follow the installation instructions on the website</li>
+</ol>
+</div>
+<div class="section level3">
+<h3 id="installation-steps">Installation Steps<a class="anchor" aria-label="anchor" href="#installation-steps"></a>
+</h3>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># 1. Install devtools</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"devtools"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 2. Install BiocManager for Bioconductor packages</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 3. Install ComplexHeatmap from Bioconductor</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu">install</span><span class="op">(</span><span class="st">"ComplexHeatmap"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 4. Install ggalt from CRAN snapshot</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'ggalt'</span>, repos <span class="op">=</span> <span class="st">"http://packagemanager.posit.co/cran/2025-08-02"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 5. Install PCAtools (Alamar fork)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'Alamar-Biosciences/PCAtools'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 6. Install NULISAseqR</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'Alamar-Biosciences/NULISAseqR'</span><span class="op">)</span></span></code></pre></div>
+<blockquote>
+<p><strong>Note</strong>: If you encounter issues installing packages from source, you may need to restart R (Cmd/Ctrl + Shift + F10 in RStudio) between major installation steps.</p>
+</blockquote>
+<p>Load the package:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nulisaseqr.alamarbio.com">NULISAseqR</a></span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="resources">Resources<a class="anchor" aria-label="anchor" href="#resources"></a>
+</h2>
+<div class="section level3">
+<h3 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h3>
+<ul>
+<li>
+<a href="https://nulisaseqr.alamarbio.com/reference/"><strong>Function Reference</strong></a> - Complete documentation of all package functions</li>
+<li>
+<a href="https://nulisaseqr.alamarbio.com/user-guide/"><strong>User Guide</strong></a> - Detailed tutorials, workflows, and examples</li>
+<li>
+<a href="https://nulisaseqr.alamarbio.com/news/"><strong>News</strong></a> - Release notes and changelog</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="getting-help">Getting Help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
+</h3>
+<ul>
+<li>
+<strong>Function documentation</strong>: Type <code>?function_name</code> in R (e.g., <code><a href="reference/importNULISAseq.html">?importNULISAseq</a></code>)</li>
+<li>
+<strong>GitHub Issues</strong>: <a href="https://github.com/Alamar-Biosciences/NULISAseqR/issues" class="external-link">Report bugs or request features</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
