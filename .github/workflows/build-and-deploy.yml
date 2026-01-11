@@ -35,7 +35,7 @@ jobs:
           build-args: |
             GH_PAT=${{ secrets.UTILITY_ACCESS_TOKEN }}
             SOURCE_BRANCH=${{ github.event.pull_request.base.ref || github.ref_name }}
-            NULISASEQAQ_BRANCH=${{ github.event.pull_request.base.ref || github.ref_name }}
+            NULISASEQAQ_BRANCH=${{ contains(github.repository, '_internal') && (github.event.pull_request.base.ref || github.ref_name) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
