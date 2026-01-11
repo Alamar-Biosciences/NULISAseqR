@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Additional Resources | NULISAseqR User Guide</title>
+  <meta name="description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="generator" content="bookdown 0.46 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Additional Resources | NULISAseqR User Guide" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="github-repo" content="Alamar-Biosciences/NULISAseqR" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Additional Resources | NULISAseqR User Guide" />
+  
+  <meta name="twitter:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="case-study-1.html"/>
+
+<script src="libs/jquery-3.6.1/jquery-3.6.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.34.0/datatables.js"></script>
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="libs/table1-1.0/table1_defaults.css" rel="stylesheet" />
+<link rel="shortcut icon" href="figures/favicon.png" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li style="text-align: left; padding: 20px;">
+  <a href="https://www.alamarbio.com" target="_blank">
+    <img src="figures/alamar_logo.png" style="height:70px;">
+  </a>
+</li>
+<li><a href="./">NULISAseqR User Guide</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#what-is-nulisaseqr"><i class="fa fa-check"></i>What is NULISAseqR?</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#installation"><i class="fa fa-check"></i>Installation</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#macos-users"><i class="fa fa-check"></i>macOS Users</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#windows-users"><i class="fa fa-check"></i>Windows Users</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#installation-steps"><i class="fa fa-check"></i>Installation Steps</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#getting-help"><i class="fa fa-check"></i>Getting Help</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html"><i class="fa fa-check"></i>Understanding NULISAseq Data</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#what-is-nulisa-technology"><i class="fa fa-check"></i>What is NULISA™ Technology?</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#technical-workflow"><i class="fa fa-check"></i>Technical Workflow</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#learn-more-about-nulisa-technology"><i class="fa fa-check"></i>Learn More About NULISA™ Technology</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#available-nulisaseq-panels"><i class="fa fa-check"></i>Available NULISAseq Panels</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-normalization"><i class="fa fa-check"></i>Data Normalization</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#raw-data-sequencing-counts"><i class="fa fa-check"></i>Raw Data: Sequencing Counts</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-1-internal-control-ic-normalization"><i class="fa fa-check"></i>Step 1: Internal Control (IC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-2-inter-plate-control-ipc-normalization"><i class="fa fa-check"></i>Step 2: Inter-Plate Control (IPC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-3-log2-transformation"><i class="fa fa-check"></i>Step 3: Log2 Transformation</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#why-log-transform"><i class="fa fa-check"></i>Why Log Transform?</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#npq-vs-fold-change"><i class="fa fa-check"></i>NPQ vs Fold Change</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#understanding-the-relationship"><i class="fa fa-check"></i>Understanding the Relationship</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#working-with-npq-values"><i class="fa fa-check"></i>Working with NPQ Values</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-from-npq"><i class="fa fa-check"></i>Calculating Fold Changes from NPQ</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-in-target-ratios"><i class="fa fa-check"></i>Calculating Fold Changes in Target Ratios</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-analysis-faq"><i class="fa fa-check"></i>Data Analysis FAQ</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-is-the-limit-of-detection-lod-defined-for-nulisaseq-why-do-some-targets-have-lod-of-0"><i class="fa fa-check"></i>1. How is the limit of detection (LOD) defined for NULISAseq? <br> Why do some targets have LOD of 0?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#should-i-exclude-samples-below-lod"><i class="fa fa-check"></i>2. Should I exclude samples below LOD?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-i-calculate-coefficient-of-variation-cv-for-samples"><i class="fa fa-check"></i>3. How do I calculate coefficient of variation (CV) for samples?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#can-i-compare-data-across-different-runs"><i class="fa fa-check"></i>4. Can I compare data across different runs?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-you-assess-correlation-between-npq-and-absolute-quantification-data-from-other-platforms"><i class="fa fa-check"></i>5. How do you assess correlation between NPQ and absolute quantification data from other platforms?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="data-import.html"><a href="data-import.html"><i class="fa fa-check"></i><b>1</b> Data Import</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="data-import.html"><a href="data-import.html#the-importnulisaseq-function"><i class="fa fa-check"></i><b>1.1</b> The <code>importNULISAseq()</code> Function</a></li>
+<li class="chapter" data-level="1.2" data-path="data-import.html"><a href="data-import.html#understanding-the-data-structure"><i class="fa fa-check"></i><b>1.2</b> Understanding the Data Structure</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="data-import.html"><a href="data-import.html#key-components"><i class="fa fa-check"></i><b>1.2.1</b> Key Components</a></li>
+<li class="chapter" data-level="1.2.2" data-path="data-import.html"><a href="data-import.html#summary-statistics"><i class="fa fa-check"></i><b>1.2.2</b> Summary Statistics</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="data-import.html"><a href="data-import.html#working-with-your-own-data"><i class="fa fa-check"></i><b>1.3</b> Working with Your Own Data</a></li>
+<li class="chapter" data-level="1.4" data-path="data-import.html"><a href="data-import.html#loading-metadata"><i class="fa fa-check"></i><b>1.4</b> Loading Metadata</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="data-import.html"><a href="data-import.html#metadata-structure"><i class="fa fa-check"></i><b>1.4.1</b> Metadata Structure</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="data-import.html"><a href="data-import.html#merging-data-with-metadata"><i class="fa fa-check"></i><b>1.5</b> Merging Data with Metadata</a>
+<ul>
+<li class="chapter" data-level="1.5.1" data-path="data-import.html"><a href="data-import.html#understanding-sample-names"><i class="fa fa-check"></i><b>1.5.1</b> Understanding Sample Names</a></li>
+<li class="chapter" data-level="1.5.2" data-path="data-import.html"><a href="data-import.html#merging-options"><i class="fa fa-check"></i><b>1.5.2</b> Merging Options</a></li>
+</ul></li>
+<li class="chapter" data-level="1.6" data-path="data-import.html"><a href="data-import.html#filtering-samples"><i class="fa fa-check"></i><b>1.6</b> Filtering Samples</a></li>
+<li class="chapter" data-level="1.7" data-path="data-import.html"><a href="data-import.html#complete-import-workflow"><i class="fa fa-check"></i><b>1.7</b> Complete Import Workflow</a></li>
+<li class="chapter" data-level="1.8" data-path="data-import.html"><a href="data-import.html#tips-and-best-practices"><i class="fa fa-check"></i><b>1.8</b> Tips and Best Practices</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="quality-control.html"><a href="quality-control.html"><i class="fa fa-check"></i><b>2</b> Quality Control</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="quality-control.html"><a href="quality-control.html#why-quality-control-matters"><i class="fa fa-check"></i><b>2.1</b> Why Quality Control Matters</a></li>
+<li class="chapter" data-level="2.2" data-path="quality-control.html"><a href="quality-control.html#qc-report"><i class="fa fa-check"></i><b>2.2</b> Automated QC Report</a></li>
+<li class="chapter" data-level="2.3" data-path="quality-control.html"><a href="quality-control.html#qc-report-structure"><i class="fa fa-check"></i><b>2.3</b> QC Report Structure</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="quality-control.html"><a href="quality-control.html#plate-layout"><i class="fa fa-check"></i><b>2.3.1</b> Plate Layout</a></li>
+<li class="chapter" data-level="2.3.2" data-path="quality-control.html"><a href="quality-control.html#run-summary"><i class="fa fa-check"></i><b>2.3.2</b> Run Summary</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#quality-control-metrics"><i class="fa fa-check"></i>Quality Control Metrics</a></li>
+<li class="chapter" data-level="2.3.3" data-path="quality-control.html"><a href="quality-control.html#platerun-qc"><i class="fa fa-check"></i><b>2.3.3</b> Plate/Run QC</a></li>
+<li class="chapter" data-level="2.3.4" data-path="quality-control.html"><a href="quality-control.html#sample-qc"><i class="fa fa-check"></i><b>2.3.4</b> Sample QC</a></li>
+<li class="chapter" data-level="2.3.5" data-path="quality-control.html"><a href="quality-control.html#target-qc"><i class="fa fa-check"></i><b>2.3.5</b> Target QC</a></li>
+<li class="chapter" data-level="2.3.6" data-path="quality-control.html"><a href="quality-control.html#coefficient-of-variation-cv"><i class="fa fa-check"></i><b>2.3.6</b> Coefficient of Variation (CV)</a></li>
+<li class="chapter" data-level="2.3.7" data-path="quality-control.html"><a href="quality-control.html#batch-effect-assessment"><i class="fa fa-check"></i><b>2.3.7</b> Batch Effect Assessment</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="quality-control.html"><a href="quality-control.html#qc-thresholds-summary"><i class="fa fa-check"></i><b>2.4</b> Summary of QC Thresholds</a></li>
+<li class="chapter" data-level="2.5" data-path="quality-control.html"><a href="quality-control.html#manual-qc-checks"><i class="fa fa-check"></i><b>2.5</b> Manual QC Checks</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="quality-control.html"><a href="quality-control.html#check-for-missing-data"><i class="fa fa-check"></i><b>2.5.1</b> Check for Missing Data</a></li>
+<li class="chapter" data-level="2.5.2" data-path="quality-control.html"><a href="quality-control.html#low-detectability-targets"><i class="fa fa-check"></i><b>2.5.2</b> Low Detectability Targets</a></li>
+<li class="chapter" data-level="2.5.3" data-path="quality-control.html"><a href="quality-control.html#calculate-targets-detectability-by-subgroups"><i class="fa fa-check"></i><b>2.5.3</b> Calculate Targets Detectability by Subgroups</a></li>
+<li class="chapter" data-level="2.5.4" data-path="quality-control.html"><a href="quality-control.html#batch-effect-correction"><i class="fa fa-check"></i><b>2.5.4</b> Batch Effect Correction</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="quality-control.html"><a href="quality-control.html#qc-best-practices"><i class="fa fa-check"></i><b>2.6</b> Best Practices</a>
+<ul>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#documentation"><i class="fa fa-check"></i>Documentation</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#consistency"><i class="fa fa-check"></i>Consistency</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#collaboration"><i class="fa fa-check"></i>Collaboration</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#when-in-doubt"><i class="fa fa-check"></i>When in Doubt</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="quality-control.html"><a href="quality-control.html#complete-qc-workflow"><i class="fa fa-check"></i><b>2.7</b> Complete QC Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="visualization.html"><a href="visualization.html"><i class="fa fa-check"></i><b>3</b> Visualization</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="visualization.html"><a href="visualization.html#why-visualize"><i class="fa fa-check"></i><b>3.1</b> Why Visualize?</a></li>
+<li class="chapter" data-level="3.2" data-path="visualization.html"><a href="visualization.html#heatmaps"><i class="fa fa-check"></i><b>3.2</b> Heatmaps</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="visualization.html"><a href="visualization.html#basic-heatmap"><i class="fa fa-check"></i><b>3.2.1</b> Basic Heatmap</a></li>
+<li class="chapter" data-level="3.2.2" data-path="visualization.html"><a href="visualization.html#heatmap-with-annotations"><i class="fa fa-check"></i><b>3.2.2</b> Heatmap with Annotations</a></li>
+<li class="chapter" data-level="3.2.3" data-path="visualization.html"><a href="visualization.html#understanding-the-heatmap"><i class="fa fa-check"></i><b>3.2.3</b> Understanding the Heatmap</a></li>
+<li class="chapter" data-level="3.2.4" data-path="visualization.html"><a href="visualization.html#interpreting-clusters"><i class="fa fa-check"></i><b>3.2.4</b> Interpreting Clusters</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="visualization.html"><a href="visualization.html#principal-component-analysis-pca"><i class="fa fa-check"></i><b>3.3</b> Principal Component Analysis (PCA)</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="visualization.html"><a href="visualization.html#pca-with-multiple-visual-encodings"><i class="fa fa-check"></i><b>3.3.1</b> PCA with Multiple Visual Encodings</a></li>
+<li class="chapter" data-level="3.3.2" data-path="visualization.html"><a href="visualization.html#understanding-pca-plots"><i class="fa fa-check"></i><b>3.3.2</b> Understanding PCA Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="visualization.html"><a href="visualization.html#custom-visualizations-with-ggplot2"><i class="fa fa-check"></i><b>3.4</b> Custom Visualizations with <code>ggplot2</code></a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="visualization.html"><a href="visualization.html#npq-distribution---histogram"><i class="fa fa-check"></i><b>3.4.1</b> NPQ Distribution - Histogram</a></li>
+<li class="chapter" data-level="3.4.2" data-path="visualization.html"><a href="visualization.html#npq-distribution-by-group---density-plot"><i class="fa fa-check"></i><b>3.4.2</b> NPQ Distribution by Group - Density Plot</a></li>
+<li class="chapter" data-level="3.4.3" data-path="visualization.html"><a href="visualization.html#single-protein-across-groups"><i class="fa fa-check"></i><b>3.4.3</b> Single Protein Across Groups</a></li>
+<li class="chapter" data-level="3.4.4" data-path="visualization.html"><a href="visualization.html#multiple-proteins-across-groups"><i class="fa fa-check"></i><b>3.4.4</b> Multiple Proteins Across Groups</a></li>
+<li class="chapter" data-level="3.4.5" data-path="visualization.html"><a href="visualization.html#protein-protein-correlation"><i class="fa fa-check"></i><b>3.4.5</b> Protein-Protein Correlation</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="visualization.html"><a href="visualization.html#saving-plots"><i class="fa fa-check"></i><b>3.5</b> Saving Plots</a>
+<ul>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-heatmap"><i class="fa fa-check"></i>Save Heatmap</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-pca"><i class="fa fa-check"></i>Save PCA</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-ggplot-objects"><i class="fa fa-check"></i>Save ggplot Objects</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="visualization.html"><a href="visualization.html#visualization-best-practices"><i class="fa fa-check"></i><b>3.6</b> Visualization Best Practices</a></li>
+<li class="chapter" data-level="3.7" data-path="visualization.html"><a href="visualization.html#complete-visualization-workflow"><i class="fa fa-check"></i><b>3.7</b> Complete Visualization Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html"><i class="fa fa-check"></i><b>4</b> Differential Abundance Analysis</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#overview"><i class="fa fa-check"></i><b>4.1</b> Overview</a></li>
+<li class="chapter" data-level="4.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#Ch4"><i class="fa fa-check"></i><b>4.2</b> Differential Abundance</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#group-comparison"><i class="fa fa-check"></i><b>4.2.1</b> Group Comparison</a></li>
+<li class="chapter" data-level="4.2.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#understanding-the-model"><i class="fa fa-check"></i><b>4.2.2</b> Understanding the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#model-results"><i class="fa fa-check"></i><b>4.3</b> Model Results</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#key-columns-in-results"><i class="fa fa-check"></i><b>4.3.1</b> Key Columns in Results</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#de-targets"><i class="fa fa-check"></i><b>4.4</b> Finding Significant Proteins</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#filter-by-fdr-threshold"><i class="fa fa-check"></i><b>4.4.1</b> Filter by FDR Threshold</a></li>
+<li class="chapter" data-level="4.4.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#higher-vs-lower-abundance"><i class="fa fa-check"></i><b>4.4.2</b> Higher vs Lower Abundance</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#volcano-plots"><i class="fa fa-check"></i><b>4.5</b> Volcano Plots</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#inflammatory-disease-vs-normal"><i class="fa fa-check"></i><b>4.5.1</b> Inflammatory Disease vs Normal</a></li>
+<li class="chapter" data-level="4.5.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#understanding-volcano-plots"><i class="fa fa-check"></i><b>4.5.2</b> Understanding Volcano Plots</a></li>
+<li class="chapter" data-level="4.5.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#cancer-vs-normal"><i class="fa fa-check"></i><b>4.5.3</b> Cancer vs Normal</a></li>
+<li class="chapter" data-level="4.5.4" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#saving-volcano-plots"><i class="fa fa-check"></i><b>4.5.4</b> Saving Volcano Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#visualization-of-significant-targets"><i class="fa fa-check"></i><b>4.6</b> Visualization of Significant Targets</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#inflammatory-disease-vs-normal-1"><i class="fa fa-check"></i><b>4.6.1</b> Inflammatory Disease vs Normal</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#multiple-disease-groups"><i class="fa fa-check"></i><b>4.7</b> Multiple Disease Groups</a></li>
+<li class="chapter" data-level="4.8" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#model-considerations"><i class="fa fa-check"></i><b>4.8</b> Model Considerations</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#reference-level"><i class="fa fa-check"></i><b>4.8.1</b> Reference Level</a></li>
+<li class="chapter" data-level="4.8.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#including-covariates"><i class="fa fa-check"></i><b>4.8.2</b> Including Covariates</a></li>
+<li class="chapter" data-level="4.8.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#model-formula-options"><i class="fa fa-check"></i><b>4.8.3</b> Model Formula Options</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#interpreting-results"><i class="fa fa-check"></i><b>4.9</b> Interpreting Results</a>
+<ul>
+<li class="chapter" data-level="4.9.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#effect-size-coefficient"><i class="fa fa-check"></i><b>4.9.1</b> Effect Size (Coefficient)</a></li>
+<li class="chapter" data-level="4.9.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#p-values"><i class="fa fa-check"></i><b>4.9.2</b> P-values</a></li>
+<li class="chapter" data-level="4.9.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#significance-thresholds"><i class="fa fa-check"></i><b>4.9.3</b> Significance Thresholds</a></li>
+</ul></li>
+<li class="chapter" data-level="4.10" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#exporting-results"><i class="fa fa-check"></i><b>4.10</b> Exporting Results</a>
+<ul>
+<li class="chapter" data-level="4.10.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#save-results-table"><i class="fa fa-check"></i><b>4.10.1</b> Save Results Table</a></li>
+<li class="chapter" data-level="4.10.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#create-summary-table"><i class="fa fa-check"></i><b>4.10.2</b> Create Summary Table</a></li>
+</ul></li>
+<li class="chapter" data-level="4.11" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#complete-differential-abundance-workflow"><i class="fa fa-check"></i><b>4.11</b> Complete Differential Abundance Workflow</a></li>
+<li class="chapter" data-level="4.12" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#best-practices"><i class="fa fa-check"></i><b>4.12</b> Best Practices</a></li>
+<li class="chapter" data-level="4.13" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#common-issues"><i class="fa fa-check"></i><b>4.13</b> Common Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html"><i class="fa fa-check"></i><b>5</b> Longitudinal Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overview-1"><i class="fa fa-check"></i><b>5.1</b> Overview</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#load-and-prepare-data"><i class="fa fa-check"></i><b>5.1.1</b> Load and Prepare Data</a></li>
+<li class="chapter" data-level="5.1.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#create-metadata"><i class="fa fa-check"></i><b>5.1.2</b> Create Metadata</a></li>
+<li class="chapter" data-level="5.1.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#convert-to-wide-format"><i class="fa fa-check"></i><b>5.1.3</b> Convert to Wide Format</a></li>
+<li class="chapter" data-level="5.1.4" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#descriptive-statistics"><i class="fa fa-check"></i><b>5.1.4</b> Descriptive Statistics</a></li>
+<li class="chapter" data-level="5.1.5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#exploratory-visualization"><i class="fa fa-check"></i><b>5.1.5</b> Exploratory Visualization</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#linear-mixed-effects-model"><i class="fa fa-check"></i><b>5.2</b> Linear Mixed-Effects Model</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#group-effect-analysis"><i class="fa fa-check"></i><b>5.2.1</b> Group Effect Analysis</a></li>
+<li class="chapter" data-level="5.2.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#understanding-the-model-1"><i class="fa fa-check"></i><b>5.2.2</b> Understanding the Model</a></li>
+<li class="chapter" data-level="5.2.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#model-results-1"><i class="fa fa-check"></i><b>5.2.3</b> Model Results</a></li>
+<li class="chapter" data-level="5.2.4" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#likelihood-ratio-test-lrt-statistics"><i class="fa fa-check"></i><b>5.2.4</b> Likelihood Ratio Test (LRT) Statistics</a></li>
+<li class="chapter" data-level="5.2.5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#model-coefficients"><i class="fa fa-check"></i><b>5.2.5</b> Model Coefficients</a></li>
+<li class="chapter" data-level="5.2.6" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overall-group-effect"><i class="fa fa-check"></i><b>5.2.6</b> Overall Group Effect</a></li>
+<li class="chapter" data-level="5.2.7" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#specific-time-comparisons"><i class="fa fa-check"></i><b>5.2.7</b> Specific Time Comparisons</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#volcano-plots-1"><i class="fa fa-check"></i><b>5.3</b> Volcano Plots</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overall-group-effect-lrt"><i class="fa fa-check"></i><b>5.3.1</b> Overall Group Effect (LRT)</a></li>
+<li class="chapter" data-level="5.3.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#group-specific-comparisons"><i class="fa fa-check"></i><b>5.3.2</b> Group-Specific Comparisons</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#trajectory-visualization"><i class="fa fa-check"></i><b>5.4</b> Trajectory Visualization</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#spaghetti-plot-discrete-time-groups"><i class="fa fa-check"></i><b>5.4.1</b> Spaghetti Plot: Discrete Time Groups</a></li>
+<li class="chapter" data-level="5.4.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#spaghetti-plot-continuous-time"><i class="fa fa-check"></i><b>5.4.2</b> Spaghetti Plot: Continuous Time</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#model-considerations-1"><i class="fa fa-check"></i><b>5.5</b> Model Considerations</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#random-effects-structure"><i class="fa fa-check"></i><b>5.5.1</b> Random Effects Structure</a></li>
+<li class="chapter" data-level="5.5.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#fixed-effects-design"><i class="fa fa-check"></i><b>5.5.2</b> Fixed Effects Design</a></li>
+<li class="chapter" data-level="5.5.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#likelihood-ratio-test"><i class="fa fa-check"></i><b>5.5.3</b> Likelihood Ratio Test</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#exporting-results-1"><i class="fa fa-check"></i><b>5.6</b> Exporting Results</a>
+<ul>
+<li class="chapter" data-level="5.6.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#save-results-tables"><i class="fa fa-check"></i><b>5.6.1</b> Save Results Tables</a></li>
+<li class="chapter" data-level="5.6.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#save-plots"><i class="fa fa-check"></i><b>5.6.2</b> Save Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#complete-longitudinal-analysis-workflow"><i class="fa fa-check"></i><b>5.7</b> Complete Longitudinal Analysis Workflow</a></li>
+<li class="chapter" data-level="5.8" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#best-practices-1"><i class="fa fa-check"></i><b>5.8</b> Best Practices</a></li>
+<li class="chapter" data-level="5.9" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#common-issues-1"><i class="fa fa-check"></i><b>5.9</b> Common Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="outcome-modeling.html"><a href="outcome-modeling.html"><i class="fa fa-check"></i><b>6</b> Outcome Modeling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#overview-2"><i class="fa fa-check"></i><b>6.1</b> Overview</a></li>
+<li class="chapter" data-level="6.2" data-path="outcome-modeling.html"><a href="outcome-modeling.html#example-1-exploring-age-associations-continuous-outcome"><i class="fa fa-check"></i><b>6.2</b> Example 1: Exploring Age Associations (Continuous Outcome)</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#why-model-age"><i class="fa fa-check"></i><b>6.2.1</b> Why Model Age?</a></li>
+<li class="chapter" data-level="6.2.2" data-path="outcome-modeling.html"><a href="outcome-modeling.html#age-distribution-in-the-dataset"><i class="fa fa-check"></i><b>6.2.2</b> Age Distribution in the Dataset</a></li>
+<li class="chapter" data-level="6.2.3" data-path="outcome-modeling.html"><a href="outcome-modeling.html#building-the-age-regression-model"><i class="fa fa-check"></i><b>6.2.3</b> Building the Age Regression Model</a></li>
+<li class="chapter" data-level="6.2.4" data-path="outcome-modeling.html"><a href="outcome-modeling.html#understanding-the-age-model"><i class="fa fa-check"></i><b>6.2.4</b> Understanding the Age Model</a></li>
+<li class="chapter" data-level="6.2.5" data-path="outcome-modeling.html"><a href="outcome-modeling.html#examining-age-association-results"><i class="fa fa-check"></i><b>6.2.5</b> Examining Age Association Results</a></li>
+<li class="chapter" data-level="6.2.6" data-path="outcome-modeling.html"><a href="outcome-modeling.html#finding-age-associated-proteins"><i class="fa fa-check"></i><b>6.2.6</b> Finding Age-Associated Proteins</a></li>
+<li class="chapter" data-level="6.2.7" data-path="outcome-modeling.html"><a href="outcome-modeling.html#volcano-plots-2"><i class="fa fa-check"></i><b>6.2.7</b> Volcano Plots</a></li>
+<li class="chapter" data-level="6.2.8" data-path="outcome-modeling.html"><a href="outcome-modeling.html#age-associated-proteins-scatterplots"><i class="fa fa-check"></i><b>6.2.8</b> Age-Associated Proteins Scatterplots</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="outcome-modeling.html"><a href="outcome-modeling.html#example-2-modeling-disease-status-binary-outcome"><i class="fa fa-check"></i><b>6.3</b> Example 2: Modeling Disease Status (Binary Outcome)</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#disease-status-as-binary-outcome"><i class="fa fa-check"></i><b>6.3.1</b> Disease Status as Binary Outcome</a></li>
+<li class="chapter" data-level="6.3.2" data-path="outcome-modeling.html"><a href="outcome-modeling.html#preparing-the-disease-data"><i class="fa fa-check"></i><b>6.3.2</b> Preparing the Disease Data</a></li>
+<li class="chapter" data-level="6.3.3" data-path="outcome-modeling.html"><a href="outcome-modeling.html#building-the-disease-association-model"><i class="fa fa-check"></i><b>6.3.3</b> Building the Disease Association Model</a></li>
+<li class="chapter" data-level="6.3.4" data-path="outcome-modeling.html"><a href="outcome-modeling.html#understanding-the-disease-model"><i class="fa fa-check"></i><b>6.3.4</b> Understanding the Disease Model</a></li>
+<li class="chapter" data-level="6.3.5" data-path="outcome-modeling.html"><a href="outcome-modeling.html#examining-disease-association-results"><i class="fa fa-check"></i><b>6.3.5</b> Examining Disease Association Results</a></li>
+<li class="chapter" data-level="6.3.6" data-path="outcome-modeling.html"><a href="outcome-modeling.html#finding-disease-associated-proteins"><i class="fa fa-check"></i><b>6.3.6</b> Finding Disease-Associated Proteins</a></li>
+<li class="chapter" data-level="6.3.7" data-path="outcome-modeling.html"><a href="outcome-modeling.html#interpreting-odds-ratios"><i class="fa fa-check"></i><b>6.3.7</b> Interpreting Odds Ratios</a></li>
+<li class="chapter" data-level="6.3.8" data-path="outcome-modeling.html"><a href="outcome-modeling.html#disease-associated-proteins-volcano-plots"><i class="fa fa-check"></i><b>6.3.8</b> Disease-Associated Proteins Volcano Plots</a></li>
+<li class="chapter" data-level="6.3.9" data-path="outcome-modeling.html"><a href="outcome-modeling.html#visualizing-disease-associations"><i class="fa fa-check"></i><b>6.3.9</b> Visualizing Disease Associations</a></li>
+<li class="chapter" data-level="6.3.10" data-path="outcome-modeling.html"><a href="outcome-modeling.html#roc-curves-for-disease-associated-proteins"><i class="fa fa-check"></i><b>6.3.10</b> ROC Curves for Disease-Associated Proteins</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="outcome-modeling.html"><a href="outcome-modeling.html#comparing-approaches"><i class="fa fa-check"></i><b>6.4</b> Comparing Approaches</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#when-to-use-each-function"><i class="fa fa-check"></i><b>6.4.1</b> When to Use Each Function</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="outcome-modeling.html"><a href="outcome-modeling.html#exporting-results-2"><i class="fa fa-check"></i><b>6.5</b> Exporting Results</a></li>
+<li class="chapter" data-level="6.6" data-path="outcome-modeling.html"><a href="outcome-modeling.html#complete-outcome-modeling-workflow"><i class="fa fa-check"></i><b>6.6</b> Complete Outcome Modeling Workflow</a></li>
+<li class="chapter" data-level="6.7" data-path="outcome-modeling.html"><a href="outcome-modeling.html#best-practices-2"><i class="fa fa-check"></i><b>6.7</b> Best Practices</a>
+<ul>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#model-design"><i class="fa fa-check"></i>Model Design</a></li>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#interpretation"><i class="fa fa-check"></i>Interpretation</a></li>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#validation"><i class="fa fa-check"></i>Validation</a></li>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#reporting"><i class="fa fa-check"></i>Reporting</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="case-study-1.html"><a href="case-study-1.html"><i class="fa fa-check"></i><b>7</b> Case Study: <br> Identifying Proteomic Signatures in Lupus and Rheumatoid Arthritis</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="case-study-1.html"><a href="case-study-1.html#overview-3"><i class="fa fa-check"></i><b>7.1</b> Overview</a></li>
+<li class="chapter" data-level="7.2" data-path="case-study-1.html"><a href="case-study-1.html#data-preparation"><i class="fa fa-check"></i><b>7.2</b> Data Preparation</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="case-study-1.html"><a href="case-study-1.html#load-required-libraries"><i class="fa fa-check"></i><b>7.2.1</b> Load Required Libraries</a></li>
+<li class="chapter" data-level="7.2.2" data-path="case-study-1.html"><a href="case-study-1.html#import-data"><i class="fa fa-check"></i><b>7.2.2</b> Import Data</a></li>
+<li class="chapter" data-level="7.2.3" data-path="case-study-1.html"><a href="case-study-1.html#prepare-sample-metadata"><i class="fa fa-check"></i><b>7.2.3</b> Prepare Sample Metadata</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="case-study-1.html"><a href="case-study-1.html#apply-detectability-threshold"><i class="fa fa-check"></i><b>7.3</b> Apply Detectability Threshold</a></li>
+<li class="chapter" data-level="7.4" data-path="case-study-1.html"><a href="case-study-1.html#global-data-visualization"><i class="fa fa-check"></i><b>7.4</b> Global Data Visualization</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="case-study-1.html"><a href="case-study-1.html#prepare-metadata-for-visualization"><i class="fa fa-check"></i><b>7.4.1</b> Prepare Metadata for Visualization</a></li>
+<li class="chapter" data-level="7.4.2" data-path="case-study-1.html"><a href="case-study-1.html#hierarchical-clustering-heatmap"><i class="fa fa-check"></i><b>7.4.2</b> Hierarchical Clustering Heatmap</a></li>
+<li class="chapter" data-level="7.4.3" data-path="case-study-1.html"><a href="case-study-1.html#principal-component-analysis"><i class="fa fa-check"></i><b>7.4.3</b> Principal Component Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="case-study-1.html"><a href="case-study-1.html#statistical-testing"><i class="fa fa-check"></i><b>7.5</b> Statistical Testing</a></li>
+<li class="chapter" data-level="7.6" data-path="case-study-1.html"><a href="case-study-1.html#systemic-lupus-erythematosus-sle-analysis"><i class="fa fa-check"></i><b>7.6</b> Systemic Lupus Erythematosus (SLE) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="case-study-1.html"><a href="case-study-1.html#background"><i class="fa fa-check"></i><b>7.6.1</b> Background</a></li>
+<li class="chapter" data-level="7.6.2" data-path="case-study-1.html"><a href="case-study-1.html#volcano-plot"><i class="fa fa-check"></i><b>7.6.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.6.3" data-path="case-study-1.html"><a href="case-study-1.html#visualizations"><i class="fa fa-check"></i><b>7.6.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.6.4" data-path="case-study-1.html"><a href="case-study-1.html#directional-analysis"><i class="fa fa-check"></i><b>7.6.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="case-study-1.html"><a href="case-study-1.html#rheumatoid-arthritis-ra-analysis"><i class="fa fa-check"></i><b>7.7</b> Rheumatoid Arthritis (RA) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.7.1" data-path="case-study-1.html"><a href="case-study-1.html#background-1"><i class="fa fa-check"></i><b>7.7.1</b> Background</a></li>
+<li class="chapter" data-level="7.7.2" data-path="case-study-1.html"><a href="case-study-1.html#volcano-plot-1"><i class="fa fa-check"></i><b>7.7.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.7.3" data-path="case-study-1.html"><a href="case-study-1.html#visualizations-1"><i class="fa fa-check"></i><b>7.7.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.7.4" data-path="case-study-1.html"><a href="case-study-1.html#directional-analysis-1"><i class="fa fa-check"></i><b>7.7.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.8" data-path="case-study-1.html"><a href="case-study-1.html#comparing-disease-signatures"><i class="fa fa-check"></i><b>7.8</b> Comparing Disease Signatures</a>
+<ul>
+<li class="chapter" data-level="7.8.1" data-path="case-study-1.html"><a href="case-study-1.html#overlap-analysis"><i class="fa fa-check"></i><b>7.8.1</b> Overlap Analysis</a></li>
+<li class="chapter" data-level="7.8.2" data-path="case-study-1.html"><a href="case-study-1.html#differential-abundance-summary-table"><i class="fa fa-check"></i><b>7.8.2</b> Differential Abundance Summary Table</a></li>
+</ul></li>
+<li class="chapter" data-level="7.9" data-path="case-study-1.html"><a href="case-study-1.html#next-steps"><i class="fa fa-check"></i><b>7.9</b> Next Steps</a></li>
+<li class="chapter" data-level="7.10" data-path="case-study-1.html"><a href="case-study-1.html#complete-workflow-example-code"><i class="fa fa-check"></i><b>7.10</b> Complete Workflow Example Code</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html"><i class="fa fa-check"></i>Additional Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisaseq-resources"><i class="fa fa-check"></i>NULISAseq Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#package-documentation"><i class="fa fa-check"></i>Package Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#github-repository"><i class="fa fa-check"></i>GitHub Repository</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#support-and-issues"><i class="fa fa-check"></i>Support and Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisa-analysis-software-nas"><i class="fa fa-check"></i>NULISA Analysis Software (NAS)</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#technical-documentation"><i class="fa fa-check"></i>Technical Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-resources"><i class="fa fa-check"></i>R Programming Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-install"><i class="fa fa-check"></i>Installing R and RStudio</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#tidyverse-resources"><i class="fa fa-check"></i>Tidyverse Resources</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#visualization-resources"><i class="fa fa-check"></i>Data Visualization Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#ggplot2"><i class="fa fa-check"></i>ggplot2</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#complexheatmap"><i class="fa fa-check"></i>ComplexHeatmap</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#pcatools"><i class="fa fa-check"></i>PCAtools</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citations"><i class="fa fa-check"></i>Citing This Book and Packages</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-this-book"><i class="fa fa-check"></i>Citing This Book</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-r-and-packages"><i class="fa fa-check"></i>Citing R and Packages</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#key-citations"><i class="fa fa-check"></i>Key Citations</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#happy-analyzing"><i class="fa fa-check"></i><strong>Happy analyzing!</strong> 🚀</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank">GitHub Repository</a></li>
+<li><a href="../" target="_blank">NULISAseqR Package</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">NULISAseqR User Guide</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="additional-resources" class="section level1 unnumbered hasAnchor">
+<h1>Additional Resources<a href="additional-resources.html#additional-resources" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>This chapter provides curated resources to help you get the most out of NULISAseq data analysis, including package documentation, R programming tutorials, visualization tools, and technical references.</p>
+<div id="nulisaseq-resources" class="section level2 unnumbered hasAnchor">
+<h2>NULISAseq Resources<a href="additional-resources.html#nulisaseq-resources" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="package-documentation" class="section level3 unnumbered hasAnchor">
+<h3>Package Documentation<a href="additional-resources.html#package-documentation" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The NULISAseqR package includes comprehensive documentation accessible directly from R:</p>
+<div class="sourceCode" id="cb249"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb249-1"><a href="additional-resources.html#cb249-1" tabindex="-1"></a><span class="co"># Overall package documentation</span></span>
+<span id="cb249-2"><a href="additional-resources.html#cb249-2" tabindex="-1"></a>?NULISAseqR</span>
+<span id="cb249-3"><a href="additional-resources.html#cb249-3" tabindex="-1"></a></span>
+<span id="cb249-4"><a href="additional-resources.html#cb249-4" tabindex="-1"></a><span class="co"># Function-specific help</span></span>
+<span id="cb249-5"><a href="additional-resources.html#cb249-5" tabindex="-1"></a>?importNULISAseq      <span class="co"># Data import</span></span>
+<span id="cb249-6"><a href="additional-resources.html#cb249-6" tabindex="-1"></a>?lmNULISAseq          <span class="co"># Linear modeling</span></span>
+<span id="cb249-7"><a href="additional-resources.html#cb249-7" tabindex="-1"></a>?lmerNULISAseq        <span class="co"># Linear mixed effect modeling</span></span>
+<span id="cb249-8"><a href="additional-resources.html#cb249-8" tabindex="-1"></a>?lmNULISAseq_predict  <span class="co"># Single-protein predictive modeling with lm</span></span>
+<span id="cb249-9"><a href="additional-resources.html#cb249-9" tabindex="-1"></a>?glmNULISAseq         <span class="co"># Generalized linear modeling</span></span>
+<span id="cb249-10"><a href="additional-resources.html#cb249-10" tabindex="-1"></a>?generate_heatmap     <span class="co"># Heatmap visualization</span></span>
+<span id="cb249-11"><a href="additional-resources.html#cb249-11" tabindex="-1"></a>?generate_pca         <span class="co"># PCA visualization</span></span>
+<span id="cb249-12"><a href="additional-resources.html#cb249-12" tabindex="-1"></a>?volcanoPlot          <span class="co"># Volcano plot visualization</span></span>
+<span id="cb249-13"><a href="additional-resources.html#cb249-13" tabindex="-1"></a>?render_QC_report     <span class="co"># QC report generation</span></span></code></pre></div>
+</div>
+<div id="github-repository" class="section level3 unnumbered hasAnchor">
+<h3>GitHub Repository<a href="additional-resources.html#github-repository" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank"><strong>NULISAseqR on GitHub</strong></a></p>
+<p>The GitHub repository includes:</p>
+<ul>
+<li>Latest package source code</li>
+<li>Example datasets and workflows</li>
+<li>Issue tracker for bug reports and feature requests</li>
+</ul>
+</div>
+<div id="support-and-issues" class="section level3 unnumbered hasAnchor">
+<h3>Support and Issues<a href="additional-resources.html#support-and-issues" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li><strong>Report bugs</strong>: <a href="https://github.com/Alamar-Biosciences/NULISAseqR/issues" target="_blank">GitHub Issues</a></li>
+<li><strong>Request features</strong>: Open an issue on GitHub with the “enhancement” label</li>
+<li><strong>Ask questions</strong>: Use GitHub Discussions or contact <a href="mailto:support@alamarbio.com">Alamar Biosciences support</a></li>
+</ul>
+</div>
+</div>
+<div id="nulisa-analysis-software-nas" class="section level2 unnumbered hasAnchor">
+<h2>NULISA Analysis Software (NAS)<a href="additional-resources.html#nulisa-analysis-software-nas" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><img src="figures/NAS.png" style="width:100%; max-width:800px; border: 1px solid #ddd; margin: 20px 0;"></p>
+<p><strong>NULISA Analysis Software (NAS)</strong> is Alamar Biosciences’ proprietary web-based platform for processing and analyzing NULISAseq data. <br></p>
+<p>NAS provides an intuitive interface for:</p>
+<ul>
+<li><strong>Automated data processing</strong>: XML data file to NULISA Protein Quantification (NPQ) units and absolute quantification units (for multiplex AQ assays)</li>
+<li><strong>Quality control</strong>: Comprehensive QC metrics and visualization</li>
+<li><strong>Interactive analysis</strong>: Real-time exploration of protein expression data</li>
+<li><strong>Report generation</strong>: Automated QC and differential abundance analysis reports</li>
+<li><strong>Data export</strong>: Download processed data in various formats</li>
+</ul>
+<p>NAS streamlines the initial data processing workflow, allowing researchers to quickly assess data quality, visualize data, and perform statistical analysis.</p>
+<p><strong>Web Platform</strong>: <a href="https://analysis.alamarbio.com" target="_blank">NULISA Analysis Software (NAS)</a> <br>
+<strong>NAS Overview Video</strong>: <a href="https://www.youtube.com/watch?v=sS8oB8suRBk" target="_blank">NULISA Analysis Software (NAS) Training</a> <br>
+<strong>Access Required</strong>: Contact <a href="mailto:support@alamarbio.com">Alamar Biosciences support team</a> to request an account <br>
+<strong>Support</strong>: For NAS technical support or questions, contact <a href="mailto:support@alamarbio.com">Alamar Biosciences support</a> <br></p>
+</div>
+<div id="technical-documentation" class="section level2 unnumbered hasAnchor">
+<h2>Technical Documentation<a href="additional-resources.html#technical-documentation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="nulisaseq-technology-technical-notes" class="section level4 unnumbered hasAnchor">
+<h4>NULISAseq Technology Technical Notes<a href="additional-resources.html#nulisaseq-technology-technical-notes" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><a href="https://alamarbio.com/support-center/search/?type=tech-notes&amp;category=data-analysis" target="_blank">View Technical Notes</a></p>
+<ul>
+<li><p><strong>Information Sheet - NULISAseq<sup>TM</sup> Lot and Batch Definitions</strong><br />
+Definitions of lot and batch structures, validation data, and experimental design considerations for NULISAseq assays</p></li>
+<li><p><strong>Tech Note - Performing relative quantitation of high-plex NULISAseq data</strong><br />
+NULISA data normalization, NPQ calculations, and statistical approaches used for relative quantification in multiplex NULISAseq<sup>TM</sup> assays</p></li>
+<li><p><strong>Tech Note - NULISA<sup>TM</sup> multiplex normalization &amp; quality control</strong><br />
+NPQ calculation steps, plate-level quality control metrics and additional normalization strategies for NULISAseq<sup>TM</sup> multiplex assays</p></li>
+<li><p><strong>Tech Note - Capturing 12 logs dynamic range using NULISAseq</strong><br />
+Describes the assay tuning method incorporated by Alamar into NULISAseq<sup>TM</sup> panels to achieve broad dynamic range</p></li>
+<li><p><strong>Tech Note - Determining the Absolute Concentration of High-Plex NULISAseq Protein Targets</strong><br />
+Calibration methodology, sample processing steps, and validation results for absolute quantification analysis using the NULISAseq<sup>TM</sup> Inflammation Panel AQ</p></li>
+</ul>
+</div>
+</div>
+<div id="r-resources" class="section level2 unnumbered hasAnchor">
+<h2>R Programming Resources<a href="additional-resources.html#r-resources" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="r-install" class="section level3 unnumbered hasAnchor">
+<h3>Installing R and RStudio<a href="additional-resources.html#r-install" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Required Software</strong>:</p>
+<ol style="list-style-type: decimal">
+<li><strong>R</strong> (the language): <a href="https://cran.r-project.org/" target="_blank">Download from CRAN</a>
+<ul>
+<li>Windows: <a href="https://cran.r-project.org/bin/windows/base/" target="_blank">Direct link</a></li>
+<li>macOS: <a href="https://cran.r-project.org/bin/macosx/" target="_blank">Direct link</a></li>
+<li>Linux: <a href="https://cran.r-project.org/bin/linux/" target="_blank">Instructions</a></li>
+</ul></li>
+<li><strong>RStudio</strong> (the IDE): <a href="https://posit.co/download/rstudio-desktop/" target="_blank">Download from Posit</a></li>
+</ol>
+<p><strong>Installation Order</strong>: Install R first, then RStudio.</p>
+<div id="r-and-rstudio-resources-and-tutorials" class="section level4 unnumbered hasAnchor">
+<h4>R and RStudio Resources and Tutorials<a href="additional-resources.html#r-and-rstudio-resources-and-tutorials" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><a href="https://r4ds.had.co.nz/" target="_blank"><strong>R for Data Science</strong></a> by Hadley Wickham and Garrett Grolemund</p>
+<ul>
+<li>Comprehensive introduction to the tidyverse</li>
+<li>Data import, wrangling, visualization, and modeling</li>
+<li>Free online book with exercises</li>
+</ul>
+<p><a href="https://rstudio-education.github.io/hopr/" target="_blank"><strong>Hands-On Programming with R</strong></a> by Garrett Grolemund</p>
+<ul>
+<li>Beginner-friendly introduction to R programming</li>
+<li>Learn by building R projects</li>
+<li>Covers R basics, data structures, and functions</li>
+</ul>
+<p><a href="https://education.rstudio.com/" target="_blank"><strong>RStudio Education</strong></a></p>
+<ul>
+<li>Curated learning resources</li>
+<li>Cheat sheets for R packages</li>
+<li>Interactive tutorials</li>
+</ul>
+</div>
+<div id="quick-reference-guides" class="section level4 unnumbered hasAnchor">
+<h4>Quick Reference Guides<a href="additional-resources.html#quick-reference-guides" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><a href="https://www.rstudio.com/resources/cheatsheets/" target="_blank"><strong>R Cheat Sheets</strong></a></p>
+<ul>
+<li>Base R</li>
+<li>Data transformation (dplyr)</li>
+<li>Data visualization (ggplot2)</li>
+<li>R Markdown</li>
+<li>And many more</li>
+</ul>
+</div>
+</div>
+<div id="tidyverse-resources" class="section level3 unnumbered hasAnchor">
+<h3>Tidyverse Resources<a href="additional-resources.html#tidyverse-resources" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The tidyverse is essential for data manipulation and analysis in this book:</p>
+<p><a href="https://www.tidyverse.org/" target="_blank"><strong>Tidyverse Website</strong></a></p>
+<ul>
+<li>Package documentation</li>
+<li>Learning resources</li>
+<li>Blog with tips and updates</li>
+</ul>
+<p><a href="https://dplyr.tidyverse.org/" target="_blank"><strong>dplyr Documentation</strong></a></p>
+<ul>
+<li>Data manipulation verbs</li>
+<li>Working with grouped data</li>
+<li>Joining datasets</li>
+</ul>
+<p><a href="https://tidyr.tidyverse.org/" target="_blank"><strong>tidyr Documentation</strong></a></p>
+<ul>
+<li>Reshaping data (pivot_longer, pivot_wider)</li>
+<li>Handling missing values</li>
+<li>Nesting and unnesting data</li>
+</ul>
+</div>
+</div>
+<div id="visualization-resources" class="section level2 unnumbered hasAnchor">
+<h2>Data Visualization Resources<a href="additional-resources.html#visualization-resources" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="ggplot2" class="section level3 unnumbered hasAnchor">
+<h3>ggplot2<a href="additional-resources.html#ggplot2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>ggplot2 is the primary visualization package used throughout this book.</p>
+<p><a href="https://ggplot2.tidyverse.org/" target="_blank"><strong>ggplot2 Official Documentation</strong></a></p>
+<ul>
+<li>Complete reference for all geoms and functions</li>
+<li>Articles on faceting, scales, themes, and extensions</li>
+</ul>
+<p><a href="https://ggplot2-book.org/" target="_blank"><strong>ggplot2: Elegant Graphics for Data Analysis</strong></a> by Hadley Wickham</p>
+<ul>
+<li>Comprehensive guide to ggplot2</li>
+<li>Theory and practice of the grammar of graphics</li>
+<li>Advanced customization techniques</li>
+</ul>
+<p><a href="https://r-graphics.org/" target="_blank"><strong>R Graphics Cookbook</strong></a> by Winston Chang</p>
+<ul>
+<li>Recipe-style solutions for common plotting tasks</li>
+<li>Quick reference for plot types and customizations</li>
+</ul>
+<p><a href="https://exts.ggplot2.tidyverse.org/" target="_blank"><strong>ggplot2 Extensions Gallery</strong></a></p>
+<ul>
+<li>Showcase of ggplot2 extension packages</li>
+<li>Specialized plot types and themes</li>
+</ul>
+</div>
+<div id="complexheatmap" class="section level3 unnumbered hasAnchor">
+<h3>ComplexHeatmap<a href="additional-resources.html#complexheatmap" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>ComplexHeatmap is a powerful package for creating sophisticated heatmaps, extensively used in proteomics visualization.</p>
+<p><a href="https://jokergoo.github.io/ComplexHeatmap-reference/book/" target="_blank"><strong>ComplexHeatmap Complete Reference</strong></a></p>
+<ul>
+<li>Comprehensive guide to all features</li>
+<li>Examples for every visualization type</li>
+<li>Advanced customization options</li>
+</ul>
+<p><a href="https://bioconductor.org/packages/ComplexHeatmap/" target="_blank"><strong>ComplexHeatmap Bioconductor Page</strong></a></p>
+<ul>
+<li>Installation instructions</li>
+<li>Official documentation</li>
+<li>Vignettes and examples</li>
+</ul>
+</div>
+<div id="pcatools" class="section level3 unnumbered hasAnchor">
+<h3>PCAtools<a href="additional-resources.html#pcatools" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>PCAtools provides enhanced PCA visualization and analysis capabilities.</p>
+<p><strong>PCAtools</strong><br />
+Alamar Biosciences fork of PCAtools by Kevin Blighe and Aaron Lun includes NULISAseq-specific features.
+<a href="https://github.com/Alamar-Biosciences/PCAtools" target="_blank">View on GitHub</a></p>
+<div class="sourceCode" id="cb250"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb250-1"><a href="additional-resources.html#cb250-1" tabindex="-1"></a><span class="co"># Install version</span></span>
+<span id="cb250-2"><a href="additional-resources.html#cb250-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;Alamar-Biosciences/PCAtools&quot;</span>)</span></code></pre></div>
+<p><a href="https://github.com/kevinblighe/PCAtools" target="_blank"><em>Original package</em></a></p>
+<p><a href="https://bioconductor.org/packages/PCAtools/" target="_blank"><strong>PCAtools Bioconductor Page</strong></a></p>
+<ul>
+<li>Comprehensive PCA analysis functions</li>
+<li>Scree plots, biplots, and loading plots</li>
+<li>Statistical tests for optimal PC selection</li>
+</ul>
+</div>
+</div>
+<div id="citations" class="section level2 unnumbered hasAnchor">
+<h2>Citing This Book and Packages<a href="additional-resources.html#citations" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="citing-this-book" class="section level3 unnumbered hasAnchor">
+<h3>Citing This Book<a href="additional-resources.html#citing-this-book" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<pre><code>Alamar Biosciences Bioinformatics Team. (2026). NULISAseq Data Analysis Guide. 
+R package vignette for NULISAseqR. Available at: https://vignettes.nulisaseqr.alamarbio.com</code></pre>
+</div>
+<div id="citing-r-and-packages" class="section level3 unnumbered hasAnchor">
+<h3>Citing R and Packages<a href="additional-resources.html#citing-r-and-packages" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb252"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb252-1"><a href="additional-resources.html#cb252-1" tabindex="-1"></a><span class="co"># Cite R</span></span>
+<span id="cb252-2"><a href="additional-resources.html#cb252-2" tabindex="-1"></a><span class="fu">citation</span>()</span>
+<span id="cb252-3"><a href="additional-resources.html#cb252-3" tabindex="-1"></a></span>
+<span id="cb252-4"><a href="additional-resources.html#cb252-4" tabindex="-1"></a><span class="co"># Cite specific packages</span></span>
+<span id="cb252-5"><a href="additional-resources.html#cb252-5" tabindex="-1"></a><span class="fu">citation</span>(<span class="st">&quot;NULISAseqR&quot;</span>)</span>
+<span id="cb252-6"><a href="additional-resources.html#cb252-6" tabindex="-1"></a><span class="fu">citation</span>(<span class="st">&quot;ggplot2&quot;</span>)</span>
+<span id="cb252-7"><a href="additional-resources.html#cb252-7" tabindex="-1"></a><span class="fu">citation</span>(<span class="st">&quot;ComplexHeatmap&quot;</span>)</span>
+<span id="cb252-8"><a href="additional-resources.html#cb252-8" tabindex="-1"></a><span class="fu">citation</span>(<span class="st">&quot;PCAtools&quot;</span>)</span>
+<span id="cb252-9"><a href="additional-resources.html#cb252-9" tabindex="-1"></a></span>
+<span id="cb252-10"><a href="additional-resources.html#cb252-10" tabindex="-1"></a><span class="co"># Generate citation list for all loaded packages</span></span>
+<span id="cb252-11"><a href="additional-resources.html#cb252-11" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">write_bib</span>(</span>
+<span id="cb252-12"><a href="additional-resources.html#cb252-12" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fu">.packages</span>(), <span class="st">&quot;bookdown&quot;</span>, <span class="st">&quot;knitr&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>),</span>
+<span id="cb252-13"><a href="additional-resources.html#cb252-13" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">&quot;packages.bib&quot;</span></span>
+<span id="cb252-14"><a href="additional-resources.html#cb252-14" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="key-citations" class="section level3 unnumbered hasAnchor">
+<h3>Key Citations<a href="additional-resources.html#key-citations" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="nulisaseq-platform-and-tools" class="section level4 unnumbered hasAnchor">
+<h4>NULISAseq Platform and Tools<a href="additional-resources.html#nulisaseq-platform-and-tools" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><strong>NULISAseqR Package</strong>: Alamar Biosciences. (2026). NULISAseqR: Analysis Tools for NULISAseq Proteomic Data. R package. <a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank">https://github.com/Alamar-Biosciences/NULISAseqR</a></p>
+<p><strong>Alamar Biosciences</strong>: Alamar Biosciences. (2026). NULISA Platform and Proteomic Solutions. <a href="https://alamarbio.com/" target="_blank">https://alamarbio.com/</a></p>
+<p><strong>Nature Communication article on NULISAseq Technology</strong>: Feng, W., Beer, J.C., Hao, Q. et al. NULISA: a proteomic liquid biopsy platform with attomolar sensitivity and high multiplexing. Nat Commun 14, 7238 (2023). <a href="https://doi.org/10.1038/s41467-023-42834-x" target="_blank">https://doi.org/10.1038/s41467-023-42834-x</a></p>
+<p><strong>NULISA<sup>TM</sup> Platform Video</strong>: Alamar Biosciences (2023). The NULISA™ Platform by Alamar Biosciences. YouTube. <a href="https://www.youtube.com/watch?v=24nVyCoJv4w" target="_blank">https://www.youtube.com/watch?v=24nVyCoJv4w</a></p>
+<p><strong>NULISA Analysis Software Training Video</strong>: Alamar Biosciences (2023). The NULISA Analysis Software (NAS) Training by Alamar Biosciences. YouTube. <a href="https://www.youtube.com/watch?v=sS8oB8suRBk" target="_blank">https://www.youtube.com/watch?v=sS8oB8suRBk</a></p>
+</div>
+<div id="r-and-packages" class="section level4 unnumbered hasAnchor">
+<h4>R and Packages<a href="additional-resources.html#r-and-packages" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><strong>R Statistical Software</strong>: R Core Team (2024). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. <a href="https://www.R-project.org/" target="_blank">https://www.R-project.org/</a></p>
+<p><strong>tidyverse</strong>: Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A, Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019). “Welcome to the tidyverse.” <em>Journal of Open Source Software</em>, 4(43), 1686. <a href="https://doi.org/10.21105/joss.01686" target="_blank">https://doi.org/10.21105/joss.01686</a></p>
+<p><strong>bookdown</strong>: Xie, Y. (2016). <em>bookdown: Authoring Books and Technical Documents with R Markdown</em>. Chapman and Hall/CRC. ISBN 978-1138700109. <a href="https://bookdown.org/yihui/bookdown/" target="_blank">https://bookdown.org/yihui/bookdown/</a></p>
+<p><strong>ggplot2</strong>: Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York.</p>
+<p><strong>ComplexHeatmap</strong>: Gu, Z., Eils, R., Schlesner, M. (2016). “Complex heatmaps reveal patterns and correlations in multidimensional genomic data.” <em>Bioinformatics</em> 32(18), 2847-2849.</p>
+<p><strong>PCAtools</strong>: Blighe, K., Lun, A. (2022). PCAtools: Everything Principal Components Analysis. <a href="https://github.com/kevinblighe/PCAtools" target="_blank">https://github.com/kevinblighe/PCAtools</a></p>
+</div>
+</div>
+<div id="happy-analyzing" class="section level3 unnumbered hasAnchor">
+<h3><strong>Happy analyzing!</strong> 🚀<a href="additional-resources.html#happy-analyzing" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We hope this book and these resources help you gain meaningful insights from your NULISAseq data. If you have questions or feedback, please reach out through the <a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank">GitHub repository</a> or contact Alamar Biosciences support at <a href="mailto:support@alamarbio.com">support@alamarbio.com</a>.</p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="case-study-1.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": false,
+    "twitter": false,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": {},
+    "google": false
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section",
+    "scroll_highlight": true
+  },
+  "toolbar": {
+    "position": "fixed"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

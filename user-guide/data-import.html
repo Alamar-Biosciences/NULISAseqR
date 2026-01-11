@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 1 Data Import | NULISAseqR User Guide</title>
+  <meta name="description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="generator" content="bookdown 0.46 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 1 Data Import | NULISAseqR User Guide" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="github-repo" content="Alamar-Biosciences/NULISAseqR" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 1 Data Import | NULISAseqR User Guide" />
+  
+  <meta name="twitter:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="understanding-nulisaseq-data.html"/>
+<link rel="next" href="quality-control.html"/>
+<script src="libs/jquery-3.6.1/jquery-3.6.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.34.0/datatables.js"></script>
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="libs/table1-1.0/table1_defaults.css" rel="stylesheet" />
+<link rel="shortcut icon" href="figures/favicon.png" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li style="text-align: left; padding: 20px;">
+  <a href="https://www.alamarbio.com" target="_blank">
+    <img src="figures/alamar_logo.png" style="height:70px;">
+  </a>
+</li>
+<li><a href="./">NULISAseqR User Guide</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#what-is-nulisaseqr"><i class="fa fa-check"></i>What is NULISAseqR?</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#installation"><i class="fa fa-check"></i>Installation</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#macos-users"><i class="fa fa-check"></i>macOS Users</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#windows-users"><i class="fa fa-check"></i>Windows Users</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#installation-steps"><i class="fa fa-check"></i>Installation Steps</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#getting-help"><i class="fa fa-check"></i>Getting Help</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html"><i class="fa fa-check"></i>Understanding NULISAseq Data</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#what-is-nulisa-technology"><i class="fa fa-check"></i>What is NULISA™ Technology?</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#technical-workflow"><i class="fa fa-check"></i>Technical Workflow</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#learn-more-about-nulisa-technology"><i class="fa fa-check"></i>Learn More About NULISA™ Technology</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#available-nulisaseq-panels"><i class="fa fa-check"></i>Available NULISAseq Panels</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-normalization"><i class="fa fa-check"></i>Data Normalization</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#raw-data-sequencing-counts"><i class="fa fa-check"></i>Raw Data: Sequencing Counts</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-1-internal-control-ic-normalization"><i class="fa fa-check"></i>Step 1: Internal Control (IC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-2-inter-plate-control-ipc-normalization"><i class="fa fa-check"></i>Step 2: Inter-Plate Control (IPC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-3-log2-transformation"><i class="fa fa-check"></i>Step 3: Log2 Transformation</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#why-log-transform"><i class="fa fa-check"></i>Why Log Transform?</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#npq-vs-fold-change"><i class="fa fa-check"></i>NPQ vs Fold Change</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#understanding-the-relationship"><i class="fa fa-check"></i>Understanding the Relationship</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#working-with-npq-values"><i class="fa fa-check"></i>Working with NPQ Values</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-from-npq"><i class="fa fa-check"></i>Calculating Fold Changes from NPQ</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-in-target-ratios"><i class="fa fa-check"></i>Calculating Fold Changes in Target Ratios</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-analysis-faq"><i class="fa fa-check"></i>Data Analysis FAQ</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-is-the-limit-of-detection-lod-defined-for-nulisaseq-why-do-some-targets-have-lod-of-0"><i class="fa fa-check"></i>1. How is the limit of detection (LOD) defined for NULISAseq? <br> Why do some targets have LOD of 0?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#should-i-exclude-samples-below-lod"><i class="fa fa-check"></i>2. Should I exclude samples below LOD?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-i-calculate-coefficient-of-variation-cv-for-samples"><i class="fa fa-check"></i>3. How do I calculate coefficient of variation (CV) for samples?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#can-i-compare-data-across-different-runs"><i class="fa fa-check"></i>4. Can I compare data across different runs?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-you-assess-correlation-between-npq-and-absolute-quantification-data-from-other-platforms"><i class="fa fa-check"></i>5. How do you assess correlation between NPQ and absolute quantification data from other platforms?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="data-import.html"><a href="data-import.html"><i class="fa fa-check"></i><b>1</b> Data Import</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="data-import.html"><a href="data-import.html#the-importnulisaseq-function"><i class="fa fa-check"></i><b>1.1</b> The <code>importNULISAseq()</code> Function</a></li>
+<li class="chapter" data-level="1.2" data-path="data-import.html"><a href="data-import.html#understanding-the-data-structure"><i class="fa fa-check"></i><b>1.2</b> Understanding the Data Structure</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="data-import.html"><a href="data-import.html#key-components"><i class="fa fa-check"></i><b>1.2.1</b> Key Components</a></li>
+<li class="chapter" data-level="1.2.2" data-path="data-import.html"><a href="data-import.html#summary-statistics"><i class="fa fa-check"></i><b>1.2.2</b> Summary Statistics</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="data-import.html"><a href="data-import.html#working-with-your-own-data"><i class="fa fa-check"></i><b>1.3</b> Working with Your Own Data</a></li>
+<li class="chapter" data-level="1.4" data-path="data-import.html"><a href="data-import.html#loading-metadata"><i class="fa fa-check"></i><b>1.4</b> Loading Metadata</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="data-import.html"><a href="data-import.html#metadata-structure"><i class="fa fa-check"></i><b>1.4.1</b> Metadata Structure</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="data-import.html"><a href="data-import.html#merging-data-with-metadata"><i class="fa fa-check"></i><b>1.5</b> Merging Data with Metadata</a>
+<ul>
+<li class="chapter" data-level="1.5.1" data-path="data-import.html"><a href="data-import.html#understanding-sample-names"><i class="fa fa-check"></i><b>1.5.1</b> Understanding Sample Names</a></li>
+<li class="chapter" data-level="1.5.2" data-path="data-import.html"><a href="data-import.html#merging-options"><i class="fa fa-check"></i><b>1.5.2</b> Merging Options</a></li>
+</ul></li>
+<li class="chapter" data-level="1.6" data-path="data-import.html"><a href="data-import.html#filtering-samples"><i class="fa fa-check"></i><b>1.6</b> Filtering Samples</a></li>
+<li class="chapter" data-level="1.7" data-path="data-import.html"><a href="data-import.html#complete-import-workflow"><i class="fa fa-check"></i><b>1.7</b> Complete Import Workflow</a></li>
+<li class="chapter" data-level="1.8" data-path="data-import.html"><a href="data-import.html#tips-and-best-practices"><i class="fa fa-check"></i><b>1.8</b> Tips and Best Practices</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="quality-control.html"><a href="quality-control.html"><i class="fa fa-check"></i><b>2</b> Quality Control</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="quality-control.html"><a href="quality-control.html#why-quality-control-matters"><i class="fa fa-check"></i><b>2.1</b> Why Quality Control Matters</a></li>
+<li class="chapter" data-level="2.2" data-path="quality-control.html"><a href="quality-control.html#qc-report"><i class="fa fa-check"></i><b>2.2</b> Automated QC Report</a></li>
+<li class="chapter" data-level="2.3" data-path="quality-control.html"><a href="quality-control.html#qc-report-structure"><i class="fa fa-check"></i><b>2.3</b> QC Report Structure</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="quality-control.html"><a href="quality-control.html#plate-layout"><i class="fa fa-check"></i><b>2.3.1</b> Plate Layout</a></li>
+<li class="chapter" data-level="2.3.2" data-path="quality-control.html"><a href="quality-control.html#run-summary"><i class="fa fa-check"></i><b>2.3.2</b> Run Summary</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#quality-control-metrics"><i class="fa fa-check"></i>Quality Control Metrics</a></li>
+<li class="chapter" data-level="2.3.3" data-path="quality-control.html"><a href="quality-control.html#platerun-qc"><i class="fa fa-check"></i><b>2.3.3</b> Plate/Run QC</a></li>
+<li class="chapter" data-level="2.3.4" data-path="quality-control.html"><a href="quality-control.html#sample-qc"><i class="fa fa-check"></i><b>2.3.4</b> Sample QC</a></li>
+<li class="chapter" data-level="2.3.5" data-path="quality-control.html"><a href="quality-control.html#target-qc"><i class="fa fa-check"></i><b>2.3.5</b> Target QC</a></li>
+<li class="chapter" data-level="2.3.6" data-path="quality-control.html"><a href="quality-control.html#coefficient-of-variation-cv"><i class="fa fa-check"></i><b>2.3.6</b> Coefficient of Variation (CV)</a></li>
+<li class="chapter" data-level="2.3.7" data-path="quality-control.html"><a href="quality-control.html#batch-effect-assessment"><i class="fa fa-check"></i><b>2.3.7</b> Batch Effect Assessment</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="quality-control.html"><a href="quality-control.html#qc-thresholds-summary"><i class="fa fa-check"></i><b>2.4</b> Summary of QC Thresholds</a></li>
+<li class="chapter" data-level="2.5" data-path="quality-control.html"><a href="quality-control.html#manual-qc-checks"><i class="fa fa-check"></i><b>2.5</b> Manual QC Checks</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="quality-control.html"><a href="quality-control.html#check-for-missing-data"><i class="fa fa-check"></i><b>2.5.1</b> Check for Missing Data</a></li>
+<li class="chapter" data-level="2.5.2" data-path="quality-control.html"><a href="quality-control.html#low-detectability-targets"><i class="fa fa-check"></i><b>2.5.2</b> Low Detectability Targets</a></li>
+<li class="chapter" data-level="2.5.3" data-path="quality-control.html"><a href="quality-control.html#calculate-targets-detectability-by-subgroups"><i class="fa fa-check"></i><b>2.5.3</b> Calculate Targets Detectability by Subgroups</a></li>
+<li class="chapter" data-level="2.5.4" data-path="quality-control.html"><a href="quality-control.html#batch-effect-correction"><i class="fa fa-check"></i><b>2.5.4</b> Batch Effect Correction</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="quality-control.html"><a href="quality-control.html#qc-best-practices"><i class="fa fa-check"></i><b>2.6</b> Best Practices</a>
+<ul>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#documentation"><i class="fa fa-check"></i>Documentation</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#consistency"><i class="fa fa-check"></i>Consistency</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#collaboration"><i class="fa fa-check"></i>Collaboration</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#when-in-doubt"><i class="fa fa-check"></i>When in Doubt</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="quality-control.html"><a href="quality-control.html#complete-qc-workflow"><i class="fa fa-check"></i><b>2.7</b> Complete QC Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="visualization.html"><a href="visualization.html"><i class="fa fa-check"></i><b>3</b> Visualization</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="visualization.html"><a href="visualization.html#why-visualize"><i class="fa fa-check"></i><b>3.1</b> Why Visualize?</a></li>
+<li class="chapter" data-level="3.2" data-path="visualization.html"><a href="visualization.html#heatmaps"><i class="fa fa-check"></i><b>3.2</b> Heatmaps</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="visualization.html"><a href="visualization.html#basic-heatmap"><i class="fa fa-check"></i><b>3.2.1</b> Basic Heatmap</a></li>
+<li class="chapter" data-level="3.2.2" data-path="visualization.html"><a href="visualization.html#heatmap-with-annotations"><i class="fa fa-check"></i><b>3.2.2</b> Heatmap with Annotations</a></li>
+<li class="chapter" data-level="3.2.3" data-path="visualization.html"><a href="visualization.html#understanding-the-heatmap"><i class="fa fa-check"></i><b>3.2.3</b> Understanding the Heatmap</a></li>
+<li class="chapter" data-level="3.2.4" data-path="visualization.html"><a href="visualization.html#interpreting-clusters"><i class="fa fa-check"></i><b>3.2.4</b> Interpreting Clusters</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="visualization.html"><a href="visualization.html#principal-component-analysis-pca"><i class="fa fa-check"></i><b>3.3</b> Principal Component Analysis (PCA)</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="visualization.html"><a href="visualization.html#pca-with-multiple-visual-encodings"><i class="fa fa-check"></i><b>3.3.1</b> PCA with Multiple Visual Encodings</a></li>
+<li class="chapter" data-level="3.3.2" data-path="visualization.html"><a href="visualization.html#understanding-pca-plots"><i class="fa fa-check"></i><b>3.3.2</b> Understanding PCA Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="visualization.html"><a href="visualization.html#custom-visualizations-with-ggplot2"><i class="fa fa-check"></i><b>3.4</b> Custom Visualizations with <code>ggplot2</code></a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="visualization.html"><a href="visualization.html#npq-distribution---histogram"><i class="fa fa-check"></i><b>3.4.1</b> NPQ Distribution - Histogram</a></li>
+<li class="chapter" data-level="3.4.2" data-path="visualization.html"><a href="visualization.html#npq-distribution-by-group---density-plot"><i class="fa fa-check"></i><b>3.4.2</b> NPQ Distribution by Group - Density Plot</a></li>
+<li class="chapter" data-level="3.4.3" data-path="visualization.html"><a href="visualization.html#single-protein-across-groups"><i class="fa fa-check"></i><b>3.4.3</b> Single Protein Across Groups</a></li>
+<li class="chapter" data-level="3.4.4" data-path="visualization.html"><a href="visualization.html#multiple-proteins-across-groups"><i class="fa fa-check"></i><b>3.4.4</b> Multiple Proteins Across Groups</a></li>
+<li class="chapter" data-level="3.4.5" data-path="visualization.html"><a href="visualization.html#protein-protein-correlation"><i class="fa fa-check"></i><b>3.4.5</b> Protein-Protein Correlation</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="visualization.html"><a href="visualization.html#saving-plots"><i class="fa fa-check"></i><b>3.5</b> Saving Plots</a>
+<ul>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-heatmap"><i class="fa fa-check"></i>Save Heatmap</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-pca"><i class="fa fa-check"></i>Save PCA</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-ggplot-objects"><i class="fa fa-check"></i>Save ggplot Objects</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="visualization.html"><a href="visualization.html#visualization-best-practices"><i class="fa fa-check"></i><b>3.6</b> Visualization Best Practices</a></li>
+<li class="chapter" data-level="3.7" data-path="visualization.html"><a href="visualization.html#complete-visualization-workflow"><i class="fa fa-check"></i><b>3.7</b> Complete Visualization Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html"><i class="fa fa-check"></i><b>4</b> Differential Abundance Analysis</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#overview"><i class="fa fa-check"></i><b>4.1</b> Overview</a></li>
+<li class="chapter" data-level="4.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#Ch4"><i class="fa fa-check"></i><b>4.2</b> Differential Abundance</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#group-comparison"><i class="fa fa-check"></i><b>4.2.1</b> Group Comparison</a></li>
+<li class="chapter" data-level="4.2.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#understanding-the-model"><i class="fa fa-check"></i><b>4.2.2</b> Understanding the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#model-results"><i class="fa fa-check"></i><b>4.3</b> Model Results</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#key-columns-in-results"><i class="fa fa-check"></i><b>4.3.1</b> Key Columns in Results</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#de-targets"><i class="fa fa-check"></i><b>4.4</b> Finding Significant Proteins</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#filter-by-fdr-threshold"><i class="fa fa-check"></i><b>4.4.1</b> Filter by FDR Threshold</a></li>
+<li class="chapter" data-level="4.4.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#higher-vs-lower-abundance"><i class="fa fa-check"></i><b>4.4.2</b> Higher vs Lower Abundance</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#volcano-plots"><i class="fa fa-check"></i><b>4.5</b> Volcano Plots</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#inflammatory-disease-vs-normal"><i class="fa fa-check"></i><b>4.5.1</b> Inflammatory Disease vs Normal</a></li>
+<li class="chapter" data-level="4.5.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#understanding-volcano-plots"><i class="fa fa-check"></i><b>4.5.2</b> Understanding Volcano Plots</a></li>
+<li class="chapter" data-level="4.5.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#cancer-vs-normal"><i class="fa fa-check"></i><b>4.5.3</b> Cancer vs Normal</a></li>
+<li class="chapter" data-level="4.5.4" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#saving-volcano-plots"><i class="fa fa-check"></i><b>4.5.4</b> Saving Volcano Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#visualization-of-significant-targets"><i class="fa fa-check"></i><b>4.6</b> Visualization of Significant Targets</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#inflammatory-disease-vs-normal-1"><i class="fa fa-check"></i><b>4.6.1</b> Inflammatory Disease vs Normal</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#multiple-disease-groups"><i class="fa fa-check"></i><b>4.7</b> Multiple Disease Groups</a></li>
+<li class="chapter" data-level="4.8" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#model-considerations"><i class="fa fa-check"></i><b>4.8</b> Model Considerations</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#reference-level"><i class="fa fa-check"></i><b>4.8.1</b> Reference Level</a></li>
+<li class="chapter" data-level="4.8.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#including-covariates"><i class="fa fa-check"></i><b>4.8.2</b> Including Covariates</a></li>
+<li class="chapter" data-level="4.8.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#model-formula-options"><i class="fa fa-check"></i><b>4.8.3</b> Model Formula Options</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#interpreting-results"><i class="fa fa-check"></i><b>4.9</b> Interpreting Results</a>
+<ul>
+<li class="chapter" data-level="4.9.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#effect-size-coefficient"><i class="fa fa-check"></i><b>4.9.1</b> Effect Size (Coefficient)</a></li>
+<li class="chapter" data-level="4.9.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#p-values"><i class="fa fa-check"></i><b>4.9.2</b> P-values</a></li>
+<li class="chapter" data-level="4.9.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#significance-thresholds"><i class="fa fa-check"></i><b>4.9.3</b> Significance Thresholds</a></li>
+</ul></li>
+<li class="chapter" data-level="4.10" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#exporting-results"><i class="fa fa-check"></i><b>4.10</b> Exporting Results</a>
+<ul>
+<li class="chapter" data-level="4.10.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#save-results-table"><i class="fa fa-check"></i><b>4.10.1</b> Save Results Table</a></li>
+<li class="chapter" data-level="4.10.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#create-summary-table"><i class="fa fa-check"></i><b>4.10.2</b> Create Summary Table</a></li>
+</ul></li>
+<li class="chapter" data-level="4.11" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#complete-differential-abundance-workflow"><i class="fa fa-check"></i><b>4.11</b> Complete Differential Abundance Workflow</a></li>
+<li class="chapter" data-level="4.12" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#best-practices"><i class="fa fa-check"></i><b>4.12</b> Best Practices</a></li>
+<li class="chapter" data-level="4.13" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#common-issues"><i class="fa fa-check"></i><b>4.13</b> Common Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html"><i class="fa fa-check"></i><b>5</b> Longitudinal Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overview-1"><i class="fa fa-check"></i><b>5.1</b> Overview</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#load-and-prepare-data"><i class="fa fa-check"></i><b>5.1.1</b> Load and Prepare Data</a></li>
+<li class="chapter" data-level="5.1.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#create-metadata"><i class="fa fa-check"></i><b>5.1.2</b> Create Metadata</a></li>
+<li class="chapter" data-level="5.1.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#convert-to-wide-format"><i class="fa fa-check"></i><b>5.1.3</b> Convert to Wide Format</a></li>
+<li class="chapter" data-level="5.1.4" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#descriptive-statistics"><i class="fa fa-check"></i><b>5.1.4</b> Descriptive Statistics</a></li>
+<li class="chapter" data-level="5.1.5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#exploratory-visualization"><i class="fa fa-check"></i><b>5.1.5</b> Exploratory Visualization</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#linear-mixed-effects-model"><i class="fa fa-check"></i><b>5.2</b> Linear Mixed-Effects Model</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#group-effect-analysis"><i class="fa fa-check"></i><b>5.2.1</b> Group Effect Analysis</a></li>
+<li class="chapter" data-level="5.2.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#understanding-the-model-1"><i class="fa fa-check"></i><b>5.2.2</b> Understanding the Model</a></li>
+<li class="chapter" data-level="5.2.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#model-results-1"><i class="fa fa-check"></i><b>5.2.3</b> Model Results</a></li>
+<li class="chapter" data-level="5.2.4" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#likelihood-ratio-test-lrt-statistics"><i class="fa fa-check"></i><b>5.2.4</b> Likelihood Ratio Test (LRT) Statistics</a></li>
+<li class="chapter" data-level="5.2.5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#model-coefficients"><i class="fa fa-check"></i><b>5.2.5</b> Model Coefficients</a></li>
+<li class="chapter" data-level="5.2.6" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overall-group-effect"><i class="fa fa-check"></i><b>5.2.6</b> Overall Group Effect</a></li>
+<li class="chapter" data-level="5.2.7" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#specific-time-comparisons"><i class="fa fa-check"></i><b>5.2.7</b> Specific Time Comparisons</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#volcano-plots-1"><i class="fa fa-check"></i><b>5.3</b> Volcano Plots</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overall-group-effect-lrt"><i class="fa fa-check"></i><b>5.3.1</b> Overall Group Effect (LRT)</a></li>
+<li class="chapter" data-level="5.3.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#group-specific-comparisons"><i class="fa fa-check"></i><b>5.3.2</b> Group-Specific Comparisons</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#trajectory-visualization"><i class="fa fa-check"></i><b>5.4</b> Trajectory Visualization</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#spaghetti-plot-discrete-time-groups"><i class="fa fa-check"></i><b>5.4.1</b> Spaghetti Plot: Discrete Time Groups</a></li>
+<li class="chapter" data-level="5.4.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#spaghetti-plot-continuous-time"><i class="fa fa-check"></i><b>5.4.2</b> Spaghetti Plot: Continuous Time</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#model-considerations-1"><i class="fa fa-check"></i><b>5.5</b> Model Considerations</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#random-effects-structure"><i class="fa fa-check"></i><b>5.5.1</b> Random Effects Structure</a></li>
+<li class="chapter" data-level="5.5.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#fixed-effects-design"><i class="fa fa-check"></i><b>5.5.2</b> Fixed Effects Design</a></li>
+<li class="chapter" data-level="5.5.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#likelihood-ratio-test"><i class="fa fa-check"></i><b>5.5.3</b> Likelihood Ratio Test</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#exporting-results-1"><i class="fa fa-check"></i><b>5.6</b> Exporting Results</a>
+<ul>
+<li class="chapter" data-level="5.6.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#save-results-tables"><i class="fa fa-check"></i><b>5.6.1</b> Save Results Tables</a></li>
+<li class="chapter" data-level="5.6.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#save-plots"><i class="fa fa-check"></i><b>5.6.2</b> Save Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#complete-longitudinal-analysis-workflow"><i class="fa fa-check"></i><b>5.7</b> Complete Longitudinal Analysis Workflow</a></li>
+<li class="chapter" data-level="5.8" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#best-practices-1"><i class="fa fa-check"></i><b>5.8</b> Best Practices</a></li>
+<li class="chapter" data-level="5.9" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#common-issues-1"><i class="fa fa-check"></i><b>5.9</b> Common Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="outcome-modeling.html"><a href="outcome-modeling.html"><i class="fa fa-check"></i><b>6</b> Outcome Modeling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#overview-2"><i class="fa fa-check"></i><b>6.1</b> Overview</a></li>
+<li class="chapter" data-level="6.2" data-path="outcome-modeling.html"><a href="outcome-modeling.html#example-1-exploring-age-associations-continuous-outcome"><i class="fa fa-check"></i><b>6.2</b> Example 1: Exploring Age Associations (Continuous Outcome)</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#why-model-age"><i class="fa fa-check"></i><b>6.2.1</b> Why Model Age?</a></li>
+<li class="chapter" data-level="6.2.2" data-path="outcome-modeling.html"><a href="outcome-modeling.html#age-distribution-in-the-dataset"><i class="fa fa-check"></i><b>6.2.2</b> Age Distribution in the Dataset</a></li>
+<li class="chapter" data-level="6.2.3" data-path="outcome-modeling.html"><a href="outcome-modeling.html#building-the-age-regression-model"><i class="fa fa-check"></i><b>6.2.3</b> Building the Age Regression Model</a></li>
+<li class="chapter" data-level="6.2.4" data-path="outcome-modeling.html"><a href="outcome-modeling.html#understanding-the-age-model"><i class="fa fa-check"></i><b>6.2.4</b> Understanding the Age Model</a></li>
+<li class="chapter" data-level="6.2.5" data-path="outcome-modeling.html"><a href="outcome-modeling.html#examining-age-association-results"><i class="fa fa-check"></i><b>6.2.5</b> Examining Age Association Results</a></li>
+<li class="chapter" data-level="6.2.6" data-path="outcome-modeling.html"><a href="outcome-modeling.html#finding-age-associated-proteins"><i class="fa fa-check"></i><b>6.2.6</b> Finding Age-Associated Proteins</a></li>
+<li class="chapter" data-level="6.2.7" data-path="outcome-modeling.html"><a href="outcome-modeling.html#volcano-plots-2"><i class="fa fa-check"></i><b>6.2.7</b> Volcano Plots</a></li>
+<li class="chapter" data-level="6.2.8" data-path="outcome-modeling.html"><a href="outcome-modeling.html#age-associated-proteins-scatterplots"><i class="fa fa-check"></i><b>6.2.8</b> Age-Associated Proteins Scatterplots</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="outcome-modeling.html"><a href="outcome-modeling.html#example-2-modeling-disease-status-binary-outcome"><i class="fa fa-check"></i><b>6.3</b> Example 2: Modeling Disease Status (Binary Outcome)</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#disease-status-as-binary-outcome"><i class="fa fa-check"></i><b>6.3.1</b> Disease Status as Binary Outcome</a></li>
+<li class="chapter" data-level="6.3.2" data-path="outcome-modeling.html"><a href="outcome-modeling.html#preparing-the-disease-data"><i class="fa fa-check"></i><b>6.3.2</b> Preparing the Disease Data</a></li>
+<li class="chapter" data-level="6.3.3" data-path="outcome-modeling.html"><a href="outcome-modeling.html#building-the-disease-association-model"><i class="fa fa-check"></i><b>6.3.3</b> Building the Disease Association Model</a></li>
+<li class="chapter" data-level="6.3.4" data-path="outcome-modeling.html"><a href="outcome-modeling.html#understanding-the-disease-model"><i class="fa fa-check"></i><b>6.3.4</b> Understanding the Disease Model</a></li>
+<li class="chapter" data-level="6.3.5" data-path="outcome-modeling.html"><a href="outcome-modeling.html#examining-disease-association-results"><i class="fa fa-check"></i><b>6.3.5</b> Examining Disease Association Results</a></li>
+<li class="chapter" data-level="6.3.6" data-path="outcome-modeling.html"><a href="outcome-modeling.html#finding-disease-associated-proteins"><i class="fa fa-check"></i><b>6.3.6</b> Finding Disease-Associated Proteins</a></li>
+<li class="chapter" data-level="6.3.7" data-path="outcome-modeling.html"><a href="outcome-modeling.html#interpreting-odds-ratios"><i class="fa fa-check"></i><b>6.3.7</b> Interpreting Odds Ratios</a></li>
+<li class="chapter" data-level="6.3.8" data-path="outcome-modeling.html"><a href="outcome-modeling.html#disease-associated-proteins-volcano-plots"><i class="fa fa-check"></i><b>6.3.8</b> Disease-Associated Proteins Volcano Plots</a></li>
+<li class="chapter" data-level="6.3.9" data-path="outcome-modeling.html"><a href="outcome-modeling.html#visualizing-disease-associations"><i class="fa fa-check"></i><b>6.3.9</b> Visualizing Disease Associations</a></li>
+<li class="chapter" data-level="6.3.10" data-path="outcome-modeling.html"><a href="outcome-modeling.html#roc-curves-for-disease-associated-proteins"><i class="fa fa-check"></i><b>6.3.10</b> ROC Curves for Disease-Associated Proteins</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="outcome-modeling.html"><a href="outcome-modeling.html#comparing-approaches"><i class="fa fa-check"></i><b>6.4</b> Comparing Approaches</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#when-to-use-each-function"><i class="fa fa-check"></i><b>6.4.1</b> When to Use Each Function</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="outcome-modeling.html"><a href="outcome-modeling.html#exporting-results-2"><i class="fa fa-check"></i><b>6.5</b> Exporting Results</a></li>
+<li class="chapter" data-level="6.6" data-path="outcome-modeling.html"><a href="outcome-modeling.html#complete-outcome-modeling-workflow"><i class="fa fa-check"></i><b>6.6</b> Complete Outcome Modeling Workflow</a></li>
+<li class="chapter" data-level="6.7" data-path="outcome-modeling.html"><a href="outcome-modeling.html#best-practices-2"><i class="fa fa-check"></i><b>6.7</b> Best Practices</a>
+<ul>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#model-design"><i class="fa fa-check"></i>Model Design</a></li>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#interpretation"><i class="fa fa-check"></i>Interpretation</a></li>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#validation"><i class="fa fa-check"></i>Validation</a></li>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#reporting"><i class="fa fa-check"></i>Reporting</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="case-study-1.html"><a href="case-study-1.html"><i class="fa fa-check"></i><b>7</b> Case Study: <br> Identifying Proteomic Signatures in Lupus and Rheumatoid Arthritis</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="case-study-1.html"><a href="case-study-1.html#overview-3"><i class="fa fa-check"></i><b>7.1</b> Overview</a></li>
+<li class="chapter" data-level="7.2" data-path="case-study-1.html"><a href="case-study-1.html#data-preparation"><i class="fa fa-check"></i><b>7.2</b> Data Preparation</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="case-study-1.html"><a href="case-study-1.html#load-required-libraries"><i class="fa fa-check"></i><b>7.2.1</b> Load Required Libraries</a></li>
+<li class="chapter" data-level="7.2.2" data-path="case-study-1.html"><a href="case-study-1.html#import-data"><i class="fa fa-check"></i><b>7.2.2</b> Import Data</a></li>
+<li class="chapter" data-level="7.2.3" data-path="case-study-1.html"><a href="case-study-1.html#prepare-sample-metadata"><i class="fa fa-check"></i><b>7.2.3</b> Prepare Sample Metadata</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="case-study-1.html"><a href="case-study-1.html#apply-detectability-threshold"><i class="fa fa-check"></i><b>7.3</b> Apply Detectability Threshold</a></li>
+<li class="chapter" data-level="7.4" data-path="case-study-1.html"><a href="case-study-1.html#global-data-visualization"><i class="fa fa-check"></i><b>7.4</b> Global Data Visualization</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="case-study-1.html"><a href="case-study-1.html#prepare-metadata-for-visualization"><i class="fa fa-check"></i><b>7.4.1</b> Prepare Metadata for Visualization</a></li>
+<li class="chapter" data-level="7.4.2" data-path="case-study-1.html"><a href="case-study-1.html#hierarchical-clustering-heatmap"><i class="fa fa-check"></i><b>7.4.2</b> Hierarchical Clustering Heatmap</a></li>
+<li class="chapter" data-level="7.4.3" data-path="case-study-1.html"><a href="case-study-1.html#principal-component-analysis"><i class="fa fa-check"></i><b>7.4.3</b> Principal Component Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="case-study-1.html"><a href="case-study-1.html#statistical-testing"><i class="fa fa-check"></i><b>7.5</b> Statistical Testing</a></li>
+<li class="chapter" data-level="7.6" data-path="case-study-1.html"><a href="case-study-1.html#systemic-lupus-erythematosus-sle-analysis"><i class="fa fa-check"></i><b>7.6</b> Systemic Lupus Erythematosus (SLE) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="case-study-1.html"><a href="case-study-1.html#background"><i class="fa fa-check"></i><b>7.6.1</b> Background</a></li>
+<li class="chapter" data-level="7.6.2" data-path="case-study-1.html"><a href="case-study-1.html#volcano-plot"><i class="fa fa-check"></i><b>7.6.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.6.3" data-path="case-study-1.html"><a href="case-study-1.html#visualizations"><i class="fa fa-check"></i><b>7.6.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.6.4" data-path="case-study-1.html"><a href="case-study-1.html#directional-analysis"><i class="fa fa-check"></i><b>7.6.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="case-study-1.html"><a href="case-study-1.html#rheumatoid-arthritis-ra-analysis"><i class="fa fa-check"></i><b>7.7</b> Rheumatoid Arthritis (RA) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.7.1" data-path="case-study-1.html"><a href="case-study-1.html#background-1"><i class="fa fa-check"></i><b>7.7.1</b> Background</a></li>
+<li class="chapter" data-level="7.7.2" data-path="case-study-1.html"><a href="case-study-1.html#volcano-plot-1"><i class="fa fa-check"></i><b>7.7.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.7.3" data-path="case-study-1.html"><a href="case-study-1.html#visualizations-1"><i class="fa fa-check"></i><b>7.7.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.7.4" data-path="case-study-1.html"><a href="case-study-1.html#directional-analysis-1"><i class="fa fa-check"></i><b>7.7.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.8" data-path="case-study-1.html"><a href="case-study-1.html#comparing-disease-signatures"><i class="fa fa-check"></i><b>7.8</b> Comparing Disease Signatures</a>
+<ul>
+<li class="chapter" data-level="7.8.1" data-path="case-study-1.html"><a href="case-study-1.html#overlap-analysis"><i class="fa fa-check"></i><b>7.8.1</b> Overlap Analysis</a></li>
+<li class="chapter" data-level="7.8.2" data-path="case-study-1.html"><a href="case-study-1.html#differential-abundance-summary-table"><i class="fa fa-check"></i><b>7.8.2</b> Differential Abundance Summary Table</a></li>
+</ul></li>
+<li class="chapter" data-level="7.9" data-path="case-study-1.html"><a href="case-study-1.html#next-steps"><i class="fa fa-check"></i><b>7.9</b> Next Steps</a></li>
+<li class="chapter" data-level="7.10" data-path="case-study-1.html"><a href="case-study-1.html#complete-workflow-example-code"><i class="fa fa-check"></i><b>7.10</b> Complete Workflow Example Code</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html"><i class="fa fa-check"></i>Additional Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisaseq-resources"><i class="fa fa-check"></i>NULISAseq Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#package-documentation"><i class="fa fa-check"></i>Package Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#github-repository"><i class="fa fa-check"></i>GitHub Repository</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#support-and-issues"><i class="fa fa-check"></i>Support and Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisa-analysis-software-nas"><i class="fa fa-check"></i>NULISA Analysis Software (NAS)</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#technical-documentation"><i class="fa fa-check"></i>Technical Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-resources"><i class="fa fa-check"></i>R Programming Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-install"><i class="fa fa-check"></i>Installing R and RStudio</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#tidyverse-resources"><i class="fa fa-check"></i>Tidyverse Resources</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#visualization-resources"><i class="fa fa-check"></i>Data Visualization Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#ggplot2"><i class="fa fa-check"></i>ggplot2</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#complexheatmap"><i class="fa fa-check"></i>ComplexHeatmap</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#pcatools"><i class="fa fa-check"></i>PCAtools</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citations"><i class="fa fa-check"></i>Citing This Book and Packages</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-this-book"><i class="fa fa-check"></i>Citing This Book</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-r-and-packages"><i class="fa fa-check"></i>Citing R and Packages</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#key-citations"><i class="fa fa-check"></i>Key Citations</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#happy-analyzing"><i class="fa fa-check"></i><strong>Happy analyzing!</strong> 🚀</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank">GitHub Repository</a></li>
+<li><a href="../" target="_blank">NULISAseqR Package</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">NULISAseqR User Guide</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="data-import" class="section level1 hasAnchor" number="1">
+<h1><span class="header-section-number">Chapter 1</span> Data Import<a href="data-import.html#data-import" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>This chapter covers importing NULISAseq data from XML files and understanding the data structure.</p>
+<div id="the-importnulisaseq-function" class="section level2 hasAnchor" number="1.1">
+<h2><span class="header-section-number">1.1</span> The <code>importNULISAseq()</code> Function<a href="data-import.html#the-importnulisaseq-function" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>NULISAseq data is typically stored in XML files, with one file per plate. The <code>importNULISAseq()</code> function reads these files and organizes the data into a structured format.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="data-import.html#cb7-1" tabindex="-1"></a><span class="co"># Path to example XML files included with the package</span></span>
+<span id="cb7-2"><a href="data-import.html#cb7-2" tabindex="-1"></a>data_dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="at">package =</span> <span class="st">&quot;NULISAseqR&quot;</span>)</span>
+<span id="cb7-3"><a href="data-import.html#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="data-import.html#cb7-4" tabindex="-1"></a><span class="co"># Specify which XML files to import (usually multiple plates)</span></span>
+<span id="cb7-5"><a href="data-import.html#cb7-5" tabindex="-1"></a>xml_files <span class="ot">&lt;-</span> <span class="fu">file.path</span>(</span>
+<span id="cb7-6"><a href="data-import.html#cb7-6" tabindex="-1"></a>  data_dir,</span>
+<span id="cb7-7"><a href="data-import.html#cb7-7" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;INF_Panel_V1_detectability_study_plate01.xml&quot;</span>,</span>
+<span id="cb7-8"><a href="data-import.html#cb7-8" tabindex="-1"></a>    <span class="st">&quot;INF_Panel_V1_detectability_study_plate02.xml&quot;</span>)</span>
+<span id="cb7-9"><a href="data-import.html#cb7-9" tabindex="-1"></a>)</span>
+<span id="cb7-10"><a href="data-import.html#cb7-10" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="data-import.html#cb7-11" tabindex="-1"></a><span class="co"># Import XML files</span></span>
+<span id="cb7-12"><a href="data-import.html#cb7-12" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">importNULISAseq</span>(<span class="at">files =</span> xml_files)</span></code></pre></div>
+</div>
+<div id="understanding-the-data-structure" class="section level2 hasAnchor" number="1.2">
+<h2><span class="header-section-number">1.2</span> Understanding the Data Structure<a href="data-import.html#understanding-the-data-structure" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The imported <code>data</code> object is a list containing multiple components:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="data-import.html#cb8-1" tabindex="-1"></a><span class="co"># View the top-level structure</span></span>
+<span id="cb8-2"><a href="data-import.html#cb8-2" tabindex="-1"></a><span class="fu">names</span>(data)</span></code></pre></div>
+<pre><code>#&gt; [1] &quot;runs&quot;   &quot;merged&quot;</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="data-import.html#cb10-1" tabindex="-1"></a><span class="co"># The merged component contains combined data from all plates</span></span>
+<span id="cb10-2"><a href="data-import.html#cb10-2" tabindex="-1"></a><span class="fu">names</span>(data<span class="sc">$</span>merged)</span></code></pre></div>
+<pre><code>#&gt;  [1] &quot;plateID&quot;          &quot;fileNames&quot;        &quot;ExecutionDetails&quot; &quot;IC&quot;              
+#&gt;  [5] &quot;targets&quot;          &quot;samples&quot;          &quot;qcSample&quot;         &quot;qcPlate&quot;         
+#&gt;  [9] &quot;detectability&quot;    &quot;IPC&quot;              &quot;SC&quot;               &quot;NC&quot;              
+#&gt; [13] &quot;SampleNames&quot;      &quot;match_matrix&quot;     &quot;Data_raw&quot;         &quot;aboveLOD&quot;        
+#&gt; [17] &quot;Data_NPQ_long&quot;    &quot;Data_NPQ&quot;</code></pre>
+<div id="key-components" class="section level3 hasAnchor" number="1.2.1">
+<h3><span class="header-section-number">1.2.1</span> Key Components<a href="data-import.html#key-components" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The most important components are:</p>
+<div id="wide-format-matrix-datamergeddata_npq" class="section level4 hasAnchor" number="1.2.1.1">
+<h4><span class="header-section-number">1.2.1.1</span> Wide-Format Matrix: <code>data$merged$Data_NPQ</code><a href="data-import.html#wide-format-matrix-datamergeddata_npq" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>This is a matrix where:</p>
+<ul>
+<li><strong>Rows</strong> = protein targets</li>
+<li><strong>Columns</strong> = samples<br />
+</li>
+<li><strong>Values</strong> = NULISA Protein Quantification (NPQ), a normalized, log2-scale measure of relative protein abundance</li>
+<li>Note that control samples (IPC: inter-plate control, SC: sample control, NC: negative control) are included</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="data-import.html#cb12-1" tabindex="-1"></a><span class="co"># Check dimensions of the wide-format matrix</span></span>
+<span id="cb12-2"><a href="data-import.html#cb12-2" tabindex="-1"></a><span class="fu">dim</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ)</span></code></pre></div>
+<pre><code>#&gt; [1] 206 192</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="data-import.html#cb14-1" tabindex="-1"></a><span class="co"># Number of proteins: </span></span>
+<span id="cb14-2"><a href="data-import.html#cb14-2" tabindex="-1"></a><span class="fu">nrow</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ)</span></code></pre></div>
+<pre><code>#&gt; [1] 206</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="data-import.html#cb16-1" tabindex="-1"></a><span class="co"># Number of samples:</span></span>
+<span id="cb16-2"><a href="data-import.html#cb16-2" tabindex="-1"></a><span class="fu">ncol</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ)</span></code></pre></div>
+<pre><code>#&gt; [1] 192</code></pre>
+<pre><code>#&gt; Preview of NPQ matrix (first 10 proteins × 10 samples, rounded to 3 digits):</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-394d485325028cc3ff9e" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-394d485325028cc3ff9e">{"x":{"filter":"none","vertical":false,"caption":"<caption>Preview of NPQ matrix<\/caption>","data":[["Activin AB","AGER","AGRP","ANGPT1","ANXA1","BDNF","BMP10","BMP7","C1QA","CCL1"],[12.421,13.506,14.36,15.556,12.018,16.473,8.034000000000001,12.064,13.052,13.517],[12.418,13.82,14.195,15.14,13.967,14.984,13.207,13.224,13.349,12.915],[12.092,14.643,13.435,15.076,11.675,15.258,7.613,12.187,12.796,13.227],[12.468,13.56,14.385,13.712,10.612,14.053,9.146000000000001,13.195,13.86,14.929],[12.492,13.048,12.999,13.485,10.92,12.257,8.140000000000001,12.81,12.692,11.91],[12.969,13.819,13.29,15.362,17.827,15.639,7.819,12.801,12.869,13.488],[12.248,13.082,13.304,13.745,11.162,14.688,7.506,11.76,12.095,14.579],[12.193,14.457,14.027,12.077,10.076,9.616,7.94,12.013,12.693,14.497],[12.489,11.291,11.188,13.406,22.838,13.785,9.34,12.928,12.974,13.904],[12.329,12.897,13.802,13.696,10.533,13.654,8.281000000000001,12.965,12.404,13.145]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>SMI_A1_Donor01_Plate_01<\/th>\n      <th>SMI_A2_Donor02_Plate_01<\/th>\n      <th>SMI_A3_Donor03_Plate_01<\/th>\n      <th>SMI_A4_Donor04_Plate_01<\/th>\n      <th>SMI_A5_Donor05_Plate_01<\/th>\n      <th>SMI_A6_Donor06_Plate_01<\/th>\n      <th>SMI_A7_Donor07_Plate_01<\/th>\n      <th>SMI_A8_Donor08_Plate_01<\/th>\n      <th>SMI_A9_Donor09_Plate_01<\/th>\n      <th>SMI_A10_Donor10_Plate_01<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"paging":false,"searching":false,"info":false,"dom":"t","columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"SMI_A1_Donor01_Plate_01","targets":1},{"name":"SMI_A2_Donor02_Plate_01","targets":2},{"name":"SMI_A3_Donor03_Plate_01","targets":3},{"name":"SMI_A4_Donor04_Plate_01","targets":4},{"name":"SMI_A5_Donor05_Plate_01","targets":5},{"name":"SMI_A6_Donor06_Plate_01","targets":6},{"name":"SMI_A7_Donor07_Plate_01","targets":7},{"name":"SMI_A8_Donor08_Plate_01","targets":8},{"name":"SMI_A9_Donor09_Plate_01","targets":9},{"name":"SMI_A10_Donor10_Plate_01","targets":10}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="long-format-data-frame-datamergeddata_npq_long" class="section level4 hasAnchor" number="1.2.1.2">
+<h4><span class="header-section-number">1.2.1.2</span> Long-Format Data Frame: <code>data$merged$Data_NPQ_long</code><a href="data-import.html#long-format-data-frame-datamergeddata_npq_long" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>This is a “tidy” format where:</p>
+<ul>
+<li><strong>One row per protein-sample combination</strong></li>
+<li>Easier for plotting with ggplot2</li>
+<li>Note that control samples are included in this data frame as well and can be filtered using the <code>SampleType</code> column</li>
+</ul>
+<pre><code>#&gt; Preview of NPQ long data frame (first 20 rows):</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-5fbad046944500c4ef74" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-5fbad046944500c4ef74">{"x":{"filter":"none","vertical":false,"caption":"<caption>Preview of NPQ long data frame<\/caption>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq"],["Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01"],["SMI_A1_Donor01_Plate_01","SMI_A2_Donor02_Plate_01","SMI_A3_Donor03_Plate_01","SMI_A4_Donor04_Plate_01","SMI_A5_Donor05_Plate_01","SMI_A6_Donor06_Plate_01","SMI_A7_Donor07_Plate_01","SMI_A8_Donor08_Plate_01","SMI_A9_Donor09_Plate_01","SMI_A10_Donor10_Plate_01","SMI_A11_PP01_rep01_Plate_01","SMI_A12_IPC_rep01_Plate_01","SMI_B1_Donor11_Plate_01","SMI_B2_Donor12_Plate_01","SMI_B3_Donor13_Plate_01","SMI_B4_Donor14_Plate_01","SMI_B5_Donor15_Plate_01","SMI_B6_Donor16_Plate_01","SMI_B7_Donor17_Plate_01","SMI_B8_Donor18_Plate_01"],["Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","IPC","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample"],["Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB"],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739],[139,168,130,149,166,236,134,138,175,153,107,231,158,131,158,122,144,170,123,173],[12.4211996971307,12.41834646269759,12.09241969835402,12.46819611944033,12.49165795933231,12.96937946567962,12.24812286236035,12.19256969894404,12.48883539351246,12.32941984782288,11.83794212369566,13.02900707896228,12.60332962344241,12.27475609766634,12.38471798432265,12.16610868933985,12.16871340455638,12.57203617547697,12.3187460390355,12.68161248427872],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],[-0.151021123674292,0.0281356823560347,-0.00271715312472609,-0.11911648698396,-0.0344464896134631,-0.0142869664300114,-0.0772197388026996,-0.0123586642124638,0.0198965728810588,-0.00411955473748795,-0.020773073889035,-0.0742396353755807,-0.149443421859935,-0.114383381540889,-0.0102550617933211,-0.110702077307389,0.0477693049347007,-0.06477342448943819,-0.193443772460338,-0.117889385572793],[0.936893203883495,0.9563106796116509,0.902912621359223,0.961165048543689,0.922330097087379,0.946601941747573,0.927184466019418,0.941747572815534,0.941747572815534,0.91747572815534,0.946601941747573,0.961165048543689,0.961165048543689,0.946601941747573,0.927184466019418,0.936893203883495,0.927184466019418,0.936893203883495,0.91747572815534,0.936893203883495],[4843,5865,5689,5025,5508,5623,5264,5634,5818,5681,5586,5281,4852,5052,5646,5073,5977,5335,4601,5032],[1375151,2527201,1363189,1590171,853532,1491973,1088088,1860179,4295345,1363789,875422,954350,996476,1432409,1165548,1766588,1175527,2116959,863165,2194309],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],["285582","434032","937904","67344","820176","54352","291216","208444","365356","969900","562324","329188","320904","364696","1012328","1001503","135775","573743","962927","211703"],["SMI_A1_Donor01","SMI_A2_Donor02","SMI_A3_Donor03","SMI_A4_Donor04","SMI_A5_Donor05","SMI_A6_Donor06","SMI_A7_Donor07","SMI_A8_Donor08","SMI_A9_Donor09","SMI_A10_Donor10","SMI_A11_PP01_rep01","SMI_A12_IPC_rep01","SMI_B1_Donor11","SMI_B2_Donor12","SMI_B3_Donor13","SMI_B4_Donor14","SMI_B5_Donor15","SMI_B6_Donor16","SMI_B7_Donor17","SMI_B8_Donor18"],["A","A","A","A","A","A","A","A","A","A","A","A","B","B","B","B","B","B","B","B"],[1,2,3,4,5,6,7,8,9,10,11,12,1,2,3,4,5,6,7,8],[1375151,2527201,1363189,1590171,853532,1491973,1088088,1860179,4295345,1363789,875422,954350,996476,1432409,1165548,1766588,1175527,2116959,863165,2194309],[809490,889801,896515,808401,764198,960013,749406,946096,909565,740015,726588,756379,975985,825222,779812,784100,904173,12366037,745774,824358],["PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","CONTROL","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA"],["SMI_A1_Donor01_Plate_01","SMI_A2_Donor02_Plate_01","SMI_A3_Donor03_Plate_01","SMI_A4_Donor04_Plate_01","SMI_A5_Donor05_Plate_01","SMI_A6_Donor06_Plate_01","SMI_A7_Donor07_Plate_01","SMI_A8_Donor08_Plate_01","SMI_A9_Donor09_Plate_01","SMI_A10_Donor10_Plate_01","SMI_A11_PP01_rep01_Plate_01","SMI_A12_IPC_rep01_Plate_01","SMI_B1_Donor11_Plate_01","SMI_B2_Donor12_Plate_01","SMI_B3_Donor13_Plate_01","SMI_B4_Donor14_Plate_01","SMI_B5_Donor15_Plate_01","SMI_B6_Donor16_Plate_01","SMI_B7_Donor17_Plate_01","SMI_B8_Donor18_Plate_01"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Panel<\/th>\n      <th>PlateID<\/th>\n      <th>SampleName<\/th>\n      <th>SampleType<\/th>\n      <th>Target<\/th>\n      <th>AlamarTargetID<\/th>\n      <th>LOD<\/th>\n      <th>UnnormalizedCount<\/th>\n      <th>NPQ<\/th>\n      <th>Sample_QC_Status<\/th>\n      <th>Sample_QC_IC_Median<\/th>\n      <th>Sample_QC_Detectability<\/th>\n      <th>Sample_QC_ICReads<\/th>\n      <th>Sample_QC_NumReads<\/th>\n      <th>Sample_QC_IC_Median_Status<\/th>\n      <th>Sample_QC_Detectability_Status<\/th>\n      <th>Sample_QC_ICReads_Status<\/th>\n      <th>Sample_QC_NumReads_Status<\/th>\n      <th>sampleBarcode<\/th>\n      <th>sampleName_original<\/th>\n      <th>wellRow<\/th>\n      <th>wellCol<\/th>\n      <th>matching<\/th>\n      <th>non-matching<\/th>\n      <th>SAMPLE_MATRIX<\/th>\n      <th>sampleID<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"scrollY":"600px","pageLength":20,"searching":false,"info":false,"dom":"t","columnDefs":[{"className":"dt-right","targets":[7,8,9,11,12,13,14,22,23,24]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Panel","targets":1},{"name":"PlateID","targets":2},{"name":"SampleName","targets":3},{"name":"SampleType","targets":4},{"name":"Target","targets":5},{"name":"AlamarTargetID","targets":6},{"name":"LOD","targets":7},{"name":"UnnormalizedCount","targets":8},{"name":"NPQ","targets":9},{"name":"Sample_QC_Status","targets":10},{"name":"Sample_QC_IC_Median","targets":11},{"name":"Sample_QC_Detectability","targets":12},{"name":"Sample_QC_ICReads","targets":13},{"name":"Sample_QC_NumReads","targets":14},{"name":"Sample_QC_IC_Median_Status","targets":15},{"name":"Sample_QC_Detectability_Status","targets":16},{"name":"Sample_QC_ICReads_Status","targets":17},{"name":"Sample_QC_NumReads_Status","targets":18},{"name":"sampleBarcode","targets":19},{"name":"sampleName_original","targets":20},{"name":"wellRow","targets":21},{"name":"wellCol","targets":22},{"name":"matching","targets":23},{"name":"non-matching","targets":24},{"name":"SAMPLE_MATRIX","targets":25},{"name":"sampleID","targets":26}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="data-import.html#cb20-1" tabindex="-1"></a><span class="co"># Check Long-format dimensions</span></span>
+<span id="cb20-2"><a href="data-import.html#cb20-2" tabindex="-1"></a><span class="co"># Total rows</span></span>
+<span id="cb20-3"><a href="data-import.html#cb20-3" tabindex="-1"></a><span class="fu">nrow</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long)</span></code></pre></div>
+<pre><code>#&gt; [1] 39552</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="data-import.html#cb22-1" tabindex="-1"></a><span class="co"># Total columns</span></span>
+<span id="cb22-2"><a href="data-import.html#cb22-2" tabindex="-1"></a><span class="fu">ncol</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long)</span></code></pre></div>
+<pre><code>#&gt; [1] 26</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="data-import.html#cb24-1" tabindex="-1"></a><span class="co"># Show column information</span></span>
+<span id="cb24-2"><a href="data-import.html#cb24-2" tabindex="-1"></a><span class="fu">str</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long)</span></code></pre></div>
+<pre><code>#&gt; tibble [39,552 × 26] (S3: tbl_df/tbl/data.frame)
+#&gt;  $ Panel                         : Factor w/ 1 level &quot;NULISAseq&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+#&gt;  $ PlateID                       : Factor w/ 2 levels &quot;Plate_01&quot;,&quot;Plate_02&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+#&gt;  $ SampleName                    : chr [1:39552] &quot;SMI_A1_Donor01_Plate_01&quot; &quot;SMI_A2_Donor02_Plate_01&quot; &quot;SMI_A3_Donor03_Plate_01&quot; &quot;SMI_A4_Donor04_Plate_01&quot; ...
+#&gt;  $ SampleType                    : Factor w/ 4 levels &quot;IPC&quot;,&quot;NC&quot;,&quot;Sample&quot;,..: 3 3 3 3 3 3 3 3 3 3 ...
+#&gt;  $ Target                        : Factor w/ 207 levels &quot;Activin AB&quot;,&quot;AGER&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+#&gt;  $ AlamarTargetID                : logi [1:39552] NA NA NA NA NA NA ...
+#&gt;  $ LOD                           : num [1:39552] 12.3 12.3 12.3 12.3 12.3 ...
+#&gt;  $ UnnormalizedCount             : int [1:39552] 139 168 130 149 166 236 134 138 175 153 ...
+#&gt;  $ NPQ                           : num [1:39552] 12.4 12.4 12.1 12.5 12.5 ...
+#&gt;  $ Sample_QC_Status              : chr [1:39552] &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; ...
+#&gt;  $ Sample_QC_IC_Median           : num [1:39552] -0.15102 0.02814 -0.00272 -0.11912 -0.03445 ...
+#&gt;  $ Sample_QC_Detectability       : num [1:39552] 0.937 0.956 0.903 0.961 0.922 ...
+#&gt;  $ Sample_QC_ICReads             : num [1:39552] 4843 5865 5689 5025 5508 ...
+#&gt;  $ Sample_QC_NumReads            : num [1:39552] 1375151 2527201 1363189 1590171 853532 ...
+#&gt;  $ Sample_QC_IC_Median_Status    : chr [1:39552] &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; ...
+#&gt;  $ Sample_QC_Detectability_Status: chr [1:39552] &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; ...
+#&gt;  $ Sample_QC_ICReads_Status      : chr [1:39552] &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; ...
+#&gt;  $ Sample_QC_NumReads_Status     : chr [1:39552] &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; &quot;PASS&quot; ...
+#&gt;  $ sampleBarcode                 : Factor w/ 96 levels &quot;285582&quot;,&quot;434032&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
+#&gt;  $ sampleName_original           : Factor w/ 97 levels &quot;SMI_A1_Donor01&quot;,..: 1 5 6 7 8 9 10 11 12 2 ...
+#&gt;  $ wellRow                       : Factor w/ 8 levels &quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+#&gt;  $ wellCol                       : int [1:39552] 1 2 3 4 5 6 7 8 9 10 ...
+#&gt;  $ matching                      : int [1:39552] 1375151 2527201 1363189 1590171 853532 1491973 1088088 1860179 4295345 1363789 ...
+#&gt;  $ non-matching                  : int [1:39552] 809490 889801 896515 808401 764198 960013 749406 946096 909565 740015 ...
+#&gt;  $ SAMPLE_MATRIX                 : Factor w/ 2 levels &quot;PLASMA&quot;,&quot;CONTROL&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+#&gt;  $ sampleID                      : Factor w/ 192 levels &quot;SMI_A1_Donor01_Plate_01&quot;,..: 1 9 11 13 15 17 19 21 23 3 ...</code></pre>
+</div>
+<div id="samples-metadata-data-frame-datamergedsamples" class="section level4 hasAnchor" number="1.2.1.3">
+<h4><span class="header-section-number">1.2.1.3</span> Samples Metadata Data Frame: <code>data$merged$samples</code><a href="data-import.html#samples-metadata-data-frame-datamergedsamples" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>This is a “tidy” format where:</p>
+<ul>
+<li><strong>One row per sample</strong></li>
+<li><code>sampleName</code> column corresponds to column names of wide data <code>data$merged$Data_NPQ</code> and <code>SampleName</code> column of long data <code>data$merged$Data_NPQ_long</code></li>
+<li>Control samples are included and can be identified using the <code>sampleType</code> column</li>
+</ul>
+<pre><code>#&gt; Preview of sample data frame (first 20 samples):</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-d737fc1332cbea92dbdf" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d737fc1332cbea92dbdf">{"x":{"filter":"none","vertical":false,"caption":"<caption>Preview of samples data frame<\/caption>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01"],["Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1","Plate_1"],["Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","IPC","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample"],["285582","434032","937904","67344","820176","54352","291216","208444","365356","969900","562324","329188","320904","364696","1012328","1001503","135775","573743","962927","211703"],["SMI_A1_Donor01_Plate_01","SMI_A2_Donor02_Plate_01","SMI_A3_Donor03_Plate_01","SMI_A4_Donor04_Plate_01","SMI_A5_Donor05_Plate_01","SMI_A6_Donor06_Plate_01","SMI_A7_Donor07_Plate_01","SMI_A8_Donor08_Plate_01","SMI_A9_Donor09_Plate_01","SMI_A10_Donor10_Plate_01","SMI_A11_PP01_rep01_Plate_01","SMI_A12_IPC_rep01_Plate_01","SMI_B1_Donor11_Plate_01","SMI_B2_Donor12_Plate_01","SMI_B3_Donor13_Plate_01","SMI_B4_Donor14_Plate_01","SMI_B5_Donor15_Plate_01","SMI_B6_Donor16_Plate_01","SMI_B7_Donor17_Plate_01","SMI_B8_Donor18_Plate_01"],["SMI_A1_Donor01","SMI_A2_Donor02","SMI_A3_Donor03","SMI_A4_Donor04","SMI_A5_Donor05","SMI_A6_Donor06","SMI_A7_Donor07","SMI_A8_Donor08","SMI_A9_Donor09","SMI_A10_Donor10","SMI_A11_PP01_rep01","SMI_A12_IPC_rep01","SMI_B1_Donor11","SMI_B2_Donor12","SMI_B3_Donor13","SMI_B4_Donor14","SMI_B5_Donor15","SMI_B6_Donor16","SMI_B7_Donor17","SMI_B8_Donor18"],["A","A","A","A","A","A","A","A","A","A","A","A","B","B","B","B","B","B","B","B"],[1,2,3,4,5,6,7,8,9,10,11,12,1,2,3,4,5,6,7,8],[1375151,2527201,1363189,1590171,853532,1491973,1088088,1860179,4295345,1363789,875422,954350,996476,1432409,1165548,1766588,1175527,2116959,863165,2194309],[809490,889801,896515,808401,764198,960013,749406,946096,909565,740015,726588,756379,975985,825222,779812,784100,904173,12366037,745774,824358],["PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","CONTROL","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA"],["SMI_A1_Donor01_Plate_01","SMI_A2_Donor02_Plate_01","SMI_A3_Donor03_Plate_01","SMI_A4_Donor04_Plate_01","SMI_A5_Donor05_Plate_01","SMI_A6_Donor06_Plate_01","SMI_A7_Donor07_Plate_01","SMI_A8_Donor08_Plate_01","SMI_A9_Donor09_Plate_01","SMI_A10_Donor10_Plate_01","SMI_A11_PP01_rep01_Plate_01","SMI_A12_IPC_rep01_Plate_01","SMI_B1_Donor11_Plate_01","SMI_B2_Donor12_Plate_01","SMI_B3_Donor13_Plate_01","SMI_B4_Donor14_Plate_01","SMI_B5_Donor15_Plate_01","SMI_B6_Donor16_Plate_01","SMI_B7_Donor17_Plate_01","SMI_B8_Donor18_Plate_01"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>plateID<\/th>\n      <th>plateGUID<\/th>\n      <th>sampleType<\/th>\n      <th>sampleBarcode<\/th>\n      <th>sampleName<\/th>\n      <th>sampleName_original<\/th>\n      <th>wellRow<\/th>\n      <th>wellCol<\/th>\n      <th>matching<\/th>\n      <th>non-matching<\/th>\n      <th>SAMPLE_MATRIX<\/th>\n      <th>sampleID<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"scrollY":"500px","pageLength":20,"searching":false,"info":false,"dom":"t","columnDefs":[{"className":"dt-right","targets":[8,9,10]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"plateID","targets":1},{"name":"plateGUID","targets":2},{"name":"sampleType","targets":3},{"name":"sampleBarcode","targets":4},{"name":"sampleName","targets":5},{"name":"sampleName_original","targets":6},{"name":"wellRow","targets":7},{"name":"wellCol","targets":8},{"name":"matching","targets":9},{"name":"non-matching","targets":10},{"name":"SAMPLE_MATRIX","targets":11},{"name":"sampleID","targets":12}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="data-import.html#cb27-1" tabindex="-1"></a><span class="co"># Show column information</span></span>
+<span id="cb27-2"><a href="data-import.html#cb27-2" tabindex="-1"></a><span class="fu">str</span>(data<span class="sc">$</span>merged<span class="sc">$</span>samples)</span></code></pre></div>
+<pre><code>#&gt; tibble [192 × 12] (S3: tbl_df/tbl/data.frame)
+#&gt;  $ plateID            : Factor w/ 2 levels &quot;Plate_01&quot;,&quot;Plate_02&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+#&gt;  $ plateGUID          : Factor w/ 1 level &quot;Plate_1&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+#&gt;  $ sampleType         : Factor w/ 4 levels &quot;IPC&quot;,&quot;NC&quot;,&quot;Sample&quot;,..: 3 3 3 3 3 3 3 3 3 3 ...
+#&gt;  $ sampleBarcode      : Factor w/ 96 levels &quot;285582&quot;,&quot;434032&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
+#&gt;  $ sampleName         : chr [1:192] &quot;SMI_A1_Donor01_Plate_01&quot; &quot;SMI_A2_Donor02_Plate_01&quot; &quot;SMI_A3_Donor03_Plate_01&quot; &quot;SMI_A4_Donor04_Plate_01&quot; ...
+#&gt;  $ sampleName_original: chr [1:192] &quot;SMI_A1_Donor01&quot; &quot;SMI_A2_Donor02&quot; &quot;SMI_A3_Donor03&quot; &quot;SMI_A4_Donor04&quot; ...
+#&gt;  $ wellRow            : Factor w/ 8 levels &quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+#&gt;  $ wellCol            : num [1:192] 1 2 3 4 5 6 7 8 9 10 ...
+#&gt;  $ matching           : num [1:192] 1375151 2527201 1363189 1590171 853532 ...
+#&gt;  $ non-matching       : num [1:192] 809490 889801 896515 808401 764198 ...
+#&gt;  $ SAMPLE_MATRIX      : Factor w/ 2 levels &quot;PLASMA&quot;,&quot;CONTROL&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+#&gt;  $ sampleID           : chr [1:192] &quot;SMI_A1_Donor01_Plate_01&quot; &quot;SMI_A2_Donor02_Plate_01&quot; &quot;SMI_A3_Donor03_Plate_01&quot; &quot;SMI_A4_Donor04_Plate_01&quot; ...</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="data-import.html#cb29-1" tabindex="-1"></a><span class="co"># Tabulate sample type to see control sample numbers</span></span>
+<span id="cb29-2"><a href="data-import.html#cb29-2" tabindex="-1"></a><span class="co"># Typically each run will have 3 IPC, 3 SC, and 4 NC</span></span>
+<span id="cb29-3"><a href="data-import.html#cb29-3" tabindex="-1"></a><span class="co"># These runs are missing some IPC and SC </span></span>
+<span id="cb29-4"><a href="data-import.html#cb29-4" tabindex="-1"></a><span class="fu">table</span>(data<span class="sc">$</span>merged<span class="sc">$</span>samples<span class="sc">$</span>sampleType)</span></code></pre></div>
+<pre><code>#&gt; 
+#&gt;    IPC     NC Sample     SC 
+#&gt;      4      8    176      4</code></pre>
+</div>
+<div id="targets-metadata-data-frame-datamergedtargets" class="section level4 hasAnchor" number="1.2.1.4">
+<h4><span class="header-section-number">1.2.1.4</span> Targets Metadata Data Frame: <code>data$merged$targets</code><a href="data-import.html#targets-metadata-data-frame-datamergedtargets" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>This is a data frame where:</p>
+<ul>
+<li><strong>One row per target</strong></li>
+<li><code>targetName</code> column corresponds to row names of wide data <code>data$merged$Data_NPQ</code> and <code>Target</code> column of long data <code>data$merged$Data_NPQ_long</code></li>
+<li>Targets data frame also includes a row for the internal control spike-in target(s) (internal controls are removed from <code>Data_NPQ</code> matrices)</li>
+</ul>
+<pre><code>#&gt; Preview of targets data frame (first 20 targets):</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-2e47ca81188edb4a16c1" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-2e47ca81188edb4a16c1">{"x":{"filter":"none","vertical":false,"caption":"<caption>Preview of NPQ targets data frame<\/caption>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["7189027_7569675","1625168_1625168","1902917_1902917","14763184_14763184","2651532_2651532","16347233_16347233","9990064_9990064","908042_908042","10671319_10671319","11605520_11605520","7285840_7285840","1315649_1315649","3577700_3577700","13376624_13376624","8676556_8676556","3688275_3688275","8160740_8160740","3449296_3449296","15487237_15487237","7816728_7816728"],["Activin AB","AGER","AGRP","ANGPT1","ANXA1","BDNF","BMP10","BMP7","C1QA","CCL1","CCL13","CCL14","CCL15","CCL16","CCL17","CCL19","CCL2","CCL20","CCL22","CCL23"],["F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F","F"],["target","target","target","target","target","target","target","target","target","target","target","target","target","target","target","target","target","target","target","target"],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[64.77272727272727,100,100,100,78.40909090909091,100,75,100,100,100,100,100,100,100,100,100,100,100,100,100],[5037.158874496295,0,72.77328986674073,260.2845436838991,1745.605611164003,16.78272781617258,235.9527538891942,160.8720970820672,25.1449350480129,147.6957124274421,9.982771130918323,16.50059657481346,33.01027598313517,137.2780791183712,41.23192579148252,0,32.12625392801181,39.69022462430189,85.36555237606102,0],[12.298680901739,0,6.205026667923591,8.029477974171966,10.77033816478164,4.15240474104658,7.888455617992321,7.338710510370931,4.708459580982383,7.216219238316057,3.45717021047128,4.129332197565254,5.087898808015887,7.111428657515384,5.400262130955638,0,5.04990316081615,5.34661033950326,6.432384091002668,0],[12.298680901739,0,6.205026667923591,8.029477974171966,10.77033816478164,4.15240474104658,7.888455617992321,7.338710510370931,4.708459580982383,7.216219238316057,3.45717021047128,4.129332197565254,5.087898808015887,7.111428657515384,5.400262130955638,0,5.04990316081615,5.34661033950326,6.432384091002668,0],["Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>targetBarcode<\/th>\n      <th>targetName<\/th>\n      <th>Curve_Quant<\/th>\n      <th>targetType<\/th>\n      <th>modifiers<\/th>\n      <th>hide<\/th>\n      <th>noDetectability<\/th>\n      <th>AlamarTargetID<\/th>\n      <th>targetDetectability<\/th>\n      <th>targetLOD<\/th>\n      <th>logged_LOD<\/th>\n      <th>rev_logged_LOD<\/th>\n      <th>plateID<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"scrollY":"500px","pageLength":20,"searching":false,"info":false,"dom":"t","columnDefs":[{"className":"dt-right","targets":[9,10,11,12]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"targetBarcode","targets":1},{"name":"targetName","targets":2},{"name":"Curve_Quant","targets":3},{"name":"targetType","targets":4},{"name":"modifiers","targets":5},{"name":"hide","targets":6},{"name":"noDetectability","targets":7},{"name":"AlamarTargetID","targets":8},{"name":"targetDetectability","targets":9},{"name":"targetLOD","targets":10},{"name":"logged_LOD","targets":11},{"name":"rev_logged_LOD","targets":12},{"name":"plateID","targets":13}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="data-import.html#cb32-1" tabindex="-1"></a><span class="co"># Show column information</span></span>
+<span id="cb32-2"><a href="data-import.html#cb32-2" tabindex="-1"></a><span class="fu">str</span>(data<span class="sc">$</span>merged<span class="sc">$</span>targets)</span></code></pre></div>
+<pre><code>#&gt; &#39;data.frame&#39;:    414 obs. of  13 variables:
+#&gt;  $ targetBarcode      : chr  &quot;7189027_7569675&quot; &quot;1625168_1625168&quot; &quot;1902917_1902917&quot; &quot;14763184_14763184&quot; ...
+#&gt;  $ targetName         : chr  &quot;Activin AB&quot; &quot;AGER&quot; &quot;AGRP&quot; &quot;ANGPT1&quot; ...
+#&gt;  $ Curve_Quant        : chr  &quot;F&quot; &quot;F&quot; &quot;F&quot; &quot;F&quot; ...
+#&gt;  $ targetType         : chr  &quot;target&quot; &quot;target&quot; &quot;target&quot; &quot;target&quot; ...
+#&gt;  $ modifiers          : logi  NA NA NA NA NA NA ...
+#&gt;  $ hide               : logi  FALSE FALSE FALSE FALSE FALSE FALSE ...
+#&gt;  $ noDetectability    : logi  FALSE FALSE FALSE FALSE FALSE FALSE ...
+#&gt;  $ AlamarTargetID     : logi  NA NA NA NA NA NA ...
+#&gt;  $ targetDetectability: num  64.8 100 100 100 78.4 ...
+#&gt;  $ targetLOD          : num  5037.2 0 72.8 260.3 1745.6 ...
+#&gt;  $ logged_LOD         : num  12.3 0 6.21 8.03 10.77 ...
+#&gt;  $ rev_logged_LOD     : num  12.3 0 6.21 8.03 10.77 ...
+#&gt;  $ plateID            : Factor w/ 2 levels &quot;Plate_01&quot;,&quot;Plate_02&quot;: 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="data-import.html#cb34-1" tabindex="-1"></a><span class="co"># Show internal control target rows using targetType</span></span>
+<span id="cb34-2"><a href="data-import.html#cb34-2" tabindex="-1"></a>data<span class="sc">$</span>merged<span class="sc">$</span>targets[data<span class="sc">$</span>merged<span class="sc">$</span>targets<span class="sc">$</span>targetType<span class="sc">==</span><span class="st">&#39;control&#39;</span>,]</span></code></pre></div>
+<pre><code>#&gt;         targetBarcode targetName Curve_Quant targetType modifiers  hide
+#&gt; 143 12867621_12867621    mCherry           F    control        NA FALSE
+#&gt; 350 12867621_12867621    mCherry           F    control        NA FALSE
+#&gt;     noDetectability AlamarTargetID targetDetectability targetLOD logged_LOD
+#&gt; 143           FALSE             NA                  NA        NA         NA
+#&gt; 350           FALSE             NA                  NA        NA         NA
+#&gt;     rev_logged_LOD  plateID
+#&gt; 143             NA Plate_01
+#&gt; 350             NA Plate_02</code></pre>
+</div>
+<div id="need-more-details" class="section level4 hasAnchor" number="1.2.1.5">
+<h4><span class="header-section-number">1.2.1.5</span> Need More Details?<a href="data-import.html#need-more-details" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>For complete function documentation and additional options of <code>importNULISAseq()</code>, use:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="data-import.html#cb36-1" tabindex="-1"></a>?importNULISAseq</span></code></pre></div>
+<p>This will show:</p>
+<ul>
+<li>All available parameters</li>
+<li>Detailed descriptions</li>
+<li>Return value structure</li>
+<li>Usage examples</li>
+</ul>
+</div>
+</div>
+<div id="summary-statistics" class="section level3 hasAnchor" number="1.2.2">
+<h3><span class="header-section-number">1.2.2</span> Summary Statistics<a href="data-import.html#summary-statistics" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Get a quick overview of your data:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="data-import.html#cb37-1" tabindex="-1"></a><span class="co"># NPQ value distribution</span></span>
+<span id="cb37-2"><a href="data-import.html#cb37-2" tabindex="-1"></a><span class="fu">summary</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long<span class="sc">$</span>NPQ)</span></code></pre></div>
+<pre><code>#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#&gt;    0.00   12.83   13.42   13.24   14.10   29.11</code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="data-import.html#cb39-1" tabindex="-1"></a><span class="co"># Count missing values</span></span>
+<span id="cb39-2"><a href="data-import.html#cb39-2" tabindex="-1"></a>n_missing <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long<span class="sc">$</span>NPQ))</span>
+<span id="cb39-3"><a href="data-import.html#cb39-3" tabindex="-1"></a>n_total <span class="ot">&lt;-</span> <span class="fu">nrow</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long)</span></code></pre></div>
+<pre><code>#&gt; 
+#&gt; Missing values: 0 out of 39552 ( 0 %)</code></pre>
+<pre><code>#&gt; 
+#&gt; Data summary:</code></pre>
+<pre><code>#&gt;   Unique proteins: 206</code></pre>
+<pre><code>#&gt;   Unique samples: 192</code></pre>
+<pre><code>#&gt;   Unique plates: 2</code></pre>
+</div>
+</div>
+<div id="working-with-your-own-data" class="section level2 hasAnchor" number="1.3">
+<h2><span class="header-section-number">1.3</span> Working with Your Own Data<a href="data-import.html#working-with-your-own-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>When working with your own XML files:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="data-import.html#cb45-1" tabindex="-1"></a><span class="co"># Option 1: Specify full paths</span></span>
+<span id="cb45-2"><a href="data-import.html#cb45-2" tabindex="-1"></a>my_xml_files <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb45-3"><a href="data-import.html#cb45-3" tabindex="-1"></a>  <span class="st">&quot;/path/to/plate01.xml&quot;</span>,</span>
+<span id="cb45-4"><a href="data-import.html#cb45-4" tabindex="-1"></a>  <span class="st">&quot;/path/to/plate02.xml&quot;</span></span>
+<span id="cb45-5"><a href="data-import.html#cb45-5" tabindex="-1"></a>)</span>
+<span id="cb45-6"><a href="data-import.html#cb45-6" tabindex="-1"></a>my_data <span class="ot">&lt;-</span> <span class="fu">importNULISAseq</span>(<span class="at">files =</span> my_xml_files)</span>
+<span id="cb45-7"><a href="data-import.html#cb45-7" tabindex="-1"></a></span>
+<span id="cb45-8"><a href="data-import.html#cb45-8" tabindex="-1"></a><span class="co"># Option 2: Import all XML files in a directory</span></span>
+<span id="cb45-9"><a href="data-import.html#cb45-9" tabindex="-1"></a>data_dir <span class="ot">&lt;-</span> <span class="st">&quot;/path/to/my/data/&quot;</span></span>
+<span id="cb45-10"><a href="data-import.html#cb45-10" tabindex="-1"></a>xml_files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(data_dir, <span class="at">pattern =</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">.xml$&quot;</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb45-11"><a href="data-import.html#cb45-11" tabindex="-1"></a>my_data <span class="ot">&lt;-</span> <span class="fu">importNULISAseq</span>(<span class="at">files =</span> xml_files)</span></code></pre></div>
+</div>
+<div id="loading-metadata" class="section level2 hasAnchor" number="1.4">
+<h2><span class="header-section-number">1.4</span> Loading Metadata<a href="data-import.html#loading-metadata" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Metadata provides critical information about your samples (disease status, demographics, experimental conditions, etc.).</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="data-import.html#cb46-1" tabindex="-1"></a><span class="co"># Read metadata from CSV</span></span>
+<span id="cb46-2"><a href="data-import.html#cb46-2" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb46-3"><a href="data-import.html#cb46-3" tabindex="-1"></a>  <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;Alamar_NULISAseq_Detectability_metadata.csv&quot;</span>, </span>
+<span id="cb46-4"><a href="data-import.html#cb46-4" tabindex="-1"></a>              <span class="at">package =</span> <span class="st">&quot;NULISAseqR&quot;</span>)</span>
+<span id="cb46-5"><a href="data-import.html#cb46-5" tabindex="-1"></a>)</span>
+<span id="cb46-6"><a href="data-import.html#cb46-6" tabindex="-1"></a></span>
+<span id="cb46-7"><a href="data-import.html#cb46-7" tabindex="-1"></a><span class="co"># Prepare metadata with proper factor levels</span></span>
+<span id="cb46-8"><a href="data-import.html#cb46-8" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span> </span>
+<span id="cb46-9"><a href="data-import.html#cb46-9" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb46-10"><a href="data-import.html#cb46-10" tabindex="-1"></a>    <span class="co"># Set factor levels in meaningful order (reference group first)</span></span>
+<span id="cb46-11"><a href="data-import.html#cb46-11" tabindex="-1"></a>    <span class="at">disease_type =</span> <span class="fu">factor</span>(</span>
+<span id="cb46-12"><a href="data-import.html#cb46-12" tabindex="-1"></a>      disease_type, </span>
+<span id="cb46-13"><a href="data-import.html#cb46-13" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;normal&quot;</span>, <span class="st">&quot;inflam&quot;</span>, <span class="st">&quot;cancer&quot;</span>, <span class="st">&quot;kidney&quot;</span>, <span class="st">&quot;metab&quot;</span>, <span class="st">&quot;neuro&quot;</span>)</span>
+<span id="cb46-14"><a href="data-import.html#cb46-14" tabindex="-1"></a>    ),</span>
+<span id="cb46-15"><a href="data-import.html#cb46-15" tabindex="-1"></a>    <span class="co"># Ensure numeric variables are properly typed</span></span>
+<span id="cb46-16"><a href="data-import.html#cb46-16" tabindex="-1"></a>    <span class="at">age =</span> <span class="fu">as.numeric</span>(age)</span>
+<span id="cb46-17"><a href="data-import.html#cb46-17" tabindex="-1"></a>  )</span></code></pre></div>
+<div id="metadata-structure" class="section level3 hasAnchor" number="1.4.1">
+<h3><span class="header-section-number">1.4.1</span> Metadata Structure<a href="data-import.html#metadata-structure" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Your metadata should contain:</p>
+<ul>
+<li><strong>Sample identifiers</strong>: Must match <code>SampleName</code> column in the XML data <code>data$merged$Data_NPQ_long</code> or <code>data$merged$samples</code></li>
+<li><strong>Experimental variables</strong>: Disease type, treatment, etc.</li>
+<li><strong>Covariates</strong>: Age, sex, batch, etc.</li>
+<li><strong>Optional</strong>: Sample matrix type, collection date, etc.</li>
+</ul>
+<pre><code>#&gt; Preview of metadata (first 20 rows):</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-70c59fb6e83fa41e8672" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-70c59fb6e83fa41e8672">{"x":{"filter":"none","vertical":false,"caption":"<caption>Preview of metadata<\/caption>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01"],["SMI_A1_Donor01","SMI_A2_Donor02","SMI_A3_Donor03","SMI_A5_Donor05","SMI_A6_Donor06","SMI_A7_Donor07","SMI_A8_Donor08","SMI_A9_Donor09","SMI_B1_Donor11","SMI_B10_Donor20","SMI_B2_Donor12","SMI_B3_Donor13","SMI_B4_Donor14","SMI_B5_Donor15","SMI_B6_Donor16","SMI_B7_Donor17","SMI_B8_Donor18","SMI_B9_Donor19","SMI_C1_Donor21","SMI_C10_Donor30"],["Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma"],["Male","Male","Male","Female","Male","Female","Female","Male","Male","Female","Male","Male","Female","Female","Female","Female","Female","Female","Female","Female"],[38,54,52,46,70,37,80,52,60,57,76,51,61,37,48,54,82,57,50,52],["normal","cancer","normal","normal","cancer","normal","inflam","normal","normal","metab","cancer","normal","cancer","normal","inflam","normal","inflam","normal","normal","metab"],["SMI_A1_Donor01_Plate_01","SMI_A2_Donor02_Plate_01","SMI_A3_Donor03_Plate_01","SMI_A5_Donor05_Plate_01","SMI_A6_Donor06_Plate_01","SMI_A7_Donor07_Plate_01","SMI_A8_Donor08_Plate_01","SMI_A9_Donor09_Plate_01","SMI_B1_Donor11_Plate_01","SMI_B10_Donor20_Plate_01","SMI_B2_Donor12_Plate_01","SMI_B3_Donor13_Plate_01","SMI_B4_Donor14_Plate_01","SMI_B5_Donor15_Plate_01","SMI_B6_Donor16_Plate_01","SMI_B7_Donor17_Plate_01","SMI_B8_Donor18_Plate_01","SMI_B9_Donor19_Plate_01","SMI_C1_Donor21_Plate_01","SMI_C10_Donor30_Plate_01"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>PlateID<\/th>\n      <th>SampleID<\/th>\n      <th>SampleMatrix<\/th>\n      <th>sex<\/th>\n      <th>age<\/th>\n      <th>disease_type<\/th>\n      <th>SampleName<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"scrollY":"500px","pageLength":20,"searching":false,"info":false,"dom":"t","columnDefs":[{"className":"dt-right","targets":5},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"PlateID","targets":1},{"name":"SampleID","targets":2},{"name":"SampleMatrix","targets":3},{"name":"sex","targets":4},{"name":"age","targets":5},{"name":"disease_type","targets":6},{"name":"SampleName","targets":7}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="data-import.html#cb48-1" tabindex="-1"></a><span class="co"># Check variable types</span></span>
+<span id="cb48-2"><a href="data-import.html#cb48-2" tabindex="-1"></a><span class="fu">str</span>(metadata)</span></code></pre></div>
+<pre><code>#&gt; tibble [167 × 7] (S3: tbl_df/tbl/data.frame)
+#&gt;  $ PlateID     : chr [1:167] &quot;Plate_01&quot; &quot;Plate_01&quot; &quot;Plate_01&quot; &quot;Plate_01&quot; ...
+#&gt;  $ SampleID    : chr [1:167] &quot;SMI_A1_Donor01&quot; &quot;SMI_A2_Donor02&quot; &quot;SMI_A3_Donor03&quot; &quot;SMI_A5_Donor05&quot; ...
+#&gt;  $ SampleMatrix: chr [1:167] &quot;Plasma&quot; &quot;Plasma&quot; &quot;Plasma&quot; &quot;Plasma&quot; ...
+#&gt;  $ sex         : chr [1:167] &quot;Male&quot; &quot;Male&quot; &quot;Male&quot; &quot;Female&quot; ...
+#&gt;  $ age         : num [1:167] 38 54 52 46 70 37 80 52 60 57 ...
+#&gt;  $ disease_type: Factor w/ 6 levels &quot;normal&quot;,&quot;inflam&quot;,..: 1 3 1 1 3 1 2 1 1 5 ...
+#&gt;  $ SampleName  : chr [1:167] &quot;SMI_A1_Donor01_Plate_01&quot; &quot;SMI_A2_Donor02_Plate_01&quot; &quot;SMI_A3_Donor03_Plate_01&quot; &quot;SMI_A5_Donor05_Plate_01&quot; ...</code></pre>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="data-import.html#cb50-1" tabindex="-1"></a><span class="co"># Summary of key variables</span></span>
+<span id="cb50-2"><a href="data-import.html#cb50-2" tabindex="-1"></a><span class="fu">table</span>(metadata<span class="sc">$</span>disease_type, <span class="at">useNA=</span><span class="st">&#39;always&#39;</span>)</span></code></pre></div>
+<p><strong>Example output:</strong></p>
+<pre><code>disease_type
+normal inflam cancer kidney  metab  neuro 
+    79     21     32      4      9      6 </code></pre>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="data-import.html#cb52-1" tabindex="-1"></a><span class="co"># Cross-tabulation of disease type by sex</span></span>
+<span id="cb52-2"><a href="data-import.html#cb52-2" tabindex="-1"></a><span class="fu">table</span>(metadata<span class="sc">$</span>disease_type, metadata<span class="sc">$</span>sex, <span class="at">useNA=</span><span class="st">&#39;always&#39;</span>)</span></code></pre></div>
+<p><strong>Example output:</strong></p>
+<pre><code>              F  M
+  normal     34 45
+  inflam     18  3
+  cancer     11 21
+  kidney      2  2
+  metab       8  1
+  neuro       3  3</code></pre>
+</div>
+</div>
+<div id="merging-data-with-metadata" class="section level2 hasAnchor" number="1.5">
+<h2><span class="header-section-number">1.5</span> Merging Data with Metadata<a href="data-import.html#merging-data-with-metadata" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Combining expression data with metadata enables integrated analysis:</p>
+<div id="understanding-sample-names" class="section level3 hasAnchor" number="1.5.1">
+<h3><span class="header-section-number">1.5.1</span> Understanding Sample Names<a href="data-import.html#understanding-sample-names" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>When importing multi-plate data, NULISAseqR processes sample names to ensure uniqueness:</p>
+<ul>
+<li><strong><code>sampleName_original</code></strong>: The original sample name as it appears in the XML file, preserved exactly as input by the user</li>
+<li><strong><code>SampleName</code></strong>: The processed sample name used throughout the analysis, which may be modified to:
+<ul>
+<li>Rename control samples for consistency across plates (e.g., IPC_1, IPC_2, etc.)</li>
+<li>Resolve duplicate sample names when combining multiple plates (e.g., Sample_A becomes Sample_A_P1, Sample_A_P2)</li>
+</ul></li>
+</ul>
+</div>
+<div id="merging-options" class="section level3 hasAnchor" number="1.5.2">
+<h3><span class="header-section-number">1.5.2</span> Merging Options<a href="data-import.html#merging-options" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Option 1: Merge using processed <code>SampleName</code></strong> (recommended for most cases)</p>
+<p>Use this when your metadata uses the standardized sample names:</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="data-import.html#cb54-1" tabindex="-1"></a><span class="co"># Merge using processed SampleName</span></span>
+<span id="cb54-2"><a href="data-import.html#cb54-2" tabindex="-1"></a>data_long <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long <span class="sc">%&gt;%</span></span>
+<span id="cb54-3"><a href="data-import.html#cb54-3" tabindex="-1"></a>  <span class="fu">left_join</span>(metadata, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;SampleName&quot;</span>, <span class="st">&quot;PlateID&quot;</span>))</span></code></pre></div>
+<p><strong>Option 2: Merge using original sample names</strong></p>
+<p>Use this when your metadata contains the original sample names as they appeared in the XML files:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="data-import.html#cb55-1" tabindex="-1"></a><span class="co"># Merge using original sample names from XML</span></span>
+<span id="cb55-2"><a href="data-import.html#cb55-2" tabindex="-1"></a>data_long <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long <span class="sc">%&gt;%</span></span>
+<span id="cb55-3"><a href="data-import.html#cb55-3" tabindex="-1"></a>  <span class="fu">left_join</span>(metadata, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;sampleName_original&quot;</span> <span class="ot">=</span> <span class="st">&quot;YourOriginalNameColumn&quot;</span>, <span class="st">&quot;PlateID&quot;</span>))</span></code></pre></div>
+<pre><code>#&gt; First 20 rows of merged data:</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-3ee4ea900f4cd04b3cb2" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-3ee4ea900f4cd04b3cb2">{"x":{"filter":"none","vertical":false,"caption":"<caption>Preview of NPQ data merged with sample metadata<\/caption>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq","NULISAseq"],["Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01","Plate_01"],["SMI_A1_Donor01_Plate_01","SMI_A2_Donor02_Plate_01","SMI_A3_Donor03_Plate_01","SMI_A4_Donor04_Plate_01","SMI_A5_Donor05_Plate_01","SMI_A6_Donor06_Plate_01","SMI_A7_Donor07_Plate_01","SMI_A8_Donor08_Plate_01","SMI_A9_Donor09_Plate_01","SMI_A10_Donor10_Plate_01","SMI_A11_PP01_rep01_Plate_01","SMI_A12_IPC_rep01_Plate_01","SMI_B1_Donor11_Plate_01","SMI_B2_Donor12_Plate_01","SMI_B3_Donor13_Plate_01","SMI_B4_Donor14_Plate_01","SMI_B5_Donor15_Plate_01","SMI_B6_Donor16_Plate_01","SMI_B7_Donor17_Plate_01","SMI_B8_Donor18_Plate_01"],["Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample","IPC","Sample","Sample","Sample","Sample","Sample","Sample","Sample","Sample"],["Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB","Activin AB"],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739,12.298680901739],[139,168,130,149,166,236,134,138,175,153,107,231,158,131,158,122,144,170,123,173],[12.4211996971307,12.41834646269759,12.09241969835402,12.46819611944033,12.49165795933231,12.96937946567962,12.24812286236035,12.19256969894404,12.48883539351246,12.32941984782288,11.83794212369566,13.02900707896228,12.60332962344241,12.27475609766634,12.38471798432265,12.16610868933985,12.16871340455638,12.57203617547697,12.3187460390355,12.68161248427872],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],[-0.151021123674292,0.0281356823560347,-0.00271715312472609,-0.11911648698396,-0.0344464896134631,-0.0142869664300114,-0.0772197388026996,-0.0123586642124638,0.0198965728810588,-0.00411955473748795,-0.020773073889035,-0.0742396353755807,-0.149443421859935,-0.114383381540889,-0.0102550617933211,-0.110702077307389,0.0477693049347007,-0.06477342448943819,-0.193443772460338,-0.117889385572793],[0.936893203883495,0.9563106796116509,0.902912621359223,0.961165048543689,0.922330097087379,0.946601941747573,0.927184466019418,0.941747572815534,0.941747572815534,0.91747572815534,0.946601941747573,0.961165048543689,0.961165048543689,0.946601941747573,0.927184466019418,0.936893203883495,0.927184466019418,0.936893203883495,0.91747572815534,0.936893203883495],[4843,5865,5689,5025,5508,5623,5264,5634,5818,5681,5586,5281,4852,5052,5646,5073,5977,5335,4601,5032],[1375151,2527201,1363189,1590171,853532,1491973,1088088,1860179,4295345,1363789,875422,954350,996476,1432409,1165548,1766588,1175527,2116959,863165,2194309],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],["PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS","PASS"],["285582","434032","937904","67344","820176","54352","291216","208444","365356","969900","562324","329188","320904","364696","1012328","1001503","135775","573743","962927","211703"],["SMI_A1_Donor01","SMI_A2_Donor02","SMI_A3_Donor03","SMI_A4_Donor04","SMI_A5_Donor05","SMI_A6_Donor06","SMI_A7_Donor07","SMI_A8_Donor08","SMI_A9_Donor09","SMI_A10_Donor10","SMI_A11_PP01_rep01","SMI_A12_IPC_rep01","SMI_B1_Donor11","SMI_B2_Donor12","SMI_B3_Donor13","SMI_B4_Donor14","SMI_B5_Donor15","SMI_B6_Donor16","SMI_B7_Donor17","SMI_B8_Donor18"],["A","A","A","A","A","A","A","A","A","A","A","A","B","B","B","B","B","B","B","B"],[1,2,3,4,5,6,7,8,9,10,11,12,1,2,3,4,5,6,7,8],[1375151,2527201,1363189,1590171,853532,1491973,1088088,1860179,4295345,1363789,875422,954350,996476,1432409,1165548,1766588,1175527,2116959,863165,2194309],[809490,889801,896515,808401,764198,960013,749406,946096,909565,740015,726588,756379,975985,825222,779812,784100,904173,12366037,745774,824358],["PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","CONTROL","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA","PLASMA"],["SMI_A1_Donor01_Plate_01","SMI_A2_Donor02_Plate_01","SMI_A3_Donor03_Plate_01","SMI_A4_Donor04_Plate_01","SMI_A5_Donor05_Plate_01","SMI_A6_Donor06_Plate_01","SMI_A7_Donor07_Plate_01","SMI_A8_Donor08_Plate_01","SMI_A9_Donor09_Plate_01","SMI_A10_Donor10_Plate_01","SMI_A11_PP01_rep01_Plate_01","SMI_A12_IPC_rep01_Plate_01","SMI_B1_Donor11_Plate_01","SMI_B2_Donor12_Plate_01","SMI_B3_Donor13_Plate_01","SMI_B4_Donor14_Plate_01","SMI_B5_Donor15_Plate_01","SMI_B6_Donor16_Plate_01","SMI_B7_Donor17_Plate_01","SMI_B8_Donor18_Plate_01"],["SMI_A1_Donor01","SMI_A2_Donor02","SMI_A3_Donor03",null,"SMI_A5_Donor05","SMI_A6_Donor06","SMI_A7_Donor07","SMI_A8_Donor08","SMI_A9_Donor09",null,"SMI_A11_PP01_rep01",null,"SMI_B1_Donor11","SMI_B2_Donor12","SMI_B3_Donor13","SMI_B4_Donor14","SMI_B5_Donor15","SMI_B6_Donor16","SMI_B7_Donor17","SMI_B8_Donor18"],["Plasma","Plasma","Plasma",null,"Plasma","Plasma","Plasma","Plasma","Plasma",null,"Pooled_plasma",null,"Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma","Plasma"],["Male","Male","Male",null,"Female","Male","Female","Female","Male",null,null,null,"Male","Male","Male","Female","Female","Female","Female","Female"],[38,54,52,null,46,70,37,80,52,null,null,null,60,76,51,61,37,48,54,82],["normal","cancer","normal",null,"normal","cancer","normal","inflam","normal",null,null,null,"normal","cancer","normal","cancer","normal","inflam","normal","inflam"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Panel<\/th>\n      <th>PlateID<\/th>\n      <th>SampleName<\/th>\n      <th>SampleType<\/th>\n      <th>Target<\/th>\n      <th>AlamarTargetID<\/th>\n      <th>LOD<\/th>\n      <th>UnnormalizedCount<\/th>\n      <th>NPQ<\/th>\n      <th>Sample_QC_Status<\/th>\n      <th>Sample_QC_IC_Median<\/th>\n      <th>Sample_QC_Detectability<\/th>\n      <th>Sample_QC_ICReads<\/th>\n      <th>Sample_QC_NumReads<\/th>\n      <th>Sample_QC_IC_Median_Status<\/th>\n      <th>Sample_QC_Detectability_Status<\/th>\n      <th>Sample_QC_ICReads_Status<\/th>\n      <th>Sample_QC_NumReads_Status<\/th>\n      <th>sampleBarcode<\/th>\n      <th>sampleName_original<\/th>\n      <th>wellRow<\/th>\n      <th>wellCol<\/th>\n      <th>matching<\/th>\n      <th>non-matching<\/th>\n      <th>SAMPLE_MATRIX<\/th>\n      <th>sampleID<\/th>\n      <th>SampleID<\/th>\n      <th>SampleMatrix<\/th>\n      <th>sex<\/th>\n      <th>age<\/th>\n      <th>disease_type<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"scrollY":"500px","pageLength":20,"searching":false,"info":false,"dom":"t","columnDefs":[{"className":"dt-right","targets":[7,8,9,11,12,13,14,22,23,24,30]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Panel","targets":1},{"name":"PlateID","targets":2},{"name":"SampleName","targets":3},{"name":"SampleType","targets":4},{"name":"Target","targets":5},{"name":"AlamarTargetID","targets":6},{"name":"LOD","targets":7},{"name":"UnnormalizedCount","targets":8},{"name":"NPQ","targets":9},{"name":"Sample_QC_Status","targets":10},{"name":"Sample_QC_IC_Median","targets":11},{"name":"Sample_QC_Detectability","targets":12},{"name":"Sample_QC_ICReads","targets":13},{"name":"Sample_QC_NumReads","targets":14},{"name":"Sample_QC_IC_Median_Status","targets":15},{"name":"Sample_QC_Detectability_Status","targets":16},{"name":"Sample_QC_ICReads_Status","targets":17},{"name":"Sample_QC_NumReads_Status","targets":18},{"name":"sampleBarcode","targets":19},{"name":"sampleName_original","targets":20},{"name":"wellRow","targets":21},{"name":"wellCol","targets":22},{"name":"matching","targets":23},{"name":"non-matching","targets":24},{"name":"SAMPLE_MATRIX","targets":25},{"name":"sampleID","targets":26},{"name":"SampleID","targets":27},{"name":"SampleMatrix","targets":28},{"name":"sex","targets":29},{"name":"age","targets":30},{"name":"disease_type","targets":31}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="data-import.html#cb57-1" tabindex="-1"></a><span class="co"># Verify the merge</span></span>
+<span id="cb57-2"><a href="data-import.html#cb57-2" tabindex="-1"></a><span class="co"># Original NPQ data rows:</span></span>
+<span id="cb57-3"><a href="data-import.html#cb57-3" tabindex="-1"></a><span class="fu">nrow</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long)</span></code></pre></div>
+<pre><code>#&gt; [1] 39552</code></pre>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="data-import.html#cb59-1" tabindex="-1"></a><span class="co"># Merged data rows </span></span>
+<span id="cb59-2"><a href="data-import.html#cb59-2" tabindex="-1"></a><span class="fu">nrow</span>(data_long)</span></code></pre></div>
+<pre><code>#&gt; [1] 39552</code></pre>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="data-import.html#cb61-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Match:&quot;</span>, <span class="fu">nrow</span>(data_long) <span class="sc">==</span> <span class="fu">nrow</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long), <span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt;   Match: TRUE</code></pre>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="data-import.html#cb63-1" tabindex="-1"></a><span class="co"># Show what metadata columns were added</span></span>
+<span id="cb63-2"><a href="data-import.html#cb63-2" tabindex="-1"></a>new_cols <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(data_long), <span class="fu">names</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long))</span>
+<span id="cb63-3"><a href="data-import.html#cb63-3" tabindex="-1"></a><span class="co"># Metadata columns added</span></span>
+<span id="cb63-4"><a href="data-import.html#cb63-4" tabindex="-1"></a><span class="fu">paste</span>(new_cols, <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; [1] &quot;SampleID, SampleMatrix, sex, age, disease_type&quot;</code></pre>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="data-import.html#cb65-1" tabindex="-1"></a><span class="co"># Check for any unmatched samples</span></span>
+<span id="cb65-2"><a href="data-import.html#cb65-2" tabindex="-1"></a>unmatched_data <span class="ot">&lt;-</span> <span class="fu">anti_join</span>(</span>
+<span id="cb65-3"><a href="data-import.html#cb65-3" tabindex="-1"></a>  data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long, </span>
+<span id="cb65-4"><a href="data-import.html#cb65-4" tabindex="-1"></a>  metadata, </span>
+<span id="cb65-5"><a href="data-import.html#cb65-5" tabindex="-1"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;SampleName&quot;</span>, <span class="st">&quot;PlateID&quot;</span>)</span>
+<span id="cb65-6"><a href="data-import.html#cb65-6" tabindex="-1"></a>)</span>
+<span id="cb65-7"><a href="data-import.html#cb65-7" tabindex="-1"></a></span>
+<span id="cb65-8"><a href="data-import.html#cb65-8" tabindex="-1"></a>unmatched_meta <span class="ot">&lt;-</span> <span class="fu">anti_join</span>(</span>
+<span id="cb65-9"><a href="data-import.html#cb65-9" tabindex="-1"></a>  metadata,</span>
+<span id="cb65-10"><a href="data-import.html#cb65-10" tabindex="-1"></a>  data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long,</span>
+<span id="cb65-11"><a href="data-import.html#cb65-11" tabindex="-1"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;SampleName&quot;</span>, <span class="st">&quot;PlateID&quot;</span>)</span>
+<span id="cb65-12"><a href="data-import.html#cb65-12" tabindex="-1"></a>)</span>
+<span id="cb65-13"><a href="data-import.html#cb65-13" tabindex="-1"></a></span>
+<span id="cb65-14"><a href="data-import.html#cb65-14" tabindex="-1"></a><span class="co"># Merge quality check</span></span>
+<span id="cb65-15"><a href="data-import.html#cb65-15" tabindex="-1"></a><span class="co"># Samples in data but not in metadata:</span></span>
+<span id="cb65-16"><a href="data-import.html#cb65-16" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(unmatched_data<span class="sc">$</span>SampleName)) </span></code></pre></div>
+<pre><code>#&gt; [1] 25</code></pre>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="data-import.html#cb67-1" tabindex="-1"></a><span class="co"># Samples in metadata but not in data:</span></span>
+<span id="cb67-2"><a href="data-import.html#cb67-2" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(unmatched_meta<span class="sc">$</span>SampleName))</span></code></pre></div>
+<pre><code>#&gt; [1] 0</code></pre>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="data-import.html#cb69-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(<span class="fu">unique</span>(unmatched_data<span class="sc">$</span>SampleName)) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb69-2"><a href="data-import.html#cb69-2" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">⚠ Warning: Some samples lack metadata:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb69-3"><a href="data-import.html#cb69-3" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">unique</span>(unmatched_data<span class="sc">$</span>SampleName))</span>
+<span id="cb69-4"><a href="data-import.html#cb69-4" tabindex="-1"></a>}</span></code></pre></div>
+<pre><code>#&gt; 
+#&gt; ⚠ Warning: Some samples lack metadata:
+#&gt;  [1] &quot;SMI_A4_Donor04_Plate_01&quot;    &quot;SMI_A10_Donor10_Plate_01&quot;  
+#&gt;  [3] &quot;SMI_A12_IPC_rep01_Plate_01&quot; &quot;SMI_B12_IPC_rep02_Plate_01&quot;
+#&gt;  [5] &quot;SMI_C6_Donor26_Plate_01&quot;    &quot;SMI_C12_SPC_rep03&quot;         
+#&gt;  [7] &quot;SMI_D12_SC_rep04_Plate_01&quot;  &quot;SMI_E10_Donor50_Plate_01&quot;  
+#&gt;  [9] &quot;SMI_E12_NTC_rep01_Plate_01&quot; &quot;SMI_F12_NTC_rep02_Plate_01&quot;
+#&gt; [11] &quot;SMI_G5_Donor65_Plate_01&quot;    &quot;SMI_G12_NTC_rep03_Plate_01&quot;
+#&gt; [13] &quot;SMI_H6_Donor76_Plate_01&quot;    &quot;SMI_H12_NTC_rep04_Plate_01&quot;
+#&gt; [15] &quot;SMI_A12_IPC_rep01_Plate_02&quot; &quot;SMI_B1_Donor11_Plate_02&quot;   
+#&gt; [17] &quot;SMI_B12_IPC_rep02_Plate_02&quot; &quot;SMI_C1_Donor21_Plate_02&quot;   
+#&gt; [19] &quot;SMI_C12_SC_rep03&quot;           &quot;SMI_D12_SC_rep04_Plate_02&quot; 
+#&gt; [21] &quot;SMI_E12_NTC_rep01_Plate_02&quot; &quot;SMI_F10_Donor60_Plate_02&quot;  
+#&gt; [23] &quot;SMI_F12_NTC_rep02_Plate_02&quot; &quot;SMI_G12_NTC_rep03_Plate_02&quot;
+#&gt; [25] &quot;SMI_H12_NTC_rep04_Plate_02&quot;</code></pre>
+<p>Sample Controls were not included in metadata. Also, some samples in the XML data did not have corresponding metadata entries. Ensure all samples of interest are included in the metadata.</p>
+</div>
+</div>
+<div id="filtering-samples" class="section level2 hasAnchor" number="1.6">
+<h2><span class="header-section-number">1.6</span> Filtering Samples<a href="data-import.html#filtering-samples" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Often you’ll want to analyze a subset of samples:</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="data-import.html#cb71-1" tabindex="-1"></a><span class="co"># Example: Filter for plasma samples only</span></span>
+<span id="cb71-2"><a href="data-import.html#cb71-2" tabindex="-1"></a>sample_list <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span> </span>
+<span id="cb71-3"><a href="data-import.html#cb71-3" tabindex="-1"></a>  <span class="fu">filter</span>(SampleMatrix <span class="sc">==</span> <span class="st">&quot;Plasma&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb71-4"><a href="data-import.html#cb71-4" tabindex="-1"></a>  <span class="fu">pull</span>(SampleName)</span>
+<span id="cb71-5"><a href="data-import.html#cb71-5" tabindex="-1"></a></span>
+<span id="cb71-6"><a href="data-import.html#cb71-6" tabindex="-1"></a><span class="co"># Number of plasma samples</span></span>
+<span id="cb71-7"><a href="data-import.html#cb71-7" tabindex="-1"></a><span class="fu">length</span>(sample_list)</span></code></pre></div>
+<pre><code>#&gt; [1] 151</code></pre>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="data-import.html#cb73-1" tabindex="-1"></a><span class="co"># Subset the expression matrix</span></span>
+<span id="cb73-2"><a href="data-import.html#cb73-2" tabindex="-1"></a>data_plasma <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ[, sample_list]</span>
+<span id="cb73-3"><a href="data-import.html#cb73-3" tabindex="-1"></a><span class="fu">dim</span>(data_plasma)</span></code></pre></div>
+<pre><code>#&gt; [1] 206 151</code></pre>
+</div>
+<div id="complete-import-workflow" class="section level2 hasAnchor" number="1.7">
+<h2><span class="header-section-number">1.7</span> Complete Import Workflow<a href="data-import.html#complete-import-workflow" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Here’s a complete example putting it all together:</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="data-import.html#cb75-1" tabindex="-1"></a><span class="co"># Load libraries</span></span>
+<span id="cb75-2"><a href="data-import.html#cb75-2" tabindex="-1"></a><span class="fu">library</span>(NULISAseqR)</span>
+<span id="cb75-3"><a href="data-import.html#cb75-3" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb75-4"><a href="data-import.html#cb75-4" tabindex="-1"></a></span>
+<span id="cb75-5"><a href="data-import.html#cb75-5" tabindex="-1"></a><span class="co"># 1. Import XML data</span></span>
+<span id="cb75-6"><a href="data-import.html#cb75-6" tabindex="-1"></a>data_dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="at">package =</span> <span class="st">&quot;NULISAseqR&quot;</span>)</span>
+<span id="cb75-7"><a href="data-import.html#cb75-7" tabindex="-1"></a>xml_files <span class="ot">&lt;-</span> <span class="fu">file.path</span>(</span>
+<span id="cb75-8"><a href="data-import.html#cb75-8" tabindex="-1"></a>  data_dir,</span>
+<span id="cb75-9"><a href="data-import.html#cb75-9" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;INF_Panel_V1_detectability_study_plate01.xml&quot;</span>,</span>
+<span id="cb75-10"><a href="data-import.html#cb75-10" tabindex="-1"></a>    <span class="st">&quot;INF_Panel_V1_detectability_study_plate02.xml&quot;</span>)</span>
+<span id="cb75-11"><a href="data-import.html#cb75-11" tabindex="-1"></a>)</span>
+<span id="cb75-12"><a href="data-import.html#cb75-12" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">importNULISAseq</span>(<span class="at">files =</span> xml_files)</span>
+<span id="cb75-13"><a href="data-import.html#cb75-13" tabindex="-1"></a></span>
+<span id="cb75-14"><a href="data-import.html#cb75-14" tabindex="-1"></a><span class="co"># 2. Load metadata</span></span>
+<span id="cb75-15"><a href="data-import.html#cb75-15" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb75-16"><a href="data-import.html#cb75-16" tabindex="-1"></a>  <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;Alamar_NULISAseq_Detectability_metadata.csv&quot;</span>, </span>
+<span id="cb75-17"><a href="data-import.html#cb75-17" tabindex="-1"></a>              <span class="at">package =</span> <span class="st">&quot;NULISAseqR&quot;</span>)</span>
+<span id="cb75-18"><a href="data-import.html#cb75-18" tabindex="-1"></a>)</span>
+<span id="cb75-19"><a href="data-import.html#cb75-19" tabindex="-1"></a></span>
+<span id="cb75-20"><a href="data-import.html#cb75-20" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span> </span>
+<span id="cb75-21"><a href="data-import.html#cb75-21" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb75-22"><a href="data-import.html#cb75-22" tabindex="-1"></a>    <span class="co"># Set factor levels in meaningful order (reference group first)</span></span>
+<span id="cb75-23"><a href="data-import.html#cb75-23" tabindex="-1"></a>    <span class="at">disease_type =</span> <span class="fu">factor</span>(</span>
+<span id="cb75-24"><a href="data-import.html#cb75-24" tabindex="-1"></a>      disease_type, </span>
+<span id="cb75-25"><a href="data-import.html#cb75-25" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;normal&quot;</span>, <span class="st">&quot;inflam&quot;</span>, <span class="st">&quot;cancer&quot;</span>, <span class="st">&quot;kidney&quot;</span>, <span class="st">&quot;metab&quot;</span>, <span class="st">&quot;neuro&quot;</span>)</span>
+<span id="cb75-26"><a href="data-import.html#cb75-26" tabindex="-1"></a>    ),</span>
+<span id="cb75-27"><a href="data-import.html#cb75-27" tabindex="-1"></a>    <span class="co"># Ensure numeric variables are properly typed</span></span>
+<span id="cb75-28"><a href="data-import.html#cb75-28" tabindex="-1"></a>    <span class="at">age =</span> <span class="fu">as.numeric</span>(age)</span>
+<span id="cb75-29"><a href="data-import.html#cb75-29" tabindex="-1"></a>  )</span>
+<span id="cb75-30"><a href="data-import.html#cb75-30" tabindex="-1"></a></span>
+<span id="cb75-31"><a href="data-import.html#cb75-31" tabindex="-1"></a><span class="co"># 3. Merge data with metadata</span></span>
+<span id="cb75-32"><a href="data-import.html#cb75-32" tabindex="-1"></a>data_long <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long <span class="sc">%&gt;%</span> </span>
+<span id="cb75-33"><a href="data-import.html#cb75-33" tabindex="-1"></a>  <span class="fu">left_join</span>(metadata, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;SampleName&quot;</span>, <span class="st">&quot;PlateID&quot;</span>))</span>
+<span id="cb75-34"><a href="data-import.html#cb75-34" tabindex="-1"></a></span>
+<span id="cb75-35"><a href="data-import.html#cb75-35" tabindex="-1"></a><span class="co"># 4. Filter to samples of interest</span></span>
+<span id="cb75-36"><a href="data-import.html#cb75-36" tabindex="-1"></a>sample_list <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span></span>
+<span id="cb75-37"><a href="data-import.html#cb75-37" tabindex="-1"></a>  <span class="fu">filter</span>(SampleMatrix <span class="sc">==</span> <span class="st">&quot;Plasma&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb75-38"><a href="data-import.html#cb75-38" tabindex="-1"></a>  <span class="fu">pull</span>(SampleName)</span>
+<span id="cb75-39"><a href="data-import.html#cb75-39" tabindex="-1"></a></span>
+<span id="cb75-40"><a href="data-import.html#cb75-40" tabindex="-1"></a><span class="do">## Ready for analysis!</span></span>
+<span id="cb75-41"><a href="data-import.html#cb75-41" tabindex="-1"></a><span class="fu">nrow</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ)</span>
+<span id="cb75-42"><a href="data-import.html#cb75-42" tabindex="-1"></a><span class="fu">length</span>(sample_list)</span></code></pre></div>
+</div>
+<div id="tips-and-best-practices" class="section level2 hasAnchor" number="1.8">
+<h2><span class="header-section-number">1.8</span> Tips and Best Practices<a href="data-import.html#tips-and-best-practices" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><strong>File Organization</strong></p>
+<ul>
+<li>Keep XML files in a dedicated directory</li>
+<li>Use consistent naming conventions</li>
+<li>Document which files correspond to which experiments</li>
+</ul>
+<p><strong>Metadata Management</strong></p>
+<ul>
+<li>Store metadata in CSV format for easy editing</li>
+<li>Include all relevant variables from the start</li>
+<li>Use meaningful, consistent variable names</li>
+<li>Set factor levels explicitly (don’t rely on alphabetical order)</li>
+</ul>
+<p><strong>Quality Checks</strong></p>
+<ul>
+<li>Verify sample names match between XML and metadata</li>
+<li>Check for missing values</li>
+<li>Confirm data dimensions make sense</li>
+</ul>
+<p><strong>Common Issues</strong></p>
+<ul>
+<li><strong>Mismatched names</strong>: Ensure sample names in XML match metadata exactly</li>
+<li><strong>Factor levels</strong>: Always set reference level first for interpretable results</li>
+<li><strong>Missing metadata</strong>: Filter out samples without metadata before analysis</li>
+</ul>
+<p><strong>Continue to:</strong> <a href="quality-control.html#quality-control">Chapter 2: Quality Control</a></p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="understanding-nulisaseq-data.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="quality-control.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": false,
+    "twitter": false,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": {},
+    "google": false
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section",
+    "scroll_highlight": true
+  },
+  "toolbar": {
+    "position": "fixed"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

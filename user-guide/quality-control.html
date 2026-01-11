@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 2 Quality Control | NULISAseqR User Guide</title>
+  <meta name="description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="generator" content="bookdown 0.46 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 2 Quality Control | NULISAseqR User Guide" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  <meta name="github-repo" content="Alamar-Biosciences/NULISAseqR" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 2 Quality Control | NULISAseqR User Guide" />
+  
+  <meta name="twitter:description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="data-import.html"/>
+<link rel="next" href="visualization.html"/>
+<script src="libs/jquery-3.6.1/jquery-3.6.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.34.0/datatables.js"></script>
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="libs/table1-1.0/table1_defaults.css" rel="stylesheet" />
+<link rel="shortcut icon" href="figures/favicon.png" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li style="text-align: left; padding: 20px;">
+  <a href="https://www.alamarbio.com" target="_blank">
+    <img src="figures/alamar_logo.png" style="height:70px;">
+  </a>
+</li>
+<li><a href="./">NULISAseqR User Guide</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#what-is-nulisaseqr"><i class="fa fa-check"></i>What is NULISAseqR?</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#installation"><i class="fa fa-check"></i>Installation</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#macos-users"><i class="fa fa-check"></i>macOS Users</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#windows-users"><i class="fa fa-check"></i>Windows Users</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#installation-steps"><i class="fa fa-check"></i>Installation Steps</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#getting-help"><i class="fa fa-check"></i>Getting Help</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html"><i class="fa fa-check"></i>Understanding NULISAseq Data</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#what-is-nulisa-technology"><i class="fa fa-check"></i>What is NULISA™ Technology?</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#technical-workflow"><i class="fa fa-check"></i>Technical Workflow</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#learn-more-about-nulisa-technology"><i class="fa fa-check"></i>Learn More About NULISA™ Technology</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#available-nulisaseq-panels"><i class="fa fa-check"></i>Available NULISAseq Panels</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-normalization"><i class="fa fa-check"></i>Data Normalization</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#raw-data-sequencing-counts"><i class="fa fa-check"></i>Raw Data: Sequencing Counts</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-1-internal-control-ic-normalization"><i class="fa fa-check"></i>Step 1: Internal Control (IC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-2-inter-plate-control-ipc-normalization"><i class="fa fa-check"></i>Step 2: Inter-Plate Control (IPC) Normalization</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#step-3-log2-transformation"><i class="fa fa-check"></i>Step 3: Log2 Transformation</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#why-log-transform"><i class="fa fa-check"></i>Why Log Transform?</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#npq-vs-fold-change"><i class="fa fa-check"></i>NPQ vs Fold Change</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#understanding-the-relationship"><i class="fa fa-check"></i>Understanding the Relationship</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#working-with-npq-values"><i class="fa fa-check"></i>Working with NPQ Values</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-from-npq"><i class="fa fa-check"></i>Calculating Fold Changes from NPQ</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-in-target-ratios"><i class="fa fa-check"></i>Calculating Fold Changes in Target Ratios</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-analysis-faq"><i class="fa fa-check"></i>Data Analysis FAQ</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-is-the-limit-of-detection-lod-defined-for-nulisaseq-why-do-some-targets-have-lod-of-0"><i class="fa fa-check"></i>1. How is the limit of detection (LOD) defined for NULISAseq? <br> Why do some targets have LOD of 0?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#should-i-exclude-samples-below-lod"><i class="fa fa-check"></i>2. Should I exclude samples below LOD?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-i-calculate-coefficient-of-variation-cv-for-samples"><i class="fa fa-check"></i>3. How do I calculate coefficient of variation (CV) for samples?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#can-i-compare-data-across-different-runs"><i class="fa fa-check"></i>4. Can I compare data across different runs?</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-do-you-assess-correlation-between-npq-and-absolute-quantification-data-from-other-platforms"><i class="fa fa-check"></i>5. How do you assess correlation between NPQ and absolute quantification data from other platforms?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="data-import.html"><a href="data-import.html"><i class="fa fa-check"></i><b>1</b> Data Import</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="data-import.html"><a href="data-import.html#the-importnulisaseq-function"><i class="fa fa-check"></i><b>1.1</b> The <code>importNULISAseq()</code> Function</a></li>
+<li class="chapter" data-level="1.2" data-path="data-import.html"><a href="data-import.html#understanding-the-data-structure"><i class="fa fa-check"></i><b>1.2</b> Understanding the Data Structure</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="data-import.html"><a href="data-import.html#key-components"><i class="fa fa-check"></i><b>1.2.1</b> Key Components</a></li>
+<li class="chapter" data-level="1.2.2" data-path="data-import.html"><a href="data-import.html#summary-statistics"><i class="fa fa-check"></i><b>1.2.2</b> Summary Statistics</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="data-import.html"><a href="data-import.html#working-with-your-own-data"><i class="fa fa-check"></i><b>1.3</b> Working with Your Own Data</a></li>
+<li class="chapter" data-level="1.4" data-path="data-import.html"><a href="data-import.html#loading-metadata"><i class="fa fa-check"></i><b>1.4</b> Loading Metadata</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="data-import.html"><a href="data-import.html#metadata-structure"><i class="fa fa-check"></i><b>1.4.1</b> Metadata Structure</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="data-import.html"><a href="data-import.html#merging-data-with-metadata"><i class="fa fa-check"></i><b>1.5</b> Merging Data with Metadata</a>
+<ul>
+<li class="chapter" data-level="1.5.1" data-path="data-import.html"><a href="data-import.html#understanding-sample-names"><i class="fa fa-check"></i><b>1.5.1</b> Understanding Sample Names</a></li>
+<li class="chapter" data-level="1.5.2" data-path="data-import.html"><a href="data-import.html#merging-options"><i class="fa fa-check"></i><b>1.5.2</b> Merging Options</a></li>
+</ul></li>
+<li class="chapter" data-level="1.6" data-path="data-import.html"><a href="data-import.html#filtering-samples"><i class="fa fa-check"></i><b>1.6</b> Filtering Samples</a></li>
+<li class="chapter" data-level="1.7" data-path="data-import.html"><a href="data-import.html#complete-import-workflow"><i class="fa fa-check"></i><b>1.7</b> Complete Import Workflow</a></li>
+<li class="chapter" data-level="1.8" data-path="data-import.html"><a href="data-import.html#tips-and-best-practices"><i class="fa fa-check"></i><b>1.8</b> Tips and Best Practices</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="quality-control.html"><a href="quality-control.html"><i class="fa fa-check"></i><b>2</b> Quality Control</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="quality-control.html"><a href="quality-control.html#why-quality-control-matters"><i class="fa fa-check"></i><b>2.1</b> Why Quality Control Matters</a></li>
+<li class="chapter" data-level="2.2" data-path="quality-control.html"><a href="quality-control.html#qc-report"><i class="fa fa-check"></i><b>2.2</b> Automated QC Report</a></li>
+<li class="chapter" data-level="2.3" data-path="quality-control.html"><a href="quality-control.html#qc-report-structure"><i class="fa fa-check"></i><b>2.3</b> QC Report Structure</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="quality-control.html"><a href="quality-control.html#plate-layout"><i class="fa fa-check"></i><b>2.3.1</b> Plate Layout</a></li>
+<li class="chapter" data-level="2.3.2" data-path="quality-control.html"><a href="quality-control.html#run-summary"><i class="fa fa-check"></i><b>2.3.2</b> Run Summary</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#quality-control-metrics"><i class="fa fa-check"></i>Quality Control Metrics</a></li>
+<li class="chapter" data-level="2.3.3" data-path="quality-control.html"><a href="quality-control.html#platerun-qc"><i class="fa fa-check"></i><b>2.3.3</b> Plate/Run QC</a></li>
+<li class="chapter" data-level="2.3.4" data-path="quality-control.html"><a href="quality-control.html#sample-qc"><i class="fa fa-check"></i><b>2.3.4</b> Sample QC</a></li>
+<li class="chapter" data-level="2.3.5" data-path="quality-control.html"><a href="quality-control.html#target-qc"><i class="fa fa-check"></i><b>2.3.5</b> Target QC</a></li>
+<li class="chapter" data-level="2.3.6" data-path="quality-control.html"><a href="quality-control.html#coefficient-of-variation-cv"><i class="fa fa-check"></i><b>2.3.6</b> Coefficient of Variation (CV)</a></li>
+<li class="chapter" data-level="2.3.7" data-path="quality-control.html"><a href="quality-control.html#batch-effect-assessment"><i class="fa fa-check"></i><b>2.3.7</b> Batch Effect Assessment</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="quality-control.html"><a href="quality-control.html#qc-thresholds-summary"><i class="fa fa-check"></i><b>2.4</b> Summary of QC Thresholds</a></li>
+<li class="chapter" data-level="2.5" data-path="quality-control.html"><a href="quality-control.html#manual-qc-checks"><i class="fa fa-check"></i><b>2.5</b> Manual QC Checks</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="quality-control.html"><a href="quality-control.html#check-for-missing-data"><i class="fa fa-check"></i><b>2.5.1</b> Check for Missing Data</a></li>
+<li class="chapter" data-level="2.5.2" data-path="quality-control.html"><a href="quality-control.html#low-detectability-targets"><i class="fa fa-check"></i><b>2.5.2</b> Low Detectability Targets</a></li>
+<li class="chapter" data-level="2.5.3" data-path="quality-control.html"><a href="quality-control.html#calculate-targets-detectability-by-subgroups"><i class="fa fa-check"></i><b>2.5.3</b> Calculate Targets Detectability by Subgroups</a></li>
+<li class="chapter" data-level="2.5.4" data-path="quality-control.html"><a href="quality-control.html#batch-effect-correction"><i class="fa fa-check"></i><b>2.5.4</b> Batch Effect Correction</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="quality-control.html"><a href="quality-control.html#qc-best-practices"><i class="fa fa-check"></i><b>2.6</b> Best Practices</a>
+<ul>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#documentation"><i class="fa fa-check"></i>Documentation</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#consistency"><i class="fa fa-check"></i>Consistency</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#collaboration"><i class="fa fa-check"></i>Collaboration</a></li>
+<li class="chapter" data-level="" data-path="quality-control.html"><a href="quality-control.html#when-in-doubt"><i class="fa fa-check"></i>When in Doubt</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="quality-control.html"><a href="quality-control.html#complete-qc-workflow"><i class="fa fa-check"></i><b>2.7</b> Complete QC Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="visualization.html"><a href="visualization.html"><i class="fa fa-check"></i><b>3</b> Visualization</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="visualization.html"><a href="visualization.html#why-visualize"><i class="fa fa-check"></i><b>3.1</b> Why Visualize?</a></li>
+<li class="chapter" data-level="3.2" data-path="visualization.html"><a href="visualization.html#heatmaps"><i class="fa fa-check"></i><b>3.2</b> Heatmaps</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="visualization.html"><a href="visualization.html#basic-heatmap"><i class="fa fa-check"></i><b>3.2.1</b> Basic Heatmap</a></li>
+<li class="chapter" data-level="3.2.2" data-path="visualization.html"><a href="visualization.html#heatmap-with-annotations"><i class="fa fa-check"></i><b>3.2.2</b> Heatmap with Annotations</a></li>
+<li class="chapter" data-level="3.2.3" data-path="visualization.html"><a href="visualization.html#understanding-the-heatmap"><i class="fa fa-check"></i><b>3.2.3</b> Understanding the Heatmap</a></li>
+<li class="chapter" data-level="3.2.4" data-path="visualization.html"><a href="visualization.html#interpreting-clusters"><i class="fa fa-check"></i><b>3.2.4</b> Interpreting Clusters</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="visualization.html"><a href="visualization.html#principal-component-analysis-pca"><i class="fa fa-check"></i><b>3.3</b> Principal Component Analysis (PCA)</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="visualization.html"><a href="visualization.html#pca-with-multiple-visual-encodings"><i class="fa fa-check"></i><b>3.3.1</b> PCA with Multiple Visual Encodings</a></li>
+<li class="chapter" data-level="3.3.2" data-path="visualization.html"><a href="visualization.html#understanding-pca-plots"><i class="fa fa-check"></i><b>3.3.2</b> Understanding PCA Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="visualization.html"><a href="visualization.html#custom-visualizations-with-ggplot2"><i class="fa fa-check"></i><b>3.4</b> Custom Visualizations with <code>ggplot2</code></a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="visualization.html"><a href="visualization.html#npq-distribution---histogram"><i class="fa fa-check"></i><b>3.4.1</b> NPQ Distribution - Histogram</a></li>
+<li class="chapter" data-level="3.4.2" data-path="visualization.html"><a href="visualization.html#npq-distribution-by-group---density-plot"><i class="fa fa-check"></i><b>3.4.2</b> NPQ Distribution by Group - Density Plot</a></li>
+<li class="chapter" data-level="3.4.3" data-path="visualization.html"><a href="visualization.html#single-protein-across-groups"><i class="fa fa-check"></i><b>3.4.3</b> Single Protein Across Groups</a></li>
+<li class="chapter" data-level="3.4.4" data-path="visualization.html"><a href="visualization.html#multiple-proteins-across-groups"><i class="fa fa-check"></i><b>3.4.4</b> Multiple Proteins Across Groups</a></li>
+<li class="chapter" data-level="3.4.5" data-path="visualization.html"><a href="visualization.html#protein-protein-correlation"><i class="fa fa-check"></i><b>3.4.5</b> Protein-Protein Correlation</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="visualization.html"><a href="visualization.html#saving-plots"><i class="fa fa-check"></i><b>3.5</b> Saving Plots</a>
+<ul>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-heatmap"><i class="fa fa-check"></i>Save Heatmap</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-pca"><i class="fa fa-check"></i>Save PCA</a></li>
+<li class="chapter" data-level="" data-path="visualization.html"><a href="visualization.html#save-ggplot-objects"><i class="fa fa-check"></i>Save ggplot Objects</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="visualization.html"><a href="visualization.html#visualization-best-practices"><i class="fa fa-check"></i><b>3.6</b> Visualization Best Practices</a></li>
+<li class="chapter" data-level="3.7" data-path="visualization.html"><a href="visualization.html#complete-visualization-workflow"><i class="fa fa-check"></i><b>3.7</b> Complete Visualization Workflow</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html"><i class="fa fa-check"></i><b>4</b> Differential Abundance Analysis</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#overview"><i class="fa fa-check"></i><b>4.1</b> Overview</a></li>
+<li class="chapter" data-level="4.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#Ch4"><i class="fa fa-check"></i><b>4.2</b> Differential Abundance</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#group-comparison"><i class="fa fa-check"></i><b>4.2.1</b> Group Comparison</a></li>
+<li class="chapter" data-level="4.2.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#understanding-the-model"><i class="fa fa-check"></i><b>4.2.2</b> Understanding the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#model-results"><i class="fa fa-check"></i><b>4.3</b> Model Results</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#key-columns-in-results"><i class="fa fa-check"></i><b>4.3.1</b> Key Columns in Results</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#de-targets"><i class="fa fa-check"></i><b>4.4</b> Finding Significant Proteins</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#filter-by-fdr-threshold"><i class="fa fa-check"></i><b>4.4.1</b> Filter by FDR Threshold</a></li>
+<li class="chapter" data-level="4.4.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#higher-vs-lower-abundance"><i class="fa fa-check"></i><b>4.4.2</b> Higher vs Lower Abundance</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#volcano-plots"><i class="fa fa-check"></i><b>4.5</b> Volcano Plots</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#inflammatory-disease-vs-normal"><i class="fa fa-check"></i><b>4.5.1</b> Inflammatory Disease vs Normal</a></li>
+<li class="chapter" data-level="4.5.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#understanding-volcano-plots"><i class="fa fa-check"></i><b>4.5.2</b> Understanding Volcano Plots</a></li>
+<li class="chapter" data-level="4.5.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#cancer-vs-normal"><i class="fa fa-check"></i><b>4.5.3</b> Cancer vs Normal</a></li>
+<li class="chapter" data-level="4.5.4" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#saving-volcano-plots"><i class="fa fa-check"></i><b>4.5.4</b> Saving Volcano Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#visualization-of-significant-targets"><i class="fa fa-check"></i><b>4.6</b> Visualization of Significant Targets</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#inflammatory-disease-vs-normal-1"><i class="fa fa-check"></i><b>4.6.1</b> Inflammatory Disease vs Normal</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#multiple-disease-groups"><i class="fa fa-check"></i><b>4.7</b> Multiple Disease Groups</a></li>
+<li class="chapter" data-level="4.8" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#model-considerations"><i class="fa fa-check"></i><b>4.8</b> Model Considerations</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#reference-level"><i class="fa fa-check"></i><b>4.8.1</b> Reference Level</a></li>
+<li class="chapter" data-level="4.8.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#including-covariates"><i class="fa fa-check"></i><b>4.8.2</b> Including Covariates</a></li>
+<li class="chapter" data-level="4.8.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#model-formula-options"><i class="fa fa-check"></i><b>4.8.3</b> Model Formula Options</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#interpreting-results"><i class="fa fa-check"></i><b>4.9</b> Interpreting Results</a>
+<ul>
+<li class="chapter" data-level="4.9.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#effect-size-coefficient"><i class="fa fa-check"></i><b>4.9.1</b> Effect Size (Coefficient)</a></li>
+<li class="chapter" data-level="4.9.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#p-values"><i class="fa fa-check"></i><b>4.9.2</b> P-values</a></li>
+<li class="chapter" data-level="4.9.3" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#significance-thresholds"><i class="fa fa-check"></i><b>4.9.3</b> Significance Thresholds</a></li>
+</ul></li>
+<li class="chapter" data-level="4.10" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#exporting-results"><i class="fa fa-check"></i><b>4.10</b> Exporting Results</a>
+<ul>
+<li class="chapter" data-level="4.10.1" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#save-results-table"><i class="fa fa-check"></i><b>4.10.1</b> Save Results Table</a></li>
+<li class="chapter" data-level="4.10.2" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#create-summary-table"><i class="fa fa-check"></i><b>4.10.2</b> Create Summary Table</a></li>
+</ul></li>
+<li class="chapter" data-level="4.11" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#complete-differential-abundance-workflow"><i class="fa fa-check"></i><b>4.11</b> Complete Differential Abundance Workflow</a></li>
+<li class="chapter" data-level="4.12" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#best-practices"><i class="fa fa-check"></i><b>4.12</b> Best Practices</a></li>
+<li class="chapter" data-level="4.13" data-path="differential-abundance-analysis.html"><a href="differential-abundance-analysis.html#common-issues"><i class="fa fa-check"></i><b>4.13</b> Common Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html"><i class="fa fa-check"></i><b>5</b> Longitudinal Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overview-1"><i class="fa fa-check"></i><b>5.1</b> Overview</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#load-and-prepare-data"><i class="fa fa-check"></i><b>5.1.1</b> Load and Prepare Data</a></li>
+<li class="chapter" data-level="5.1.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#create-metadata"><i class="fa fa-check"></i><b>5.1.2</b> Create Metadata</a></li>
+<li class="chapter" data-level="5.1.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#convert-to-wide-format"><i class="fa fa-check"></i><b>5.1.3</b> Convert to Wide Format</a></li>
+<li class="chapter" data-level="5.1.4" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#descriptive-statistics"><i class="fa fa-check"></i><b>5.1.4</b> Descriptive Statistics</a></li>
+<li class="chapter" data-level="5.1.5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#exploratory-visualization"><i class="fa fa-check"></i><b>5.1.5</b> Exploratory Visualization</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#linear-mixed-effects-model"><i class="fa fa-check"></i><b>5.2</b> Linear Mixed-Effects Model</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#group-effect-analysis"><i class="fa fa-check"></i><b>5.2.1</b> Group Effect Analysis</a></li>
+<li class="chapter" data-level="5.2.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#understanding-the-model-1"><i class="fa fa-check"></i><b>5.2.2</b> Understanding the Model</a></li>
+<li class="chapter" data-level="5.2.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#model-results-1"><i class="fa fa-check"></i><b>5.2.3</b> Model Results</a></li>
+<li class="chapter" data-level="5.2.4" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#likelihood-ratio-test-lrt-statistics"><i class="fa fa-check"></i><b>5.2.4</b> Likelihood Ratio Test (LRT) Statistics</a></li>
+<li class="chapter" data-level="5.2.5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#model-coefficients"><i class="fa fa-check"></i><b>5.2.5</b> Model Coefficients</a></li>
+<li class="chapter" data-level="5.2.6" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overall-group-effect"><i class="fa fa-check"></i><b>5.2.6</b> Overall Group Effect</a></li>
+<li class="chapter" data-level="5.2.7" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#specific-time-comparisons"><i class="fa fa-check"></i><b>5.2.7</b> Specific Time Comparisons</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#volcano-plots-1"><i class="fa fa-check"></i><b>5.3</b> Volcano Plots</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#overall-group-effect-lrt"><i class="fa fa-check"></i><b>5.3.1</b> Overall Group Effect (LRT)</a></li>
+<li class="chapter" data-level="5.3.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#group-specific-comparisons"><i class="fa fa-check"></i><b>5.3.2</b> Group-Specific Comparisons</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#trajectory-visualization"><i class="fa fa-check"></i><b>5.4</b> Trajectory Visualization</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#spaghetti-plot-discrete-time-groups"><i class="fa fa-check"></i><b>5.4.1</b> Spaghetti Plot: Discrete Time Groups</a></li>
+<li class="chapter" data-level="5.4.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#spaghetti-plot-continuous-time"><i class="fa fa-check"></i><b>5.4.2</b> Spaghetti Plot: Continuous Time</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#model-considerations-1"><i class="fa fa-check"></i><b>5.5</b> Model Considerations</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#random-effects-structure"><i class="fa fa-check"></i><b>5.5.1</b> Random Effects Structure</a></li>
+<li class="chapter" data-level="5.5.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#fixed-effects-design"><i class="fa fa-check"></i><b>5.5.2</b> Fixed Effects Design</a></li>
+<li class="chapter" data-level="5.5.3" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#likelihood-ratio-test"><i class="fa fa-check"></i><b>5.5.3</b> Likelihood Ratio Test</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#exporting-results-1"><i class="fa fa-check"></i><b>5.6</b> Exporting Results</a>
+<ul>
+<li class="chapter" data-level="5.6.1" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#save-results-tables"><i class="fa fa-check"></i><b>5.6.1</b> Save Results Tables</a></li>
+<li class="chapter" data-level="5.6.2" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#save-plots"><i class="fa fa-check"></i><b>5.6.2</b> Save Plots</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#complete-longitudinal-analysis-workflow"><i class="fa fa-check"></i><b>5.7</b> Complete Longitudinal Analysis Workflow</a></li>
+<li class="chapter" data-level="5.8" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#best-practices-1"><i class="fa fa-check"></i><b>5.8</b> Best Practices</a></li>
+<li class="chapter" data-level="5.9" data-path="longitudinal-analysis.html"><a href="longitudinal-analysis.html#common-issues-1"><i class="fa fa-check"></i><b>5.9</b> Common Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="outcome-modeling.html"><a href="outcome-modeling.html"><i class="fa fa-check"></i><b>6</b> Outcome Modeling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#overview-2"><i class="fa fa-check"></i><b>6.1</b> Overview</a></li>
+<li class="chapter" data-level="6.2" data-path="outcome-modeling.html"><a href="outcome-modeling.html#example-1-exploring-age-associations-continuous-outcome"><i class="fa fa-check"></i><b>6.2</b> Example 1: Exploring Age Associations (Continuous Outcome)</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#why-model-age"><i class="fa fa-check"></i><b>6.2.1</b> Why Model Age?</a></li>
+<li class="chapter" data-level="6.2.2" data-path="outcome-modeling.html"><a href="outcome-modeling.html#age-distribution-in-the-dataset"><i class="fa fa-check"></i><b>6.2.2</b> Age Distribution in the Dataset</a></li>
+<li class="chapter" data-level="6.2.3" data-path="outcome-modeling.html"><a href="outcome-modeling.html#building-the-age-regression-model"><i class="fa fa-check"></i><b>6.2.3</b> Building the Age Regression Model</a></li>
+<li class="chapter" data-level="6.2.4" data-path="outcome-modeling.html"><a href="outcome-modeling.html#understanding-the-age-model"><i class="fa fa-check"></i><b>6.2.4</b> Understanding the Age Model</a></li>
+<li class="chapter" data-level="6.2.5" data-path="outcome-modeling.html"><a href="outcome-modeling.html#examining-age-association-results"><i class="fa fa-check"></i><b>6.2.5</b> Examining Age Association Results</a></li>
+<li class="chapter" data-level="6.2.6" data-path="outcome-modeling.html"><a href="outcome-modeling.html#finding-age-associated-proteins"><i class="fa fa-check"></i><b>6.2.6</b> Finding Age-Associated Proteins</a></li>
+<li class="chapter" data-level="6.2.7" data-path="outcome-modeling.html"><a href="outcome-modeling.html#volcano-plots-2"><i class="fa fa-check"></i><b>6.2.7</b> Volcano Plots</a></li>
+<li class="chapter" data-level="6.2.8" data-path="outcome-modeling.html"><a href="outcome-modeling.html#age-associated-proteins-scatterplots"><i class="fa fa-check"></i><b>6.2.8</b> Age-Associated Proteins Scatterplots</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="outcome-modeling.html"><a href="outcome-modeling.html#example-2-modeling-disease-status-binary-outcome"><i class="fa fa-check"></i><b>6.3</b> Example 2: Modeling Disease Status (Binary Outcome)</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#disease-status-as-binary-outcome"><i class="fa fa-check"></i><b>6.3.1</b> Disease Status as Binary Outcome</a></li>
+<li class="chapter" data-level="6.3.2" data-path="outcome-modeling.html"><a href="outcome-modeling.html#preparing-the-disease-data"><i class="fa fa-check"></i><b>6.3.2</b> Preparing the Disease Data</a></li>
+<li class="chapter" data-level="6.3.3" data-path="outcome-modeling.html"><a href="outcome-modeling.html#building-the-disease-association-model"><i class="fa fa-check"></i><b>6.3.3</b> Building the Disease Association Model</a></li>
+<li class="chapter" data-level="6.3.4" data-path="outcome-modeling.html"><a href="outcome-modeling.html#understanding-the-disease-model"><i class="fa fa-check"></i><b>6.3.4</b> Understanding the Disease Model</a></li>
+<li class="chapter" data-level="6.3.5" data-path="outcome-modeling.html"><a href="outcome-modeling.html#examining-disease-association-results"><i class="fa fa-check"></i><b>6.3.5</b> Examining Disease Association Results</a></li>
+<li class="chapter" data-level="6.3.6" data-path="outcome-modeling.html"><a href="outcome-modeling.html#finding-disease-associated-proteins"><i class="fa fa-check"></i><b>6.3.6</b> Finding Disease-Associated Proteins</a></li>
+<li class="chapter" data-level="6.3.7" data-path="outcome-modeling.html"><a href="outcome-modeling.html#interpreting-odds-ratios"><i class="fa fa-check"></i><b>6.3.7</b> Interpreting Odds Ratios</a></li>
+<li class="chapter" data-level="6.3.8" data-path="outcome-modeling.html"><a href="outcome-modeling.html#disease-associated-proteins-volcano-plots"><i class="fa fa-check"></i><b>6.3.8</b> Disease-Associated Proteins Volcano Plots</a></li>
+<li class="chapter" data-level="6.3.9" data-path="outcome-modeling.html"><a href="outcome-modeling.html#visualizing-disease-associations"><i class="fa fa-check"></i><b>6.3.9</b> Visualizing Disease Associations</a></li>
+<li class="chapter" data-level="6.3.10" data-path="outcome-modeling.html"><a href="outcome-modeling.html#roc-curves-for-disease-associated-proteins"><i class="fa fa-check"></i><b>6.3.10</b> ROC Curves for Disease-Associated Proteins</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="outcome-modeling.html"><a href="outcome-modeling.html#comparing-approaches"><i class="fa fa-check"></i><b>6.4</b> Comparing Approaches</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="outcome-modeling.html"><a href="outcome-modeling.html#when-to-use-each-function"><i class="fa fa-check"></i><b>6.4.1</b> When to Use Each Function</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="outcome-modeling.html"><a href="outcome-modeling.html#exporting-results-2"><i class="fa fa-check"></i><b>6.5</b> Exporting Results</a></li>
+<li class="chapter" data-level="6.6" data-path="outcome-modeling.html"><a href="outcome-modeling.html#complete-outcome-modeling-workflow"><i class="fa fa-check"></i><b>6.6</b> Complete Outcome Modeling Workflow</a></li>
+<li class="chapter" data-level="6.7" data-path="outcome-modeling.html"><a href="outcome-modeling.html#best-practices-2"><i class="fa fa-check"></i><b>6.7</b> Best Practices</a>
+<ul>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#model-design"><i class="fa fa-check"></i>Model Design</a></li>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#interpretation"><i class="fa fa-check"></i>Interpretation</a></li>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#validation"><i class="fa fa-check"></i>Validation</a></li>
+<li class="chapter" data-level="" data-path="outcome-modeling.html"><a href="outcome-modeling.html#reporting"><i class="fa fa-check"></i>Reporting</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="case-study-1.html"><a href="case-study-1.html"><i class="fa fa-check"></i><b>7</b> Case Study: <br> Identifying Proteomic Signatures in Lupus and Rheumatoid Arthritis</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="case-study-1.html"><a href="case-study-1.html#overview-3"><i class="fa fa-check"></i><b>7.1</b> Overview</a></li>
+<li class="chapter" data-level="7.2" data-path="case-study-1.html"><a href="case-study-1.html#data-preparation"><i class="fa fa-check"></i><b>7.2</b> Data Preparation</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="case-study-1.html"><a href="case-study-1.html#load-required-libraries"><i class="fa fa-check"></i><b>7.2.1</b> Load Required Libraries</a></li>
+<li class="chapter" data-level="7.2.2" data-path="case-study-1.html"><a href="case-study-1.html#import-data"><i class="fa fa-check"></i><b>7.2.2</b> Import Data</a></li>
+<li class="chapter" data-level="7.2.3" data-path="case-study-1.html"><a href="case-study-1.html#prepare-sample-metadata"><i class="fa fa-check"></i><b>7.2.3</b> Prepare Sample Metadata</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="case-study-1.html"><a href="case-study-1.html#apply-detectability-threshold"><i class="fa fa-check"></i><b>7.3</b> Apply Detectability Threshold</a></li>
+<li class="chapter" data-level="7.4" data-path="case-study-1.html"><a href="case-study-1.html#global-data-visualization"><i class="fa fa-check"></i><b>7.4</b> Global Data Visualization</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="case-study-1.html"><a href="case-study-1.html#prepare-metadata-for-visualization"><i class="fa fa-check"></i><b>7.4.1</b> Prepare Metadata for Visualization</a></li>
+<li class="chapter" data-level="7.4.2" data-path="case-study-1.html"><a href="case-study-1.html#hierarchical-clustering-heatmap"><i class="fa fa-check"></i><b>7.4.2</b> Hierarchical Clustering Heatmap</a></li>
+<li class="chapter" data-level="7.4.3" data-path="case-study-1.html"><a href="case-study-1.html#principal-component-analysis"><i class="fa fa-check"></i><b>7.4.3</b> Principal Component Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="case-study-1.html"><a href="case-study-1.html#statistical-testing"><i class="fa fa-check"></i><b>7.5</b> Statistical Testing</a></li>
+<li class="chapter" data-level="7.6" data-path="case-study-1.html"><a href="case-study-1.html#systemic-lupus-erythematosus-sle-analysis"><i class="fa fa-check"></i><b>7.6</b> Systemic Lupus Erythematosus (SLE) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="case-study-1.html"><a href="case-study-1.html#background"><i class="fa fa-check"></i><b>7.6.1</b> Background</a></li>
+<li class="chapter" data-level="7.6.2" data-path="case-study-1.html"><a href="case-study-1.html#volcano-plot"><i class="fa fa-check"></i><b>7.6.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.6.3" data-path="case-study-1.html"><a href="case-study-1.html#visualizations"><i class="fa fa-check"></i><b>7.6.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.6.4" data-path="case-study-1.html"><a href="case-study-1.html#directional-analysis"><i class="fa fa-check"></i><b>7.6.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="case-study-1.html"><a href="case-study-1.html#rheumatoid-arthritis-ra-analysis"><i class="fa fa-check"></i><b>7.7</b> Rheumatoid Arthritis (RA) Analysis</a>
+<ul>
+<li class="chapter" data-level="7.7.1" data-path="case-study-1.html"><a href="case-study-1.html#background-1"><i class="fa fa-check"></i><b>7.7.1</b> Background</a></li>
+<li class="chapter" data-level="7.7.2" data-path="case-study-1.html"><a href="case-study-1.html#volcano-plot-1"><i class="fa fa-check"></i><b>7.7.2</b> Volcano Plot</a></li>
+<li class="chapter" data-level="7.7.3" data-path="case-study-1.html"><a href="case-study-1.html#visualizations-1"><i class="fa fa-check"></i><b>7.7.3</b> Visualizations</a></li>
+<li class="chapter" data-level="7.7.4" data-path="case-study-1.html"><a href="case-study-1.html#directional-analysis-1"><i class="fa fa-check"></i><b>7.7.4</b> Directional Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="7.8" data-path="case-study-1.html"><a href="case-study-1.html#comparing-disease-signatures"><i class="fa fa-check"></i><b>7.8</b> Comparing Disease Signatures</a>
+<ul>
+<li class="chapter" data-level="7.8.1" data-path="case-study-1.html"><a href="case-study-1.html#overlap-analysis"><i class="fa fa-check"></i><b>7.8.1</b> Overlap Analysis</a></li>
+<li class="chapter" data-level="7.8.2" data-path="case-study-1.html"><a href="case-study-1.html#differential-abundance-summary-table"><i class="fa fa-check"></i><b>7.8.2</b> Differential Abundance Summary Table</a></li>
+</ul></li>
+<li class="chapter" data-level="7.9" data-path="case-study-1.html"><a href="case-study-1.html#next-steps"><i class="fa fa-check"></i><b>7.9</b> Next Steps</a></li>
+<li class="chapter" data-level="7.10" data-path="case-study-1.html"><a href="case-study-1.html#complete-workflow-example-code"><i class="fa fa-check"></i><b>7.10</b> Complete Workflow Example Code</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html"><i class="fa fa-check"></i>Additional Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisaseq-resources"><i class="fa fa-check"></i>NULISAseq Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#package-documentation"><i class="fa fa-check"></i>Package Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#github-repository"><i class="fa fa-check"></i>GitHub Repository</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#support-and-issues"><i class="fa fa-check"></i>Support and Issues</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#nulisa-analysis-software-nas"><i class="fa fa-check"></i>NULISA Analysis Software (NAS)</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#technical-documentation"><i class="fa fa-check"></i>Technical Documentation</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-resources"><i class="fa fa-check"></i>R Programming Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#r-install"><i class="fa fa-check"></i>Installing R and RStudio</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#tidyverse-resources"><i class="fa fa-check"></i>Tidyverse Resources</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#visualization-resources"><i class="fa fa-check"></i>Data Visualization Resources</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#ggplot2"><i class="fa fa-check"></i>ggplot2</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#complexheatmap"><i class="fa fa-check"></i>ComplexHeatmap</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#pcatools"><i class="fa fa-check"></i>PCAtools</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citations"><i class="fa fa-check"></i>Citing This Book and Packages</a>
+<ul>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-this-book"><i class="fa fa-check"></i>Citing This Book</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#citing-r-and-packages"><i class="fa fa-check"></i>Citing R and Packages</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#key-citations"><i class="fa fa-check"></i>Key Citations</a></li>
+<li class="chapter" data-level="" data-path="additional-resources.html"><a href="additional-resources.html#happy-analyzing"><i class="fa fa-check"></i><strong>Happy analyzing!</strong> 🚀</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank">GitHub Repository</a></li>
+<li><a href="../" target="_blank">NULISAseqR Package</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">NULISAseqR User Guide</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="quality-control" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Quality Control<a href="quality-control.html#quality-control" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Quality control is essential before proceeding with statistical analysis. This chapter covers generating QC reports and interpreting quality control metrics at the plate, run, sample, and target levels.</p>
+<div id="why-quality-control-matters" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> Why Quality Control Matters<a href="quality-control.html#why-quality-control-matters" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Quality control helps identify:</p>
+<ul>
+<li>Technical issues with sample processing</li>
+<li>Outlier samples</li>
+<li>Problems with specific protein targets</li>
+<li>Batch effects</li>
+<li>Overall data quality and reliability</li>
+</ul>
+<p><strong>Always perform QC before analysis!</strong> Problems caught early save time and ensure valid results.</p>
+</div>
+<div id="qc-report" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> Automated QC Report<a href="quality-control.html#qc-report" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>NULISAseqR includes a built-in QC report template that generates comprehensive quality metrics across multiple levels: plate/run, sample, and target.</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="quality-control.html#cb76-1" tabindex="-1"></a><span class="co"># Specify output directory</span></span>
+<span id="cb76-2"><a href="quality-control.html#cb76-2" tabindex="-1"></a>out_dir <span class="ot">&lt;-</span> <span class="fu">tempdir</span>()  <span class="co"># Or use your preferred directory</span></span>
+<span id="cb76-3"><a href="quality-control.html#cb76-3" tabindex="-1"></a></span>
+<span id="cb76-4"><a href="quality-control.html#cb76-4" tabindex="-1"></a><span class="do">## See Chapter 1 for loading data</span></span>
+<span id="cb76-5"><a href="quality-control.html#cb76-5" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb76-6"><a href="quality-control.html#cb76-6" tabindex="-1"></a><span class="co"># data_dir &lt;- system.file(&quot;extdata&quot;, package = &quot;NULISAseqR&quot;)</span></span>
+<span id="cb76-7"><a href="quality-control.html#cb76-7" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb76-8"><a href="quality-control.html#cb76-8" tabindex="-1"></a><span class="co"># xml_files &lt;- file.path(</span></span>
+<span id="cb76-9"><a href="quality-control.html#cb76-9" tabindex="-1"></a><span class="co">#   data_dir,</span></span>
+<span id="cb76-10"><a href="quality-control.html#cb76-10" tabindex="-1"></a><span class="co">#   c(&quot;INF_Panel_V1_detectability_study_plate01.xml&quot;,</span></span>
+<span id="cb76-11"><a href="quality-control.html#cb76-11" tabindex="-1"></a><span class="co">#     &quot;INF_Panel_V1_detectability_study_plate02.xml&quot;)</span></span>
+<span id="cb76-12"><a href="quality-control.html#cb76-12" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb76-13"><a href="quality-control.html#cb76-13" tabindex="-1"></a></span>
+<span id="cb76-14"><a href="quality-control.html#cb76-14" tabindex="-1"></a><span class="fu">render_QC_report</span>(</span>
+<span id="cb76-15"><a href="quality-control.html#cb76-15" tabindex="-1"></a>  <span class="at">output_filename =</span> <span class="st">&quot;Detectability_Study_NULISAseq_QC_report.html&quot;</span>,</span>
+<span id="cb76-16"><a href="quality-control.html#cb76-16" tabindex="-1"></a>  <span class="at">output_dir =</span> out_dir,</span>
+<span id="cb76-17"><a href="quality-control.html#cb76-17" tabindex="-1"></a>  <span class="at">study_name =</span> <span class="st">&quot;NULISAseq QC Report - Detectability Study&quot;</span>,</span>
+<span id="cb76-18"><a href="quality-control.html#cb76-18" tabindex="-1"></a>  <span class="at">assayName =</span> <span class="st">&quot;Inflammation Panel 250&quot;</span>,</span>
+<span id="cb76-19"><a href="quality-control.html#cb76-19" tabindex="-1"></a>  <span class="at">dataDir =</span> data_dir,</span>
+<span id="cb76-20"><a href="quality-control.html#cb76-20" tabindex="-1"></a>  <span class="at">xml_files =</span> <span class="fu">basename</span>(xml_files),</span>
+<span id="cb76-21"><a href="quality-control.html#cb76-21" tabindex="-1"></a>  <span class="at">report_type =</span> <span class="st">&quot;webApp&quot;</span></span>
+<span id="cb76-22"><a href="quality-control.html#cb76-22" tabindex="-1"></a>)</span>
+<span id="cb76-23"><a href="quality-control.html#cb76-23" tabindex="-1"></a></span>
+<span id="cb76-24"><a href="quality-control.html#cb76-24" tabindex="-1"></a><span class="co"># View the report</span></span>
+<span id="cb76-25"><a href="quality-control.html#cb76-25" tabindex="-1"></a><span class="fu">browseURL</span>(<span class="fu">file.path</span>(out_dir, <span class="st">&quot;Detectability_Study_NULISAseq_QC_report.html&quot;</span>))</span></code></pre></div>
+</div>
+<div id="qc-report-structure" class="section level2 hasAnchor" number="2.3">
+<h2><span class="header-section-number">2.3</span> QC Report Structure<a href="quality-control.html#qc-report-structure" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The automated QC report is organized into several key sections:</p>
+<div id="plate-layout" class="section level3 hasAnchor" number="2.3.1">
+<h3><span class="header-section-number">2.3.1</span> Plate Layout<a href="quality-control.html#plate-layout" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Visual representation of sample placement on 96-well plates showing:</p>
+<ul>
+<li>Sample positions and identifiers</li>
+<li>Control sample locations (NC, IPC, SC)</li>
+<li>Plate ID assignment and verification
+<img src="figures/QC%20report/QC%20report%20snapshoot.png" style="width:100%; max-width:800px;"></li>
+</ul>
+</div>
+<div id="run-summary" class="section level3 hasAnchor" number="2.3.2">
+<h3><span class="header-section-number">2.3.2</span> Run Summary<a href="quality-control.html#run-summary" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The report provides detailed summaries for overall reads and each type of control sample:
+<img src="figures/QC%20report/Read%20Summary.png" style="width:100%; max-width:800px;"></p>
+<div id="interal-controls-ic" class="section level4 hasAnchor" number="2.3.2.1">
+<h4><span class="header-section-number">2.3.2.1</span> Interal Controls (IC)<a href="quality-control.html#interal-controls-ic" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The IC is an exogenous reporter protein added to each well for well-to-well normalization and assessing the uniformity of the assay run.
+<img src="figures/QC%20report/Read%20Summary%20IC.png" style="width:100%; max-width:800px;"></p>
+</div>
+<div id="inter-plate-controls-ipc" class="section level4 hasAnchor" number="2.3.2.2">
+<h4><span class="header-section-number">2.3.2.2</span> Inter-Plate Controls (IPC)<a href="quality-control.html#inter-plate-controls-ipc" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>IPCs are pooled plasma controls used for normalization between plates.
+<img src="figures/QC%20report/Read%20Summary%20IPC.png" style="width:100%; max-width:800px;"></p>
+</div>
+<div id="sample-controls-sc" class="section level4 hasAnchor" number="2.3.2.3">
+<h4><span class="header-section-number">2.3.2.3</span> Sample Controls (SC)<a href="quality-control.html#sample-controls-sc" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>SCs are pooled plasma controls sourced independently from IPCs, and are used to assess intra-plate and inter-plate coefficient of variation (CV).
+<img src="figures/QC%20report/Read%20Summary%20SC.png" style="width:100%; max-width:800px;"></p>
+</div>
+<div id="negative-controls-nc" class="section level4 hasAnchor" number="2.3.2.4">
+<h4><span class="header-section-number">2.3.2.4</span> Negative Controls (NC)<a href="quality-control.html#negative-controls-nc" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>NC wells contain assay buffer. For each plate, NCs are used to determine Limit of Detection (LOD) and give a measure of assay background for each target.
+<img src="figures/QC%20report/Read%20Summary%20NC.png" style="width:100%; max-width:800px;"></p>
+</div>
+</div>
+<div id="quality-control-metrics" class="section level3 unnumbered hasAnchor">
+<h3>Quality Control Metrics<a href="quality-control.html#quality-control-metrics" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The QC report evaluates quality at three levels:</p>
+<ul>
+<li><strong>Run QC</strong></li>
+<li><strong>Sample QC</strong></li>
+<li><strong>Target Detectability</strong></li>
+</ul>
+</div>
+<div id="platerun-qc" class="section level3 hasAnchor" number="2.3.3">
+<h3><span class="header-section-number">2.3.3</span> Plate/Run QC<a href="quality-control.html#platerun-qc" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Run-level QC metrics assess the overall quality of each assay plate/run. These are evaluated on both unnormalized (raw) and IPC-normalized data.</p>
+<p><img src="figures/QC%20report/Plate%20QC.png" style="width:100%; max-width:800px;"></p>
+<p>Run-level QC metrics assess the overall quality of each assay run. These are evaluated on both unnormalized (raw) and IPC-normalized data.</p>
+<div id="run-qc-criteria" class="section level4 unnumbered hasAnchor">
+<h4>Run QC Criteria<a href="quality-control.html#run-qc-criteria" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div id="ic-cv-internal-control-coefficient-of-variation" class="section level5 unnumbered hasAnchor">
+<h5>1. IC CV (Internal Control Coefficient of Variation)<a href="quality-control.html#ic-cv-internal-control-coefficient-of-variation" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: CV of internal control Parseable Matching reads across all wells</li>
+<li><strong>Threshold</strong>: Maximum 25%</li>
+<li><strong>Purpose</strong>: Assesses technical variability within a plate</li>
+<li><strong>Interpretation</strong>:
+<ul>
+<li>✓ CV ≤ 25%: Good technical reproducibility</li>
+<li>✗ CV &gt; 25%: High technical variation, investigate plate processing</li>
+</ul></li>
+</ul>
+</div>
+<div id="ipc-cv-inter-plate-control-cv" class="section level5 unnumbered hasAnchor">
+<h5>2. IPC CV (Inter-Plate Control CV)<a href="quality-control.html#ipc-cv-inter-plate-control-cv" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: CV of total sum of Parseable Matching reads across all IPC samples</li>
+<li><strong>Threshold</strong>: Maximum 25%</li>
+<li><strong>Purpose</strong>: Evaluates consistency of control samples</li>
+<li><strong>Interpretation</strong>:
+<ul>
+<li>✓ CV ≤ 25%: IPCs performing consistently</li>
+<li>✗ CV &gt; 25%: IPC variability too high, may affect normalization</li>
+</ul></li>
+</ul>
+</div>
+<div id="ipc-target-cv" class="section level5 unnumbered hasAnchor">
+<h5>3. IPC Target CV<a href="quality-control.html#ipc-target-cv" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: Median intra-plate CV of IC-IPC normalized reads for all IPC targets across replicates</li>
+<li><strong>Threshold</strong>: Maximum 10%</li>
+<li><strong>Purpose</strong>: Assesses reproducibility at the protein target level</li>
+<li><strong>Interpretation</strong>:
+<ul>
+<li>✓ Median CV ≤ 10%: Excellent target-level precision</li>
+<li>✗ Median CV &gt; 10%: Some targets showing poor precision</li>
+</ul></li>
+</ul>
+</div>
+<div id="run-detectability" class="section level5 unnumbered hasAnchor">
+<h5>4. Run Detectability<a href="quality-control.html#run-detectability" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: Percentage of targets that are detectable (&gt; 50% of samples above LOD)</li>
+<li><strong>Threshold</strong>: Minimum 90%</li>
+<li><strong>Purpose</strong>: Overall assessment of assay sensitivity</li>
+<li><strong>Interpretation</strong>:
+<ul>
+<li>✓ Detectability ≥ 90%: Most targets detecting well</li>
+<li>✗ Detectability &lt; 90%: Poor overall detection, check sample quality or assay conditions</li>
+</ul></li>
+</ul>
+</div>
+<div id="reads-total-parseable-matching-reads" class="section level5 unnumbered hasAnchor">
+<h5>5. Reads (Total Parseable Matching Reads)<a href="quality-control.html#reads-total-parseable-matching-reads" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: Minimum number of reads required per plate</li>
+<li><strong>Threshold</strong>: Minimum 100,000,000 reads</li>
+<li><strong>Purpose</strong>: Ensures sufficient sequencing depth</li>
+<li><strong>Interpretation</strong>:
+<ul>
+<li>✓ Reads ≥ 100M: Adequate sequencing coverage</li>
+<li>✗ Reads &lt; 100M: Insufficient depth, may need re-sequencing</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="sample-qc" class="section level3 hasAnchor" number="2.3.4">
+<h3><span class="header-section-number">2.3.4</span> Sample QC<a href="quality-control.html#sample-qc" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Sample-level QC identifies individual samples that may have quality issues.
+<img src="figures/QC%20report/Sample%20QC.png" style="width:100%; max-width:800px;"></p>
+<div id="sample-qc-criteria" class="section level4 unnumbered hasAnchor">
+<h4>Sample QC Criteria<a href="quality-control.html#sample-qc-criteria" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div id="sample-detectability" class="section level5 unnumbered hasAnchor">
+<h5>1. Sample Detectability<a href="quality-control.html#sample-detectability" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: Percentage of targets with reads above LOD for each sample</li>
+<li><strong>Thresholds</strong> (vary by sample type):
+<ul>
+<li>Plasma: Minimum 90%</li>
+<li>Serum: Minimum 90%</li>
+<li>CSF: Minimum 70%</li>
+<li>Urine: Minimum 65%</li>
+<li>Cell culture: Minimum 30%</li>
+<li>NHP plasma: Minimum 55%</li>
+<li>NHP serum: Minimum 55%</li>
+<li>NHP CSF: Minimum 35%</li>
+<li>Dried blood spot: Minimum 75%</li>
+<li>Control: Minimum 90%</li>
+<li>Other: Minimum 0%</li>
+</ul></li>
+<li><strong>Purpose</strong>: Identifies samples with low overall protein detection</li>
+<li><strong>Interpretation</strong>:
+<ul>
+<li>✓ Detectability above threshold: Sample has adequate protein levels</li>
+<li>✗ Detectability below threshold: Sample may be degraded, diluted, or have insufficient protein</li>
+</ul></li>
+</ul>
+</div>
+<div id="ic-median-internal-control-median" class="section level5 unnumbered hasAnchor">
+<h5>2. IC Median (Internal Control Median)<a href="quality-control.html#ic-median-internal-control-median" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: Sample IC reads relative to the plate median</li>
+<li><strong>Threshold</strong>: Within ±40% of plate median</li>
+<li><strong>Purpose</strong>: Identifies samples with abnormal internal control performance</li>
+<li><strong>Interpretation</strong>:
+<ul>
+<li>✓ IC Median within ±40%: Sample processed normally</li>
+<li>✗ IC Median outside ±40%: Potential pipetting error, reagent issue, or sample quality problem</li>
+</ul></li>
+</ul>
+</div>
+<div id="ic-reads-per-sample" class="section level5 unnumbered hasAnchor">
+<h5>3. IC Reads per Sample<a href="quality-control.html#ic-reads-per-sample" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: Minimum number of reads required per sample for internal control</li>
+<li><strong>Threshold</strong>: Minimum 1000 reads</li>
+<li><strong>Purpose</strong>: Ensures adequate internal control signal</li>
+<li><strong>Interpretation</strong>:
+<ul>
+<li>✓ Reads ≥ 1000: Sample has adequate IC signal</li>
+<li>✗ Reads &lt; 1000: Sample has insufficient IC signal, may affect normalization</li>
+</ul></li>
+</ul>
+</div>
+<div id="total-reads-per-sample" class="section level5 unnumbered hasAnchor">
+<h5>4. Total Reads per Sample<a href="quality-control.html#total-reads-per-sample" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: Minimum number of reads required per sample</li>
+<li><strong>Threshold</strong>: Minimum 500,000 reads</li>
+<li><strong>Purpose</strong>: Ensures sufficient sequencing depth per sample</li>
+<li><strong>Interpretation</strong>:
+<ul>
+<li>✓ Reads ≥ 500K: Sample has adequate sequencing coverage</li>
+<li>✗ Reads &lt; 500K: Sample has low signal, may need re-sequencing</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="sample-qc-plots" class="section level4 unnumbered hasAnchor">
+<h4>Sample QC Plots<a href="quality-control.html#sample-qc-plots" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The QC report includes several plots for sample assessment:</p>
+<ul>
+<li><strong>Detectability Plot</strong>: Shows the percentage of targets detected for each sample (Figures <a href="quality-control.html#fig:sample-qc-plot-plate1">2.1</a> and <a href="quality-control.html#fig:sample-qc-plot-plate2">2.2</a>)</li>
+<li><strong>IC Median Plot</strong>: Displays internal control performance relative to plate median (Figures <a href="quality-control.html#fig:sample-qc-plot-plate1">2.1</a> and <a href="quality-control.html#fig:sample-qc-plot-plate2">2.2</a>)</li>
+<li><strong>Reads Distribution</strong>: Shows the distribution of total reads across samples (Figures <a href="quality-control.html#fig:sample-qc-plot-plate1">2.1</a> and <a href="quality-control.html#fig:sample-qc-plot-plate2">2.2</a>)</li>
+<li><strong>Sample Boxplots</strong>: Display normalized expression distributions for each sample (Figures <a href="quality-control.html#fig:sample-boxplot-plate1">2.3</a> and <a href="quality-control.html#fig:sample-boxplot-plate2">2.4</a>)</li>
+<li><strong>Sample Correlation Plots</strong>: Shows clustered heatmap of sample correlation matrix. Samples with high correlation will cluster together into blocks on the diagonal, which can be helpful for identifying sample replicates or multiple samples from the same individuals at different time points.</li>
+<li><strong>Sample and Target Clustering</strong>: Shows clustered heatmap of scaled NPQ matrix by sample and target</li>
+<li><strong>Sample PCA</strong>: Helpful for identifying outlier samples and batch effects</li>
+</ul>
+<p>These visualizations help identify:</p>
+<ul>
+<li>Samples with low protein detection</li>
+<li>Samples with abnormal internal control performance</li>
+<li>Outlier samples requiring further investigation</li>
+<li>Overall quality and consistency within and between plates</li>
+</ul>
+<div class="figure"><span style="display:block;" id="fig:sample-qc-plot-plate1"></span>
+<img src="figures/QC%20report/Sample%20QC%20plots%20-%20Plate01.png" alt="Sample QC plots for Plate_01" width="100%" style="max-width:800px;" />
+<p class="caption">
+Figure 2.1: Sample QC plots for Plate_01
+</p>
+</div>
+<div class="figure"><span style="display:block;" id="fig:sample-qc-plot-plate2"></span>
+<img src="figures/QC%20report/Sample%20QC%20plots%20-%20Plate02.png" alt="Sample QC plots for Plate_02" width="100%" style="max-width:800px;" />
+<p class="caption">
+Figure 2.2: Sample QC plots for Plate_02
+</p>
+</div>
+<p><strong>Sample Boxplots Before and After Normalization</strong> show the distribution of protein expression across samples before and after normalization with internal controls:</p>
+<div class="figure"><span style="display:block;" id="fig:sample-boxplot-plate1"></span>
+<img src="figures/QC%20report/Sample%20boxplot%20-%20Plate01.png" alt="Sample boxplots for Plate_01 after normalization" width="100%" style="max-width:800px;" />
+<p class="caption">
+Figure 2.3: Sample boxplots for Plate_01 after normalization
+</p>
+</div>
+<div class="figure"><span style="display:block;" id="fig:sample-boxplot-plate2"></span>
+<img src="figures/QC%20report/Sample%20boxplot%20-%20Plate02.png" alt="Sample boxplots for Plate_02 after normalization" width="100%" style="max-width:800px;" />
+<p class="caption">
+Figure 2.4: Sample boxplots for Plate_02 after normalization
+</p>
+</div>
+<p><strong>Interpreting Sample Boxplots</strong>: After IC normalization, sample boxplots should show similar median values and distributions. Outlier samples with shifted or compressed distributions may indicate quality issues. For example, in Plate_01, sample SMI_G05_Donor65 shows a high IC value before normalization (left), and after normalization this sample shows a lower distribution relative to other samples (right), indicating that IC normalization was too aggressive (Figure <a href="quality-control.html#fig:sample-boxplot-plate1">2.3</a>).</p>
+</div>
+</div>
+<div id="target-qc" class="section level3 hasAnchor" number="2.3.5">
+<h3><span class="header-section-number">2.3.5</span> Target QC<a href="quality-control.html#target-qc" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Target-level QC assesses the performance of individual protein markers.
+<img src="figures/QC%20report/Detectability.png" style="width:100%; max-width:800px;"></p>
+<div id="key-target-qc-metrics" class="section level4 unnumbered hasAnchor">
+<h4>Key Target QC Metrics<a href="quality-control.html#key-target-qc-metrics" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div id="target-detectability" class="section level5 unnumbered hasAnchor">
+<h5>1. Target Detectability<a href="quality-control.html#target-detectability" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: Percentage of samples in which a target is detected (above LOD)</li>
+<li><strong>Recommendation</strong>: Targets with &lt; 50% detectability should be carefully evaluated</li>
+<li><strong>Purpose</strong>: Identifies poorly performing or low-abundance targets</li>
+</ul>
+</div>
+<div id="limit-of-detection-lod" class="section level5 unnumbered hasAnchor">
+<h5>2. Limit of Detection (LOD)<a href="quality-control.html#limit-of-detection-lod" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<ul>
+<li><strong>Definition</strong>: Minimum signal level that can be reliably distinguished from background</li>
+<li><strong>Calculation</strong>: Calculated from negative control (NC) samples, mean + 3 standard deviations of normalized counts of NCs</li>
+<li><strong>Usage</strong>:
+<ul>
+<li>Values below LOD should be excluded from CV calculations</li>
+<li>Consider filtering targets with high proportion of values below LOD for differential analysis</li>
+<li>Visualized in target detectability boxplots relative to LOD</li>
+</ul></li>
+</ul>
+<p><strong>LOD of specific targets</strong>: Most LODs for the targets in the panel represent the lower limit of detection. There are some exception:</p>
+<p><strong>High-abundance targets:</strong></p>
+<ul>
+<li><strong>Inflammation Panel</strong>: <strong>CRP</strong> and <strong>KNG1</strong> in Human plasma and serum samples</li>
+<li><strong>CNS Panel</strong>: <strong>APOE</strong> and <strong>CRP</strong> in Human plasma and serum samples</li>
+<li><strong>Mouse Panel</strong>: <strong>Crp</strong> in Mouse plasma and serum samples</li>
+</ul>
+<p>These targets have very high endogenous levels in the samples. In order to accommodate these targets into our panel together with other lower abundance targets, we use special tuning strategies and algorithms to perform sample measurements. As a result, the listed LOD values for these targets are the upper limit of detection.</p>
+<p>Detectability is not a concern given the high level of these targets and the NPQ values can still be used for secondary data analysis. For novel sample types other than listed sample matrices, however, the algorithm may not be applicable depending on the abundance levels of the analyte, and the NPQ will not be reported.</p>
+</div>
+</div>
+</div>
+<div id="coefficient-of-variation-cv" class="section level3 hasAnchor" number="2.3.6">
+<h3><span class="header-section-number">2.3.6</span> Coefficient of Variation (CV)<a href="quality-control.html#coefficient-of-variation-cv" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>CV analysis assesses assay precision within and between plates:</p>
+<div id="intra-plate-cv" class="section level4 hasAnchor" number="2.3.6.1">
+<h4><span class="header-section-number">2.3.6.1</span> Intra-Plate CV<a href="quality-control.html#intra-plate-cv" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Measures variability within a single plate using control samples:
+<img src="figures/QC%20report/Intra%20Plate%20CV.png" style="width:100%; max-width:800px;"></p>
+<p>Key features:</p>
+<ul>
+<li>CV calculated for SC and IPC samples within each plate</li>
+<li>Separate analysis for unnormalized and IC-normalized data</li>
+<li>Excludes values below LOD</li>
+</ul>
+</div>
+<div id="inter-plate-cv" class="section level4 hasAnchor" number="2.3.6.2">
+<h4><span class="header-section-number">2.3.6.2</span> Inter-Plate CV<a href="quality-control.html#inter-plate-cv" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Measures variability across multiple plates, assessing batch effects:
+<img src="figures/QC%20report/Inter%20Plate%20CV.png" style="width:100%; max-width:800px;"></p>
+<p>The inter-plate CV plot demonstrates:</p>
+<ul>
+<li>Effectiveness of normalization strategies</li>
+<li>Reduction in CV after IC normalization</li>
+<li>Additional benefit of IPC normalization</li>
+</ul>
+</div>
+</div>
+<div id="batch-effect-assessment" class="section level3 hasAnchor" number="2.3.7">
+<h3><span class="header-section-number">2.3.7</span> Batch Effect Assessment<a href="quality-control.html#batch-effect-assessment" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Batch effects</strong> occur when systematic technical variation between assay plates affect the measured protein abundance, potentially confounding biological signals. The batch effect assessment uses statistical methods to quantify how much variability in each target’s measurements can be attributed to plate, helping identify targets that may require additional batch normalization, adjustment for Plate ID in downstream models, or careful interpretation in downstream analyses.</p>
+<div id="batch-effect-qc-summary" class="section level4 hasAnchor" number="2.3.7.1">
+<h4><span class="header-section-number">2.3.7.1</span> Batch Effect QC Summary<a href="quality-control.html#batch-effect-qc-summary" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The plate-level assessment evaluates whether each plate shows systematic bias across multiple targets:</p>
+<p><img src="figures/QC%20report/Batch%20Effect%20Test.png" style="width:100%; max-width:800px;"></p>
+<p><strong>Interpreting plate-level results:</strong></p>
+<ul>
+<li><strong>Pass</strong>: Plate shows acceptable consistency with other plates</li>
+<li><strong>Warning</strong>: Plate may have systematic technical issues affecting multiple targets</li>
+<li>Plates with warnings should be investigated for pre-analytical or technical issues</li>
+</ul>
+</div>
+<div id="batch-effects-target-qc" class="section level4 hasAnchor" number="2.3.7.2">
+<h4><span class="header-section-number">2.3.7.2</span> Batch Effects Target QC<a href="quality-control.html#batch-effects-target-qc" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><img src="figures/QC%20report/Batch%20Effect%20Target%20QC.png" style="width:100%; max-width:800px;"></p>
+<p>The table reports batch effect targets with the following metrics:</p>
+<ul>
+<li>run ICC &gt; 10%</li>
+<li>significant F-test (unadjusted p &lt; 0.01)</li>
+<li>significant pairwise test for at least one run (Tukey-adjusted p &lt; 0.01)</li>
+</ul>
+</div>
+<div id="batch-effect-icc-analysis" class="section level4 hasAnchor" number="2.3.7.3">
+<h4><span class="header-section-number">2.3.7.3</span> Batch Effect ICC Analysis<a href="quality-control.html#batch-effect-icc-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The Intra-Class Correlation (ICC) quantifies the proportion of total variance attributable to batch effects for each target:</p>
+<p><img src="figures/QC%20report/Batch%20Effect%20ICC.png" style="width:100%; max-width:800px;"></p>
+<p>The ICC is calculated using a linear mixed-effects model with plate ID as a random effect:</p>
+<p><span class="math display">\[ICC = \frac{\sigma^2_{plate}}{\sigma^2_{plate} + \sigma^2_{residual}} \times 100\]</span></p>
+<p><strong>Interpreting ICC values:</strong></p>
+<ul>
+<li><strong>ICC &gt; 10%</strong> (highlighted in red): Substantial batch effect that may require normalization or statistical adjustment</li>
+<li><strong>ICC &lt; 10%</strong>: Batch effects are minimal and unlikely to confound biological interpretation</li>
+<li>Targets with high batch effect ICC should be interpreted cautiously in downstream analyses</li>
+</ul>
+<p><strong>Common causes of batch effects:</strong></p>
+<ul>
+<li>Batch-to-batch reagent variation</li>
+<li>Temporal drift in instrument performance</li>
+<li>Environmental conditions during sample processing</li>
+<li>Sample-to-plate assignment that correlates with biological variables</li>
+</ul>
+<p>When batch effects are detected, consider including plate as a covariate in statistical models or using batch correction methods before downstream analysis.</p>
+<p>It is best practice to always randomize samples to plates so that technical run-related variation can be distinguished from biological variation. Please refer to <strong>Tech Note - NULISA<sup>TM</sup> multiplex normalization &amp; quality control</strong> for advice on sample randomization. See <a href="additional-resources.html#technical-documentation">Technical Documentation</a> in the Additional Resources chapter.</p>
+</div>
+</div>
+</div>
+<div id="qc-thresholds-summary" class="section level2 hasAnchor" number="2.4">
+<h2><span class="header-section-number">2.4</span> Summary of QC Thresholds<a href="quality-control.html#qc-thresholds-summary" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<table style="width:100%;">
+<caption><span id="tab:qc-thresholds">Table 2.1: </span>Summary of NULISAseq QC thresholds and their purposes</caption>
+<colgroup>
+<col width="11%" />
+<col width="33%" />
+<col width="24%" />
+<col width="30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Level</th>
+<th align="left">Metric</th>
+<th align="left">Threshold</th>
+<th align="left">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Plate/Run</td>
+<td align="left">IC CV</td>
+<td align="left">≤ 25%</td>
+<td align="left">Technical reproducibility</td>
+</tr>
+<tr class="even">
+<td align="left">Plate/Run</td>
+<td align="left">IPC CV</td>
+<td align="left">≤ 25%</td>
+<td align="left">Control precision</td>
+</tr>
+<tr class="odd">
+<td align="left">Plate/Run</td>
+<td align="left">IPC Target CV</td>
+<td align="left">≤ 10%</td>
+<td align="left">Target-level precision</td>
+</tr>
+<tr class="even">
+<td align="left">Plate/Run</td>
+<td align="left">Run Detectability</td>
+<td align="left">≥ 90%</td>
+<td align="left">Overall sensitivity</td>
+</tr>
+<tr class="odd">
+<td align="left">Plate/Run</td>
+<td align="left">Total Reads</td>
+<td align="left">≥ 100M</td>
+<td align="left">Sequencing depth</td>
+</tr>
+<tr class="even">
+<td align="left">Sample</td>
+<td align="left">Detectability (plasma/serum)</td>
+<td align="left">≥ 90%</td>
+<td align="left">Sample protein levels</td>
+</tr>
+<tr class="odd">
+<td align="left">Sample</td>
+<td align="left">Detectability (CSF)</td>
+<td align="left">≥ 70%</td>
+<td align="left">Sample protein levels</td>
+</tr>
+<tr class="even">
+<td align="left">Sample</td>
+<td align="left">IC Median</td>
+<td align="left">±40% of plate median</td>
+<td align="left">Processing precision</td>
+</tr>
+<tr class="odd">
+<td align="left">Target</td>
+<td align="left">Detectability</td>
+<td align="left">&gt; 50% samples</td>
+<td align="left">Target performance</td>
+</tr>
+<tr class="even">
+<td align="left">Target</td>
+<td align="left">Intra-plate CV</td>
+<td align="left">&lt; 10% median</td>
+<td align="left">Within-plate precision</td>
+</tr>
+<tr class="odd">
+<td align="left">Target</td>
+<td align="left">Inter-plate CV</td>
+<td align="left">&lt; 15% median</td>
+<td align="left">Cross-plate precision</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note</strong>: Thresholds may be adjusted based on specific study requirements and sample types. Always document any deviations from standard thresholds.</p>
+</blockquote>
+</div>
+<div id="manual-qc-checks" class="section level2 hasAnchor" number="2.5">
+<h2><span class="header-section-number">2.5</span> Manual QC Checks<a href="quality-control.html#manual-qc-checks" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In addition to the automated report, performing manual QC checks provides deeper insights into your data quality and helps you make informed decisions
+about filtering strategies.</p>
+<div id="check-for-missing-data" class="section level3 hasAnchor" number="2.5.1">
+<h3><span class="header-section-number">2.5.1</span> Check for Missing Data<a href="quality-control.html#check-for-missing-data" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Missing data for high-abundance targets</strong>:
+Certain targets use specialized normalization algorithms optimized for specific sample types. NPQ values for these targets may be missing in non-validated sample matrices:</p>
+<ul>
+<li><strong>Inflammation Panel</strong>: <strong>CRP</strong> and <strong>KNG1</strong> are only reported for human plasma and serum samples</li>
+<li><strong>CNS Panel</strong>: <strong>APOE</strong> and <strong>CRP</strong> are only reported for human plasma and serum samples</li>
+<li><strong>Mouse Panel</strong>: <strong>Crp</strong> is only reported for mouse plasma and serum samples</li>
+</ul>
+<p>These proteins have exceptionally high endogenous levels that require matrix-specific tuning. If you’re analyzing novel sample types (e.g., tissue lysates, saliva, urine), the normalization algorithm may not be applicable, and NPQ values will not be generated for these specific targets.</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="quality-control.html#cb77-1" tabindex="-1"></a><span class="co"># Count missing values</span></span>
+<span id="cb77-2"><a href="quality-control.html#cb77-2" tabindex="-1"></a>missing_by_sample <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ))</span>
+<span id="cb77-3"><a href="quality-control.html#cb77-3" tabindex="-1"></a>missing_by_protein <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(<span class="fu">is.na</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ))</span>
+<span id="cb77-4"><a href="quality-control.html#cb77-4" tabindex="-1"></a></span>
+<span id="cb77-5"><a href="quality-control.html#cb77-5" tabindex="-1"></a><span class="co"># Samples with high missingness</span></span>
+<span id="cb77-6"><a href="quality-control.html#cb77-6" tabindex="-1"></a>high_missing_samples <span class="ot">&lt;-</span> <span class="fu">names</span>(missing_by_sample[missing_by_sample <span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">*</span> <span class="fu">nrow</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ)])</span>
+<span id="cb77-7"><a href="quality-control.html#cb77-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Samples with &gt;10% missing:&quot;</span>, <span class="fu">length</span>(high_missing_samples), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb77-8"><a href="quality-control.html#cb77-8" tabindex="-1"></a></span>
+<span id="cb77-9"><a href="quality-control.html#cb77-9" tabindex="-1"></a><span class="co"># Proteins with high missingness</span></span>
+<span id="cb77-10"><a href="quality-control.html#cb77-10" tabindex="-1"></a>high_missing_proteins <span class="ot">&lt;-</span> <span class="fu">names</span>(missing_by_protein[missing_by_protein <span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">*</span> <span class="fu">ncol</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ)])</span>
+<span id="cb77-11"><a href="quality-control.html#cb77-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Proteins with &gt;10% missing:&quot;</span>, <span class="fu">length</span>(high_missing_proteins), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+</div>
+<div id="low-detectability-targets" class="section level3 hasAnchor" number="2.5.2">
+<h3><span class="header-section-number">2.5.2</span> Low Detectability Targets<a href="quality-control.html#low-detectability-targets" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>Why filter by detectability?</strong></p>
+<p>Low-detectability targets present several analytical challenges:</p>
+<ul>
+<li><strong>Non-normal distributions</strong>: In typical sample types, targets with &lt; 50% detectability often have bimodal or highly skewed distributions due to a mixture of detected values and below-LOD measurements</li>
+<li><strong>Heteroscedasticity</strong>: Low-detectability targets may violate homoscedasticity assumptions for statistical methods that assume equal variance between groups</li>
+<li><strong>Statistical power and false positives</strong>: Proteins detected in only a minority of samples provide limited power for detecting biological differences, or they could generate false positive findings if distributional assumptions are violated</li>
+<li><strong>Biological interpretation</strong>: Proteins rarely detected may be below biologically relevant concentrations or unstable in the sample type</li>
+</ul>
+<p><strong>Recommended detectability thresholds:</strong></p>
+<p>For standard sample matrices (plasma, serum, CSF), we recommend:</p>
+<ul>
+<li><strong>&gt; 50% detectability</strong>: Minimum threshold for robust statistical analysis
+<ul>
+<li>Ensures data has approximate normal distribution after log-transformation</li>
+<li>Provides adequate power for differential abundance analysis</li>
+</ul></li>
+</ul>
+<p>For exploratory analyses or novel sample types:</p>
+<ul>
+<li><strong>All targets</strong> (0% threshold): Acceptable for initial data exploration or when you’re specifically interested in low-abundance proteins</li>
+<li><strong>&gt; 0% detectability</strong>: Removes only targets with zero detection, useful for maximizing coverage in discovery studies</li>
+<li><strong>Sample-type specific</strong>: Urine (≥ 65%), cell culture (≥ 30%), dried blood spots (≥ 75%) — see Section <a href="quality-control.html#sample-detectability">Sample Detectability</a> for full list</li>
+</ul>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="quality-control.html#cb78-1" tabindex="-1"></a><span class="co"># Remove targets below 50% detectability cutoff </span></span>
+<span id="cb78-2"><a href="quality-control.html#cb78-2" tabindex="-1"></a>target_passed_detect <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>detectability <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="st">`</span><span class="at">plasma (n = 176)</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">50</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Target)</span>
+<span id="cb78-3"><a href="quality-control.html#cb78-3" tabindex="-1"></a></span>
+<span id="cb78-4"><a href="quality-control.html#cb78-4" tabindex="-1"></a>data_filtered <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Target <span class="sc">%in%</span> target_passed_detect)</span>
+<span id="cb78-5"><a href="quality-control.html#cb78-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Removed&quot;</span>, <span class="fu">nrow</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ) <span class="sc">-</span> <span class="fu">length</span>(target_passed_detect), <span class="st">&quot;proteins</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+</div>
+<div id="calculate-targets-detectability-by-subgroups" class="section level3 hasAnchor" number="2.5.3">
+<h3><span class="header-section-number">2.5.3</span> Calculate Targets Detectability by Subgroups<a href="quality-control.html#calculate-targets-detectability-by-subgroups" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In studies with diverse sample types or conditions, consider calculating detectability within relevant subgroups. The easiest way to do this is to use the <code>sample_group_covar</code> parameter of the <code>importNULISAseq</code> function (see <a href="quality-control.html#auto-subgroup-detect">Automated Subgroup Detectability Calculation with XML</a> below). However, this assumes that the subgroup variable is already embedded in the xml files. If that is not the case, you may use code such as the following:</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="quality-control.html#cb79-1" tabindex="-1"></a><span class="co"># Example: Calculate detectability by disease status</span></span>
+<span id="cb79-2"><a href="quality-control.html#cb79-2" tabindex="-1"></a>detectability_by_disease <span class="ot">&lt;-</span> data_long <span class="sc">%&gt;%</span></span>
+<span id="cb79-3"><a href="quality-control.html#cb79-3" tabindex="-1"></a>  <span class="fu">filter</span>(SampleType <span class="sc">==</span> <span class="st">&quot;Sample&quot;</span>,</span>
+<span id="cb79-4"><a href="quality-control.html#cb79-4" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(disease_type)) <span class="sc">%&gt;%</span> </span>
+<span id="cb79-5"><a href="quality-control.html#cb79-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">above_LOD =</span> <span class="fu">if_else</span>(Target <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;CRP&quot;</span>, <span class="st">&quot;KNG1&quot;</span>),  <span class="co"># High-abundance targets</span></span>
+<span id="cb79-6"><a href="quality-control.html#cb79-6" tabindex="-1"></a>                             <span class="sc">!</span><span class="fu">is.na</span>(NPQ),  <span class="co"># For CRP/KNG1: TRUE if NPQ is not NA</span></span>
+<span id="cb79-7"><a href="quality-control.html#cb79-7" tabindex="-1"></a>                             NPQ <span class="sc">&gt;</span> LOD)   <span class="co"># For others: TRUE if NPQ &gt; LOD</span></span>
+<span id="cb79-8"><a href="quality-control.html#cb79-8" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb79-9"><a href="quality-control.html#cb79-9" tabindex="-1"></a>  <span class="fu">group_by</span>(disease_type) <span class="sc">%&gt;%</span></span>
+<span id="cb79-10"><a href="quality-control.html#cb79-10" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">matrix_treatment_count =</span> <span class="fu">n_distinct</span>(SampleName)) <span class="sc">%&gt;%</span></span>
+<span id="cb79-11"><a href="quality-control.html#cb79-11" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb79-12"><a href="quality-control.html#cb79-12" tabindex="-1"></a>  <span class="fu">group_by</span>(Target, disease_type, matrix_treatment_count) <span class="sc">%&gt;%</span></span>
+<span id="cb79-13"><a href="quality-control.html#cb79-13" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb79-14"><a href="quality-control.html#cb79-14" tabindex="-1"></a>    <span class="at">detectability =</span> <span class="fu">round</span>(<span class="fu">sum</span>(above_LOD, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">n</span>() <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>),</span>
+<span id="cb79-15"><a href="quality-control.html#cb79-15" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span></span>
+<span id="cb79-16"><a href="quality-control.html#cb79-16" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb79-17"><a href="quality-control.html#cb79-17" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb79-18"><a href="quality-control.html#cb79-18" tabindex="-1"></a>    <span class="at">Disease_Type =</span> <span class="fu">paste0</span>(disease_type, <span class="st">&quot; (n = &quot;</span>, matrix_treatment_count, <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb79-19"><a href="quality-control.html#cb79-19" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb79-20"><a href="quality-control.html#cb79-20" tabindex="-1"></a>  <span class="co"># Convert to wide format</span></span>
+<span id="cb79-21"><a href="quality-control.html#cb79-21" tabindex="-1"></a>  <span class="fu">select</span>(Target, Disease_Type, detectability) <span class="sc">%&gt;%</span></span>
+<span id="cb79-22"><a href="quality-control.html#cb79-22" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb79-23"><a href="quality-control.html#cb79-23" tabindex="-1"></a>    <span class="at">names_from =</span> Disease_Type,</span>
+<span id="cb79-24"><a href="quality-control.html#cb79-24" tabindex="-1"></a>    <span class="at">values_from =</span> detectability,</span>
+<span id="cb79-25"><a href="quality-control.html#cb79-25" tabindex="-1"></a>    <span class="at">values_fill =</span> <span class="cn">NA</span></span>
+<span id="cb79-26"><a href="quality-control.html#cb79-26" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-de9936d03c55f0701e81" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-de9936d03c55f0701e81">{"x":{"filter":"none","vertical":false,"caption":"<caption>Preview of Target Detectability by Subgroups Table<\/caption>","data":[["Activin AB","AGER","AGRP","ANGPT1","ANXA1","BDNF","BMP10","BMP7","C1QA","CCL1","CCL13","CCL14","CCL15","CCL16","CCL17","CCL19","CCL2","CCL20","CCL22","CCL23","CCL24","CCL25","CCL28","CCL3","CCL4","CCL5","CCL7","CCL8","CD200","CD200R1","CD274","CD276","CD40","CD70","CD83","CD93","CEACAM5","CHI3L1","CLCF1","CLEC4A","CSF1","CSF2RB","CSF3","CSF3R","CST7","CTF1","CTLA4","CTSS","CX3CL1","CXADR","CXCL1","CXCL10","CXCL12","CXCL13","CXCL14","CXCL2","CXCL3","CXCL5","CXCL8","CXCL9","EBI3","EGF","EPO","FAM3D","FASLG","FGF19","FGF2","FGF21","FGF23","FLT1","FLT3LG","FTH1","GDF15","GDF2","GFAP","GRN","GZMB","HGF","IFNA1; IFNA13","IFNA2","IFNB1","IFNG","IFNL1","IFNW1","IL10","IL10RB","IL11","IL12B","IL12p70","IL12RB1","IL13","IL13RA2","IL15RA","IL16","IL17A","IL17B","IL17C","IL17F","IL17RB","IL18","IL18BP","IL18R1","IL19","IL1B","IL1R2","IL1RL1","IL1RN","IL20","IL22","IL23","IL2RA","IL2RB","IL32","IL33","IL34","IL35","IL36A","IL36G","IL39","IL3RA","IL4","IL4R","IL5","IL5RA","IL6","IL6R","IL7","IL7R","IL9","INHBA","INHBB","Inhibin A","Inhibin B","IRAK4","KDR","KITLG","LAG3","LAMP3","LCN2","LGALS9","LIF","LTBR","MDK","MERTK","MET","MICA","MICB","MIF","MMP10","MMP12","MMP3","MMP8","MMP9","MPO","MUC16","NCR1","NGF","NIC_1","NIC_3","OSM","PDCD1","PDGFA","PTX3","S100A12","S100A9","SCG2","SELE","SLURP1","SPP1","TAFA5","TGFB1","TGFB3","THPO","TIMP1","TIMP2","TLR3","TNF","TNFRSF11A","TNFRSF13C","TNFRSF14","TNFRSF17","TNFRSF18","TNFRSF1A","TNFRSF1B","TNFRSF4","TNFRSF8","TNFRSF9","TNFSF10","TNFSF11","TNFSF12","TNFSF13","TNFSF13B","TNFSF15","TNFSF4","TNFSF8","TNFSF9","TREM1","TSLP","VCAM1","VEGFA","VEGFC","VEGFD","VSNL1","VSTM1","WNT16","WNT7A"],[49.4,100,100,100,88.59999999999999,100,65.8,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,34.2,100,100,100,100,94.90000000000001,100,100,100,100,58.2,100,100,100,100,34.2,100,100,83.5,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,24.1,100,100,100,100,100,98.7,100,100,100,3.8,100,100,100,100,100,100,100,100,46.8,96.2,100,100,30.4,100,100,96.2,100,96.2,100,100,100,100,100,100,100,100,100,100,100,100,100,100,51.9,100,100,100,100,72.2,98.7,100,100,93.7,100,98.7,1.3,100,94.90000000000001,2.5,100,100,100,100,100,97.5,100,100,100,100,83.5,69.59999999999999,13.9,58.2,98.7,100,100,100,100,100,96.2,100,100,100,100,100,81,100,100,100,100,100,100,100,100,100,100,100,35.4,2.5,100,100,100,100,100,93.7,100,100,100,100,100,100,83.5,100,100,100,100,82.3,100,100,100,100,97.5,100,100,100,100,100,100,74.7,100,100,100,100,100,100,100,100,100,100,30.4,100,91.09999999999999,100,98.7,100,100],[66.7,100,100,100,81,100,95.2,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,66.7,100,100,100,100,95.2,100,100,100,100,81,100,100,100,100,47.6,100,100,95.2,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,57.1,100,100,100,100,100,90.5,100,100,100,19,100,100,100,100,100,100,100,100,76.2,100,100,100,28.6,100,100,95.2,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,76.2,100,100,100,100,66.7,100,100,100,100,100,100,14.3,100,100,23.8,100,100,100,100,100,100,100,100,100,100,85.7,66.7,38.1,42.9,100,100,100,100,100,100,100,100,100,100,100,100,95.2,100,100,100,100,100,100,100,100,100,100,100,38.1,0,100,100,100,100,100,100,100,100,100,100,100,100,90.5,100,100,100,100,95.2,100,100,100,100,100,100,100,100,100,100,100,90.5,100,100,100,100,100,100,100,100,100,100,47.6,100,100,100,100,100,100],[46.9,100,100,100,62.5,100,68.8,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,25,100,100,100,100,87.5,100,100,100,100,84.40000000000001,100,100,100,100,25,100,100,96.90000000000001,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,56.2,100,100,100,100,100,93.8,100,100,100,28.1,100,100,100,100,100,100,100,100,68.8,100,100,100,50,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,50,100,100,100,100,90.59999999999999,100,100,100,96.90000000000001,100,100,0,100,100,3.1,100,100,100,100,100,100,100,100,100,100,75,59.4,15.6,46.9,100,100,100,100,100,100,100,100,100,100,100,100,93.8,100,100,100,100,100,100,100,100,100,100,100,50,3.1,100,100,100,100,100,100,100,100,100,100,100,100,96.90000000000001,100,100,100,100,78.09999999999999,100,100,100,100,100,100,100,100,100,100,100,75,100,100,100,100,100,100,100,100,100,100,37.5,100,100,100,100,100,100],[50,100,100,100,50,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,25,100,100,100,100,100,100,100,100,100,100,100,100,100,100,25,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,75,100,100,100,100,100,100,100,100,100,75,100,100,100,100,100,100,100,100,75,100,100,100,50,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,0,100,100,25,100,100,100,100,100,100,100,100,100,100,100,75,25,50,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,50,0,100,100,100,100,100,75,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,75,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100],[33.3,100,100,100,77.8,100,77.8,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,33.3,100,100,100,100,100,100,100,100,100,66.7,100,100,100,100,33.3,100,100,88.90000000000001,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,33.3,100,100,100,100,100,88.90000000000001,100,100,100,22.2,100,100,100,100,100,100,100,88.90000000000001,44.4,100,100,100,44.4,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,22.2,100,100,100,100,44.4,100,100,100,88.90000000000001,100,100,11.1,100,77.8,11.1,100,100,100,100,100,100,100,100,100,100,66.7,66.7,0,22.2,100,100,100,100,100,100,100,100,100,100,100,100,77.8,100,100,100,100,100,100,100,100,100,100,100,22.2,11.1,100,100,100,100,100,88.90000000000001,100,100,100,100,100,100,100,100,100,100,100,66.7,100,100,100,100,100,100,100,100,100,100,100,88.90000000000001,100,100,100,100,100,100,100,100,100,100,22.2,100,88.90000000000001,100,100,100,100],[66.7,100,100,100,66.7,100,66.7,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,33.3,100,100,100,100,83.3,100,100,100,100,66.7,100,100,100,100,50,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,66.7,100,100,100,100,100,100,100,100,100,16.7,100,100,100,100,100,100,100,100,50,100,100,100,33.3,100,100,83.3,100,83.3,100,100,100,100,100,100,100,100,100,100,100,100,100,100,16.7,100,100,100,100,100,100,100,100,100,100,100,0,100,100,16.7,100,100,100,100,100,100,100,100,100,100,83.3,66.7,66.7,50,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,50,16.7,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,83.3,100,100,100,100,100,100,100,100,100,100,100,66.7,100,100,100,100,100,100,100,100,100,100,50,100,100,100,100,100,100]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Target<\/th>\n      <th>normal (n = 79)<\/th>\n      <th>inflam (n = 21)<\/th>\n      <th>cancer (n = 32)<\/th>\n      <th>kidney (n = 4)<\/th>\n      <th>metab (n = 9)<\/th>\n      <th>neuro (n = 6)<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"pageLength":10,"paging":true,"searching":false,"info":true,"dom":"tip","columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6]},{"name":"Target","targets":0},{"name":"normal (n = 79)","targets":1},{"name":"inflam (n = 21)","targets":2},{"name":"cancer (n = 32)","targets":3},{"name":"kidney (n = 4)","targets":4},{"name":"metab (n = 9)","targets":5},{"name":"neuro (n = 6)","targets":6}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p><br>
+<strong>Interpreting the table:</strong> Each column represents a different subgroup with its sample size. Values show the detectability of each disease type subgroup (percentage of samples within that subgroup where each target was detected above its LOD).</p>
+<div id="auto-subgroup-detect" class="section level5 hasAnchor" number="2.5.3.0.1">
+<h5><span class="header-section-number">2.5.3.0.1</span> Automated Subgroup Detectability Calculation with XML<a href="quality-control.html#auto-subgroup-detect" class="anchor-section" aria-label="Anchor link to header"></a></h5>
+<p>The <code>importNULISAseq()</code> function can automatically calculate detectability by subgroups during data import using the <code>sample_group_var</code> parameter. This parameter specifies a column name in the samples data matrix that defines subgroups for detectability calculations. Note that this column must already exist in the XML file provided to the function. See <code>?importNULISAseq</code> for more details.</p>
+<p><strong>Usage:</strong></p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="quality-control.html#cb80-1" tabindex="-1"></a>data_list <span class="ot">&lt;-</span> <span class="fu">importNULISAseq</span>(</span>
+<span id="cb80-2"><a href="quality-control.html#cb80-2" tabindex="-1"></a>  <span class="at">sample_group_var =</span> <span class="st">&quot;SAMPLE_MATRIX&quot;</span>  <span class="co"># Default value</span></span>
+<span id="cb80-3"><a href="quality-control.html#cb80-3" tabindex="-1"></a>)</span></code></pre></div>
+<p>The function will:</p>
+<ul>
+<li>Calculate detectability separately for each subgroup defined in the specified column</li>
+<li>Calculate overall detectability across all samples</li>
+</ul>
+<p>This automated approach is particularly useful when metadata information was available in XML file, as it provides subgroup-specific detectability metrics without requiring additional post-processing steps.</p>
+</div>
+</div>
+<div id="batch-effect-correction" class="section level3 hasAnchor" number="2.5.4">
+<h3><span class="header-section-number">2.5.4</span> Batch Effect Correction<a href="quality-control.html#batch-effect-correction" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>If batch effects are present, consider:</p>
+<ul>
+<li>Intensity normalization</li>
+<li>Using bridge samples for normalization</li>
+</ul>
+<p>For additional information on normalization strategies, please refer to <strong>Tech Note - NULISA<sup>TM</sup> multiplex normalization &amp; quality control</strong>.
+See <a href="additional-resources.html#technical-documentation">Technical Documentation</a> in the Additional Resources chapter. Future releases of NULISAseqR will include expanded functions for implementing advanced normalization steps. If additional guidance is needed, please reach out to Alamar Biosciences support at <a href="mailto:support@alamarbio.com">support@alamarbio.com</a>.</p>
+</div>
+</div>
+<div id="qc-best-practices" class="section level2 hasAnchor" number="2.6">
+<h2><span class="header-section-number">2.6</span> Best Practices<a href="quality-control.html#qc-best-practices" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="documentation" class="section level3 unnumbered hasAnchor">
+<h3>Documentation<a href="quality-control.html#documentation" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li><strong>Save QC reports</strong> with date stamps for traceability</li>
+<li><strong>Document all filtering decisions</strong>: Which samples/targets were removed and why</li>
+<li><strong>Keep notes on QC thresholds</strong>: Record any deviations from standard thresholds</li>
+<li><strong>Track re-runs</strong>: If plates are re-processed, document reasons and outcomes</li>
+</ul>
+</div>
+<div id="consistency" class="section level3 unnumbered hasAnchor">
+<h3>Consistency<a href="quality-control.html#consistency" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li><strong>Apply same QC criteria across studies</strong> for comparability</li>
+<li><strong>Pre-define QC thresholds</strong> before analysis to avoid bias</li>
+<li><strong>Document SOP</strong>: Standard operating procedure for QC decisions</li>
+</ul>
+</div>
+<div id="collaboration" class="section level3 unnumbered hasAnchor">
+<h3>Collaboration<a href="quality-control.html#collaboration" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li><strong>Consult wet lab team</strong>: Especially for borderline samples or unusual patterns</li>
+<li><strong>Review control samples</strong>: IPC and SC performance can indicate systematic issues</li>
+<li><strong>Discuss batch effects</strong>: Randomize samples to plates to enable detection of batch effects; coordinate on plate layout and run order to minimize batch effects</li>
+</ul>
+</div>
+<div id="when-in-doubt" class="section level3 unnumbered hasAnchor">
+<h3>When in Doubt<a href="quality-control.html#when-in-doubt" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li><strong>Be conservative</strong>: More stringent QC is better than too lenient</li>
+<li><strong>Use biological replicates</strong>: For validation of questionable samples</li>
+<li><strong>Seek expert input</strong>: Consult with Alamar team if needed</li>
+</ul>
+</div>
+</div>
+<div id="complete-qc-workflow" class="section level2 hasAnchor" number="2.7">
+<h2><span class="header-section-number">2.7</span> Complete QC Workflow<a href="quality-control.html#complete-qc-workflow" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="quality-control.html#cb81-1" tabindex="-1"></a><span class="co"># Load libraries</span></span>
+<span id="cb81-2"><a href="quality-control.html#cb81-2" tabindex="-1"></a><span class="fu">library</span>(NULISAseqR)</span>
+<span id="cb81-3"><a href="quality-control.html#cb81-3" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb81-4"><a href="quality-control.html#cb81-4" tabindex="-1"></a></span>
+<span id="cb81-5"><a href="quality-control.html#cb81-5" tabindex="-1"></a><span class="co"># 1. Generate automated QC report</span></span>
+<span id="cb81-6"><a href="quality-control.html#cb81-6" tabindex="-1"></a><span class="do">## Specify output directory</span></span>
+<span id="cb81-7"><a href="quality-control.html#cb81-7" tabindex="-1"></a>out_dir <span class="ot">&lt;-</span> <span class="fu">tempdir</span>()  <span class="co"># Or use your preferred directory</span></span>
+<span id="cb81-8"><a href="quality-control.html#cb81-8" tabindex="-1"></a><span class="do">## See Chapter 1 for loading data</span></span>
+<span id="cb81-9"><a href="quality-control.html#cb81-9" tabindex="-1"></a></span>
+<span id="cb81-10"><a href="quality-control.html#cb81-10" tabindex="-1"></a><span class="fu">render_QC_report</span>(</span>
+<span id="cb81-11"><a href="quality-control.html#cb81-11" tabindex="-1"></a>  <span class="at">output_filename =</span> <span class="st">&quot;Detectability_Study_NULISAseq_QC_report.html&quot;</span>,</span>
+<span id="cb81-12"><a href="quality-control.html#cb81-12" tabindex="-1"></a>  <span class="at">output_dir =</span> out_dir,</span>
+<span id="cb81-13"><a href="quality-control.html#cb81-13" tabindex="-1"></a>  <span class="at">study_name =</span> <span class="st">&quot;NULISAseq QC Report - Detectability Study&quot;</span>,</span>
+<span id="cb81-14"><a href="quality-control.html#cb81-14" tabindex="-1"></a>  <span class="at">assayName =</span> <span class="st">&quot;Inflammation Panel 250&quot;</span>,</span>
+<span id="cb81-15"><a href="quality-control.html#cb81-15" tabindex="-1"></a>  <span class="at">dataDir =</span> data_dir,</span>
+<span id="cb81-16"><a href="quality-control.html#cb81-16" tabindex="-1"></a>  <span class="at">xml_files =</span> <span class="fu">basename</span>(xml_files),</span>
+<span id="cb81-17"><a href="quality-control.html#cb81-17" tabindex="-1"></a>  <span class="at">report_type =</span> <span class="st">&quot;webApp&quot;</span></span>
+<span id="cb81-18"><a href="quality-control.html#cb81-18" tabindex="-1"></a>)</span>
+<span id="cb81-19"><a href="quality-control.html#cb81-19" tabindex="-1"></a></span>
+<span id="cb81-20"><a href="quality-control.html#cb81-20" tabindex="-1"></a><span class="do">## View the report</span></span>
+<span id="cb81-21"><a href="quality-control.html#cb81-21" tabindex="-1"></a><span class="fu">browseURL</span>(<span class="fu">file.path</span>(out_dir, <span class="st">&quot;Detectability_Study_NULISAseq_QC_report.html&quot;</span>))</span>
+<span id="cb81-22"><a href="quality-control.html#cb81-22" tabindex="-1"></a></span>
+<span id="cb81-23"><a href="quality-control.html#cb81-23" tabindex="-1"></a><span class="co"># 2. Filter low-quality samples</span></span>
+<span id="cb81-24"><a href="quality-control.html#cb81-24" tabindex="-1"></a>sample_qc_warning <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>qcSample <span class="sc">%&gt;%</span> <span class="fu">filter</span>(status <span class="sc">==</span> <span class="st">&quot;TRUE&quot;</span>) </span>
+<span id="cb81-25"><a href="quality-control.html#cb81-25" tabindex="-1"></a><span class="do">## examine sample boxplot distributions after normalization to identify samples with issues</span></span>
+<span id="cb81-26"><a href="quality-control.html#cb81-26" tabindex="-1"></a><span class="do">## examine further with heatmap and pca in next Chapter</span></span>
+<span id="cb81-27"><a href="quality-control.html#cb81-27" tabindex="-1"></a></span>
+<span id="cb81-28"><a href="quality-control.html#cb81-28" tabindex="-1"></a><span class="co"># 3. Filter low-detection proteins</span></span>
+<span id="cb81-29"><a href="quality-control.html#cb81-29" tabindex="-1"></a>target_passed_detect <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>detectability <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="st">`</span><span class="at">plasma (n = 176)</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">50</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Target)</span>
+<span id="cb81-30"><a href="quality-control.html#cb81-30" tabindex="-1"></a>data_filtered <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ_long <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Target <span class="sc">%in%</span> target_passed_detect)</span>
+<span id="cb81-31"><a href="quality-control.html#cb81-31" tabindex="-1"></a></span>
+<span id="cb81-32"><a href="quality-control.html#cb81-32" tabindex="-1"></a><span class="co"># 4. Create filtered dataset</span></span>
+<span id="cb81-33"><a href="quality-control.html#cb81-33" tabindex="-1"></a>data_filtered_wide <span class="ot">&lt;-</span> data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ[target_passed_detect,]</span>
+<span id="cb81-34"><a href="quality-control.html#cb81-34" tabindex="-1"></a></span>
+<span id="cb81-35"><a href="quality-control.html#cb81-35" tabindex="-1"></a><span class="co"># 5. (Optional) Update metadata to match</span></span>
+<span id="cb81-36"><a href="quality-control.html#cb81-36" tabindex="-1"></a>metadata_qc <span class="ot">&lt;-</span> metadata <span class="sc">%&gt;%</span> <span class="fu">filter</span>(SampleName <span class="sc">%in%</span> sample_qc_warning<span class="sc">$</span>SampleName)</span>
+<span id="cb81-37"><a href="quality-control.html#cb81-37" tabindex="-1"></a></span>
+<span id="cb81-38"><a href="quality-control.html#cb81-38" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">QC Summary:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb81-39"><a href="quality-control.html#cb81-39" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Original: &quot;</span>, <span class="fu">nrow</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ), <span class="st">&quot;targets,&quot;</span>, </span>
+<span id="cb81-40"><a href="quality-control.html#cb81-40" tabindex="-1"></a>    <span class="fu">ncol</span>(data<span class="sc">$</span>merged<span class="sc">$</span>Data_NPQ), <span class="st">&quot;samples</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb81-41"><a href="quality-control.html#cb81-41" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;After QC:&quot;</span>, <span class="fu">nrow</span>(data_filtered_wide), <span class="st">&quot;targets,&quot;</span>, <span class="fu">ncol</span>(data_filtered_wide), <span class="st">&quot;samples</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<p><br>
+<strong>Continue to:</strong> <a href="visualization.html#visualization">Chapter 3: Visualization</a></p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="data-import.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="visualization.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": false,
+    "twitter": false,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": {},
+    "google": false
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section",
+    "scroll_highlight": true
+  },
+  "toolbar": {
+    "position": "fixed"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
