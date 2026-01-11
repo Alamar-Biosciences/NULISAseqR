@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "medical-mcps": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "/Users/dkuo/Projects/NULISAseqR_internal/scripts/medical_mcps_stdio.py"
+      ],
+      "env": {}
+    }
+  }
+}

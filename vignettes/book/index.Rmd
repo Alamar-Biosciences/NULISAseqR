@@ -1,0 +1,123 @@
+--- 
+title: NULISAseqR User Guide
+site: bookdown::bookdown_site
+documentclass: book
+url: 'https://alamar-biosciences.github.io/NULISAseqR/'
+github-repo: "Alamar-Biosciences/NULISAseqR"
+description: "A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package"
+---
+
+# Welcome {-}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 8,
+  fig.height = 6,
+  cache = TRUE,
+  comment = "#>"
+)
+
+# Load required libraries
+suppressPackageStartupMessages({
+  library(NULISAseqR)
+  library(tidyverse)
+})
+```
+
+This guide will walk you through analysis of NULISAseq proteomic data using R. 
+<br>
+
+If you have limited experience with R or prefer a graphical user interface, consider using the [NULISA Analysis Software (NAS)](#nulisa-analysis-software-nas) — a cloud-based platform designed for intuitive data processing, visualization, and analysis.
+
+
+## What is NULISAseqR? {-}
+
+**NULISAseqR** is an R package designed specifically for working with NULISAseq proteomic data. It provides:
+
+- **Data Import**: Read XML files from NULISAseq multiplex proteomic panels
+- **Quality Control**: Automated QC metrics and reporting
+- **Visualization**: Heatmaps, PCA plots, volcano plots, boxplots, etc.
+- **Statistical Analysis**: Differential abundance testing and longitudinal analysis
+- **Outcome Modeling**: Linear models using single-protein abundance to predict an outcome
+
+## Installation {-}
+
+**New to R?** If you haven't installed R and RStudio yet, see the [Installing R and RStudio](#r-install) guide in the Additional Resources page.
+
+### macOS Users {-}
+
+**Important**: Before installing NULISAseqR on macOS, you need to install Xcode Command Line Tools:
+
+1. Install Xcode from the App Store (if not already installed)
+2. Open Terminal and run this code to accept the Xcode license agreement:
+```bash
+sudo xcodebuild -license accept
+```
+
+### Windows Users {-}
+
+**Important**: Before installing NULISAseqR on Windows, you need to install Rtools which provides compilers and utilities to build packages from source:
+
+1. Go to [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/){target="_blank"}
+2. Download and install the appropriate Rtools version for your R installation
+3. Follow the installation instructions on the website
+
+### Installation Steps {-}
+
+Follow these steps to install NULISAseqR and its dependencies:
+
+```{r install, eval=FALSE}
+# 1. Install devtools
+if (!requireNamespace("devtools", quietly = TRUE))
+  install.packages("devtools")
+
+# 2. Install BiocManager for Bioconductor packages
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+# 3. Install ComplexHeatmap from Bioconductor
+BiocManager::install("ComplexHeatmap")
+
+# 4. Install ggalt from CRAN snapshot
+install.packages('ggalt', repos = "http://packagemanager.posit.co/cran/2025-08-02")
+
+# 5. Install PCAtools (Alamar fork)
+devtools::install_github('Alamar-Biosciences/PCAtools')
+
+# 6. Install NULISAseqR
+devtools::install_github('Alamar-Biosciences/NULISAseqR')
+
+# 7. Install additional packages for data analysis
+install.packages("tidyverse")
+install.packages("table1")
+install.packages("pROC")
+```
+
+> **Note**: If you encounter issues installing packages from source, you may need to restart R (Cmd/Ctrl + Shift + F10 in RStudio) between major installation steps.
+
+<br>
+Load the packages:
+
+```{r load_packages, eval=FALSE}
+library(NULISAseqR)
+library(tidyverse)
+```
+
+## Getting Help {-}
+
+- **Function help**: Type `?function_name` in the R console
+- **GitHub Issues**: [Report bugs or request features](https://github.com/Alamar-Biosciences/NULISAseqR/issues){target="_blank"}
+
+
+<hr>
+
+<p style="text-align: center; font-size: 0.9em; color: #666;">
+© `r format(Sys.Date(), "%Y")` Alamar Biosciences Bioinformatics Team<br>
+Generated with <a href="https://github.com/Alamar-Biosciences/NULISAseqR" target="_blank"><strong>NULISAseqR</strong></a> version `r as.character(utils::packageVersion("NULISAseqR"))`<br>
+Last updated: `r format(Sys.Date(), "%B %d, %Y")`
+</p>
+<p style="text-align: center;">
+</p>

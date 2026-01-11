@@ -12,3 +12,10 @@ test_that("Test that loadNULISAseq reads in an XML file and adds lists of approp
   expect_true(all(dim(data$normed$normData) == dim(data$normed$interNormData)))
 
 })
+
+test_that("Test that loadNULISAseq can handle v1.3.x version of the XML which incorporates QC and NPQ /AQ values",{
+  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
+  input1 <- paste0(test_path, "XML_v1.3.0.xml")
+  data <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
+  expect_false(is.null(data$qcXML))
+})

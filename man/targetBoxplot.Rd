@@ -22,7 +22,9 @@ targetBoxplot(
   detectLowColor = "blue",
   showLegend = TRUE,
   cex.targets = 0.4,
-  axis_limits = NULL
+  axis_limits = NULL,
+  match_matrix = NULL,
+  targets = NULL
 )
 }
 \arguments{
@@ -86,6 +88,12 @@ gradient color scale used when `subtractLOD = TRUE`. Default is `'blue'`.}
 `subtractLOD = TRUE`.}
 
 \item{cex.targets}{Character expansion factor for target labels.}
+
+\item{match_matrix}{Matrix of indices provided by calcSampleTargetNAs. 
+Lists samples/targets that should not be reported}
+
+\item{targets}{Data frame containing target information including Curve_Quant attribute.
+If provided, target names with Curve_Quant == "R" will be prefixed with "* ".}
 }
 \value{
 Draws boxplots of target expression.

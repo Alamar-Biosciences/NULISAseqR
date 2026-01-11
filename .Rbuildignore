@@ -1,2 +1,14 @@
+^renv$
+^renv\.lock$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^doc$
+^Meta$
+^_pkgdown\.yml$
+^docs$
+^scripts$
+^pkgdown$
+^vignettes/book$
+^dev$
+^Files2RemoveForPublicRelease\.txt$
+

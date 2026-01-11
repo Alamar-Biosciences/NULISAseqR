@@ -1,0 +1,27 @@
+FROM nulisaseq_r_internal:test
+
+WORKDIR /workingDir
+
+# Install packages for documentation building (vignettes and pkgdown)
+RUN set -eu; \
+    install.r bookdown tidyverse table1 ggVennDiagram pROC pkgdown \
+    > /tmp/install.log 2>&1; \
+    cat /tmp/install.log; \
+    if grep -qi "not available for this version of R" /tmp/install.log; then \
+        package=$(grep -Eo ''[[:alnum:]]+'' /tmp/install.log | tr -d ''''); \
+        echo "Problem with installing R packages: ${package}"; \
+        exit 1; \
+    fi; \
+    rm -rf /tmp/install.log;
+
+# Copy package files for documentation building
+COPY ./vignettes /workingDir/vignettes
+COPY ./DESCRIPTION /workingDir/DESCRIPTION
+COPY ./NAMESPACE /workingDir/NAMESPACE
+COPY ./R /workingDir/R
+COPY ./man /workingDir/man
+COPY ./_pkgdown.yml /workingDir/_pkgdown.yml
+COPY ./pkgdown /workingDir/pkgdown
+COPY ./NEWS.md /workingDir/NEWS.md
+
+CMD ["bash"]

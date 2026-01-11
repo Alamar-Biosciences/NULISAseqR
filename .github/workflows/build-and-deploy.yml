@@ -1,0 +1,290 @@
+name: 🚀 Build, Test, and Deploy
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+  push:
+    branches:
+      - main
+      - 1.4-dev
+
+env:
+  BASE_TAG: nulisaseq_r_internal:test
+  DOCKER_COMPOSE_YML: docker-compose.yml
+
+jobs:
+  build-base:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build base Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: ${{ env.BASE_TAG }}
+          build-args: |
+            GH_PAT=${{ secrets.UTILITY_ACCESS_TOKEN }}
+            SOURCE_BRANCH=${{ github.event.pull_request.base.ref || github.ref_name }}
+            NULISASEQAQ_BRANCH=${{ github.event.pull_request.base.ref || github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Save Docker image
+        run: |
+          docker save ${{ env.BASE_TAG }} -o /tmp/base-image.tar
+
+      - name: Upload base image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-docker-image
+          path: /tmp/base-image.tar
+          retention-days: 1
+
+  determine-deploy-target:
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+      cname: ${{ steps.check.outputs.cname }}
+    steps:
+      - name: Check deployment conditions
+        id: check
+        run: |
+          SHOULD_DEPLOY="false"
+
+          # Determine if we should deploy
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            SHOULD_DEPLOY="true"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            if [[ "${{ github.repository }}" == "Alamar-Biosciences/NULISAseqR" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+              SHOULD_DEPLOY="true"
+            elif [[ "${{ github.repository }}" == "Alamar-Biosciences/NULISAseqR_internal" && "${{ github.ref }}" == "refs/heads/1.4-dev" ]]; then
+              SHOULD_DEPLOY="true"
+            fi
+          fi
+
+          # Determine CNAME based on repository
+          if [[ "${{ github.repository }}" == "Alamar-Biosciences/NULISAseqR" ]]; then
+            CNAME="nulisaseqr.alamarbio.com"
+          elif [[ "${{ github.repository }}" == "Alamar-Biosciences/NULISAseqR_internal" ]]; then
+            CNAME="nulisaseqr-dev.alamarbio.com"
+          fi
+
+          echo "should-deploy=$SHOULD_DEPLOY" >> $GITHUB_OUTPUT
+          echo "cname=$CNAME" >> $GITHUB_OUTPUT
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build-base
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download base image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: base-docker-image
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          docker load -i /tmp/base-image.tar
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
+
+      - name: Run integration tests
+        env:
+          DOCKER_BUILDKIT: "0"
+          COMPOSE_DOCKER_CLI_BUILD: "0"
+          HASHVAL: ${{ secrets.HASHVAL }}
+        run: |
+          echo "Running tests ..."
+          rm -rf $HOME/.cache
+
+          docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} -p nulisaseqr up -d --no-deps --build test
+
+          CID=$(docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} -p nulisaseqr ps -q test)
+
+          if [ -z "$CID" ]; then
+            echo "Could not find container ID for service 'test'!"
+            docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} -p nulisaseqr ps
+            exit 1
+          fi
+          echo "Test container: $CID"
+
+          echo "Streaming logs..."
+          docker logs -f "$CID" &
+
+          echo "Waiting for container to finish ..."
+          exit_code=$(docker wait "$CID")
+
+          if [ "$exit_code" -ne 0 ]; then
+            echo "Error: One or more tests failed! (exit $exit_code)"
+            exit 1
+          else
+            echo "🔥 Tests passed!"
+          fi
+
+      - name: Tear down docker-compose
+        if: always()
+        run: |
+          docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} down
+
+  build-vignette:
+    runs-on: ubuntu-latest
+    needs: [build-base, determine-deploy-target]
+    if: needs.determine-deploy-target.outputs.should-deploy == 'true'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download base image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: base-docker-image
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          docker load -i /tmp/base-image.tar
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
+
+      - name: Build vignette
+        env:
+          DOCKER_BUILDKIT: "0"
+          COMPOSE_DOCKER_CLI_BUILD: "0"
+        run: |
+          echo "Building vignette with Docker..."
+          docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} -p nulisaseqr up -d --no-deps --build vignette
+
+          CID=$(docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} -p nulisaseqr ps -q vignette)
+
+          if [ -z "$CID" ]; then
+            echo "Could not find container ID for service 'vignette'!"
+            docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} -p nulisaseqr ps
+            exit 1
+          fi
+          echo "Vignette container: $CID"
+
+          exit_code=$(docker wait "$CID")
+
+          if [ "$exit_code" -ne 0 ]; then
+            echo "Error: Vignette build failed! (exit $exit_code)"
+            docker logs "$CID"
+            exit 1
+          else
+            echo "📚 Vignette built successfully!"
+          fi
+
+      - name: Tear down docker-compose
+        if: always()
+        run: |
+          docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} down
+
+      - name: Deploy vignette to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.UTILITY_ACCESS_TOKEN }}
+          publish_dir: ./vignettes/book/_book
+          destination_dir: user-guide
+          cname: ${{ needs.determine-deploy-target.outputs.cname }}
+          keep_files: true
+
+  build-pkgdown:
+    runs-on: ubuntu-latest
+    needs: [build-base, determine-deploy-target]
+    if: needs.determine-deploy-target.outputs.should-deploy == 'true'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update pkgdown URLs for deployment target
+        run: |
+          CNAME="${{ needs.determine-deploy-target.outputs.cname }}"
+          sed -i "s|url: https://nulisaseqr.alamarbio.com|url: https://${CNAME}|g" _pkgdown.yml
+          sed -i "s|https://nulisaseqr.alamarbio.com/user-guide|https://${CNAME}/user-guide|g" _pkgdown.yml
+          echo "Updated _pkgdown.yml URLs to use ${CNAME}"
+          grep -E "(url:|href:.*user-guide)" _pkgdown.yml
+
+      - name: Download base image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: base-docker-image
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          docker load -i /tmp/base-image.tar
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
+
+      - name: Build pkgdown site
+        env:
+          DOCKER_BUILDKIT: "0"
+          COMPOSE_DOCKER_CLI_BUILD: "0"
+        run: |
+          echo "Building pkgdown site with Docker..."
+          docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} -p nulisaseqr up -d --no-deps --build pkgdown
+
+          CID=$(docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} -p nulisaseqr ps -q pkgdown)
+
+          if [ -z "$CID" ]; then
+            echo "Could not find container ID for service 'pkgdown'!"
+            docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} -p nulisaseqr ps
+            exit 1
+          fi
+          echo "Pkgdown container: $CID"
+
+          exit_code=$(docker wait "$CID")
+
+          if [ "$exit_code" -ne 0 ]; then
+            echo "Error: Pkgdown build failed! (exit $exit_code)"
+            docker logs "$CID"
+            exit 1
+          else
+            echo "📖 Pkgdown site built successfully!"
+          fi
+
+      - name: Tear down docker-compose
+        if: always()
+        run: |
+          docker-compose -f ${{ env.DOCKER_COMPOSE_YML }} down
+
+      - name: Deploy pkgdown to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.UTILITY_ACCESS_TOKEN }}
+          publish_dir: ./docs
+          cname: ${{ needs.determine-deploy-target.outputs.cname }}
+          keep_files: true

@@ -1,0 +1,7 @@
+inst/rmarkdown/templates/nasreport/*
+inst/rmarkdown/templates/tapsummary/*
+.Rprofile
+vignettes/*
+pkgdown/*
+build_book.R
+_pkgdown.yml

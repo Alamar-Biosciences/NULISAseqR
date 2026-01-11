@@ -1,0 +1,151 @@
+url: https://nulisaseqr.alamarbio.com
+
+template:
+  bootstrap: 3
+  bootswatch: null
+
+home:
+  title: NULISAseqR - Analysis of NULISAseq Proteomic Data
+  links:
+  - text: User Guide
+    href: https://nulisaseqr.alamarbio.com/user-guide
+    target: _blank
+
+navbar:
+  structure:
+    left:  [articles, reference, news]
+    right: [search, github]
+  components:
+    articles:
+      text: User Guide
+      href: https://nulisaseqr.alamarbio.com/user-guide
+      target: _blank
+    reference:
+      text: Reference
+      href: reference/index.html
+    news:
+      text: News
+      href: news/index.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/Alamar-Biosciences/NULISAseqR
+      target: _blank
+
+
+
+# Skip building articles/vignettes (they're built separately)
+build:
+  articles: false
+
+reference:
+  - title: Data Import & Loading
+    desc: >
+      Functions to load NULISAseq XML files and sample metadata
+    contents:
+    - importNULISAseq
+    - loadNULISAseq
+    - readNULISAseq
+    - readCovariates
+    - readCovariateFile
+
+  - title: Data Normalization
+    desc: >
+      Normalize proteomic data using internal controls (IC) and inter-plate controls (IPC)
+    contents:
+    - intraPlateNorm
+    - interPlateNorm
+
+  - title: Quality Control
+    desc: >
+      Quality control criteria, flagging, and reporting functions
+    contents:
+    - render_QC_report
+    - QCSampleCriteria
+    - QCPlateCriteria
+    - QCTargetCriteria
+    - QCFlagSample
+    - QCFlagPlate
+    - QCFlagTarget
+    - sampleQCplot
+    - QCplateHeatmap
+    - plateSummary
+    - typeSummary
+
+  - title: Protein Metrics
+    desc: >
+      Calculate protein detectability and quality measures
+    contents:
+    - lod
+    - detectability
+    - detectability_summary
+    - intraCV
+    - interCV
+
+  - title: Statistical Analysis
+    desc: >
+      Differential abundance testing and outcome modeling functions
+    contents:
+    - lmNULISAseq
+    - lmerNULISAseq
+    - lmNULISAseq_predict
+    - lmerNULISAseq_predict
+    - glmNULISAseq_predict
+    - glmerNULISAseq_predict
+    - permutation_anova
+
+  - title: Visualization
+    desc: >
+      Create plots for exploratory analysis and publication-quality figures
+    contents:
+    - volcanoPlot
+    - sampleBoxplot
+    - targetBoxplot
+    - generate_heatmap
+    - generate_pca
+    - plateHeatmap
+    - plot_plateLayout
+    - alamarColorPalette
+    
+  - title: NULISAseq Absolute Quantification (AQ)
+    desc: >
+      Calculate QC metrics and generate plots
+    contents:
+    - CV_AQ
+    - CV_AQ_Hist
+    - quantifiability
+    - quantHist
+    - targetQCplot
+
+  - title: Data Export
+    desc: >
+      Write NULISAseq data and QC information to files
+    contents:
+    - writeNULISAseq
+    - writeUpdatedXML
+    - QC2XML
+
+  - title: XML Processing Utilities
+    desc: >
+      Low-level functions for XML file manipulation
+    contents:
+    - getXMLVersion
+    - insertCovariatesXML
+    - readQCXMLNode
+    - readQCThresholdXMLNode
+    - readXML_remove_duplicate_attributes
+    - removeBarcodeAndSamples
+    - splitXML
+
+  - title: Helper Functions
+    desc: >
+      Utility functions for data processing
+    contents:
+    - column_summary_stats
+    - outliers_mad
+    - renameDuplicateNames
+
+  - title: Package Documentation
+    desc: >
+      Package-level documentation
+    contents:
+    - NULISAseqR-package

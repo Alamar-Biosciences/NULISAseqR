@@ -14,12 +14,13 @@ alamarColorPalette(
 )
 }
 \arguments{
-\item{n}{number of main colors to output. For `palette=1`, maximum is 13 
-when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`. For `palette=2`, 
-maximum is 9 when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`}
+\item{n}{number of main colors to output. For `palette=1`, maximum is 13
+when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`. For `palette=2`,
+maximum is 9 when `interpolate=FALSE`, and unlimited when `interpolate=TRUE`
+If n exceeds the maximum colors available, `interpolate=TRUE` will be turned on.}
 
 \item{nReps}{optional, number of sub-colors to output 
-for each of the main colors. Useful for when there are technical replicates.
+for each of the main colors. Useful for when there are technical replicates, for example.
 Function will output n*nReps total colors.}
 
 \item{tint}{optional, used when sub-colors are created.
@@ -35,9 +36,10 @@ argument.}
 \item{interpolateIndex}{indices of colors to interpolate. For `palette=1`, 
 default is 1:5. For `palette=2`, default is `c(1,2,4,3,5,6)`.}
 
-\item{palette}{Which set of colors to use. Integer. `"palette=1"` (default) 
+\item{palette}{Which set of colors to use. Integer. `palette=1` (default) 
 is based on the original website color palette. `palette=2` is the new 
-palette used in the NULISA manuscript.}
+palette used in the NULISA manuscript. `palette=3` is the updated palette
+as of 2024 and 2025.}
 }
 \value{
 A vector or list of vectors of colors in hex format
