@@ -1329,7 +1329,7 @@ loadNULISAseq <- function(file,
         }
       } else {
         # Fallback not supported (XML version < 1.3) - warn and treat as RQ
-        warning("This XML file contains AQ metadata but version < 1.3.0 and NULISAseqAQ is not installed. ",
+        warning("This XML file contains AQ metadata but XML version < 1.3.0 and NULISAseqAQ is not installed. ",
                 "AQ data will not be available. Processing as RQ (relative quantification) instead.")
         # Set AbsAssay to FALSE so downstream code treats this as RQ-only
         AbsAssay <- FALSE
