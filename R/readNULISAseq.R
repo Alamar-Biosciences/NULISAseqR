@@ -696,7 +696,7 @@ readNULISAseq <- function(file,
       qcXML$qcSample$sampleName <- dplyr::left_join(data.frame(sampleBarcode=qcXML$qcSample$sampleBarcode), samples, by="sampleBarcode")$sampleName
     }
     
-    if(!is.null(qcXML$qcTarget)){
+    if(!is.null(qcXML$qcTarget) && nrow(qcXML$qcTarget) > 0){
       qcXML$qcTarget <- dplyr::rename(qcXML$qcTarget, targetBarcode=dplyr::any_of("sample"))
       qcXML$qcTarget$QCoperator  <- qcXML$TargetThresh$operators[qcXML$qcTarget$flagName]
       qcXML$qcTarget$QCthreshold <- qcXML$TargetThresh$thresholds[qcXML$qcTarget$flagName]
