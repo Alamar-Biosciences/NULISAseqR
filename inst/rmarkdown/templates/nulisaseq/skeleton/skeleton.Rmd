@@ -640,7 +640,7 @@ if(is.null(params$dataRuns)){
     )
   })
   for(i in 1:numFiles){
-    AbsData <- "Abs" %in% names(runs[[i]]$ExecutionDetails)
+    AbsData <- runs[[i]]$AbsAssay
     Tcriteria <- QCTargetCriteria(AQ=AbsData, advancedQC=params$advancedQC)
     AQSC_SC <- ifelse(AbsData, "AQSC", "SC") 
     AQSC_SC_full <- ifelse(AbsData, "AQ sample controls (AQSC)", "Sample controls (SC)")

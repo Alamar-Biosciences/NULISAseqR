@@ -27,9 +27,15 @@ RUN Rscript -e "remotes::install_version('kableExtra', version = '1.3.4', repos 
     Rscript -e "library(methods); if (!requireNamespace('PCAtools', quietly = TRUE)) stop('Package PCAtools not installed')" && \
     Rscript -e "library(methods); if (!requireNamespace('kableExtra', quietly = TRUE)) stop('Package kableExtra not installed')" && \
     Rscript -e "remotes::install_github('Alamar-Biosciences/ComplexHeatmap', ref='master', auth_token = '${GH_PAT}')" && \
-    Rscript -e "library(methods); if (!requireNamespace('ComplexHeatmap', quietly = TRUE)) stop('Package ComplexHeatmap not installed')" && \
-    Rscript -e "devtools::install_github('Alamar-Biosciences/NULISAseqAQ', ref='${NULISASEQAQ_BRANCH}', auth_token = '${GH_PAT}')" && \
-    Rscript -e "library(methods); if (!requireNamespace('NULISAseqAQ', quietly = TRUE)) stop('Package NULISAseqAQ not installed')"
+    Rscript -e "library(methods); if (!requireNamespace('ComplexHeatmap', quietly = TRUE)) stop('Package ComplexHeatmap not installed')"
+
+# Only install NULISAseqAQ if NULISASEQAQ_BRANCH is provided (internal repo only)
+RUN if [ -n "${NULISASEQAQ_BRANCH}" ]; then \
+      Rscript -e "devtools::install_github('Alamar-Biosciences/NULISAseqAQ', ref='${NULISASEQAQ_BRANCH}', auth_token = '${GH_PAT}')" && \
+      Rscript -e "library(methods); if (!requireNamespace('NULISAseqAQ', quietly = TRUE)) stop('Package NULISAseqAQ not installed')"; \
+    else \
+      echo "Skipping NULISAseqAQ installation (NULISASEQAQ_BRANCH not set)"; \
+    fi
 
 RUN mkdir -p ${HOME}/NULISAseqR
 COPY . ${HOME}/NULISAseqR/.

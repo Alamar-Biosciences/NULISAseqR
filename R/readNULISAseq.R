@@ -1328,10 +1328,11 @@ loadNULISAseq <- function(file,
           }
         }
       } else {
-        # Fallback not supported (XML version < 1.3) - NULISAseqAQ is required
-        stop("This XML file contains absolute quantification (AQ) data but has version < 1.3.0. ",
-             "The NULISAseqAQ package is required to process pre-1.3.0 AQ XML files, but it is not installed. ",
-             "writeUpdatedXML does not support pre-1.3.0 AQ XML files. Use NAS or contact Alamar support for help.")
+        # Fallback not supported (XML version < 1.3) - warn and treat as RQ
+        warning("This XML file contains AQ metadata but XML version < 1.3.0 and NULISAseqAQ is not installed. ",
+                "AQ data will not be available. Processing as RQ (relative quantification) instead.")
+        # Set AbsAssay to FALSE so downstream code treats this as RQ-only
+        AbsAssay <- FALSE
       }
     }
   }

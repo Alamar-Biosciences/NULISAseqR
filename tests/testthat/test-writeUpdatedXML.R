@@ -28,7 +28,7 @@ test_that("Test that we can turn a pre-1.3.0 AQ XML into a 1.3.0 AQ XML that inc
   })
 })
 
-test_that("Pre-1.3.0 AQ XML throws error when NULISAseqAQ is not available", {
+test_that("Pre-1.3.0 AQ XML warns and loads as RQ when NULISAseqAQ is not available", {
   # Mock NULISAseqAQ as unavailable
   local_mocked_bindings(
     requireNamespace = function(pkg, ...) {
@@ -41,6 +41,10 @@ test_that("Pre-1.3.0 AQ XML throws error when NULISAseqAQ is not available", {
   test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
   input1 <- paste0(test_path, "Analysis_INF250_Lot4_AQ_LC_R3_20241229.xml")
 
-  # Should throw an error - conversion should not occur without NULISAseqAQ for pre-1.3 AQ XML
-  expect_error(loadNULISAseq(input1))
+  # Should warn but load successfully as RQ
+  expect_warning(data <- loadNULISAseq(input1), "AQ metadata")
+
+  # Verify it loaded successfully as RQ
+  expect_false(is.null(data$Data))
+  expect_true(is.null(data$AQ) || is.null(data$AQ$Data_AQ_aM))
 })
