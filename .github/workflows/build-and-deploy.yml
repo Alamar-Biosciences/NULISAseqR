@@ -9,7 +9,7 @@ on:
   push:
     branches:
       - main
-      - 1.4-dev
+      - '*dev*'
 
 env:
   BASE_TAG: nulisaseq_r_internal:test
@@ -67,7 +67,7 @@ jobs:
           elif [[ "${{ github.event_name }}" == "push" ]]; then
             if [[ "${{ github.repository }}" == "Alamar-Biosciences/NULISAseqR" && "${{ github.ref }}" == "refs/heads/main" ]]; then
               SHOULD_DEPLOY="true"
-            elif [[ "${{ github.repository }}" == "Alamar-Biosciences/NULISAseqR_internal" && "${{ github.ref }}" == "refs/heads/1.4-dev" ]]; then
+            elif [[ "${{ github.repository }}" == "Alamar-Biosciences/NULISAseqR_internal" && "${{ github.ref }}" == *"dev"* ]]; then
               SHOULD_DEPLOY="true"
             fi
           fi

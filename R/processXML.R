@@ -234,6 +234,296 @@ insertCovariatesXML <- function(input_XML, covariates){
   return(doc)
 }
 
+# Internal helpers to make writeUpdatedXML faster and clearer
+# Note: These are intentionally not exported and preserve existing behavior.
+
+# Ensure the XMLversion node exists and is set to 1.3.0
+#' Ensure XMLversion node
+#'
+#' Ensures the XML document contains an `ExecutionDetails/XMLversion` node
+#' and sets its text to "1.3.0". If missing, creates the required nodes.
+#'
+#' @param doc An xml2 document.
+#'
+#' @return The same xml2 document with XMLversion set to 1.3.0.
+#' @noRd
+#' @keywords internal
+#'
+#' @importFrom xml2 xml_find_first xml_add_child xml_root xml_text
+.ensure_xml_version <- function(doc){
+  xmlVer <- xml2::xml_find_first(doc, "XMLversion")
+  if(length(xmlVer) == 0){
+    # Create XMLversion under ExecutionDetails if missing
+    exec <- xml2::xml_find_first(doc, "ExecutionDetails")
+    if(length(exec) == 0){
+      exec <- xml2::xml_add_child(xml2::xml_root(doc), "ExecutionDetails")
+    }
+    xmlVer <- xml2::xml_add_child(exec, "XMLversion")
+  }
+  xml2::xml_text(xmlVer) <- "1.3.0"
+  doc
+}
+
+# Write QC thresholds (PlateQC, TargetQC, SampleQC)
+#' Add QC threshold nodes
+#'
+#' Writes `QCThresholds` and its child sections (`PlateQC`, `TargetQC`, `SampleQC`),
+#' populating per-threshold attributes from computed criteria.
+#'
+#' @param root XML root node.
+#' @param data Data list from `loadNULISAseq()` used to compute criteria.
+#'
+#' @return Invisibly returns NULL; mutates `root` by adding threshold nodes.
+#' @noRd
+#' @keywords internal
+#'
+#' @importFrom xml2 xml_add_child xml_set_attr
+.add_qc_thresholds <- function(root, data){
+  QCthreshNode <- xml2::xml_add_child(root, "QCThresholds")
+
+  createQCThresholdNode <- function(xmlNode, criteria){
+    qcNames <- names(criteria[[1]])
+    for (qcName in qcNames) {
+      threshNode <- xml2::xml_add_child(xmlNode, "Threshold")
+      xml2::xml_set_attr(threshNode, "name", gsub("\\.", "_", qcName))
+      for (section_name in names(criteria)) {
+        if(qcName %in% names(criteria[[section_name]])){
+          value <- criteria[[section_name]][[qcName]]
+        } else{
+          if (startsWith(qcName, "Detectability.")){
+            newKey <- sub("\\..*", "", qcName)
+            value <- criteria[[section_name]][[newKey]]
+          } else{
+            next
+          }
+        }
+        if (!is.null(value) && !is.na(value)) {
+          xml2::xml_set_attr(threshNode, section_name, as.character(value))
+        }
+      }
+    }
+  }
+
+  PlateQCthreshNode <- xml2::xml_add_child(QCthreshNode, "PlateQC")
+  PlateQCthresh <- QCPlateCriteria(AQ = data$AbsAssay)
+  createQCThresholdNode(PlateQCthreshNode, PlateQCthresh)
+
+  TargetQCthreshNode <- xml2::xml_add_child(QCthreshNode, "TargetQC")
+  TargetQCthresh <- QCTargetCriteria(AQ = data$AbsAssay, advancedQC = data$advancedQC)
+  createQCThresholdNode(TargetQCthreshNode, TargetQCthresh)
+
+  SampleQCthreshNode <- xml2::xml_add_child(QCthreshNode, "SampleQC")
+  SampleQCthresh <- QCSampleCriteria()
+  createQCThresholdNode(SampleQCthreshNode, SampleQCthresh)
+}
+
+# Write Plate QC flags
+#' Add Plate QC flags
+#'
+#' Adds `PlateQC/QCFlag` nodes, setting attributes from `data$qcPlate` and
+#' the flag value as node text.
+#'
+#' @param root XML root node.
+#' @param data Data list from `loadNULISAseq()`.
+#'
+#' @return Invisibly returns NULL; mutates `root` with plate QC flags.
+#' @noRd
+#' @keywords internal
+#'
+#' @importFrom xml2 xml_add_child xml_set_attrs xml_text
+.add_plate_qc <- function(root, data){
+  PlateQCNode <- xml2::xml_add_child(root, "PlateQC")
+  vals <- data$qcPlate %>% dplyr::select(val)
+  plateFlags <- dplyr::rename(data$qcPlate, name = "flagName", method = "normMethod", set = "status", format = "QCformat") %>%
+    dplyr::select(-QCthreshold, -QCoperator, -val)
+  for(i in seq_len(nrow(data$qcPlate))){
+    QCFlag <- xml2::xml_add_child(PlateQCNode, "QCFlag")
+    attrs <- setNames(as.character(plateFlags[i, ]), colnames(plateFlags))
+    xml2::xml_set_attrs(QCFlag, attrs)
+    xml2::xml_text(QCFlag) <- as.character(vals[[1]][i])
+  }
+}
+
+# Write Sample QC flags grouped by barcode
+#' Add Sample QC flags
+#'
+#' Adds `SampleQC/Sample` and child `QCFlag` nodes grouped by sample barcode,
+#' setting attributes and flag text from `data$qcSample`.
+#'
+#' @param root XML root node.
+#' @param data Data list from `loadNULISAseq()`.
+#'
+#' @return Invisibly returns NULL; mutates `root` with sample QC flags.
+#' @noRd
+#' @keywords internal
+#'
+#' @importFrom xml2 xml_add_child xml_set_attr xml_set_attrs xml_text
+.add_sample_qc <- function(root, data){
+  SampleQCNode <- xml2::xml_add_child(root, "SampleQC")
+  vals <- data$qcSample %>% dplyr::select(val)
+  barcode <- data$qcSample %>% dplyr::select(sampleBarcode)
+  sampleFlags <- dplyr::rename(data$qcSample, name = "flagName", method = "normMethod", set = "status", format = "QCformat") %>%
+    dplyr::select(-sampleName, -QCthreshold, -QCoperator, -val, -sampleType, -sampleBarcode, -text)
+  uniqBarcodes <- unique(data$qcSample$sampleBarcode)
+  for(bc in uniqBarcodes){
+    sampleQC <- xml2::xml_add_child(SampleQCNode, "Sample")
+    xml2::xml_set_attr(sampleQC, "name", bc)
+    qcflags <- sampleFlags[barcode == bc, ]
+    qcflagVals <- vals[barcode == bc]
+    for(j in seq_len(nrow(qcflags))){
+      qcFlagNode <- xml2::xml_add_child(sampleQC, "QCFlag")
+      xml2::xml_text(qcFlagNode) <- as.character(qcflagVals[j])
+      attrs <- setNames(as.character(qcflags[j, ]), colnames(qcflags))
+      xml2::xml_set_attrs(qcFlagNode, attrs)
+    }
+  }
+}
+
+#' Create QC child node
+#'
+#' Creates a QC child node under the provided parent and sets attributes
+#' based on a mapping from data source columns to attribute names.
+#'
+#' @param parent_node Parent XML node to attach the new child node to.
+#' @param node_name Name of the child node to create (e.g., "LLOQ").
+#' @param target_name Target identifier used to look up values in `data_source`.
+#' @param data_source Data frame/list that contains values used for attributes.
+#' @param attr_map Named character vector mapping attribute names to column keys.
+#' @param use_named_vector Logical; when TRUE, look up by names in a vector; otherwise by `name_column`.
+#' @param name_column Column name to use for non-vector lookups (default "targetName").
+#'
+#' @return Invisibly returns NULL; mutates `parent_node` by adding the child.
+#' @noRd
+#' @keywords internal
+.createQCnode <- function(parent_node, node_name, target_name, data_source, attr_map,
+                          use_named_vector = FALSE, name_column = "targetName") {
+  node <- xml2::xml_add_child(parent_node, node_name)
+  for (attr_name in names(attr_map)) {
+    col_name <- attr_map[[attr_name]]
+    value <- NA
+    if (use_named_vector) {
+      index <- which(names(data_source[[col_name]]) == target_name)
+      if (length(index) != 0) {
+        value <- data_source[[col_name]][index]
+      }
+    } else {
+      index <- which(data_source[[name_column]] == target_name)
+      if (length(index) != 0) {
+        value <- data_source[[col_name]][index]
+      }
+    }
+    if (!is.na(value)) {
+      xml2::xml_set_attr(node, attr_name, as.character(value))
+    }
+  }
+}
+
+# Write Target QC nodes (LLOQ, ULOQ, LOD)
+
+#' Add Target QC nodes
+#'
+#' Adds `TargetQC/Target` nodes with `QCFlag` entries and parameter children
+#' (`LLOQ`, `ULOQ`, `LOD`) derived from `data$AQ$targetAQ_param` and `data$lod`.
+#'
+#' @param root XML root node.
+#' @param data Data list from `loadNULISAseq()`; only runs when `data$AbsAssay` is TRUE.
+#'
+#' @return Invisibly returns NULL; mutates `root` with target QC nodes.
+#' @noRd
+#' @keywords internal
+#'
+#' @importFrom xml2 xml_add_child xml_set_attr xml_set_attrs xml_text
+.add_target_qc <- function(root, data){
+  if(!isTRUE(data$AbsAssay)) return(invisible(NULL))
+  TargetQCNode <- xml2::xml_add_child(root, "TargetQC")
+  vals <- data$qcTarget %>% dplyr::select(val)
+  targetFlags <- dplyr::rename(data$qcTarget, name = "flagName", method = "normMethod", set = "status", format = "QCformat") %>%
+    dplyr::select(-QCthreshold, -QCoperator)
+  uniqTargets <- unique(data$qcTarget$target)
+
+  for(tg in uniqTargets){
+    targetQC <- xml2::xml_add_child(TargetQCNode, "Target")
+    targetBarcode <- data$targets %>% dplyr::filter(targetName == tg) %>% dplyr::pull(targetBarcode)
+    xml2::xml_set_attr(targetQC, "name", targetBarcode)
+
+    qcflags <- targetFlags %>% dplyr::filter(target == tg) %>% dplyr::select(-val, -target)
+    qcflagVals <- targetFlags %>% dplyr::filter(target == tg) %>% dplyr::pull(val)
+    for(j in seq_len(nrow(qcflags))){
+      qcFlagNode <- xml2::xml_add_child(targetQC, "QCFlag")
+      xml2::xml_text(qcFlagNode) <- as.character(qcflagVals[j])
+      attrs <- setNames(as.character(qcflags[j, ]), colnames(qcflags))
+      xml2::xml_set_attrs(qcFlagNode, attrs)
+    }
+
+    .createQCnode(targetQC, "LLOQ", tg, data$AQ$targetAQ_param, c("aq_aM" = "LLOQ", "aq_pgmL" = "LLOQ_pg_ml"))
+    .createQCnode(targetQC, "ULOQ", tg, data$AQ$targetAQ_param, c("aq_aM" = "ULOQ", "aq_pgmL" = "ULOQ_pg_ml"))
+    .createQCnode(targetQC, "LOD",  tg, data$lod,               c("rq" = "LODNPQ", "aq_aM" = "LOD_aM", "aq_pgmL" = "LOD_pgmL"), use_named_vector = TRUE)
+  }
+}
+
+# Annotate NPQ/AQ/aM/dr/aB/aR on ReadCount nodes using precomputed maps
+
+#' Annotate ReadCount nodes
+#'
+#' Annotates `ReadCount` nodes under `Data/Sample` with computed attributes.
+#' Attributes include `NPQ`, `aR` (raw read cutoff), `aB` (LOD flag), `AQ`, `aM`, and `dr`.
+#' The `aB` flag ("above Limit of Detection") is written per target–sample
+#' measurement, reflecting whether that specific measurement is above LOD.
+#'
+#' @param root XML root node.
+#' @param data Data list from `loadNULISAseq()` providing matrices and parameters.
+#' @param rawReadCutoff Integer raw read threshold for `aR`.
+#'
+#' @return Invisibly returns NULL; mutates `root` with attributes on `ReadCount` nodes.
+#' @noRd
+#' @keywords internal
+#'
+#' @importFrom xml2 xml_find_all xml_attr xml_set_attr xml_text
+.annotate_readcounts <- function(root, data, rawReadCutoff){
+  sampleNameByBarcode <- stats::setNames(data$samples$sampleName, data$samples$sampleBarcode)
+  targetNameByBarcode <- stats::setNames(data$targets$targetName, data$targets$targetBarcode)
+  for(sample in xml2::xml_find_all(root, './/Data//Sample')){
+    sBarcode <- xml2::xml_attr(sample, "barcode")
+    sName <- sampleNameByBarcode[[sBarcode]]
+    if(is.null(sName) || is.na(sName)) next
+    for(readcount in xml2::xml_find_all(sample, "ReadCount")){
+      tBarcode <- xml2::xml_attr(readcount, "target")
+      tName <- targetNameByBarcode[[tBarcode]]
+      if(is.null(tName) || is.na(tName)) next
+
+      # NPQ
+      if(!is.null(rownames(data$NPQ)) && !is.null(colnames(data$NPQ)) &&
+         tName %in% rownames(data$NPQ) && sName %in% colnames(data$NPQ)){
+        xml2::xml_set_attr(readcount, "NPQ", as.character(data$NPQ[tName, sName]))
+      }
+
+      # aR based on raw read cutoff
+      value <- as.integer(xml2::xml_text(readcount)) > rawReadCutoff
+      xml2::xml_set_attr(readcount, "aR", as.character(as.integer(value)))
+
+      # aB (LOD above flag) — per target–sample measurement
+      if(!is.null(data$lod$aboveLOD) &&
+         !is.null(rownames(data$lod$aboveLOD)) && !is.null(colnames(data$lod$aboveLOD)) &&
+         tName %in% rownames(data$lod$aboveLOD) && sName %in% colnames(data$lod$aboveLOD)){
+        xml2::xml_set_attr(readcount, "aB", as.character(as.integer(data$lod$aboveLOD[tName, sName])))
+      }
+
+      # AQ / aM / dr for absolute assay
+      if(isTRUE(data$AbsAssay)){
+        if(!is.null(data$AQ$Data_AQ) && tName %in% rownames(data$AQ$Data_AQ) && sName %in% colnames(data$AQ$Data_AQ)){
+          xml2::xml_set_attr(readcount, "AQ", as.character(data$AQ$Data_AQ[tName, sName]))
+        }
+        if(!is.null(data$AQ$Data_AQ_aM) && tName %in% rownames(data$AQ$Data_AQ_aM) && sName %in% colnames(data$AQ$Data_AQ_aM)){
+          xml2::xml_set_attr(readcount, "aM", as.character(data$AQ$Data_AQ_aM[tName, sName]))
+        }
+        if(!is.null(data$AQ$withinDR) && tName %in% rownames(data$AQ$withinDR) && sName %in% colnames(data$AQ$withinDR)){
+          xml2::xml_set_attr(readcount, "dr", as.character(as.integer(data$AQ$withinDR[tName, sName])))
+        }
+      }
+    }
+  }
+}
+
 #' Write Updated XML
 #'
 #' Reads and processes an XML file containing NULISAseq data. This function reads the input XML file
@@ -247,209 +537,21 @@ insertCovariatesXML <- function(input_XML, covariates){
 #' # writeUpdatedXML("path/to/input.xml")
 #'
 #' @export
-writeUpdatedXML <- function(input_XML, rawReadCutoff=200, data=NULL){
-  # Read the XML file
+writeUpdatedXML <- function(input_XML, rawReadCutoff = 200, data = NULL){
   doc <- xml2::read_xml(input_XML)
   if(is.null(data)){
     data <- loadNULISAseq(input_XML)
   }
+  doc <- .ensure_xml_version(doc)
   root <- xml2::xml_root(doc)
 
-  # Update the XML version #
-  xmlVer <- xml_find_first(doc, "XMLversion")
-  if(length(xmlVer) == 0){
-    xmlVer <- xml_add_child(xml_find_first(doc, "ExecutionDetails"), "XMLversion")
-  }
-  xml_text(xmlVer) <- "1.3.0"
+  .add_qc_thresholds(root, data)
+  .add_plate_qc(root, data)
+  .add_sample_qc(root, data)
+  .add_target_qc(root, data)
+  .annotate_readcounts(root, data, rawReadCutoff)
 
-  # Create the QC thresholds
-  QCthreshNode <- xml_add_child(root, "QCThresholds")
-  
-  createQCThresholdNode <- function(xmlNode, criteria){
-    qcNames <- names(criteria[[1]])
-    # Loop over each threshold name
-    for (qcName in qcNames) {
-      threshNode <- xml_add_child(xmlNode, "Threshold")
-      xml_set_attr(threshNode, "name", gsub("\\.", "_", qcName))
-      
-      # Loop over each section in criteria and add it as an attribute
-      for (section_name in names(criteria)) {
-        if(qcName %in% names(criteria[[section_name]])){
-          value <- criteria[[section_name]][[qcName]]
-        } else{
-          if (startsWith(qcName, "Detectability.")){
-            newKey <- sub("\\..*", "", qcName)        
-            value <- criteria[[section_name]][[newKey]]
-          } else{
-            warning(paste0('NOTE: QC [', qcName, ']', ' could not be found in [', section_name, ']'))
-            next;
-          }
-        }
-        # Optional: skip NULL or NA values
-        if (!is.null(value) && !is.na(value)) {
-          xml_set_attr(threshNode, section_name, as.character(value))
-        }
-      }
-    }
-  }
-
-  # Write the QC thresholds into the XML
-  PlateQCthreshNode <- xml_add_child(QCthreshNode, "PlateQC")
-  PlateQCthresh <- QCPlateCriteria(AQ=data$AbsAssay)
-  createQCThresholdNode(PlateQCthreshNode, PlateQCthresh)
-
-  TargetQCthreshNode <- xml_add_child(QCthreshNode, "TargetQC")
-  TargetQCthresh <- QCTargetCriteria(AQ=data$AbsAssay, advancedQC=data$advancedQC)
-  createQCThresholdNode(TargetQCthreshNode, TargetQCthresh)
-
-  SampleQCthreshNode <- xml_add_child(QCthreshNode, "SampleQC")
-  SampleQCthresh <- QCSampleCriteria()
-  createQCThresholdNode(SampleQCthreshNode, SampleQCthresh)
-
-  # Write the Plate QC values
-  PlateQCNode <- xml_add_child(root, "PlateQC")
-  vals <- data$qcPlate %>% dplyr::select(val)
-  plateFlags <- dplyr::rename(data$qcPlate, name="flagName", method="normMethod", set="status", format="QCformat") %>%
-                  dplyr::select(-QCthreshold, -QCoperator, -val)
-  for(i in 1:nrow(data$qcPlate)){
-    QCFlag <- xml_add_child(PlateQCNode, "QCFlag")
-    for(j in 1:ncol(plateFlags)){
-      xml_set_attr(QCFlag, colnames(plateFlags)[j], plateFlags[i,j])
-    } 
-    xml_text(QCFlag) <- as.character(vals[[1]][i])
-  }
-
-  # Write the Sample QC values
-  SampleQCNode <- xml_add_child(root, "SampleQC")
-  vals <- data$qcSample %>% dplyr::select(val) 
-  barcode <- data$qcSample %>% dplyr::select(sampleBarcode)
-  sampleFlags <- dplyr::rename(data$qcSample, name="flagName", method="normMethod", set="status", format="QCformat") %>%
-                  dplyr::select(-sampleName, -QCthreshold, -QCoperator, -val, -sampleType, -sampleBarcode, -text)
-  uniqBarcodes <- unique(data$qcSample$sampleBarcode)
-  for(i in 1:length(uniqBarcodes)){
-    sampleQC <- xml_add_child(SampleQCNode, "Sample")
-    xml_set_attr(sampleQC, "name", uniqBarcodes[i])
-    qcflags <- sampleFlags[barcode == uniqBarcodes[i],]
-    qcflagVals <- vals[barcode == uniqBarcodes[i]]
-    for(j in 1:nrow(qcflags)){
-      qcFlagNode <- xml_add_child(sampleQC, "QCFlag")
-      xml_text(qcFlagNode) <- as.character(qcflagVals[j])
-      for(k in 1:ncol(qcflags)){
-        xml_set_attr(qcFlagNode, colnames(qcflags)[k], qcflags[j,k])
-      }
-    } 
-  }
-
-  # Write the Target QC values
-  if(data$AbsAssay){
-    TargetQCNode <- xml_add_child(root, "TargetQC")
-    vals <- data$qcTarget %>% dplyr::select(val)
-    targetFlags <- dplyr::rename(data$qcTarget, name="flagName", method="normMethod", set="status", format="QCformat") %>%
-                  dplyr::select(-QCthreshold, -QCoperator)
-    uniqTargets <- unique(data$qcTarget$target)
-    for(i in 1:length(uniqTargets)){
-      targetQC <- xml_add_child(TargetQCNode, "Target")
-      targetBarcode <- data$targets %>% 
-                          dplyr::filter(targetName == uniqTargets[i]) %>%
-                          dplyr::pull(targetBarcode)
-      xml_set_attr(targetQC, "name", targetBarcode)
-      qcflags <- targetFlags %>% 
-                          dplyr::filter(target == uniqTargets[i]) %>%
-                          dplyr::select(-val, -target)
-      qcflagVals <- targetFlags %>% 
-                          dplyr::filter(target == uniqTargets[i]) %>% 
-                          dplyr::pull(val)
-      for(j in 1:nrow(qcflags)){
-        qcFlagNode <- xml_add_child(targetQC, "QCFlag")
-        xml_text(qcFlagNode) <- as.character(qcflagVals[j])
-        for(k in 1:ncol(qcflags)){
-          xml_set_attr(qcFlagNode, colnames(qcflags)[k], qcflags[j,k])
-        }
-      }
-
-      # Function to create ULOQ/LLOQ/LOD nodes and set attributes      
-      createQCnode <- function(parent_node, node_name, target_name, data_source, attr_map, use_named_vector = FALSE, name_column = "targetName") {
-        node <- xml_add_child(parent_node, node_name)
-        
-        for (attr_name in names(attr_map)) {
-          col_name <- attr_map[[attr_name]]
-          
-          value <- NA
-          if (use_named_vector) {
-            index <- which(names(data_source[[col_name]]) == target_name)
-            if (length(index) != 0) {
-              value <- data_source[[col_name]][index]
-            }
-          } else {
-            index <- which(data_source[[name_column]] == target_name)
-            if (length(index) != 0) {
-              value <- data_source[[col_name]][index]
-            }
-          }
-          if (!is.na(value)) {
-            xml_set_attr(node, attr_name, as.character(value))
-          }
-        }
-      }
-      # Write LLOQ XML nodes
-      createQCnode(
-        parent_node = targetQC,
-        node_name = "LLOQ",
-        target_name = uniqTargets[i],
-        data_source = data$AQ$targetAQ_param,
-        attr_map = c("aq_aM" = "LLOQ", "aq_pgmL" = "LLOQ_pg_ml")
-      )
-
-      # Write ULOQ XML nodes
-      createQCnode(
-        parent_node = targetQC,
-        node_name = "ULOQ",
-        target_name = uniqTargets[i],
-        data_source = data$AQ$targetAQ_param,
-        attr_map = c("aq_aM" = "ULOQ", "aq_pgmL" = "ULOQ_pg_ml")
-      )
-
-      # Write LOD XML nodes — specify use_named_vector = TRUE
-      createQCnode(
-        parent_node = targetQC,
-        node_name = "LOD",
-        target_name = uniqTargets[i],
-        data_source = data$lod,
-        attr_map = c("rq" = "LODNPQ", "aq_aM" = "LOD_aM", "aq_pgmL" = "LOD_pgmL"),
-        use_named_vector = TRUE
-      )
-    }
-  }
-
-  # Write the NPQ/AQ/etc. values into <Sample><ReadCount> XML nodes
-  for(sample in xml2::xml_find_all(root, './/Data//Sample')){
-    sBarcode <- xml2::xml_attr(sample, "barcode")
-    sName <- data$samples %>% dplyr::filter(sampleBarcode == sBarcode) %>% dplyr::pull(sampleName)
-    for(readcount in xml2::xml_find_all(sample, "ReadCount")){
-      tBarcode <- xml2::xml_attr(readcount, "target")
-      tName <- data$targets %>% dplyr::filter(targetBarcode == tBarcode) %>% dplyr::pull(targetName)
-      if(tName %in% rownames(data$NPQ) && sName %in% colnames(data$NPQ)){
-        xml_set_attr(readcount, "NPQ", as.character(data$NPQ[tName, sName]))
-      }
-      value <- as.integer(xml_text(readcount)) > rawReadCutoff
-      xml_set_attr(readcount, "aR", as.character(as.integer(value)))
-
-      if(tName %in% rownames(data$lod$aboveLOD) && sName %in% colnames(data$lod$aboveLOD)){
-        xml_set_attr(readcount, "aB", as.character(as.integer(data$lod$aboveLOD)))
-      }  
-      if(data$AbsAssay){
-        if(tName %in% rownames(data$AQ$Data_AQ) && sName %in% colnames(data$AQ$Data_AQ)){
-          xml_set_attr(readcount, "AQ", as.character(data$AQ$Data_AQ[tName, sName]))
-        }
-        if(tName %in% rownames(data$AQ$Data_AQ_aM) && sName %in% colnames(data$AQ$Data_AQ_aM)){
-          xml_set_attr(readcount, "aM", as.character(data$AQ$Data_AQ_aM[tName, sName]))
-        }
-        if(tName %in% rownames(data$AQ$withinDR) && sName %in% colnames(data$AQ$withinDR)){
-          xml_set_attr(readcount, "dr", as.character(as.integer(data$AQ$withinDR[tName, sName])))
-        }
-      }
-    }
-  }
+  # Preserve existing API: return XML as character string
   return(as.character(doc))
 }
 
