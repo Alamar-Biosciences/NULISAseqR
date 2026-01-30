@@ -926,22 +926,71 @@ importNULISAseq <- function(files,
     }
   }
   
+  # Validate AUTO_PLATE IDs and handle named list parameters
+  # Pre-scan all files for their internal AUTO_PLATE IDs
+  internal_ids <- sapply(files, get_internal_plate_id, USE.NAMES = FALSE)
+
+  # Check for duplicates
+  has_duplicates <- any(duplicated(internal_ids[!is.na(internal_ids)]))
+
+  # Check if user is trying to use ANY named list parameters
+  # All of these parameters support named list format and would be affected by duplicate IDs
+  is_named_list <- function(param) {
+    is.list(param) && !is.null(names(param))
+  }
+
+  any_named_params <- is_named_list(IPC) || is_named_list(SC) || is_named_list(NC) ||
+    is_named_list(Bridge) || is_named_list(Calibrator) ||
+    is_named_list(excludeSamples) || is_named_list(excludeTargets)
+
+  if (has_duplicates && any_named_params && !user_provided_plateName) {
+    # Find which ID is duplicated for a better error message
+    # Exclude NA values to avoid reporting NA as a duplicate ID
+    dup_id <- internal_ids[duplicated(internal_ids) & !is.na(internal_ids)]
+
+    # Identify which parameters are using named lists
+    named_param_list <- c(
+      if (is_named_list(IPC)) "IPC",
+      if (is_named_list(SC)) "SC",
+      if (is_named_list(NC)) "NC",
+      if (is_named_list(Bridge)) "Bridge",
+      if (is_named_list(Calibrator)) "Calibrator",
+      if (is_named_list(excludeSamples)) "excludeSamples",
+      if (is_named_list(excludeTargets)) "excludeTargets"
+    )
+
+    stop(sprintf(
+      "Error: Duplicate AUTO_PLATE ID '%s' found across files.\nNamed list parameter(s) provided: %s\nUser must manually define 'plateName' to correctly map these parameters to the intended files.",
+      paste(unique(dup_id), collapse = ", "),
+      paste(named_param_list, collapse = ", ")
+    ))
+  }
+  
+  # Define keys for parameter mapping
+  # Priority: 1. User plateName, 2. Internal IDs, 3. Fallback to Plate_XX naming
+  keys_for_matching <- if (user_provided_plateName) {
+    plateName
+  } else if (!has_duplicates && !any(is.na(internal_ids))) {
+    internal_ids 
+  } else {
+    # Default fallback if internal IDs are missing or messy
+    format_width <- if(length(files) > 99) 3 else 2
+    paste0('Plate_', formatC(seq_along(files), width=format_width, format='d', flag='0'))
+  }
+  
   # Check IC only accept vector
   if(!is.null(IC) && !is.vector(IC)) {
     stop("IC must be the same across plates/runs. IC must be NULL or a vector")
   }
   
-  # Process all parameters that can be named lists
-  param_names_for_processing <- if (user_provided_plateName) plateName else seq_along(files)
-  
-  IC <- process_named_param(IC, param_names_for_processing) # should be a vector, same IC across plates
-  IPC <- process_named_param(IPC, param_names_for_processing)
-  SC <- process_named_param(SC, param_names_for_processing)
-  NC <- process_named_param(NC, param_names_for_processing)
-  Bridge <- process_named_param(Bridge, param_names_for_processing)
-  Calibrator <- process_named_param(Calibrator, param_names_for_processing)
-  excludeSamples <- process_named_param(excludeSamples, param_names_for_processing)
-  excludeTargets <- process_named_param(excludeTargets, param_names_for_processing)
+  IC <- process_named_param(IC, keys_for_matching) # should be a vector, same IC across plates
+  IPC <- process_named_param(IPC, keys_for_matching)
+  SC <- process_named_param(SC, keys_for_matching)
+  NC <- process_named_param(NC, keys_for_matching)
+  Bridge <- process_named_param(Bridge, keys_for_matching)
+  Calibrator <- process_named_param(Calibrator, keys_for_matching)
+  excludeSamples <- process_named_param(excludeSamples, keys_for_matching)
+  excludeTargets <- process_named_param(excludeTargets, keys_for_matching)
   
   if (verbose) {
     logger::log_info("Processing {length(files)} NULISAseq files.")
@@ -958,7 +1007,6 @@ importNULISAseq <- function(files,
   runs <- list()
   for (i in seq_along(files)) {
     if (verbose) message(sprintf("Loading file %d/%d: %s", i, length(files), basename(files[i])))
-    plateID_to_pass <- if (user_provided_plateName) plateName[i] else NULL
     tryCatch({
       runs[[i]] <- loadNULISAseq(
         file = files[i],
@@ -969,7 +1017,7 @@ importNULISAseq <- function(files,
         Bridge = pick_param(Bridge, i),
         Calibrator = pick_param(Calibrator, i), 
         sample_group_covar = sample_group_covar,
-        plateID = plateID_to_pass, # Pass user-provided plateID or NULL
+        plateID = if (user_provided_plateName) plateName[i] else NULL, # Pass user-provided plateID or NULL
         excludeSamples = pick_param(excludeSamples, i),
         excludeTargets = pick_param(excludeTargets, i),
         ...
@@ -2381,27 +2429,27 @@ format_wide_to_long <- function(merged, AQ = FALSE, exclude_sample_cols = "plate
   return(final_data)
 }
 
-#' An helper function that processes parameters that can be specified
+#' A helper function that processes parameters that can be specified
 #' as named lists (per plate), vectors (applied to all plates), or NULL
-#' 
+#'
 #' @param param The parameter to process. Can be:
 #'   - `NULL`: No action for any plate
 #'   - A vector: Applied to all plates
-#'   - A named list: Specific values for specific plates, names must match plate_names, 
-#'   length of plate_names must match length of list
-#' @param param Character string of the parameter 
+#'   - A named list: Specific values for specific plates. Names must be valid plate names
+#'   from `plate_names`. Partial lists are allowed - plates not specified will receive `NULL`.
 #' @param plate_names Character vector of plate names to match against
 #'
 #' @return A named list with one element per plate, where:
 #'   - Names correspond to `plate_names`
 #'   - Values are either the plate-specific parameter or `NULL`
-#'   
+#'
 #' @details
 #' This function handles the following input patterns:
 #' \itemize{
 #'   \item{\code{param = NULL}: Returns `NULL`}
 #'   \item{\code{param = c("value1", "value2")}: Returns a named list where all plates get the vector}
-#'   \item{\code{param = list("Plate_01" = "value1", "Plate_02" = "value2")}: Returns a named list with plate-specific values}
+#'   \item{\code{param = list("Plate_01" = "value1", "Plate_02" = "value2")}: Returns a named list
+#'   with plate-specific values. Plates not specified in the list will receive `NULL`.}
 #' }
 #'
 #' @keywords internal
@@ -2424,31 +2472,26 @@ process_named_param <- function(param, plate_names) {
     if (is.null(names(param))) {
       stop(sprintf("'%s' must be a named list. Unnamed lists are not accepted.", param_name))
     }
-    
-    # Validate exact match
-    if (!identical(sort(names(param)), sort(plate_names))) {
-      invalid_names <- setdiff(names(param), plate_names)
-      missing_names <- setdiff(plate_names, names(param))
-      
-      error_parts <- character()
-      if (length(invalid_names) > 0) {
-        error_parts <- c(error_parts, sprintf("invalid names: %s", paste(invalid_names, collapse = ", ")))
-      }
-      if (length(missing_names) > 0) {
-        error_parts <- c(error_parts, sprintf("missing names: %s", paste(missing_names, collapse = ", ")))
-      }
-      
-      stop(sprintf("'%s' names do not match plate_names. %s", 
-                   param_name, paste(error_parts, collapse = "; ")))
+
+    # Check for invalid names (names that don't exist in plate_names)
+    invalid_names <- setdiff(names(param), plate_names)
+    if (length(invalid_names) > 0) {
+      stop(sprintf("'%s' contains invalid plate names: %s. Valid names are: %s",
+                   param_name,
+                   paste(invalid_names, collapse = ", "),
+                   paste(plate_names, collapse = ", ")))
     }
-    
-    if (length(param) != length(plate_names)) {
-      stop(sprintf("'%s' length (%d) must match plate_names length (%d)", 
-                   param_name, length(param), length(plate_names)))
-    }
-    
-    # Reorder to match plate_names order
-    result <- lapply(plate_names, function(plate) param[[plate]])
+
+    # Allow partial named lists - fill in NULL for missing plates
+    # This is useful for excludeSamples/excludeTargets where users only want to
+    # exclude from specific plates
+    result <- lapply(plate_names, function(plate) {
+      if (plate %in% names(param)) {
+        param[[plate]]
+      } else {
+        NULL
+      }
+    })
     names(result) <- plate_names
     return(result)
   }
@@ -2500,4 +2543,41 @@ remove_ic_from_long <- function(df, ic_targets) {
   if (is.null(df)) return(df)
   # Handle factor columns by converting to character for comparison
   return(df[!as.character(df$Target) %in% ic_targets, ])
+}
+
+#' Extract AUTO_PLATE ID from a NULISA XML File
+#' 
+#' Scans the beginning of an XML file to retrieve the value of the `AUTO_PLATE` 
+#' attribute. This is used for early validation of plate identities before 
+#' performing a full data load.
+#'
+#' @param file_path Character string. The path to the XML file.
+#'
+#' @return A character string containing the plate ID if found; otherwise, returns `NA`.
+#' 
+#' @details 
+#' To optimize performance, the function only reads the first 1000 lines 
+#' of the file, assuming metadata is located in the header section.
+#' 
+#' @keywords internal
+get_internal_plate_id <- function(file_path) {
+  # Read only the beginning of the file to save memory/time
+  # Adjust n if the AUTO_PLATE tag appears very late in your XML
+  lines <- tryCatch(
+    suppressWarnings(readLines(file_path, n = 1000, warn = FALSE)),
+    error = function(e) NULL
+  )
+  if (is.null(lines)) {
+    return(NA)
+  }
+  content <- paste(lines, collapse = " ")
+  
+  # Regex to find AUTO_PLATE="AnythingInsideQuotes"
+  match <- regmatches(content, regexec('AUTO_PLATE="([^"]+)"', content))
+  
+  if (length(match[[1]]) > 1) {
+    return(match[[1]][2]) # Return the captured group (the ID)
+  } else {
+    return(NA) # Not found
+  }
 }

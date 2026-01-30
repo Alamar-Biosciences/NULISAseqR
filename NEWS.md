@@ -1,3 +1,14 @@
+# NULISAseqR 1.4.1 (2026-01-16)
+
+## Changes
+
+### Enhancements
+* **importNULISAseq()** - Improved robustness and flexibility for handling NULISAseq data files:
+  - Added validation of internal `AUTO_PLATE` IDs with duplicate detection before processing
+  - Enhanced parameter mapping for `excludeSamples`, `excludeTargets`, and control parameters (`IC`, `IPC`, `SC`, `NC`, `Bridge`, `Calibrator`) using prioritized keys (user-provided plate names, internal IDs, or fallback names)
+  - Improved error handling with clear messages when duplicate plate IDs are detected with named exclusions
+* **get_internal_plate_id()** - New utility function to extract `AUTO_PLATE` ID from NULISAseq XML file headers
+
 # NULISAseqR 1.4.0 (2026-01-11)
 
 ## Overview
