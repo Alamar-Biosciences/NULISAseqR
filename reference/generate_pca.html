@@ -20,7 +20,7 @@ palettes."><meta property="og:image" content="https://nulisaseqr.alamarbio.com/l
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">NULISAseqR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
       </span>
     </div>
 
@@ -71,8 +71,11 @@ palettes.</p>
 <span>  sample_subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  target_subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  shape_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  encircle <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  encircleFill <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ellipse <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ellipseType <span class="op">=</span> <span class="st">"t"</span>,</span>
+<span>  ellipseAlpha <span class="op">=</span> <span class="fl">0.15</span>,</span>
+<span>  ellipseFill <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ellipseLineSize <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  sample_colors <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  components <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -130,14 +133,30 @@ should match the existing row names of <code>data</code>; defaults to <code>NULL
 to use for point shapes; defaults to <code>NULL</code>.</p></dd>
 
 
-<dt id="arg-encircle">encircle<a class="anchor" aria-label="anchor" href="#arg-encircle"></a></dt>
+<dt id="arg-ellipse">ellipse<a class="anchor" aria-label="anchor" href="#arg-ellipse"></a></dt>
 <dd><p>Logical indicating whether to draw ellipses around groups;
 defaults to <code>TRUE</code>.</p></dd>
 
 
-<dt id="arg-encirclefill">encircleFill<a class="anchor" aria-label="anchor" href="#arg-encirclefill"></a></dt>
+<dt id="arg-ellipsetype">ellipseType<a class="anchor" aria-label="anchor" href="#arg-ellipsetype"></a></dt>
+<dd><p>Character string specifying the type of ellipse. Options include
+<code>"t"</code> for t-distribution and <code>"norm"</code> for normal distribution;
+defaults to <code>"t"</code>.</p></dd>
+
+
+<dt id="arg-ellipsealpha">ellipseAlpha<a class="anchor" aria-label="anchor" href="#arg-ellipsealpha"></a></dt>
+<dd><p>Numeric value between 0 and 1 for ellipse transparency;
+defaults to <code>0.15</code>.</p></dd>
+
+
+<dt id="arg-ellipsefill">ellipseFill<a class="anchor" aria-label="anchor" href="#arg-ellipsefill"></a></dt>
 <dd><p>Logical indicating whether to fill the ellipses;
 defaults to <code>TRUE</code>.</p></dd>
+
+
+<dt id="arg-ellipselinesize">ellipseLineSize<a class="anchor" aria-label="anchor" href="#arg-ellipselinesize"></a></dt>
+<dd><p>Numeric value for the ellipse border line width;
+defaults to <code>0</code> (no border).</p></dd>
 
 
 <dt id="arg-sample-colors">sample_colors<a class="anchor" aria-label="anchor" href="#arg-sample-colors"></a></dt>

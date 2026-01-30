@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">NULISAseqR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
       </span>
     </div>
 
@@ -50,6 +50,23 @@
       <small>Source: <a href="https://github.com/Alamar-Biosciences/NULISAseqR/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.4.1" id="nulisaseqr-141-2026-01-16">NULISAseqR 1.4.1 (2026-01-16)<a class="anchor" aria-label="anchor" href="#nulisaseqr-141-2026-01-16"></a></h2>
+<div class="section level3">
+<h3 id="changes-1-4-1">Changes<a class="anchor" aria-label="anchor" href="#changes-1-4-1"></a></h3>
+<div class="section level4">
+<h4 id="enhancements-1-4-1">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-1-4-1"></a></h4>
+<ul><li>
+<strong>importNULISAseq()</strong> - Improved robustness and flexibility for handling NULISAseq data files:
+<ul><li>Added validation of internal <code>AUTO_PLATE</code> IDs with duplicate detection before processing</li>
+<li>Enhanced parameter mapping for <code>excludeSamples</code>, <code>excludeTargets</code>, and control parameters (<code>IC</code>, <code>IPC</code>, <code>SC</code>, <code>NC</code>, <code>Bridge</code>, <code>Calibrator</code>) using prioritized keys (user-provided plate names, internal IDs, or fallback names)</li>
+<li>Improved error handling with clear messages when duplicate plate IDs are detected with named exclusions</li>
+</ul></li>
+<li>
+<strong>get_internal_plate_id()</strong> - New utility function to extract <code>AUTO_PLATE</code> ID from NULISAseq XML file headers</li>
+</ul></div>
+</div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.4.0" id="nulisaseqr-140-2026-01-11">NULISAseqR 1.4.0 (2026-01-11)<a class="anchor" aria-label="anchor" href="#nulisaseqr-140-2026-01-11"></a></h2>
 <div class="section level3">
