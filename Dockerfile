@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN install.r future pagedown uuid XML xml2 ggrepel emmeans fields optparse pheatmap rcompanion \
-        corrplot pander gdata dplyr testthat qs lmerTest logger devtools remotes knitr tidyverse \
+        corrplot gdata dplyr testthat qs2 lmerTest logger devtools remotes knitr tidyverse \
         ggplot2 htmltools DT plotly lubridate scales httr stringr ggpubr openxlsx renv coin \
         fs reactable janitor future.apply future.callr showtext svglite patchwork
 

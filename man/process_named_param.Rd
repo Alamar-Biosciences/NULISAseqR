@@ -2,13 +2,17 @@
 % Please edit documentation in R/mergeNULISAseq.R
 \name{process_named_param}
 \alias{process_named_param}
-\title{An helper function that processes parameters that can be specified
+\title{A helper function that processes parameters that can be specified
 as named lists (per plate), vectors (applied to all plates), or NULL}
 \usage{
 process_named_param(param, plate_names)
 }
 \arguments{
-\item{param}{Character string of the parameter}
+\item{param}{The parameter to process. Can be:
+- `NULL`: No action for any plate
+- A vector: Applied to all plates
+- A named list: Specific values for specific plates. Names must be valid plate names
+from `plate_names`. Partial lists are allowed - plates not specified will receive `NULL`.}
 
 \item{plate_names}{Character vector of plate names to match against}
 }
@@ -18,7 +22,7 @@ A named list with one element per plate, where:
   - Values are either the plate-specific parameter or `NULL`
 }
 \description{
-An helper function that processes parameters that can be specified
+A helper function that processes parameters that can be specified
 as named lists (per plate), vectors (applied to all plates), or NULL
 }
 \details{
@@ -26,7 +30,8 @@ This function handles the following input patterns:
 \itemize{
   \item{\code{param = NULL}: Returns `NULL`}
   \item{\code{param = c("value1", "value2")}: Returns a named list where all plates get the vector}
-  \item{\code{param = list("Plate_01" = "value1", "Plate_02" = "value2")}: Returns a named list with plate-specific values}
+  \item{\code{param = list("Plate_01" = "value1", "Plate_02" = "value2")}: Returns a named list
+  with plate-specific values. Plates not specified in the list will receive `NULL`.}
 }
 }
 \keyword{internal}

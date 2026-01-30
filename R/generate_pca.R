@@ -23,10 +23,17 @@
 #' should match the existing row names of \code{data}; defaults to \code{NULL} (all targets).
 #' @param shape_by Character string specifying the column name from \code{sampleInfo}
 #' to use for point shapes; defaults to \code{NULL}.
-#' @param encircle Logical indicating whether to draw ellipses around groups;
+#' @param ellipse Logical indicating whether to draw ellipses around groups;
 #' defaults to \code{TRUE}.
-#' @param encircleFill Logical indicating whether to fill the ellipses;
+#' @param ellipseType Character string specifying the type of ellipse. Options include
+#' \code{"t"} for t-distribution and \code{"norm"} for normal distribution;
+#' defaults to \code{"t"}.
+#' @param ellipseAlpha Numeric value between 0 and 1 for ellipse transparency;
+#' defaults to \code{0.15}.
+#' @param ellipseFill Logical indicating whether to fill the ellipses;
 #' defaults to \code{TRUE}.
+#' @param ellipseLineSize Numeric value for the ellipse border line width;
+#' defaults to \code{0} (no border).
 #' @param sample_colors Named vector of custom colors for sample groups.
 #' Names should match the levels in \code{annotate_sample_by}; defaults to \code{NULL}.
 #' @param components Integer vector of length 2 specifying which principal components to plot.
@@ -134,8 +141,11 @@ generate_pca <- function(data,
                          sample_subset = NULL,
                          target_subset = NULL,
                          shape_by = NULL,
-                         encircle = TRUE,
-                         encircleFill = TRUE,
+                         ellipse = TRUE,
+                         ellipseType = "t",
+                         ellipseAlpha = 0.15,
+                         ellipseFill = TRUE,
+                         ellipseLineSize = 0,
                          sample_colors = NULL,
                          components = c(1, 2),
                          output_dir = NULL,
@@ -266,8 +276,11 @@ generate_pca <- function(data,
                            vline = 0,
                            pointSize = 2,
                            legendPosition = 'right',
-                           encircle = encircle,
-                           encircleFill = encircleFill,
+                           ellipse = ellipse,
+                           ellipseType = ellipseType,
+                           ellipseAlpha = ellipseAlpha,
+                           ellipseFill = ellipseFill,
+                           ellipseLineSize = ellipseLineSize,
                            ...) 
   
   # Add title if specified

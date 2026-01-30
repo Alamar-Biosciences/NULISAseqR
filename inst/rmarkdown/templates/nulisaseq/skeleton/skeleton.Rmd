@@ -191,7 +191,7 @@ knitr::knit_engines$set(future = function(options) {
 
 library(NULISAseqR)
 library(kableExtra)
-library(pander)
+# pander removed - using base R cat() for markdown generation
 library(grid)
 library(gdata)
 library(dplyr)
@@ -201,7 +201,7 @@ library(reactable)
 library(future)
 library(future.apply)
 library(plotly)
-library(qs)
+library(qs2)
 library(future.callr)
 
 .original_future_plan <- if ("future" %in% loadedNamespaces()) future::plan() else NULL
@@ -360,27 +360,27 @@ formatExcludedItems <- function(excluded_list, plate_names, item_type = "Items")
 
 #' Print excluded targets message if any are excluded
 #'
-#' Convenience function that formats excluded targets and prints them using pandoc.p
+#' Convenience function that formats excluded targets and prints them using cat
 #'
 #' @param excluded_targets List of excluded targets per plate (can be NULL)
 #' @param plate_names Character vector of plate names
 printExcludedTargets <- function(excluded_targets, plate_names) {
   message <- formatExcludedItems(excluded_targets, plate_names, "Targets")
   if(!is.null(message)) {
-    pandoc.p(message)
+    cat(message, "\n\n")
   }
 }
 
 #' Print excluded samples message if any are excluded
 #'
-#' Convenience function that formats excluded samples and prints them using pandoc.p
+#' Convenience function that formats excluded samples and prints them using cat
 #'
 #' @param excluded_samples List of excluded samples per plate (can be NULL)
 #' @param plate_names Character vector of plate names
 printExcludedSamples <- function(excluded_samples, plate_names) {
   message <- formatExcludedItems(excluded_samples, plate_names, "Samples")
   if(!is.null(message)) {
-    pandoc.p(message)
+    cat(message, "\n\n")
   }
 }
 
@@ -2048,8 +2048,8 @@ title: "`r title_var`"
 if (params$rendered_by_shiny) shiny::setProgress(0.6, message = "Writing Document ...")
 
 if(!is.null(params$assayRunInfo)){
-  pandoc.header("Run summary", 2)
-  if(!is.null(PlateNameMessage)) pandoc.p(PlateNameMessage)
+  cat("## Run summary\n\n")
+  if(!is.null(PlateNameMessage)) cat(PlateNameMessage, "\n\n")
   
   run_summary <- data.frame(`Plate ID`=PlateNames,
                             `Assay date`=sapply(assayRunInfo, function(x) x[[1]]),
@@ -2065,10 +2065,10 @@ if(!is.null(params$assayRunInfo)){
 ```{r plate-layout, eval=(params$outPlateLayout), results='asis'}
 if (params$rendered_by_shiny) shiny::setProgress(0.6, message = "Writing Document ...")
 
-pandoc.header("Plate layout", 2)
-pandoc.p(paste0("Shows the layout of samples, controls (e.g., negative controls (NC), ", CAL_IPC_full, " and special wells if any (e.g., ", AQSC_SC_full, ") on the 96 well assay plate."))
+cat("## Plate layout\n\n")
+cat(paste0("Shows the layout of samples, controls (e.g., negative controls (NC), ", CAL_IPC_full, " and special wells if any (e.g., ", AQSC_SC_full, ") on the 96 well assay plate."), "\n\n")
 
-if(!is.null(PlateNameMessage)) pandoc.p(PlateNameMessage)
+if(!is.null(PlateNameMessage)) cat(PlateNameMessage, "\n\n")
 
 for(i in 1:numFiles){
   cat(paste0("\n### ", PlateNames[i], "\n\n"))
@@ -2112,16 +2112,16 @@ for(i in 1:numFiles){
 
 ```{r plate-read-summary, eval=(params$outReadSummary), results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Read summary", 2)
-pandoc.p("Summary of the number and classification of reads for the assay run") 
-pandoc.list(c("Parseable - Valid next generation sequencing (NGS) read (assay signal or background)",
+cat("## Read summary\n\n")
+cat("Summary of the number and classification of reads for the assay run\n\n")
+cat(paste0("- ", c("Parseable - Valid next generation sequencing (NGS) read (assay signal or background)",
               "Parseable Match - Valid NGS read (assay signal)",
               "Parseable Non-match - Vaild NGS read (assay background)",
               "Unparseable - Sequencing background",
               "Total wells - Total number of samples + controls on plate",
               "Total targets - Total number of assay targets (including internal controls)",
               "&#35; of zeros (%) - Number and percentage of targets * samples which had zero sequencing reads (no assay signal)"
-))
+), "\n", collapse = ""))
 render_table(read_summary, 
              table_name = " ", 
              table_id = "id=\"read-summary\"", 
@@ -2130,8 +2130,8 @@ render_table(read_summary,
 
 ```{r IC-read-summary, eval=(params$outReadSummary), results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Internal controls (IC)", 3)
-pandoc.p("Each sample of the assay is spiked with the same concentration of at least one internal control (IC). This is used both as part of a well normalization procedure and as a method for assessing the uniformity of the assay run. SD: standard deviation. CV: coefficient of variation") 
+cat("### Internal controls (IC)\n\n")
+cat("Each sample of the assay is spiked with the same concentration of at least one internal control (IC). This is used both as part of a well normalization procedure and as a method for assessing the uniformity of the assay run. SD: standard deviation. CV: coefficient of variation\n\n") 
 IC_name <- Reduce(intersect, lapply(runs, function(x) x$IC))
 for(j in 1:length(IC_name)){
   IC_tables <- NULL
@@ -2148,9 +2148,9 @@ for(j in 1:length(IC_name)){
 
 ```{r IPC-read-summary, eval=(params$outReadSummary), results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header(CAL_IPC_full, 3)
-pandoc.p(paste0(CAL_IPC, " samples are pooled plasma controls used both to normalize samples between experiments and to assess performance (e.g., precision) of the assay."))
-pandoc.p("Note: %CV in this table does not exclude values below LOD. See Coefficient of variation section for %CV (before and after normalization) that excludes values below LOD.")
+cat(paste0("### ", CAL_IPC_full, "\n\n"))
+cat(paste0(CAL_IPC, " samples are pooled plasma controls used both to normalize samples between experiments and to assess performance (e.g., precision) of the assay."), "\n\n")
+cat("Note: %CV in this table does not exclude values below LOD. See Coefficient of variation section for %CV (before and after normalization) that excludes values below LOD.\n\n")
 IPC_table <- do.call(rbind,
                      lapply(seq_along(runSummaries), function(i) {
                        if(AbsData){
@@ -2175,8 +2175,8 @@ render_table(IPC_table,
 if (params$rendered_by_shiny) shiny::setProgress(0.7, message = "Writing Document ...")
 
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Negative controls (NC)", 3)
-pandoc.p("NC wells are reactions where no sample input is provided (i.e., buffer only). These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality (e.g., background levels).")
+cat("### Negative controls (NC)\n\n")
+cat("NC wells are reactions where no sample input is provided (i.e., buffer only). These are used to assess Limit of Detection (LOD) for each target assay and to assess run quality (e.g., background levels).\n\n")
 NC_table <- do.call(rbind,
                     lapply(seq_along(runSummaries), function(i) {
                       df <- as.data.frame(runSummaries[[i]]$NC_table)
@@ -2197,23 +2197,23 @@ render_table(NC_table,
 ```{r NC-outliers, eval=(params$reportType=='internal'), results='asis'}
 if (params$rendered_by_shiny) shiny::setProgress(0.725, message = "Writing Document ...")
 
-pandoc.header("Negative controls outlier table", 4)
-pandoc.p("The following values for NC wells and targets were identified as outliers and excluded from LOD calculations.")
+cat("#### Negative controls outlier table\n\n")
+cat("The following values for NC wells and targets were identified as outliers and excluded from LOD calculations.\n\n")
 if(!is.null(blank_outlier_table)){
-  render_table(blank_outlier_table, 
-               table_name = ' ', 
-               table_id = "id=\"NC-outliers\"", 
+  render_table(blank_outlier_table,
+               table_name = ' ',
+               table_id = "id=\"NC-outliers\"",
                rownames = FALSE)
 } else {
-  pandoc.p("No NC outliers were identified.")
+  cat("No NC outliers were identified.\n\n")
 }
 ```
 
 ```{r SC-read-summary, eval=(indicatorSC & params$outReadSummary), results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header(AQSC_SC_full, 3)
-pandoc.p(paste0(AQSC_SC, " samples are pooled plasma controls from an independent pooled plasma source that is different from ", CAL_IPC, "s. ", AQSC_SC, "s are used for calculating intra- and inter-plate coefficient of variation (CV). They are used to obtain an unbiased measure of inter-plate CV when ", CAL_IPC, " normalization is used."))
-pandoc.p("Note: %CV in this table does not exclude values below LOD. See Coefficient of variation section for %CV (before and after normalization) that excludes values below LOD.")
+cat(paste0("### ", AQSC_SC_full, "\n\n"))
+cat(paste0(AQSC_SC, " samples are pooled plasma controls from an independent pooled plasma source that is different from ", CAL_IPC, "s. ", AQSC_SC, "s are used for calculating intra- and inter-plate coefficient of variation (CV). They are used to obtain an unbiased measure of inter-plate CV when ", CAL_IPC, " normalization is used."), "\n\n")
+cat("Note: %CV in this table does not exclude values below LOD. See Coefficient of variation section for %CV (before and after normalization) that excludes values below LOD.\n\n")
 SC_table <- do.call(rbind,
                     lapply(seq_along(runSummaries), function(i) {
                       if(AbsData){
@@ -2236,8 +2236,8 @@ render_table(SC_table,
 
 ```{r bridge-read-summary, eval=(indicatorBridge & params$outReadSummary), results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Bridge samples (Bridge)", 3)
-pandoc.p("Bridge samples can be used for inter-plate normalization. Bridge sample normalization uses the bridge sample subset to estimate median target-specific differences in NPQ, and then uses these NPQ differences to normalize all samples in a manner similar to intensity normalization.")
+cat("### Bridge samples (Bridge)\n\n")
+cat("Bridge samples can be used for inter-plate normalization. Bridge sample normalization uses the bridge sample subset to estimate median target-specific differences in NPQ, and then uses these NPQ differences to normalize all samples in a manner similar to intensity normalization.\n\n")
 for(i in 1:numFiles){
   if(!is.null(runSummaries[[i]]$Bridge_table)){
     print(render_table(runSummaries[[i]]$Bridge_table, 
@@ -2250,9 +2250,9 @@ for(i in 1:numFiles){
 
 ```{r total-count-IC-heatmaps, out.width='100%', eval=(params$outHeatmaps), fig.asp=0.333, results='asis', warning=FALSE}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Heatmaps", 2)
+cat("## Heatmaps\n\n")
 heatmap_description <- if (params$heatMapRel==TRUE) "percent relative to plate median" else "absolute normalized read count"
-pandoc.p(paste0("Heatmaps show the ", heatmap_description, " for log2(total counts) and the specified internal control(s)."))
+cat(paste0("Heatmaps show the ", heatmap_description, " for log2(total counts) and the specified internal control(s)."), "\n\n")
 for(i in 1:numFiles){
   cat(knitr::asis_output(paste0("\n\n### ", PlateNames[i], "\n\n")))
   ICs <- which(tolower(runs[[i]]$targets$targetType) == "control")
@@ -2282,14 +2282,14 @@ for(i in 1:numFiles){
 
 ```{r plateQC, eval=(params$outQC), results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Quality control", 2)
-pandoc.header("Plate QC", 3)
-pandoc.p("Plate-specific QC criteria:")
+cat("## Quality control\n\n")
+cat("### Plate QC\n\n")
+cat("Plate-specific QC criteria:\n\n")
 qcText <- QCPlateCriteria(AQ=AbsData)
 
 qc_criteria <- paste0(qcText$properNames, " - ", qcText$explanations)
-pandoc.list( qc_criteria)
-pandoc.p(paste0("QC criteria are assessed either on unnormalized (raw) or ", CAL_IPC, "-normalized (", CAL_IPC, ") data."))
+cat(paste0("- ", qc_criteria, "\n", collapse = ""))
+cat(paste0("QC criteria are assessed either on unnormalized (raw) or ", CAL_IPC, "-normalized (", CAL_IPC, ") data."), "\n\n")
 
 # Initialize empty list to store all QC data
 all_qc_data <- list()
@@ -2361,9 +2361,9 @@ print(render_table(combined_qc_table,
 ```
 
 ```{r sampleQC-header, eval=(params$outQC), out.width='100%', results='asis'}
-pandoc.header("Sample QC", 3)
-pandoc.header("Sample QC summary tables", 4)
-pandoc.p("Sample-specific QC criteria:")
+cat("### Sample QC\n\n")
+cat("#### Sample QC summary tables\n\n")
+cat("Sample-specific QC criteria:\n\n")
 ```
 
 ```{r sampleQC-criteria, eval=(params$outQC), out.width='100%', results='asis'}
@@ -2374,18 +2374,18 @@ if(params$reportType=="internal"){
 }
 
 items <- paste0(qcText$properNames, " - ", qcText$explanations)
-pandoc.list(items)
+cat(paste0("- ", items, "\n", collapse = ""))
 
 zero_samples <- lapply(runs, function(x) x$zero_samples)
 zero_samples_message <- formatZeroSamples(zero_samples, "Samples excluded, zero total reads: ")
 if(!is.null(zero_samples_message)) {
-  pandoc.p(zero_samples_message)
+  cat(zero_samples_message, "\n\n")
 }
 
 IC_zero_samples <- lapply(runs, function(x) x$IC_zero_samples)
 IC_zero_samples_message <- formatZeroSamples(IC_zero_samples, "Samples excluded, zero IC reads: ")
 if(!is.null(IC_zero_samples_message)) {
-  pandoc.p(IC_zero_samples_message)
+  cat(IC_zero_samples_message, "\n\n")
 }
 
 printExcludedSamples(params$excludeSamples, PlateNames)
@@ -2551,8 +2551,8 @@ for(i in 1:length(names(criteria$thresholdNames))){
 
 ```{r sampleQC-plots, eval=(params$outQC), out.width='100%', fig.asp=1, results='asis'}
 if (params$rendered_by_shiny) shiny::setProgress(0.8, message = "Writing Document ...")
-pandoc.header("Sample QC plots", 4)
-# pandoc.p("Note that pass / fail status of SN QC criterion is: SN/QCS < threshold1 AND QCS > threshold2. Values shown are SN/QCS.")
+cat("#### Sample QC plots\n\n")
+# Note: pass / fail status of SN QC criterion is: SN/QCS < threshold1 AND QCS > threshold2. Values shown are SN/QCS.
 # make sample QC plots
 for( i in 1:numFiles){
   # sort in order: samples, IPC, SC, Bridge, NC
@@ -2690,13 +2690,13 @@ for( i in 1:numFiles){
 
 ```{r AQ-targetQC-header, eval=(params$outQC & AbsData | params$advancedQC), out.width='100%', results='asis'}
 if(params$outQC){
-  pandoc.header("Target QC", 3)
+  cat("### Target QC\n\n")
   printExcludedTargets(params$excludeTargets, PlateNames)
-  pandoc.header("Target QC summary tables", 4)
-  pandoc.p("Target-specific QC criteria:")
+  cat("#### Target QC summary tables\n\n")
+  cat("Target-specific QC criteria:\n\n")
   qcText <- QCTargetCriteria(AQ=AbsData, advancedQC=params$advancedQC)
   items <- paste0(qcText$properNames, " - ", qcText$explanations)
-  pandoc.list(items)
+  cat(paste0("- ", items, "\n", collapse = ""))
   TargetQCSummary <- TargetQCTotal <- matrix(NA, nrow=numFiles, ncol=length(Tcriteria$thresholds) + 1)
   
   rownames(TargetQCSummary) <- rownames(TargetQCTotal) <- PlateNames
@@ -2793,7 +2793,7 @@ if(length(Tcriteria) > 0){
 
 ```{r AQ-targetQC-plots, eval=(params$outQC & (params$advancedQC | AbsData)), out.width='100%', fig.asp=1.25, results='asis'}
 # make Target QC plots
-pandoc.header("Target QC plots", 4)
+cat("#### Target QC plots\n\n")
 for( i in 1:numFiles){
   # do Target QC
   qcTargetOrder <- runs[[i]]$qcTarget[rev(1:nrow(runs[[i]]$qcTarget)),]
@@ -2916,17 +2916,17 @@ for( i in 1:numFiles){
 ```
 
 ```{r top-reads-QC, eval=params$reportType=='internal', results='asis'}
-pandoc.header("Top % Reads", 3)
-pandoc.header("Top 10 targets", 4)
-pandoc.p('For top 10 targets by % reads on each plate, the table shows target name, % of grand total plate reads, and total target reads. Note that all targets are considered including any excluded or IC targets.')
+cat("### Top % Reads\n\n")
+cat("#### Top 10 targets\n\n")
+cat("For top 10 targets by % reads on each plate, the table shows target name, % of grand total plate reads, and total target reads. Note that all targets are considered including any excluded or IC targets.\n\n")
 render_table(top_targets_table,
              table_name = 'Top 10 targets by % reads',
              table_id='id=\"top-10-targets-by-reads\"',
              first_colName = "Run",
              HTML = TRUE)
 
-pandoc.header("Top 10 samples", 4)
-pandoc.p('For top 10 samples by % reads on each plate, the table shows sample name, % of grand total plate reads, and total sample reads. Note that all samples are considered including any excluded or control samples.')
+cat("#### Top 10 samples\n\n")
+cat("For top 10 samples by % reads on each plate, the table shows sample name, % of grand total plate reads, and total sample reads. Note that all samples are considered including any excluded or control samples.\n\n")
 render_table(top_samples_table,
              table_name = 'Top 10 samples by % reads',
              table_id = 'id=\"top-10-samples-by-reads\"',
@@ -2943,10 +2943,10 @@ detect_fig_asp <- min(2*ceiling(numFiles/2), 20)
 
 ```{r detectability-summary, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=tryCatch(detect_fig_asp, error = function(e) 0.75)}
 if (params$rendered_by_shiny) shiny::setProgress(0.9, message = "Writing Document ...")
-pandoc.header("Detectability", 2)
-pandoc.p(paste0("Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered \"detectable\" if it is above limit of detection in greater than 50% of samples. \"Overall\" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes ", CAL_IPC, ", ", AQSC_SC, ",", " & NC samples."))
+cat("## Detectability\n\n")
+cat(paste0("Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered \"detectable\" if it is above limit of detection in greater than 50% of samples. \"Overall\" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes ", CAL_IPC, ", ", AQSC_SC, ",", " & NC samples."), "\n\n")
 printExcludedTargets(params$excludeTargets, PlateNames)
-pandoc.header("Detectability summary", 3)
+cat("### Detectability summary\n\n")
 # Detectability summary
 if (combine_detectability){
   render_table(detectability_return_summary[["Combined"]], 
@@ -2969,7 +2969,7 @@ if (combine_detectability){
 ```
 
 ```{r detectability-target-table, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=tryCatch(detect_fig_asp, error = function(e) 0.75)}
-pandoc.header("Target detectability table", 3)
+cat("### Target detectability table\n\n")
 # Target detectability
 if (combine_detectability){
   render_table(detectability_return_targets[["Combined"]], 
@@ -3075,8 +3075,8 @@ if(params$reportType != "webApp"){
 
 ```{r detectability-target-boxplot, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=tryCatch(detect_fig_asp, error = function(e) 0.75)}
 # Target Boxplot
-pandoc.header("Target detectability boxplot", 3)
-pandoc.p(paste0("Plot shows target IC-", CAL_IPC, "-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for IC-normalized data. Reverse-curve quantified targets are denoted by a \"*\" and are plotted as forward-curve targets for compatibility"))
+cat("### Target detectability boxplot\n\n")
+cat(paste0("Plot shows target IC-", CAL_IPC, "-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for IC-normalized data. Reverse-curve quantified targets are denoted by a \"*\" and are plotted as forward-curve targets for compatibility"), "\n\n")
 par(mfrow=c(ceiling(numFiles/2), 2), mar=c(4,2,2,1))
 for (i in 1:numFiles){
   # Create vector of targets to exclude: IC + hidden targets + noDetectability targets + user excluded targets
@@ -3107,9 +3107,9 @@ for (i in 1:numFiles){
 ```{r AQ-quantifiability, results='asis', eval=(AbsData), out.width='100%', warning=FALSE}
 if (params$rendered_by_shiny) shiny::setProgress(0.925, message = "Writing Document ...")
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Quantifiability", 2)
-pandoc.p(paste0("Target quantifiability is the percentage of samples that are within the dynamic range, that is, above the lower limit of quantification (LLOQ) and below the upper limit of quantification (ULOQ) for that target. A target is considered \"quantifiable\" if at least 50% of samples fall within the dynamic range. \"Overall\" quantifiability is the overall percentage of samples across all plates that are within the dynamic range for a given target. Target quantifiability reported here excludes ", CAL_IPC, ", ", AQSC_SC, ",", " & NC samples."))
-pandoc.header("Quantifiability summary", 3)
+cat("## Quantifiability\n\n")
+cat(paste0("Target quantifiability is the percentage of samples that are within the dynamic range, that is, above the lower limit of quantification (LLOQ) and below the upper limit of quantification (ULOQ) for that target. A target is considered \"quantifiable\" if at least 50% of samples fall within the dynamic range. \"Overall\" quantifiability is the overall percentage of samples across all plates that are within the dynamic range for a given target. Target quantifiability reported here excludes ", CAL_IPC, ", ", AQSC_SC, ",", " & NC samples."), "\n\n")
+cat("### Quantifiability summary\n\n")
 # Quantifiability summary
 AQ_quant <- tryCatch(
   AQ_quant <- quantifiability(runs, 
@@ -3120,7 +3120,7 @@ AQ_quant <- tryCatch(
 )
 
 if(is.na(AQ_quant[1])){
-  pandoc.p('LLOQ and ULOQ are not present in run data for one or more runs. Quantifiability cannot be calculated.')
+  cat("LLOQ and ULOQ are not present in run data for one or more runs. Quantifiability cannot be calculated.\n\n")
 } else if(!is.na(AQ_quant[1])){
   group_names <- names(AQ_quant$summary_tables)
   for(i in 1:length(group_names)){
@@ -3138,12 +3138,12 @@ if(is.na(AQ_quant[1])){
 
 ```{r intraCV-tables, eval=(params$outIntraPlateNorm & indicatorSC==TRUE), results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Coefficient of variation", 2) 
-pandoc.header("Intra-plate CV summary", 3)
-pandoc.p(paste0("%CV was calculated for each target (excluding internal controls) for the ", AQSC_SC, "s and ", CAL_IPC, "s. Only values above LOD were used to calculate %CV. Some targets may have missing CV due to too many values below LOD."))
+cat("## Coefficient of variation\n\n")
+cat("### Intra-plate CV summary\n\n")
+cat(paste0("%CV was calculated for each target (excluding internal controls) for the ", AQSC_SC, "s and ", CAL_IPC, "s. Only values above LOD were used to calculate %CV. Some targets may have missing CV due to too many values below LOD."), "\n\n")
 printExcludedTargets(params$excludeTargets, PlateNames)
 
-pandoc.header("Intra-plate CV table -- unnormalized", 4)
+cat("#### Intra-plate CV table -- unnormalized\n\n")
 render_table(SC_intraCV_unnorm_summary_table, 
              table_name = paste0(AQSC_SC, ' intra-plate %CV -- unnormalized'), 
              table_id = "id=\"SC-intra-plateCV-unnorm-summary\"", 
@@ -3154,7 +3154,7 @@ render_table(IPC_intraCV_unnorm_summary_table,
              table_id = "id=\"IPC-intra-plateCV-unnorm-summary\"", 
              first_colName = "Run")
 
-pandoc.header("Intra-plate CV table -- IC-normalized", 4)
+cat("#### Intra-plate CV table -- IC-normalized\n\n")
 
 render_table(SC_intraCV_IC_summary_table, 
              table_name = paste0(AQSC_SC, ' intra-plate %CV -- IC-normalized'), 
@@ -3169,13 +3169,13 @@ render_table(IPC_intraCV_IC_summary_table,
 ```
 
 ```{r intraCV-tables-no-SC, eval=(params$outIntraPlateNorm & params$reportType=="internal" & indicatorSC==FALSE), results='asis'}
-pandoc.header("Intra-plate CV table -- unnormalized", 4)
-render_table(IPC_intraCV_unnorm_summary_table, 
-             table_name = paste0(CAL_IPC, ' intra-plate %CV -- unnormalized'), 
-             table_id = "id=\"IPC-intra-plateCV-unnorm-summary\"", 
+cat("#### Intra-plate CV table -- unnormalized\n\n")
+render_table(IPC_intraCV_unnorm_summary_table,
+             table_name = paste0(CAL_IPC, ' intra-plate %CV -- unnormalized'),
+             table_id = "id=\"IPC-intra-plateCV-unnorm-summary\"",
              first_colName = "Run")
 
-pandoc.header("Intra-plate CV table -- IC-normalized", 4)
+cat("#### Intra-plate CV table -- IC-normalized\n\n")
 render_table(IPC_intraCV_IC_summary_table, 
              table_name = paste0(CAL_IPC, ' intra-plate %CV -- IC-normalized'), 
              table_id = "id=\"intra-plateCV-mCherry-summary\"", 
@@ -3187,7 +3187,7 @@ plot.new()
 ```
 
 ```{r intraCV-boxplots-SC, out.width='100%', eval=(params$outIntraPlateNorm & indicatorSC == TRUE), fig.asp=(0.05*numFiles + 0.25), results='asis'}
-pandoc.header("Intra-plate CV boxplots by plate", 4)
+cat("#### Intra-plate CV boxplots by plate\n\n")
 SC_intraCV_unnorm2 <- SC_intraCV_unnorm
 colnames(SC_intraCV_unnorm2) <- paste0(colnames(SC_intraCV_IC), ' unnormalized')
 SC_intraCV_IC2 <- SC_intraCV_IC
@@ -3231,7 +3231,7 @@ if(length(tmpValsY) != 0){ # only plot if there are valid values
 ```
 
 ```{r AQ-intraCV-tables, eval=(params$outIntraPlateNorm & indicatorSC==TRUE & AbsData), results='asis'}
-pandoc.header("Intra-plate CV table -- AQ", 4)
+cat("#### Intra-plate CV table -- AQ\n\n")
 
 # make AQ intra CV tables
 AQ_CV <- CV_AQ(runs)
@@ -3250,7 +3250,7 @@ AQ_SC_intraCV_table <- make_AQ_intraCV_table(AQ_CV, sampleName = 'SC')
 AQ_IPC_intraCV_table <- make_AQ_intraCV_table(AQ_CV, sampleName = 'IPC')
 
 n_AQ_targets <- nrow(AQ_CV$average_intraCV$intraCV)
-pandoc.p(paste0('CVs reported here were calculated on the aM units AQ data. Based on ', n_AQ_targets, ' AQ targets.'))
+cat(paste0("CVs reported here were calculated on the aM units AQ data. Based on ", n_AQ_targets, " AQ targets."), "\n\n")
 render_table(AQ_SC_intraCV_table, 
              table_name = paste0(AQSC_SC, ' intra-plate %CV -- AQ'), 
              table_id = "id=\"SC-intra-plateCV-AQ-summary\"", 
@@ -3267,13 +3267,13 @@ render_table(AQ_IPC_intraCV_table,
 if (params$rendered_by_shiny) shiny::setProgress(0.95, message = "Writing Document ...")
 
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Inter-plate CV summary", 3)
+cat("### Inter-plate CV summary\n\n")
 cat(paste0("%CV was calculated for each target (excluding internal controls) for the ", AQSC_SC, "s. Only values above LOD were used to calculate %CV. Some targets may have missing CV due to too many values below LOD."))
 printExcludedTargets(params$excludeTargets, PlateNames)
 ```
 
 ```{r interCV-tables, eval=(multipleFiles & params$outInterPlateNorm), results='asis'}
-pandoc.header("Inter-plate CV table", 4)
+cat("#### Inter-plate CV table\n\n")
 
 if(params$reportType != "internal"){
   remove <- "IC + IN"
@@ -3314,7 +3314,7 @@ render_table(IPC_interCV_summary_table2,
 ```
 
 ```{r interCV-boxplot-SC, out.width='100%', fig.asp=0.35, eval=(params$outInterPlateNorm & multipleFiles & indicatorSC), results='asis'}
-pandoc.header("Inter-plate CV boxplot", 4)
+cat("#### Inter-plate CV boxplot\n\n")
 
 par(mar=c(5,12,2,1))
 boxplot(SC_interCV_results2[,ncol(SC_interCV_results2):1], las=1, 
@@ -3336,7 +3336,7 @@ abline(v=c(0:200*5), col='grey', lty=3)
 ```
 
 ```{r AQ-interCV-table, eval=(params$outInterPlateNorm & indicatorSC==TRUE & AbsData & multipleFiles), results='asis'}
-pandoc.header("Inter-plate CV table -- AQ", 4)
+cat("#### Inter-plate CV table -- AQ\n\n")
 
 # make AQ inter CV tables
 AQ_CV <- CV_AQ(runs)
@@ -3351,7 +3351,7 @@ AQ_IPC_interCV_table <- make_AQ_interCV_table(AQ_CV, sampleName = 'IPC')
 
 n_AQ_targets <- nrow(AQ_CV$interCV$interCV)
 
-pandoc.p(paste0('CVs reported here were calculated on the aM units AQ data. Based on ', n_AQ_targets, ' AQ targets.'))
+cat(paste0("CVs reported here were calculated on the aM units AQ data. Based on ", n_AQ_targets, " AQ targets."), "\n\n")
 
 render_table(AQ_SC_interCV_table, 
              table_name = paste0(AQSC_SC, ' inter-plate %CV -- AQ'), 
@@ -3368,8 +3368,8 @@ render_table(AQ_IPC_interCV_table,
 
 ```{r intraCV-target-table, eval=(params$outIntraPlateNorm & indicatorSC==TRUE), results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header(paste0("Target ", AQSC_SC, " intra-plate CV table"), 3)
-pandoc.p("Targets with any intra-plate CV > 30% are highlighted in red.")
+cat(paste0("### Target ", AQSC_SC, " intra-plate CV table\n\n"))
+cat("Targets with any intra-plate CV > 30% are highlighted in red.\n\n")
 printExcludedTargets(params$excludeTargets, PlateNames)
 SC_intraCV_IC_table <- SC_intraCV_IC
 
@@ -3389,8 +3389,8 @@ render_table(SC_intraCV_IC_table,
 
 ```{r interCV-target-table, eval=(params$outInterPlateNorm & multipleFiles & indicatorSC), results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header(paste0("Target ", AQSC_SC, " inter-plate CV table"), 3)
-pandoc.p(paste0("Targets with IC + ", CAL_IPC, " inter-plate CV > 30% are highlighted in red."))
+cat(paste0("### Target ", AQSC_SC, " inter-plate CV table\n\n"))
+cat(paste0("Targets with IC + ", CAL_IPC, " inter-plate CV > 30% are highlighted in red."), "\n\n")
 printExcludedTargets(params$excludeTargets, PlateNames)
 IC_IPCname <- which(colnames(SC_interCV_results)== paste0('IC + ', CAL_IPC))
 
@@ -3408,7 +3408,7 @@ render_table(SC_interCV_results,
 
 ```{r SC-intraCV-interCV-scatterplot, eval=(params$outIntraPlateNorm & params$outInterPlateNorm & multipleFiles & indicatorSC & params$reportType=='internal'), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header(paste0(AQSC_SC, " intra-plate vs inter-plate CV scatterplot"), 3)
+cat(paste0("### ", AQSC_SC, " intra-plate vs inter-plate CV scatterplot\n\n"))
 # SC IC normed intra CV (this is the same as IC + IPC intra CV) vs IC + IPC normed inter CV
 
 # Get common rows between the two dataframes
@@ -3442,7 +3442,7 @@ SC_CV_scatter
 
 ```{r IPC-intraCV-interCV-scatterplot, eval=(params$outIntraPlateNorm & params$outInterPlateNorm & multipleFiles & params$reportType=='internal'), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header(paste0(CAL_IPC, " intra-plate vs inter-plate CV scatterplot"), 3)
+cat(paste0("### ", CAL_IPC, " intra-plate vs inter-plate CV scatterplot\n\n"))
 # IPC IC normed intra CV vs IC normed inter CV
 # Get common rows between the two dataframes
 common_rows <- intersect(rownames(IPC_intraCV_IC), rownames(IPC_interCV_results))
@@ -3477,8 +3477,8 @@ plot.new()
 
 ```{r SC-IPC-ratio-plot, eval=(params$out_SC_IPC_Ratio & params$reportType=='internal' & indicatorSC), results='asis', out.width='100%', fig.asp=(min(3.5*ceiling(numFiles*(nrow(runs[[1]]$targets)/200)/2), 20)), fig.align = 'center', warning=FALSE, fig.show="hold"}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header(paste0(AQSC_SC, " / ", CAL_IPC, " ratio plot"), 2)
-pandoc.p(paste0("Plot shows the log2-transformed ratio (left) or the unlogged ratio (right) of the mean IC-normalized counts for ", AQSC_SC, " vs ", CAL_IPC, "."))
+cat(paste0("## ", AQSC_SC, " / ", CAL_IPC, " ratio plot\n\n"))
+cat(paste0("Plot shows the log2-transformed ratio (left) or the unlogged ratio (right) of the mean IC-normalized counts for ", AQSC_SC, " vs ", CAL_IPC, "."), "\n\n")
 
 if(numFiles > 13) barplot_colors <- rev(sapply(alamarColorPalette(numFiles, interpolate = TRUE, nReps = 10), function(x) x[6]))
 if(numFiles <= 13) barplot_colors <- rev(sapply(alamarColorPalette(numFiles, interpolate = FALSE, nReps = 10), function(x) x[6]))
@@ -3536,8 +3536,8 @@ if(params$reportType != "webApp"){
 
 ```{r SC-NC-ratio-plot, eval=(params$out_SC_NC_Ratio & params$reportType=='internal' & indicatorSC), results='asis', out.width='100%', fig.asp=(min(3.5*ceiling(numFiles*(nrow(runs[[1]]$targets)/200)/2), 20)), fig.align = 'center', warning=FALSE}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header(paste0(AQSC_SC, " / NC ratio plot"), 2)
-pandoc.p(paste0("Plot shows the log2-transformed ratio of the mean IC-normalized counts for ", AQSC_SC, " versus NC. Asterisk next to target name indicates the NC mean was zero for one or more plates, so ", AQSC_SC, " / NC ratio could not be calculated for these plates."))
+cat(paste0("## ", AQSC_SC, " / NC ratio plot\n\n"))
+cat(paste0("Plot shows the log2-transformed ratio of the mean IC-normalized counts for ", AQSC_SC, " versus NC. Asterisk next to target name indicates the NC mean was zero for one or more plates, so ", AQSC_SC, " / NC ratio could not be calculated for these plates."), "\n\n")
 
 if(numFiles > 13) barplot_colors <- rev(sapply(alamarColorPalette(numFiles, interpolate = TRUE, nReps = 10), function(x) x[6]))
 if(numFiles <= 13) barplot_colors <- rev(sapply(alamarColorPalette(numFiles, interpolate = FALSE, nReps = 10), function(x) x[6]))
@@ -3712,8 +3712,8 @@ if(params$reportType != "webApp"){
 ```{r sample-boxplots, out.width='100%', eval=(params$outSampleBoxplot), fig.asp=1, results='asis'}
 if (params$rendered_by_shiny) shiny::setProgress(0.975, message = "Writing Document ...")
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Sample boxplots", 2)
-pandoc.p(paste0("Sample boxplots show distributions of the log2 counts for each sample, unnormalized and after IC + ", CAL_IPC, " normalization."))
+cat("## Sample boxplots\n\n")
+cat(paste0("Sample boxplots show distributions of the log2 counts for each sample, unnormalized and after IC + ", CAL_IPC, " normalization."), "\n\n")
 IC_name <- Reduce(intersect, lapply(runs, function(x) x$IC))
 
 # function to draw boxplot
@@ -3839,8 +3839,8 @@ plot.new()
 
 ```{r sample-correlation-heatmap, out.width='100%', eval=(params$outSampleCorrelation), fig.asp=1, results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Sample correlation", 2)
-pandoc.p("Plot shows the Pearson correlation between samples. Hierarchical clustering is done using complete linkage.")
+cat("## Sample correlation\n\n")
+cat("Plot shows the Pearson correlation between samples. Hierarchical clustering is done using complete linkage.\n\n")
 
 # Precompute correlations
 cor_mats <- lapply(data_IC_IPC_log2_scaled, function(x) cor(x, use="complete.obs"))
@@ -3894,8 +3894,8 @@ for(i in seq_along(cor_mats)){
 
 ```{r sample-target-clustered-heatmap, out.width='100%', eval=(params$outSampleClustering), fig.asp=1, results='asis'}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Sample and target clustering", 2)
-pandoc.p(paste0("Hierarchical clustering of both samples and targets was done using a Euclidean distance metric and complete linkage. Data is log2 and IC-", CAL_IPC, " normalized; targets are centered and scaled."))
+cat("## Sample and target clustering\n\n")
+cat(paste0("Hierarchical clustering of both samples and targets was done using a Euclidean distance metric and complete linkage. Data is log2 and IC-", CAL_IPC, " normalized; targets are centered and scaled."), "\n\n")
 # define colors
 paletteLength <- 50
 heatmapColors <- colorRampPalette(c("royalblue1", "white", "red"))(paletteLength)
@@ -3972,7 +3972,7 @@ plot.new()
 
 ```{r samplePCA, out.width='100%', fig.asp=(0.55)+as.numeric(multipleFiles)*0.25, results='asis', eval=(params$outSamplePCA)}
 knitr::asis_output("\n\n---\n\n")
-pandoc.header("Sample PCA", 2)
+cat("## Sample PCA\n\n")
 # function to make PCA plot
 PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scale=TRUE, center=TRUE, title=NULL, showlegend=TRUE, nrows=1, showButtons=TRUE){
   
@@ -4374,35 +4374,35 @@ plotly::subplot(plots, nrows = nRowsPCA, shareX = FALSE, shareY = FALSE,
 
 ```{r plate-effect-QC-summary, eval=(params$outPlateEffect & multipleFiles), results='asis', warning=FALSE}
 if(multipleFiles){
-  pandoc.p("\n\n---\n\n")
-  pandoc.header("Batch effect assessment", 2)
+  cat("\n\n---\n\n")
+  cat("## Batch effect assessment\n\n")
 
   # Report excluded noDetectability targets (e.g., rare variant-specific or PTM targets)
   if(length(batch_effect_noDetectability_targets) > 0){
-    pandoc.p(paste0('Note: Rare variant-specific, PTM, or other special targets were excluded from batch effect assessment: ',
-                    paste(batch_effect_noDetectability_targets, collapse = ', '), '.'))
+    cat(paste0("Note: Rare variant-specific, PTM, or other special targets were excluded from batch effect assessment: ",
+                    paste(batch_effect_noDetectability_targets, collapse = ", "), "."), "\n\n")
   }
 
   if(!is.null(params$sampleGroupCovar)){
     additionalText <- if(params$reportType != "webApp") "Change the plate_effect_group parameter to test for batch effects in other sample subgroups. " else ""
-    pandoc.p(paste0('Note: Batch effect assessment was performed for samples with the value ', plate_effect_group, ' for the sample group variable ', params$sampleGroupCovar, '. All other samples were omitted from batch effect assessment. ', additionalText, 'Results assume samples were randomly assigned to each run; non-randomized designs may yield spurious batch effects.'))
+    cat(paste0("Note: Batch effect assessment was performed for samples with the value ", plate_effect_group, " for the sample group variable ", params$sampleGroupCovar, ". All other samples were omitted from batch effect assessment. ", additionalText, "Results assume samples were randomly assigned to each run; non-randomized designs may yield spurious batch effects."), "\n\n")
   }
 
   if(length(plate_effect_excluded_plates) > 0){
-    pandoc.p(paste0('Note: The following runs were excluded from batch effect assessment because they had no samples after filtering: ',
-                    paste(plate_effect_excluded_plates, collapse = ', '), '.'))
+    cat(paste0("Note: The following runs were excluded from batch effect assessment because they had no samples after filtering: ",
+                    paste(plate_effect_excluded_plates, collapse = ", "), "."), "\n\n")
   }
 
-  pandoc.header("Batch effect summary table", 3)
-  
+  cat("### Batch effect summary table\n\n")
+
   plate_effect_column_descriptions <- c(
     paste0("Batch effect QC - A run will have a batch effect QC warning if ", params$plate_effect_sig_pct_threshold, '% or more of targets are significant. Significant targets have a significant global ANOVA F-test (unadjusted p < ', params$plate_effect_pval_ANOVA, ') and significant pairwise tests (Tukey-adjusted p < ', params$plate_effect_pval_pairwise, ') in comparisons with 50% or more of the other runs.'),
     paste0("n % sig targets - Number and percent of targets that show significant pairwise difference in sample mean for that run versus 50% or more of the other runs. Significant targets have a significant ANOVA F-test (unadjusted p < ", params$plate_effect_pval_ANOVA, ") and significant pairwise differences have Tukey-adjusted p < ", params$plate_effect_pval_pairwise, '. Click on values to show/hide target names.'),
     "n % low IPC reads - Number and percent of targets with median IPC raw reads below 200. Click on values to show/hide target names.",
     "n % low sample reads - Number and percent of targets with median sample raw reads below 200. Click on values to show/hide target names."
   )
-  
-  pandoc.list(plate_effect_column_descriptions)
+
+  cat(paste0("- ", plate_effect_column_descriptions, "\n", collapse = ""))
   
   colnames(plate_effect_plate_table)[colnames(plate_effect_plate_table)=='PlateID'] <- 'Run'
   colnames(plate_effect_plate_table)[colnames(plate_effect_plate_table)=='plate effect QC'] <- 'Batch effect QC'
@@ -4438,19 +4438,19 @@ if(multipleFiles){
 
 ```{r plate-effect-targets-table, eval=(params$outPlateEffect & multipleFiles), results='asis', warning=FALSE}
 if(multipleFiles){
-  pandoc.p("\n\n---\n\n")
-  pandoc.header("Batch effect: Target QC summary", 3)
-  
-  pandoc.p(paste0("A target will have a QC warning if run ICC > ", params$plate_effect_icc_threshold, "%, significant F-test (unadjusted p < ", params$plate_effect_pval_ANOVA, ") and significant pairwise tests (Tukey-adjusted p < ", params$plate_effect_pval_pairwise, ") for at least one run."))
-  
+  cat("\n\n---\n\n")
+  cat("### Batch effect: Target QC summary\n\n")
+
+  cat(paste0("A target will have a QC warning if run ICC > ", params$plate_effect_icc_threshold, "%, significant F-test (unadjusted p < ", params$plate_effect_pval_ANOVA, ") and significant pairwise tests (Tukey-adjusted p < ", params$plate_effect_pval_pairwise, ") for at least one run."), "\n\n")
+
   if (is.null(plate_effect_boxplot_targets)){
-    pandoc.p("**There were no targets with a batch effect QC warning.**")
+    cat("**There were no targets with a batch effect QC warning.**\n\n")
   } else if (!is.null(plate_effect_boxplot_targets)){
     if (length(plate_effect_boxplot_targets)==0){
-      pandoc.p("**There were no targets with a batch effect QC warning.**")
+      cat("**There were no targets with a batch effect QC warning.**\n\n")
     } else {
-      pandoc.p(paste0("**", length(plate_effect_boxplot_targets), " targets have a batch effect QC warning.**"))
-      
+      cat(paste0("**", length(plate_effect_boxplot_targets), " targets have a batch effect QC warning.**"), "\n\n")
+
       plate_effect_target_column_descriptions <- c(
         "Fstat - Batch effect ANOVA F-statistic. Targets are sorted in order of F statistic.",
         "Ftest pval - ANOVA F-test p-value. P-values are unadjusted.",
@@ -4459,11 +4459,11 @@ if(multipleFiles){
         "% plates low IPC - Percent of plates that have median IPC reads < 200.",
         "% plates low sample reads - Percent of plates that have median sample reads < 200."
       )
-      
+
       plate_effect_target_table_columns <- c("target", "Fstat", "Ftest pval", "ICC plate",
                                              "% sig pairwise", "% plates low IPC", "% plates low sample reads")
-      
-      pandoc.list(plate_effect_target_column_descriptions)
+
+      cat(paste0("- ", plate_effect_target_column_descriptions, "\n", collapse = ""))
       df <- plate_effect_target_table[plate_effect_target_table$target %in% plate_effect_boxplot_targets,plate_effect_target_table_columns]
       df[, -1] <- lapply(df[, -1], as.numeric)
       render_table(df,
@@ -4481,11 +4481,11 @@ if(multipleFiles){
 
 ```{r random_plate-effect-icc_scatterplot, eval=(params$outPlateEffect & multipleFiles), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
 if(multipleFiles){
-  pandoc.p("\n\n---\n\n")
-  pandoc.header("Batch effect ICC scatterplot", 3)
-  pandoc.p(paste0("A linear mixed effect model was fit for each target with plate ID as random effect. The run-related intra-class correlation is the ratio of the estimated run-related variance to the sum of run and residual variance. This is multiplied by 100 and can be interpreted as the percent of variance attributable to run. Target is highlighted if ICC > ", params$plate_effect_icc_threshold, '%.'))
-  
-  pandoc.p(paste0("**", sum(plate_effect_target_table$`ICC plate significant`, na.rm=TRUE), ' targets have run ICC > ', params$plate_effect_icc_threshold, '%.**'))
+  cat("\n\n---\n\n")
+  cat("### Batch effect ICC scatterplot\n\n")
+  cat(paste0("A linear mixed effect model was fit for each target with plate ID as random effect. The run-related intra-class correlation is the ratio of the estimated run-related variance to the sum of run and residual variance. This is multiplied by 100 and can be interpreted as the percent of variance attributable to run. Target is highlighted if ICC > ", params$plate_effect_icc_threshold, "%."), "\n\n")
+
+  cat(paste0("**", sum(plate_effect_target_table$`ICC plate significant`, na.rm=TRUE), " targets have run ICC > ", params$plate_effect_icc_threshold, "%.**"), "\n\n")
   
   printExcludedTargets(params$excludeTargets, PlateNames)
   
@@ -4514,19 +4514,19 @@ figure_aspect <- 0.8 * (n_plot_rows / n_plot_cols)
 
 ```{r plate-effect-test-target-boxplots, eval=(params$outPlateEffect & multipleFiles), results='asis', out.width='100%', fig.align = 'center',  fig.asp = tryCatch(figure_aspect, error = function(e) 0.75), warning=FALSE}
 if(multipleFiles){
-  pandoc.header("Target boxplots", 3)
-  
-  pandoc.p(paste0("Boxplots are shown for targets with batch effect QC warning. A target will have a QC warning if run ICC > ", params$plate_effect_icc_threshold, "%, global ANOVA F-test is significant (unadjusted p < ", params$plate_effect_pval_ANOVA, ") and target has significant pairwise tests for at least one run (Tukey-adjusted p < ", params$plate_effect_pval_pairwise, " with at least 50% of other runs). Red asterisks above boxplots indicate runs showing significant pairwise test with 50% or more runs."))
+  cat("### Target boxplots\n\n")
+
+  cat(paste0("Boxplots are shown for targets with batch effect QC warning. A target will have a QC warning if run ICC > ", params$plate_effect_icc_threshold, "%, global ANOVA F-test is significant (unadjusted p < ", params$plate_effect_pval_ANOVA, ") and target has significant pairwise tests for at least one run (Tukey-adjusted p < ", params$plate_effect_pval_pairwise, " with at least 50% of other runs). Red asterisks above boxplots indicate runs showing significant pairwise test with 50% or more runs."), "\n\n")
   
   if (is.null(plate_effect_boxplot_targets)){
-    pandoc.p("**There were no targets with a batch effect QC warning.**")
+    cat("**There were no targets with a batch effect QC warning.**\n\n")
   } else if (!is.null(plate_effect_boxplot_targets)){
     if (length(plate_effect_boxplot_targets)==0){
-      pandoc.p("**There were no targets with a batch effect QC warning.**")
+      cat("**There were no targets with a batch effect QC warning.**\n\n")
     } else {
-      pandoc.p(paste0("**", length(plate_effect_boxplot_targets), " targets have a batch effect QC warning.**"))
+      cat(paste0("**", length(plate_effect_boxplot_targets), " targets have a batch effect QC warning.**"), "\n\n")
       if(length(plate_effect_boxplot_targets) != n_boxplots){
-        pandoc.p(paste0("Plots for the top ", n_boxplots, " targets based on plate ICC are shown below."))
+        cat(paste0("Plots for the top ", n_boxplots, " targets based on plate ICC are shown below."), "\n\n")
       }
       
       # make plate colors
@@ -4580,8 +4580,8 @@ if(multipleFiles){
 
 ```{r target-mean-by-plate-heatmap, eval=(params$outPlateEffect & multipleFiles & params$reportType != "webApp" & numFiles >= 3), results='asis', out.width='100%', fig.asp=3, fig.align = 'center', warning=FALSE}
 if(multipleFiles){
-  pandoc.header("Target means by run heatmap", 3)
-  pandoc.p('Sample mean NPQ for each target is shown run in the heatmap. Target values are centered and scaled. Control samples were excluded from mean calculations.')
+  cat("### Target means by run heatmap\n\n")
+  cat("Sample mean NPQ for each target is shown run in the heatmap. Target values are centered and scaled. Control samples were excluded from mean calculations.\n\n")
   # center and scale NPQ data
   mat_scaled <- t(scale(target_means))
   # Define color scale for NPQ
@@ -4675,11 +4675,11 @@ if(multipleFiles & params$reportType != "webApp"){
 
 ```{r pca-by-plate, eval=(params$outPlateEffect & multipleFiles & numFiles >= 3), results='asis', out.width='70%', fig.asp=1, fig.align = 'center', warning=FALSE}
 if(multipleFiles & numFiles >= 3){
-  pandoc.header("PCA by run", 3)
+  cat("### PCA by run\n\n")
   if(params$reportType != "webApp"){
-    pandoc.p('PCA was performed on the sample mean by target and run matrix shown in the heatmap above.')
+    cat("PCA was performed on the sample mean by target and run matrix shown in the heatmap above.\n\n")
   } else {
-    pandoc.p('PCA was performed on the sample mean by target and run matrix.')
+    cat("PCA was performed on the sample mean by target and run matrix.\n\n")
   }
   par(xpd=TRUE)
   stats::biplot(target_mean_pca, var.axes=FALSE, cex=c(1, 0.0001), main='PCA of target means by run')
@@ -4689,27 +4689,31 @@ if(multipleFiles & numFiles >= 3){
 
 ```{r plate-effect-sample-PCA, eval=(params$outPlateEffect & multipleFiles & params$reportType != "webApp"), results='asis', out.width='100%', fig.asp=1, fig.align = 'center', warning=FALSE, message=FALSE}
 if(multipleFiles){
-  pandoc.p("\n\n---\n\n")
-  pandoc.header("Sample PCA", 3)
-  pandoc.p('PCA shown below was performed on the samples only, excluding any control samples. Samples are colored according to run.')
-  
-  pandoc.header("Pairs plots", 4)
-  pandoc.p('Pairs plots show the first 10 PCs plotted against each other. Any clustering by run in the plots indicates potential batch effect(s).')
+  cat("\n\n---\n\n")
+  cat("### Sample PCA\n\n")
+  cat("PCA shown below was performed on the samples only, excluding any control samples. Samples are colored according to run.\n\n")
+
+  cat("#### Pairs plots\n\n")
+  cat("Pairs plots show the first 10 PCs plotted against each other. Any clustering by run in the plots indicates potential batch effect(s).\n\n")
   
   metavars <- colnames(sample_metadata)[colnames(sample_metadata) %in% c("SAMPLE_MATRIX", "plateEffectID", "instEffectID", unique_plateEffectID, instrument_names)]
   
   sample_PCA <- PCAtools::pca(mat=t(scale(t(plate_test_data))), metadata = sample_metadata[,metavars])
   
   PCAtools::pairsplot(sample_PCA,
-                      components = PCAtools::getComponents(sample_PCA, c(1:10)),
-                      triangle = TRUE, trianglelabSize = 12,
-                      hline = 0, vline = 0,
-                      pointSize = 0.4,
-                      gridlines.major = FALSE, gridlines.minor = FALSE,
-                      colby = 'plateEffectID',
-                      title = NULL, plotaxes = FALSE,
-                      margingaps = unit(c(-0.01, -0.01, -0.01, -0.01), 'cm'),
-                      encircle = TRUE, encircleAlpha = 0.15)
+                    components = PCAtools::getComponents(sample_PCA, c(1:10)),
+                    triangle = TRUE, trianglelabSize = 12,
+                    hline = 0, vline = 0,
+                    pointSize = 0.4,
+                    gridlines.major = FALSE, gridlines.minor = FALSE,
+                    colby = 'plateEffectID',
+                    title = NULL, plotaxes = FALSE,
+                    margingaps = unit(c(-0.01, -0.01, -0.01, -0.01), 'cm'),
+                    ellipse = TRUE, 
+                    ellipseType = 't',
+                    ellipseAlpha = 0.15,
+                    ellipseFill = TRUE,
+                    ellipseLineSize = 0)
 }
 ```
 
@@ -4746,8 +4750,8 @@ if(params$outPlateEffect & multipleFiles){
 
 ```{r plate-effect-sample-PCA-eigencorplot, eval=(params$outPlateEffect & multipleFiles & params$reportType != "webApp"), results='asis', fig.height=fig_height, out.width='100%', fig.width=10, fig.align = 'center', warning=FALSE, message=FALSE}
 if(params$outPlateEffect & multipleFiles){
-  pandoc.header("PC correlations with metadata", 4)
-  pandoc.p('Sample metadata variables including run and sample matrix, if provided, were correlated against the principal component scores for the first 10 PCs. P-values are adjusted using the Bonferroni correction. Significance scale for adjusted p-values: * < 0.05, ** < 0.01, *** < 0.001.')
+  cat("#### PC correlations with metadata\n\n")
+  cat("Sample metadata variables including run and sample matrix, if provided, were correlated against the principal component scores for the first 10 PCs. P-values are adjusted using the Bonferroni correction. Significance scale for adjusted p-values: * < 0.05, ** < 0.01, *** < 0.001.\n\n")
   
   PCAtools::eigencorplot(sample_PCA, metavars = metavars, 
                          cexCorval = 1, cexLabY = 1,
@@ -4763,41 +4767,41 @@ if(multipleFiles & params$reportType != "webApp"){
   
   # Batch effect test -- output CSV file
   write.csv(plate_effect_target_table, paste0(params$outfolder, "outputFiles/target_plate_effect_table.csv"))
-  # output batch effect qs file
+  # output batch effect qs2 file
   # do sample PCA plate test
   sample_PCA <- PCAtools::pca(mat=t(scale(t(plate_test_data))), metadata = sample_metadata[,unique_plateEffectID])
   sample_PCA_eigencor <- suppressWarnings(PCAtools::eigencorplot(sample_PCA, metavars = unique_plateEffectID, returnPlot = FALSE))
   sample_PCA_eigencor_corvals <- environment(sample_PCA_eigencor[["panel"]])$corvals
   sample_PCA_eigencor_pvals <- environment(sample_PCA_eigencor[["panel"]])$pvals
-  qs::qsavem(sample_PCA, sample_PCA_eigencor_corvals, sample_PCA_eigencor_pvals, 
-             file=file.path(paste0(params$outfolder, "outputFiles"), "batch_effect_test.qs"))
+  qs2::qs_savem(sample_PCA, sample_PCA_eigencor_corvals, sample_PCA_eigencor_pvals,
+                file=file.path(paste0(params$outfolder, "outputFiles"), "batch_effect_test.qs2"))
 }
 ```
 
 ```{r inst-effect-test-samples-table, eval=(params$outPlateEffect & multipleFiles & !is.null(params$assayRunInfo)), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
 if(multipleFiles & !is.null(params$assayRunInfo)){
   if(do_inst_effect_test){
-    pandoc.p("\n\n---\n\n")
-    pandoc.header("Instrument effect tests", 2)
-    pandoc.header("Instrument effect ANOVA test", 3)
-    pandoc.p("Instrument effect test is based on a linear model with instrument as a categorical variable (equivalent to an ANOVA model). Models are adjusted by the sample group covariate (sampleGroupCovar parameter), if defined. Instrument effect test assumes that all other variation is technical in nature. Significant instrument effect may be due to biological variation if samples were not randomized and / or if biological groups are not balanced across the instruments (after adjusting for covariate, if specified)." )
-    pandoc.p(paste0('\nInstrument effect ANOVA test significance threshold was set at p < ', params$plate_effect_pval_ANOVA, '.'))
-    
+    cat("\n\n---\n\n")
+    cat("## Instrument effect tests\n\n")
+    cat("### Instrument effect ANOVA test\n\n")
+    cat("Instrument effect test is based on a linear model with instrument as a categorical variable (equivalent to an ANOVA model). Models are adjusted by the sample group covariate (sampleGroupCovar parameter), if defined. Instrument effect test assumes that all other variation is technical in nature. Significant instrument effect may be due to biological variation if samples were not randomized and / or if biological groups are not balanced across the instruments (after adjusting for covariate, if specified).\n\n")
+    cat(paste0("Instrument effect ANOVA test significance threshold was set at p < ", params$plate_effect_pval_ANOVA, "."), "\n\n")
+
     if(!is.null(model_fit_message_inst)){
-      pandoc.p(model_fit_message_inst)
+      cat(model_fit_message_inst, "\n\n")
     }
-    
-    pandoc.header("Samples per instrument table", 4)
-    
-    render_table(inst_effect_results[[1]]$n_samples_table, 
-                 table_name = 'Number of samples per instrument', 
+
+    cat("#### Samples per instrument table\n\n")
+
+    render_table(inst_effect_results[[1]]$n_samples_table,
+                 table_name = 'Number of samples per instrument',
                  table_id = paste0("id=\"n-samples-per-inst", "\""),
                  rownames = FALSE)
-    
+
     if(nrow(samples_omitted) > 0){
-      pandoc.header("Samples omitted from instrument effect test table", 4)
-      
-      pandoc.p("The following samples were omitted from instrument effect test due to their sample metadata name not matching a NPQ data matrix column name." )
+      cat("#### Samples omitted from instrument effect test table\n\n")
+
+      cat("The following samples were omitted from instrument effect test due to their sample metadata name not matching a NPQ data matrix column name.\n\n")
       
       render_table(samples_omitted, 
                    table_name = 'Samples omitted from instrument effect test', 
@@ -4811,17 +4815,17 @@ if(multipleFiles & !is.null(params$assayRunInfo)){
 ```{r inst-effect-test-volcano-plot, eval=(params$outPlateEffect & multipleFiles & !is.null(params$assayRunInfo)), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
 if(multipleFiles){
   if(do_inst_effect_test){
-    pandoc.header("Instrument effect ANOVA volcano plot", 4)
-    
+    cat("#### Instrument effect ANOVA volcano plot\n\n")
+
     if(length(inst_effect_results[[1]]$remove_targets) > 0){
-      pandoc.p(paste0("NOTE: The following targets were removed from instrument effect test due to zero variance: ", paste(inst_effect_results[[1]]$remove_targets, collapse=', ')))
+      cat(paste0("NOTE: The following targets were removed from instrument effect test due to zero variance: ", paste(inst_effect_results[[1]]$remove_targets, collapse=", ")), "\n\n")
     }
-    
+
     n_significant_Ftest_inst <- sum(inst_effect_results[[1]]$inst_test_lm$Fstats$Ftest_pval[!is.na(inst_effect_results[[1]]$inst_test_lm$Fstats$Ftest_pval)] < params$plate_effect_pval_ANOVA)
     if(n_significant_Ftest_inst == 0){
-      pandoc.p(paste0('There were no targets with significant (unadjusted p < ', params$plate_effect_pval_ANOVA, ') ANOVA test instrument effects.'))
+      cat(paste0("There were no targets with significant (unadjusted p < ", params$plate_effect_pval_ANOVA, ") ANOVA test instrument effects."), "\n\n")
     } else if(n_significant_Ftest_inst > 0){
-      pandoc.p(paste0(n_significant_Ftest_inst, ' targets showed significant ANOVA test instrument effects (unadjusted p < ', params$plate_effect_pval_ANOVA, ').'))
+      cat(paste0(n_significant_Ftest_inst, " targets showed significant ANOVA test instrument effects (unadjusted p < ", params$plate_effect_pval_ANOVA, ")."), "\n\n")
     }
     suppressWarnings(inst_effect_results[[1]]$Ftest_volcano)
   }
@@ -5389,12 +5393,12 @@ if(AbsData==TRUE & params$reportType != "webApp"){
 
 ```{r save-RData-file, include=FALSE, eval=params$outputRData==TRUE}
 # Save R Data file
-# Rename the param variable to avoid conflict when reading multiple qs files
+# Rename the param variable to avoid conflict when reading multiple qs2 files
 if(params$reportType != "webApp"){
   dir.create(paste0(params$outfolder, "outputFiles"), recursive = T)
   input_params <- params
-  qs::qsave(as.list(environment(), all.names = TRUE),
-            file=paste0(params$outfolder, "outputFiles/NULISAseq_QC_report.qs")
+  qs2::qs_save(as.list(environment(), all.names = TRUE),
+               file=paste0(params$outfolder, "outputFiles/NULISAseq_QC_report.qs2")
   )
   rm(params)
 }
