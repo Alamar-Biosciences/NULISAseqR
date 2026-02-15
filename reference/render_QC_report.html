@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">NULISAseqR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.2</span>
       </span>
     </div>
 
@@ -57,15 +57,15 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">render_QC_report</span><span class="op">(</span></span>
-<span>  <span class="va">output_filename</span>,</span>
-<span>  <span class="va">output_dir</span>,</span>
+<span>  <span class="va">xml_files</span>,</span>
+<span>  output_filename <span class="op">=</span> <span class="st">"NULISAseq_QC_Report.html"</span>,</span>
+<span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  study_name <span class="op">=</span> <span class="st">"NULISAseq QC_Report"</span>,</span>
 <span>  assayName <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">dataDir</span>,</span>
-<span>  <span class="va">xml_files</span>,</span>
+<span>  dataDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  dataRuns <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  Rmd_input_file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"NULISAseqR"</span><span class="op">)</span>,</span>
-<span>    <span class="st">"rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"</span><span class="op">)</span>,</span>
+<span>  Rmd_input_file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"rmarkdown"</span>, <span class="st">"templates"</span>, <span class="st">"nulisaseq"</span>, <span class="st">"skeleton"</span>,</span>
+<span>    <span class="st">"skeleton.Rmd"</span>, package <span class="op">=</span> <span class="st">"NULISAseqR"</span><span class="op">)</span>,</span>
 <span>  plateNames <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  assayRunInfo <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  report_type <span class="op">=</span> <span class="st">"internal"</span>,</span>
@@ -121,16 +121,20 @@
     <h2>Arguments</h2>
 
 
-<dl><dt id="arg-output-filename">output_filename<a class="anchor" aria-label="anchor" href="#arg-output-filename"></a></dt>
-<dd><p>Output HTML filename.</p></dd>
+<dl><dt id="arg-xml-files">xml_files<a class="anchor" aria-label="anchor" href="#arg-xml-files"></a></dt>
+<dd><p>Vector of XML filenames to include.</p></dd>
+
+
+<dt id="arg-output-filename">output_filename<a class="anchor" aria-label="anchor" href="#arg-output-filename"></a></dt>
+<dd><p>Output HTML filename. Default is "NULISAseq_QC_Report.html".</p></dd>
 
 
 <dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
-<dd><p>Output directory for the rendered report.</p></dd>
+<dd><p>Output directory for the rendered report. Default is working directory.</p></dd>
 
 
 <dt id="arg-study-name">study_name<a class="anchor" aria-label="anchor" href="#arg-study-name"></a></dt>
-<dd><p>Title of the report.</p></dd>
+<dd><p>Title of the report. Default is 'NULISAseq QC_Report'.</p></dd>
 
 
 <dt id="arg-assayname">assayName<a class="anchor" aria-label="anchor" href="#arg-assayname"></a></dt>
@@ -138,11 +142,7 @@
 
 
 <dt id="arg-datadir">dataDir<a class="anchor" aria-label="anchor" href="#arg-datadir"></a></dt>
-<dd><p>Directory containing XML files.</p></dd>
-
-
-<dt id="arg-xml-files">xml_files<a class="anchor" aria-label="anchor" href="#arg-xml-files"></a></dt>
-<dd><p>Vector of XML filenames to include.</p></dd>
+<dd><p>Directory containing XML files. Default is working directory.</p></dd>
 
 
 <dt id="arg-dataruns">dataRuns<a class="anchor" aria-label="anchor" href="#arg-dataruns"></a></dt>

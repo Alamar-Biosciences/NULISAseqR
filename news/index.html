@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">NULISAseqR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.2</span>
       </span>
     </div>
 
@@ -50,6 +50,63 @@
       <small>Source: <a href="https://github.com/Alamar-Biosciences/NULISAseqR/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.4.2" id="nulisaseqr-142-2026-02-15">NULISAseqR 1.4.2 (2026-02-15)<a class="anchor" aria-label="anchor" href="#nulisaseqr-142-2026-02-15"></a></h2>
+<div class="section level3">
+<h3 id="changes-1-4-2">Changes<a class="anchor" aria-label="anchor" href="#changes-1-4-2"></a></h3>
+<div class="section level4">
+<h4 id="enhancements-1-4-2">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-1-4-2"></a></h4>
+<ul><li>
+<strong>render_QC_report()</strong> - Improved function parameter ordering and defaults:
+<ul><li>
+<code>xml_files</code> parameter moved to first position for more intuitive usage</li>
+<li>Added default values for <code>output_filename</code> (“NULISAseq_QC_Report.html”) and <code>output_dir</code> (current working directory)</li>
+<li>Added default value for <code>dataDir</code> (current working directory)</li>
+<li>Simplified <code>Rmd_input_file</code> path construction using <code><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file()</a></code>
+</li>
+</ul></li>
+<li>
+<strong>lod()</strong> - Enhanced documentation and parameter handling:
+<ul><li>Improved parameter ordering (moved <code>data_matrix</code> before <code>blanks</code>)</li>
+<li>Enhanced roxygen documentation with clearer return value descriptions</li>
+<li>Added filtering to ensure <code>targetNoOutlierDetection</code> only includes targets present in <code>data_matrix</code>
+</li>
+</ul></li>
+</ul></div>
+<div class="section level4">
+<h4 id="bug-fixes-1-4-2">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-4-2"></a></h4>
+<ul><li>
+<strong>quantifiability()</strong> - Fixed sample subsetting issue that could cause errors when sample lists don’t match between AQ data and sample information:
+<ul><li>Now uses <code><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect()</a></code> to find common samples between <code>Data_AQ_aM</code> and <code>SampleNames</code>
+</li>
+<li>Correctly calculates sample counts for overall and subgroup quantifiability</li>
+<li>Prevents errors when processing data with mismatched sample lists</li>
+</ul></li>
+<li>
+<strong>loadNULISAseq()</strong> - Added calculation of <code>LOD_pgmL</code> (limit of detection in pg/mL units) from XML data for AQ assays</li>
+<li>
+<strong>targetBoxplot()</strong> - Fixed parameter naming in <code><a href="../reference/lod.html">lod()</a></code> function call to use <code>data_matrix=</code> explicitly</li>
+</ul></div>
+<div class="section level4">
+<h4 id="testing-1-4-2">Testing<a class="anchor" aria-label="anchor" href="#testing-1-4-2"></a></h4>
+<ul><li>
+<strong>New comprehensive test suites</strong> added to ensure code quality and reliability:
+<ul><li>
+<code>test-importNULISAseq.R</code> - Tests for <code><a href="../reference/importNULISAseq.html">importNULISAseq()</a></code> function with and without NULISAseqAQ package, including fallback mode validation and AQ data consistency checks</li>
+<li>
+<code>test-reverse-curve.R</code> - Tests for reverse curve target handling, including correlation validation, data transformation verification, and NPQ value consistency between <code><a href="../reference/loadNULISAseq.html">loadNULISAseq()</a></code> and <code><a href="../reference/importNULISAseq.html">importNULISAseq()</a></code>
+</li>
+<li>
+<code>test-writeNULISAseq.R</code> - Tests for Excel output generation with both RQ-only and AQ data, including validation of sheet structure, column names, and specific data values</li>
+</ul></li>
+<li>
+<strong>Test infrastructure improvements</strong>:
+<ul><li>Moved test fixtures from <code>inst/rmarkdown/templates/nulisaseq/skeleton/</code> to <code>tests/testthat/fixtures/</code> for better organization</li>
+<li>Removed unnecessary <code>.gitignore</code> file from skeleton template directory</li>
+</ul></li>
+</ul><hr></div>
+</div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.4.1" id="nulisaseqr-141-2026-01-16">NULISAseqR 1.4.1 (2026-01-16)<a class="anchor" aria-label="anchor" href="#nulisaseqr-141-2026-01-16"></a></h2>
 <div class="section level3">
