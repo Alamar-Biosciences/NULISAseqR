@@ -1,7 +1,7 @@
 Type: Package
 Package: NULISAseqR
 Title: Analysis of NULISAseq Data
-Version: 1.4.1
+Version: 1.4.2
 Authors@R: 
     person("Alamar Biosciences Bioinformatics Team", , , "bioinfo@alamarbio.com", role = c("aut", "cre", "cph"),
            comment = "Contributors: Dwight Kuo, Joanne C. Beer, Eliza Chai, Sumedh Sankhe, Kasun Buddika")

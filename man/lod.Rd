@@ -41,18 +41,17 @@ Defaults to NULL.}
 
 \item{match_matrix}{Matrix of indices provided by calcSampleTargetNAs. 
 Lists samples/targets that should not be reported}
-
-\item{LOD}{Vector of limits of detection.}
-
-\item{aboveLOD}{Logical matrix indicating whether counts are 
-above or below LoD for that target.}
 }
 \value{
-A list.
+A list containing:
+\item{LOD}{Vector of limits of detection.}
+\item{aboveLOD}{Logical matrix indicating whether counts are 
+above or below LoD for that target.}
 }
 \description{
 Calculates limit of detection (LoD) for each target based on the
 negative controls (blanks). LoD = mean(blanks) + 3*SD(blanks).
+LoD is typically calculated on IC-IPC normalized reads (unlogged).
 Designates data as either above or below LoD. 
 Option to specify minimum count threshold for detectability.
 }

@@ -108,7 +108,7 @@ process_loadNULISAseq <- function(data) {
         processed_data$aqParams <- processed_data$AQ$targetAQ_param %>%
           tibble::as_tibble() %>%
           select(!any_of(c("Encrypted", "Decrypted")))
-        
+
         logger::log_info("aqParams found, creating pg/mL matrix")
         processed_data$Data_AQ_pgmL <- processed_data[["Data_AQ"]] %>%
           tibble::as_tibble(rownames = "targetName") %>%
@@ -122,7 +122,7 @@ process_loadNULISAseq <- function(data) {
             names_to = "sampleName") %>%
           mutate(
             raw = dplyr::if_else(is.na(raw),
-                          raw, 
+                          raw,
                           NULISAseqAQ::unit_convert_am_conc(raw, MW_kDa))) %>%
           select(-MW_kDa) %>%
           tidyr::pivot_wider(
@@ -131,13 +131,27 @@ process_loadNULISAseq <- function(data) {
             values_from = "raw") %>%
           column_to_rownames("targetName") %>%
           as.matrix()
-        
+
         logger::log_info("Data_AQlog2_pg/mL matrix created")
-        
+
         processed_data$Data_AQlog2_pgmL <- log2(processed_data$Data_AQ_pgmL)
-        processed_data$AQ_unit <- "pg/mL" 
+        processed_data$AQ_unit <- "pg/mL"
       } else{
-        logger::log_info("Molecular weights in kDa not available, only aM units available")
+        logger::log_info("Molecular weights in kDa not available, checking for pre-existing pg/mL data")
+        # Still create aqParams from targetAQ_param even without MW_kDa
+        processed_data$aqParams <- processed_data$AQ$targetAQ_param %>%
+        tibble::as_tibble()
+
+        # Check if pre-existing Data_AQ (pg/mL) is available from fallback XML
+        if(!is.null(processed_data$AQ[["Data_AQ"]])){
+          logger::log_info("Using pre-existing pg/mL matrix from input data")
+          processed_data$Data_AQ_pgmL <- processed_data$AQ$Data_AQ %>%
+            rename_cols(., names_df = names_df)
+          processed_data$Data_AQlog2_pgmL <- log2(processed_data$Data_AQ_pgmL)
+          processed_data$AQ_unit <- "pg/mL"
+        } else {
+          logger::log_info("No pre-existing pg/mL matrix found; only aM units will be available")
+        }
       }
     }
   }
@@ -304,23 +318,57 @@ process_loadNULISAseq <- function(data) {
   processed_data["normed_untransformedReverse"] <- NULL # now called Data_Reverse
   processed_data["AQ"] <- NULL
   
-  matrices <-  c("Data_IC","Data_IClog2","Data_raw","Data_rawlog2","aboveLOD", "Data_AQ", "Data_AQlog2", "withinDR", "Data_Reverse", "Data_Reverselog2","Data_AQ_pgmL","Data_AQlog2_pgmL")
+  matrices <-  c("Data_IC","Data_IClog2","Data_raw","Data_rawlog2","aboveLOD", "Data_AQ", "Data_AQlog2", "Data_Reverse", "Data_Reverselog2","Data_AQ_pgmL","Data_AQlog2_pgmL")
   matrices <- matrices[matrices %in% names(processed_data)]
-  
+
+  # Track dropped samples for reporting
+  dropped_samples_info <- list()
+
   for (i in matrices) {
-    logger::log_info("Removing samples with all NaN or NA values -- ",i)
-    missing <- apply(processed_data[[i]], 2, function(x) all(is.nan(x))  || all(is.na(x)))
-    
-    if(i %in% c("Data_AQ", "Data_AQlog2", "Data_AQ_pgmL","Data_AQlog2_pgmL", "withinDR")){
+    logger::log_info("Removing samples with all NaN or NA values -- ", i)
+    missing <- apply(processed_data[[i]], 2, function(x) all(is.nan(x)) || all(is.na(x)))
+
+    if (sum(missing) > 0) {
+      dropped_sample_names <- colnames(processed_data[[i]])[missing]
+      dropped_samples_info[[i]] <- dropped_sample_names
+    }
+
+    if(i %in% c("Data_AQ", "Data_AQlog2", "Data_AQ_pgmL", "Data_AQlog2_pgmL")){
       targets <- processed_data[["aqParams"]] %>%
         pull(targetName)
     } else{
       targets <- processed_data[["targets"]] %>%
-        pull(targetName) 
+        pull(targetName)
     }
-    
+
     processed_data[[i]] <- processed_data[[i]][targets, !missing]
   }
+
+  # Ensure all AQ matrices have consistent rows and columns, then align withinDR
+  aq_matrices <- c("Data_AQ", "Data_AQlog2", "Data_AQ_pgmL", "Data_AQlog2_pgmL")
+  aq_matrices <- aq_matrices[aq_matrices %in% names(processed_data)]
+
+  if (length(aq_matrices) >= 1) {
+    common_rows <- Reduce(union, lapply(aq_matrices, function(m) rownames(processed_data[[m]])))
+    common_cols <- Reduce(union, lapply(aq_matrices, function(m) colnames(processed_data[[m]])))
+  
+    # Align all AQ matrices to common rows and columns
+    common_rows <- sort(common_rows)
+    for (m in aq_matrices) {
+      processed_data[[m]] <- processed_data[[m]][common_rows, common_cols, drop = FALSE]
+    }
+
+    logger::log_info("AQ matrices aligned to ", length(common_rows), " targets and ", length(common_cols), " samples")
+
+    # Align withinDR to match AQ matrices
+    if ("withinDR" %in% names(processed_data)) {
+      processed_data$withinDR <- processed_data$withinDR[common_rows, common_cols, drop = FALSE]
+      logger::log_info("withinDR aligned to AQ matrices")
+    }
+  }
+
+  # Store dropped samples info for upstream reporting
+  processed_data$droppedSamples <- dropped_samples_info
   
   processed_data[["samples"]] <- processed_data[["samples"]] %>%
     filter(sampleName %in% colnames(processed_data[["Data_IC"]])) %>%
@@ -686,6 +734,61 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
     }
   }
   
+  # Collect and report dropped samples from all plates
+  all_dropped_samples <- list()
+  for (plate in names(dataList)) {
+    if (!is.null(dataList[[plate]]$droppedSamples) && length(dataList[[plate]]$droppedSamples) > 0) {
+      for (matrix_name in names(dataList[[plate]]$droppedSamples)) {
+        dropped <- dataList[[plate]]$droppedSamples[[matrix_name]]
+        if (length(dropped) > 0) {
+          all_dropped_samples[[length(all_dropped_samples) + 1]] <- data.frame(
+            plateID = plate,
+            matrix = matrix_name,
+            sampleName = dropped,
+            stringsAsFactors = FALSE
+          )
+        }
+      }
+    }
+  }
+
+  # Emit warning if any samples were dropped
+  if (length(all_dropped_samples) > 0) {
+    dropped_samples_df <- do.call(rbind, all_dropped_samples)
+
+    # Create summary warning message
+    warning_summary <- dropped_samples_df %>%
+      dplyr::group_by(plateID, matrix) %>%
+      dplyr::summarize(
+        n = dplyr::n(),
+        samples = paste(sampleName, collapse = ", "),
+        .groups = "drop"
+      )
+
+    warning_messages <- sapply(seq_len(nrow(warning_summary)), function(i) {
+      row <- warning_summary[i, ]
+      sprintf("Plate: '%s', Data matrix: '%s': %d sample(s) dropped (%s)",
+              row$plateID, row$matrix, row$n, row$samples)
+    })
+
+    # Identify unique samples dropped from Data_AQ matrices (affects quantifiability)
+    aq_dropped <- dropped_samples_df %>%
+      dplyr::filter(grepl("^Data_AQ", matrix)) %>%
+      dplyr::pull(sampleName) %>%
+      unique()
+
+    quant_message <- ""
+    if (length(aq_dropped) > 0) {
+      quant_message <- sprintf("\nSamples not included in quantifiability calculation: %s",
+                               paste(aq_dropped, collapse = ", "))
+    }
+
+    warning(paste0("Samples with all NaN or NA values were removed:\n",
+                   paste("  -", warning_messages, collapse = "\n"),
+                   quant_message),
+            call. = FALSE)
+  }
+
   # Extract control sample names and SampleNames from merged samples dataframe
   IPC_samples <- samples$sampleName[samples$sampleType == 'IPC']
   SC_samples <- samples$sampleName[samples$sampleType == 'SC']
@@ -728,7 +831,7 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
   }
   # Add dataMatrix and unit
   return_list <- c(return_list, dataMatrix, unit = unit)
-  
+
   # return the output
   return(return_list)
 }
@@ -843,9 +946,7 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
 #'           \item{\code{inconsistent_targets}: Placeholder for targets inconsistent across plates/runs (NULL if none)}
 #'           \item{\code{detectability}: Data frame of detectability by target and sample matrix}
 #'           \item{\code{quantifiability}: Data frame of quantifiability by target and sample matrix}
-#'           \item{\code{Data_raw}, \code{Data_rawlog2}: Raw counts and log2-transformed counts (matrix, targets × samples)}
-#'           \item{\code{Data_IC}, \code{Data_IClog2}: Internal control–normalized data (linear and log2)}
-#'           \item{\code{Data_Reverse}, \code{Data_Reverselog2}: Reverse-transformed IC-IPC normalized data (linear and log2)}
+#'           \item{\code{Data_raw}: Raw counts (matrix, targets × samples)}
 #'           \item{\code{Data_AQ_aM}, \code{Data_AQlog2_aM}: Absolute quantitation in attomolar units (linear and log2), 
 #'           if AQ data available}
 #'           \item{\code{Data_AQ_pgmL}, \code{Data_AQlog2_pgmL}: Absolute quantitation in pg/mL units (linear and log2), 
@@ -2176,7 +2277,7 @@ filter_target_qc_by_mode <- function(data, AQ = FALSE) {
 #'     \item{\code{targets} - Target metadata data frame}
 #'     \item{\code{samples} - Sample metadata data frame}
 #'     \item{\code{ExecutionDetails} - Execution details list}
-#'     \item{\code{Data_Reverselog2} or \code{Data_NPQ} - NPQ data matrix for RQ}
+#'     \item{\code{Data_IClog2} or \code{Data_NPQ} - NPQ data matrix for RQ}
 #'     \item{\code{Data_raw} - Raw count matrix for RQ}
 #'     \item{\code{Data_AQ} or \code{Data_AQ_aM} - Absolute quantification matrix in aM (optional)}
 #'     \item{\code{Data_AQ_pgmL} - Absolute quantification matrix in pg/mL (optional)}
@@ -2258,12 +2359,12 @@ format_wide_to_long <- function(merged, AQ = FALSE, exclude_sample_cols = "plate
     
   } else {
     # Check which NPQ data column is available
-    NPQ_data_used <- if("Data_Reverselog2" %in% names(merged)) {
-      "Data_Reverselog2"
+    NPQ_data_used <- if("Data_IClog2" %in% names(merged)) {
+      "Data_IClog2"
     } else if("Data_NPQ" %in% names(merged)) {
-      "Data_NPQ" 
+      "Data_NPQ"
     } else {
-      stop("Neither 'Data_Reverselog2' nor 'Data_NPQ' found in the merged data")
+      stop("Neither 'Data_IClog2' nor 'Data_NPQ' found in the merged data")
     }
     
     data_long <- convert_to_long(data_matrix = merged[[NPQ_data_used]], data_col ="NPQ")

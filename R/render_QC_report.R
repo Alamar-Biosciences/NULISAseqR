@@ -2,12 +2,12 @@
 #'
 #' Generates an HTML quality control report using the NULISAseq R Markdown template skeleton.Rmd.
 #'
-#' @param output_filename Output HTML filename.
-#' @param output_dir Output directory for the rendered report.
-#' @param study_name Title of the report.
-#' @param assayName Name of the assay. Default is NULL.
-#' @param dataDir Directory containing XML files.
 #' @param xml_files Vector of XML filenames to include.
+#' @param output_filename Output HTML filename. Default is "NULISAseq_QC_Report.html".
+#' @param output_dir Output directory for the rendered report. Default is working directory.
+#' @param study_name Title of the report. Default is 'NULISAseq QC_Report'.
+#' @param assayName Name of the assay. Default is NULL.
+#' @param dataDir Directory containing XML files. Default is working directory.
 #' @param dataRuns Optional list of preloaded data objects. Default is NULL.
 #' @param Rmd_input_file Path to the R Markdown template file skeleton.Rmd. Defaults to the template in the NULISAseqR package.
 #' @param plateNames Optional vector of plate names to override defaults.
@@ -61,14 +61,15 @@
 #'
 #' @return Path to the rendered report (invisible).
 #' @export
-render_QC_report <- function(output_filename,
-                             output_dir,
+render_QC_report <- function(xml_files,
+                             output_filename="NULISAseq_QC_Report.html",
+                             output_dir = getwd(),
                              study_name = 'NULISAseq QC_Report',
                              assayName = NULL,
-                             dataDir,
-                             xml_files,
+                             dataDir = getwd(),
                              dataRuns = NULL,
-                             Rmd_input_file = file.path(system.file(package = 'NULISAseqR'), 'rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd'),
+                             Rmd_input_file = system.file('rmarkdown', 'templates', 'nulisaseq', 'skeleton', 'skeleton.Rmd', 
+                                                          package = 'NULISAseqR'),
                              plateNames = NULL,
                              assayRunInfo = NULL,
                              report_type = 'internal',

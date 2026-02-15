@@ -189,7 +189,7 @@ targetBoxplot <- function(data_matrix,
     }
     
     # calculate LODs
-    LOD <- lod(data_matrix,
+    LOD <- lod(data_matrix=data_matrix,
                blanks=blanks,
                targetNoOutlierDetection = targetNoOutlierDetection,
                match_matrix = match_matrix)

@@ -18,7 +18,7 @@ format_wide_to_long(
   \item{\code{targets} - Target metadata data frame}
   \item{\code{samples} - Sample metadata data frame}
   \item{\code{ExecutionDetails} - Execution details list}
-  \item{\code{Data_Reverselog2} or \code{Data_NPQ} - NPQ data matrix for RQ}
+  \item{\code{Data_IClog2} or \code{Data_NPQ} - NPQ data matrix for RQ}
   \item{\code{Data_raw} - Raw count matrix for RQ}
   \item{\code{Data_AQ} or \code{Data_AQ_aM} - Absolute quantification matrix in aM (optional)}
   \item{\code{Data_AQ_pgmL} - Absolute quantification matrix in pg/mL (optional)}
