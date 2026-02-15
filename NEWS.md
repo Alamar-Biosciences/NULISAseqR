@@ -1,3 +1,37 @@
+# NULISAseqR 1.4.2 (2026-02-15)
+
+## Changes
+
+### Enhancements
+* **render_QC_report()** - Improved function parameter ordering and defaults:
+  - `xml_files` parameter moved to first position for more intuitive usage
+  - Added default values for `output_filename` ("NULISAseq_QC_Report.html") and `output_dir` (current working directory)
+  - Added default value for `dataDir` (current working directory)
+  - Simplified `Rmd_input_file` path construction using `system.file()`
+* **lod()** - Enhanced documentation and parameter handling:
+  - Improved parameter ordering (moved `data_matrix` before `blanks`)
+  - Enhanced roxygen documentation with clearer return value descriptions
+  - Added filtering to ensure `targetNoOutlierDetection` only includes targets present in `data_matrix`
+
+### Bug Fixes
+* **quantifiability()** - Fixed sample subsetting issue that could cause errors when sample lists don't match between AQ data and sample information:
+  - Now uses `intersect()` to find common samples between `Data_AQ_aM` and `SampleNames`
+  - Correctly calculates sample counts for overall and subgroup quantifiability 
+  - Prevents errors when processing data with mismatched sample lists
+* **loadNULISAseq()** - Added calculation of `LOD_pgmL` (limit of detection in pg/mL units) from XML data for AQ assays
+* **targetBoxplot()** - Fixed parameter naming in `lod()` function call to use `data_matrix=` explicitly
+
+### Testing
+* **New comprehensive test suites** added to ensure code quality and reliability:
+  - `test-importNULISAseq.R` - Tests for `importNULISAseq()` function with and without NULISAseqAQ package, including fallback mode validation and AQ data consistency checks
+  - `test-reverse-curve.R` - Tests for reverse curve target handling, including correlation validation, data transformation verification, and NPQ value consistency between `loadNULISAseq()` and `importNULISAseq()`
+  - `test-writeNULISAseq.R` - Tests for Excel output generation with both RQ-only and AQ data, including validation of sheet structure, column names, and specific data values
+* **Test infrastructure improvements**:
+  - Moved test fixtures from `inst/rmarkdown/templates/nulisaseq/skeleton/` to `tests/testthat/fixtures/` for better organization
+  - Removed unnecessary `.gitignore` file from skeleton template directory
+
+---
+
 # NULISAseqR 1.4.1 (2026-01-16)
 
 ## Changes
