@@ -22,13 +22,14 @@ outliers_index_mad <- function(col, min_blanks = 4, threshold = 2.5) {
 #'
 #' Calculates limit of detection (LoD) for each target based on the
 #' negative controls (blanks). LoD = mean(blanks) + 3*SD(blanks).
+#' LoD is typically calculated on IC-IPC normalized reads (unlogged).
 #' Designates data as either above or below LoD. 
 #' Option to specify minimum count threshold for detectability.
 #'
-#' @param blanks Column indices or column names of the blanks in the
-#' data_matrix.
 #' @param data_matrix The Data matrix output from readNULISAseq.R
 #' or normalized data from normalization functions.
+#' @param blanks Column indices or column names of the blanks in the
+#' data_matrix.
 #' @param min_count Optional count threshold to apply in addition
 #' to the LoD. Default is 0.
 #' @param min_blank_no Optional numeric parameter defining the minimum number of
@@ -45,14 +46,21 @@ outliers_index_mad <- function(col, min_blanks = 4, threshold = 2.5) {
 #' Lists samples/targets that should not be reported 
 #'
 #'
-#' @return A list.
-#' @param LOD Vector of limits of detection.
-#' @param aboveLOD Logical matrix indicating whether counts are 
-#' above or below LoD for that target.
+#' @return A list containing:
+#' \item{LOD}{Vector of limits of detection.}
+#' \item{aboveLOD}{Logical matrix indicating whether counts are 
+#' above or below LoD for that target.}
 #'
 #' @export
 #' 
-lod <- function(data_matrix, blanks, min_count = 0, min_blank_no = 4, mad_threshold = 2.5, ignore_target_blank = NULL, targetNoOutlierDetection = NULL, match_matrix = NULL) {
+lod <- function(data_matrix, 
+                blanks, 
+                min_count = 0, 
+                min_blank_no = 4, 
+                mad_threshold = 2.5, 
+                ignore_target_blank = NULL, 
+                targetNoOutlierDetection = NULL, 
+                match_matrix = NULL) {
   # Determine blank names if blank indices are provided
   if (is.numeric(blanks)) {
     blank_names <- colnames(data_matrix)[blanks]
@@ -120,8 +128,10 @@ lod <- function(data_matrix, blanks, min_count = 0, min_blank_no = 4, mad_thresh
 
   # Calculate the blank_mean and blank_sd assuming no outlier detection (blank_meanCount, blank_sdCount)
   # replace blank_mean and blank_sd with blank_meanCount / blank_sdCount for targets where no outlier 
-  # deteection is desired
+  # detection is desired
   if(!is.null(targetNoOutlierDetection)){
+    # filter targetNoOutlierDetection to include only targets in the data_matrix
+    targetNoOutlierDetection <- targetNoOutlierDetection[targetNoOutlierDetection %in% rownames(data_matrix)]
     blank_meanCount <- rowMeans(blank_data, na.rm = TRUE )
     blank_sdCount <- apply(blank_data, 1, sd, na.rm = TRUE)
     blank_mean[targetNoOutlierDetection] <- blank_meanCount[targetNoOutlierDetection]

@@ -4,8 +4,9 @@ test_that("skeleton.Rmd can be rendered into HTML", {
   input <- paste0(test_path, "skeleton.Rmd")
   files <- c("Analysis_INF250_Lot4_AQ_LC_R3_20241229.xml", "Analysis_LC_R3_INF250_Lot3_20240727.xml")
   output <- paste0(test_path, "skeleton.html")
+  fixtures_dir <- normalizePath(testthat::test_path("fixtures"))
   withr::with_tempfile(output, {
-    rmarkdown::render(input, params=list(dataDir=".", xmlFiles=files))  
+    rmarkdown::render(input, params=list(dataDir=fixtures_dir, xmlFiles=files))  
     expect_true(file.exists(output), output) 
   })
 })
@@ -14,8 +15,9 @@ test_that("skeleton.Rmd can be rendered into HTML for XMLs with differing target
   input <- paste0(test_path, "skeleton.Rmd")
   output <- paste0(test_path, "skeleton.html")
   files <- c("Analysis_INF250_Lot4_AQ_LC_R3_20241229.xml", "Analysis_LC_R3_INF250_Lot3_20240727.xml")
+  fixtures_dir <- normalizePath(testthat::test_path("fixtures"))
   withr::with_tempfile(output, {
-    rmarkdown::render(input, params=list(dataDir=".", xmlFiles=files))  
+    rmarkdown::render(input, params=list(dataDir=fixtures_dir, xmlFiles=files))  
     expect_true(file.exists(output), output)
   })
 })
@@ -24,8 +26,9 @@ test_that("skeleton.Rmd can be rendered into HTML with an alternative IC", {
   input <- paste0(test_path, "skeleton.Rmd")
   output <- paste0(test_path, "skeleton.html")
   files <- c("detectability_P1_Tr03_typemCherry_CCL7_hide2.xml")
+  fixtures_dir <- normalizePath(testthat::test_path("fixtures"))
   withr::with_tempfile(output, {
-    rmarkdown::render(input, params=list(dataDir=".", xmlFiles=files))  
+    rmarkdown::render(input, params=list(dataDir=fixtures_dir, xmlFiles=files))  
     expect_true(file.exists(output), output)
     orig_content <- readLines(output, warn=FALSE)
     patterns <- c("-mCherry-summary", files)
@@ -40,8 +43,9 @@ test_that("skeleton.Rmd can be rendered into HTML, NAS version", {
   input <- paste0(test_path, "skeleton.Rmd")
   files <- c("Analysis_INF250_Lot4_AQ_LC_R3_20241229.xml", "Analysis_LC_R3_INF250_Lot3_20240727.xml")
   output <- paste0(test_path, "skeleton.html")
+  fixtures_dir <- normalizePath(testthat::test_path("fixtures"))
   withr::with_tempfile(output, {
-    rmarkdown::render(input, params=list(reportType="webApp", outPlateEffect=FALSE, dataDir=".", xmlFiles=files ))  
+    rmarkdown::render(input, params=list(reportType="webApp", outPlateEffect=FALSE, dataDir=fixtures_dir, xmlFiles=files ))  
     expect_true(file.exists(output), output) 
   })
 })
@@ -50,8 +54,9 @@ test_that("skeleton.Rmd can be rendered into HTML, NAS version, advancedQC", {
   input <- paste0(test_path, "skeleton.Rmd")
   files <- c("Analysis_INF250_Lot4_AQ_LC_R3_20241229.xml", "Analysis_LC_R3_INF250_Lot3_20240727.xml")
   output <- paste0(test_path, "skeleton.html")
+  fixtures_dir <- normalizePath(testthat::test_path("fixtures"))
   withr::with_tempfile(output, {
-    rmarkdown::render(input, params=list(reportType="webApp", outPlateEffect=TRUE, advancedQC=TRUE, dataDir=".", xmlFiles=files ))  
+    rmarkdown::render(input, params=list(reportType="webApp", outPlateEffect=TRUE, advancedQC=TRUE, dataDir=fixtures_dir, xmlFiles=files ))  
     expect_true(file.exists(output), output) 
   })
 })
@@ -60,8 +65,9 @@ test_that("skeleton.Rmd can be rendered into HTML, NAS version, XML_v1.3.0", {
   input <- paste0(test_path, "skeleton.Rmd")
   files <- c("XML_v1.3.0.xml")
   output <- paste0(test_path, "skeleton.html")
+  fixtures_dir <- normalizePath(testthat::test_path("fixtures"))
   withr::with_tempfile(output, {
-    rmarkdown::render(input, params=list(reportType="webApp", outPlateEffect=TRUE, advancedQC=FALSE, dataDir=".", xmlFiles=files ))
+    rmarkdown::render(input, params=list(reportType="webApp", outPlateEffect=TRUE, advancedQC=FALSE, dataDir=fixtures_dir, xmlFiles=files ))
     expect_true(file.exists(output), output)
   })
 })
@@ -69,35 +75,45 @@ test_that("skeleton.Rmd can be rendered into HTML, NAS version, XML_v1.3.0", {
 test_that("skeleton.Rmd with outputPlots=TRUE generates PDF files (WITH NULISAseqAQ)", {
   skip_if_not(requireNamespace("NULISAseqAQ", quietly = TRUE),
               "NULISAseqAQ package not available")
-
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input <- paste0(test_path, "skeleton.Rmd")
+  
+  input <- system.file("rmarkdown", "templates", "nulisaseq", "skeleton", "skeleton.Rmd",
+                       package = "NULISAseqR")
   files <- c("XML_v1.3.0_with_AQ.xml")
-  output <- paste0(test_path, "skeleton.html")
-  output_files_dir <- paste0(test_path, "outputFiles")
-
-  withr::with_tempfile(output, {
-    # Ensure outputFiles directory doesn't exist before test
-    if (dir.exists(output_files_dir)) {
-      unlink(output_files_dir, recursive = TRUE)
-    }
-
-    # Render with outputPlots=TRUE (reportType defaults to "internal")
-    rmarkdown::render(input, params=list(dataDir=".", xmlFiles=files, outputPlots=TRUE))
-
-    # Check HTML output exists
-    expect_true(file.exists(output), info = "HTML output should be created")
-
-    # Check outputFiles directory was created
-    expect_true(dir.exists(output_files_dir), info = "outputFiles directory should be created")
-
-    # Check that PDF files were generated
-    pdf_files <- list.files(output_files_dir, pattern = "\\.pdf$", full.names = TRUE)
-    expect_gt(length(pdf_files), 0, label = "Number of PDF files generated")
-
-    # Clean up outputFiles directory
-    unlink(output_files_dir, recursive = TRUE)
-  })
+  
+  fixtures_dir <- normalizePath(testthat::test_path("fixtures"))
+  
+  # Use temp directory - make sure it's an absolute path
+  temp_output_dir <- normalizePath(tempfile(), mustWork = FALSE)
+  dir.create(temp_output_dir)
+  output_files_dir <- file.path(temp_output_dir, "outputFiles")
+  
+  # Render to temp location
+  temp_html <- file.path(temp_output_dir, "skeleton.html")
+  
+  rmarkdown::render(
+    input, 
+    output_file = temp_html,
+    params = list(
+      dataDir = fixtures_dir, 
+      xmlFiles = files, 
+      outputPlots = TRUE,
+      reportType = "internal",
+      outfolder = temp_output_dir  # This is now an absolute path
+    )
+  )
+  
+  # Check HTML output exists
+  expect_true(file.exists(temp_html), info = "HTML output should be created")
+  
+  # Check outputFiles directory was created
+  expect_true(dir.exists(output_files_dir), info = "outputFiles directory should be created")
+  
+  # Check that PDF files were generated
+  pdf_files <- list.files(output_files_dir, pattern = "\\.pdf$", full.names = TRUE)
+  expect_gt(length(pdf_files), 0, label = "Number of PDF files generated")
+  
+  # Clean up
+  unlink(temp_output_dir, recursive = TRUE)
 })
 
 # Helper function to mock requireNamespace for NULISAseqAQ
@@ -111,48 +127,57 @@ mock_no_NULISAseqAQ_skeleton <- local({
 })
 
 test_that("skeleton.Rmd with outputPlots=TRUE generates PDF files (WITHOUT NULISAseqAQ)", {
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input <- paste0(test_path, "skeleton.Rmd")
+  input <- system.file("rmarkdown", "templates", "nulisaseq", "skeleton", "skeleton.Rmd",
+                       package = "NULISAseqR")
   files <- c("XML_v1.3.0_with_AQ.xml")
-  output <- paste0(test_path, "skeleton.html")
-  output_files_dir <- paste0(test_path, "outputFiles")
-
+  
+  fixtures_dir <- normalizePath(testthat::test_path("fixtures"))
+  
+  # Use temp directory - make sure it's an absolute path
+  temp_output_dir <- normalizePath(tempfile(), mustWork = FALSE)
+  dir.create(temp_output_dir)
+  output_files_dir <- file.path(temp_output_dir, "outputFiles")
+  
+  # Render to temp location
+  temp_html <- file.path(temp_output_dir, "skeleton.html")
+  
   # Mock requireNamespace to return FALSE for NULISAseqAQ
   local_mocked_bindings(
     requireNamespace = mock_no_NULISAseqAQ_skeleton,
     .package = "base"
   )
-
-  withr::with_tempfile(output, {
-    # Ensure outputFiles directory doesn't exist before test
-    if (dir.exists(output_files_dir)) {
-      unlink(output_files_dir, recursive = TRUE)
-    }
-
-    # Render with outputPlots=TRUE (reportType defaults to "internal")
-    rmarkdown::render(input, params=list(dataDir=".", xmlFiles=files, outputPlots=TRUE))
-
-    # Check HTML output exists
-    expect_true(file.exists(output), info = "HTML output should be created")
-
-    # Check outputFiles directory was created
-    expect_true(dir.exists(output_files_dir), info = "outputFiles directory should be created")
-
-    # Check that PDF files were generated
-    pdf_files <- list.files(output_files_dir, pattern = "\\.pdf$", full.names = TRUE)
-    expect_gt(length(pdf_files), 0, label = "Number of PDF files generated")
-
-    # Clean up outputFiles directory
-    unlink(output_files_dir, recursive = TRUE)
-  })
+  
+  rmarkdown::render(
+    input, 
+    output_file = temp_html,
+    params = list(
+      dataDir = fixtures_dir, 
+      xmlFiles = files, 
+      outputPlots = TRUE,
+      reportType = "internal",
+      outfolder = temp_output_dir  # Now an absolute path
+    )
+  )
+  
+  # Check HTML output exists
+  expect_true(file.exists(temp_html), info = "HTML output should be created")
+  
+  # Check outputFiles directory was created
+  expect_true(dir.exists(output_files_dir), info = "outputFiles directory should be created")
+  
+  # Check that PDF files were generated
+  pdf_files <- list.files(output_files_dir, pattern = "\\.pdf$", full.names = TRUE)
+  expect_gt(length(pdf_files), 0, label = "Number of PDF files generated")
+  
+  # Clean up
+  unlink(temp_output_dir, recursive = TRUE)
 })
 
 test_that("XML_v1.3.0.xml loads correctly WITH NULISAseqAQ", {
   skip_if_not(requireNamespace("NULISAseqAQ", quietly = TRUE),
               "NULISAseqAQ package not available")
 
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0.xml")
 
   data <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
 
@@ -170,8 +195,7 @@ test_that("XML_v1.3.0.xml loads correctly WITH NULISAseqAQ", {
 })
 
 test_that("XML_v1.3.0.xml loads correctly WITHOUT NULISAseqAQ (fallback mode)", {
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0.xml")
 
   # Mock requireNamespace to return FALSE for NULISAseqAQ
   local_mocked_bindings(
@@ -196,14 +220,25 @@ test_that("XML_v1.3.0.xml loads correctly WITHOUT NULISAseqAQ (fallback mode)", 
 
   # Check quantifiability was calculated (uses LOD_aM populated from qcXML in fallback mode)
   expect_false(is.null(data$quantifiability))
+
+  # Check LOD_aM and LOD_pgmL are populated from qcXML in fallback mode
+  expect_false(is.null(data$lod$LOD_aM),
+               info = "LOD_aM should be populated from qcXML in fallback mode")
+  expect_false(is.null(data$lod$LOD_pgmL),
+               info = "LOD_pgmL should be populated from qcXML in fallback mode")
+
+  # Check LOD vectors have names (target names)
+  expect_true(length(names(data$lod$LOD_aM)) > 0,
+              info = "LOD_aM should be a named vector")
+  expect_true(length(names(data$lod$LOD_pgmL)) > 0,
+              info = "LOD_pgmL should be a named vector")
 })
 
 test_that("XML_v1.3.0.xml AQ data consistency between NULISAseqAQ and fallback modes", {
   skip_if_not(requireNamespace("NULISAseqAQ", quietly = TRUE),
               "NULISAseqAQ package not available - cannot compare modes")
 
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0.xml")
 
   # Load with NULISAseqAQ
   data_with_aq <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
@@ -240,8 +275,7 @@ test_that("XML_v1.3.0_with_AQ.xml loads correctly WITH NULISAseqAQ", {
   skip_if_not(requireNamespace("NULISAseqAQ", quietly = TRUE),
               "NULISAseqAQ package not available")
 
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0_with_AQ.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0_with_AQ.xml")
 
   data <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
 
@@ -262,8 +296,7 @@ test_that("XML_v1.3.0_with_AQ.xml loads correctly WITH NULISAseqAQ", {
 })
 
 test_that("XML_v1.3.0_with_AQ.xml loads correctly WITHOUT NULISAseqAQ (fallback mode)", {
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0_with_AQ.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0_with_AQ.xml")
 
   # Mock requireNamespace to return FALSE for NULISAseqAQ
   local_mocked_bindings(
@@ -288,14 +321,56 @@ test_that("XML_v1.3.0_with_AQ.xml loads correctly WITHOUT NULISAseqAQ (fallback 
 
   # Should have 157 targets (filtered to match encrypted params)
   expect_equal(nrow(data$AQ$Data_AQ_aM), 157)
+
+  # Check LOD_aM and LOD_pgmL are populated from qcXML in fallback mode
+  expect_false(is.null(data$lod$LOD_aM),
+               info = "LOD_aM should be populated from qcXML in fallback mode")
+  expect_false(is.null(data$lod$LOD_pgmL),
+               info = "LOD_pgmL should be populated from qcXML in fallback mode")
+})
+
+test_that("process_loadNULISAseq creates aqParams in fallback mode (without MW_kDa)", {
+  input1 <- test_path("fixtures", "XML_v1.3.0_with_AQ.xml")
+
+  # Mock requireNamespace to return FALSE for NULISAseqAQ
+  local_mocked_bindings(
+    requireNamespace = mock_no_NULISAseqAQ_skeleton,
+    .package = "base"
+  )
+
+  suppressMessages({
+    data <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
+  })
+
+  # Process the data
+  processed <- NULISAseqR:::process_loadNULISAseq(data)
+
+  # aqParams should be created even without MW_kDa
+  expect_false(is.null(processed$aqParams),
+               info = "aqParams should be created from targetAQ_param even without MW_kDa")
+
+  # aqParams should have targetName column
+  expect_true("targetName" %in% colnames(processed$aqParams),
+              info = "aqParams should have targetName column")
+
+  # Check Data_AQ exists (aM units)
+  expect_false(is.null(processed$Data_AQ),
+               info = "Data_AQ should exist")
+
+  # Check Data_AQ_pgmL is created from pre-existing Data_AQ if available
+  if (!is.null(data$AQ$Data_AQ)) {
+    expect_false(is.null(processed$Data_AQ_pgmL),
+                 info = "Data_AQ_pgmL should be created from pre-existing Data_AQ")
+    expect_false(is.null(processed$Data_AQlog2_pgmL),
+                 info = "Data_AQlog2_pgmL should be created")
+  }
 })
 
 test_that("XML_v1.3.0_with_AQ.xml AQ data consistency between NULISAseqAQ and fallback modes", {
   skip_if_not(requireNamespace("NULISAseqAQ", quietly = TRUE),
               "NULISAseqAQ package not available - cannot compare modes")
 
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0_with_AQ.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0_with_AQ.xml")
 
   # Load with NULISAseqAQ
   data_with_aq <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
@@ -350,15 +425,14 @@ test_that("XML_v1.3.0_with_AQ.xml AQ data consistency between NULISAseqAQ and fa
 })
 
 # =============================================================================
-# Tests for SC_conc (Standard Curve concentration) parsing
+# Tests for SC_conc (sample control concentration) parsing
 # =============================================================================
 
 test_that("SC_conc values are parsed from XML TargetQC section (WITH NULISAseqAQ)", {
   skip_if_not(requireNamespace("NULISAseqAQ", quietly = TRUE),
               "NULISAseqAQ package not available")
 
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0_with_AQ.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0_with_AQ.xml")
 
   data <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
 
@@ -386,8 +460,7 @@ test_that("SC_conc values are parsed from XML TargetQC section (WITH NULISAseqAQ
 })
 
 test_that("SC_conc values are parsed from XML TargetQC section (WITHOUT NULISAseqAQ)", {
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0_with_AQ.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0_with_AQ.xml")
 
   # Mock requireNamespace to return FALSE for NULISAseqAQ
   local_mocked_bindings(
@@ -419,8 +492,7 @@ test_that("SC_conc values are numeric in targetAQ_param", {
   skip_if_not(requireNamespace("NULISAseqAQ", quietly = TRUE),
               "NULISAseqAQ package not available")
 
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0_with_AQ.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0_with_AQ.xml")
 
   data <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
 
@@ -443,8 +515,7 @@ test_that("SC_conc columns present in both NULISAseqAQ and fallback modes", {
   skip_if_not(requireNamespace("NULISAseqAQ", quietly = TRUE),
               "NULISAseqAQ package not available - cannot compare modes")
 
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
-  input1 <- paste0(test_path, "XML_v1.3.0_with_AQ.xml")
+  input1 <- test_path("fixtures", "XML_v1.3.0_with_AQ.xml")
 
   # Load with NULISAseqAQ
   data_with_aq <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)

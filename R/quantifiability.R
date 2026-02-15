@@ -143,7 +143,8 @@ quantifiability <- function(runs,
         DR$LLOQ[DR$LOD_aM > DR$LLOQ & !is.na(DR$LOD_aM) & !is.na(DR$LLOQ)] <- DR$LOD_aM[DR$LOD_aM > DR$LLOQ & !is.na(DR$LOD_aM) & !is.na(DR$LLOQ)]
         
         # calculate overall quantifiability
-        AQ_quant <- x$AQ$Data_AQ_aM[,x$SampleNames, drop=FALSE]
+        intersect_samples <- intersect(colnames(x$AQ$Data_AQ_aM), x$SampleNames)
+        AQ_quant <- x$AQ$Data_AQ_aM[,intersect_samples, drop=FALSE] 
         AQ_quant <- merge(AQ_quant, DR, by.x='row.names', by.y='targetName')
         rownames(AQ_quant) <- AQ_quant[,1]
         AQ_quant <- AQ_quant[,2:ncol(AQ_quant)]
@@ -156,7 +157,7 @@ quantifiability <- function(runs,
         })
         
         AQ_quant_output_columns <- c('overall')
-        n_samples <- c(overall=length(x$SampleNames))
+        n_samples <- c(overall=length(intersect_samples)) 
         
         # calculate subgroup quantifiability
         if(!is.null(sampleGroupCovar)){
@@ -164,7 +165,9 @@ quantifiability <- function(runs,
             subgroup_names <- unique(x$samples[x$samples$sampleType=='Sample', sampleGroupCovar])
             
             for(i in 1:length(subgroup_names)){
-              subgroup_samples <- x$samples$sampleName[x$samples[,sampleGroupCovar]==subgroup_names[i]]
+              # Filter samples to those in intersect_samples AND belonging to this subgroup
+              samples_in_subgroup <- x$samples$sampleName[x$samples[,sampleGroupCovar] == subgroup_names[i]]
+              subgroup_samples <- intersect(samples_in_subgroup, intersect_samples)
               subgroup_sample_data <- AQ_quant[,subgroup_samples, drop=FALSE]
               AQ_quant[,as.character(subgroup_names[i])] <- NA
               AQ_quant_output_columns <- c(AQ_quant_output_columns, as.character(subgroup_names[i]))

@@ -1610,6 +1610,17 @@ loadNULISAseq <- function(file,
           if(is.null(raw$lod)) raw$lod <- list()
           raw$lod$LOD_aM <- lod_aM_vec
         }
+
+        # Create raw$lod$LOD_pgmL as named vector
+        if("LOD_pg_ml" %in% colnames(lod_df)){
+          lod_pgmL_vec <- lod_df$LOD_pg_ml
+          names(lod_pgmL_vec) <- lod_df$targetName
+          if(!is.null(raw$lod) && !is.null(raw$lod$LOD) && !is.null(names(raw$lod$LOD))){
+            raw$lod$LOD_pgmL <- lod_pgmL_vec[names(raw$lod$LOD)]
+          } else {
+            raw$lod$LOD_pgmL <- lod_pgmL_vec
+          }
+        }
       }
 
       # Calculate withinDR if LLOQ/ULOQ and Data_AQ_aM are available

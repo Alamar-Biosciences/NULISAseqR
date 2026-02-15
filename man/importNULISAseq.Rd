@@ -142,9 +142,7 @@ Depending on `return_type`:
           \item{\code{inconsistent_targets}: Placeholder for targets inconsistent across plates/runs (NULL if none)}
           \item{\code{detectability}: Data frame of detectability by target and sample matrix}
           \item{\code{quantifiability}: Data frame of quantifiability by target and sample matrix}
-          \item{\code{Data_raw}, \code{Data_rawlog2}: Raw counts and log2-transformed counts (matrix, targets × samples)}
-          \item{\code{Data_IC}, \code{Data_IClog2}: Internal control–normalized data (linear and log2)}
-          \item{\code{Data_Reverse}, \code{Data_Reverselog2}: Reverse-transformed IC-IPC normalized data (linear and log2)}
+          \item{\code{Data_raw}: Raw counts (matrix, targets × samples)}
           \item{\code{Data_AQ_aM}, \code{Data_AQlog2_aM}: Absolute quantitation in attomolar units (linear and log2), 
           if AQ data available}
           \item{\code{Data_AQ_pgmL}, \code{Data_AQlog2_pgmL}: Absolute quantitation in pg/mL units (linear and log2), 

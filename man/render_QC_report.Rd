@@ -5,15 +5,15 @@
 \title{Render NULISAseq QC HTML Report}
 \usage{
 render_QC_report(
-  output_filename,
-  output_dir,
+  xml_files,
+  output_filename = "NULISAseq_QC_Report.html",
+  output_dir = getwd(),
   study_name = "NULISAseq QC_Report",
   assayName = NULL,
-  dataDir,
-  xml_files,
+  dataDir = getwd(),
   dataRuns = NULL,
-  Rmd_input_file = file.path(system.file(package = "NULISAseqR"),
-    "rmarkdown/templates/nulisaseq/skeleton/skeleton.Rmd"),
+  Rmd_input_file = system.file("rmarkdown", "templates", "nulisaseq", "skeleton",
+    "skeleton.Rmd", package = "NULISAseqR"),
   plateNames = NULL,
   assayRunInfo = NULL,
   report_type = "internal",
@@ -65,17 +65,17 @@ render_QC_report(
 )
 }
 \arguments{
-\item{output_filename}{Output HTML filename.}
+\item{xml_files}{Vector of XML filenames to include.}
 
-\item{output_dir}{Output directory for the rendered report.}
+\item{output_filename}{Output HTML filename. Default is "NULISAseq_QC_Report.html".}
 
-\item{study_name}{Title of the report.}
+\item{output_dir}{Output directory for the rendered report. Default is working directory.}
+
+\item{study_name}{Title of the report. Default is 'NULISAseq QC_Report'.}
 
 \item{assayName}{Name of the assay. Default is NULL.}
 
-\item{dataDir}{Directory containing XML files.}
-
-\item{xml_files}{Vector of XML filenames to include.}
+\item{dataDir}{Directory containing XML files. Default is working directory.}
 
 \item{dataRuns}{Optional list of preloaded data objects. Default is NULL.}
 

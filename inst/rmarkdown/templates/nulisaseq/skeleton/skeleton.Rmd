@@ -1,13 +1,14 @@
 ---
 params:
   study_name: ""
-  outfolder: './'
+  outfolder: !r getwd()
   assayName: ""
   ## directory where xml files are located
-  dataDir: '.'
+  # dataDir: '../../../../../tests/testthat/fixtures'
+  dataDir: !r getwd()
   # xmlFiles: !r NULL
   xmlFiles: !r c('detectability_P1_Tr03.xml', 'detectability_P2_Tr03.xml')
-  dataRuns: NULL 
+  dataRuns: !r NULL
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
   plateNames: !r NULL
@@ -76,6 +77,7 @@ params:
   # if NULL, batch effect test will only be done for the group with maximum number of samples
   # if there are ties, then will use first group alphabetically
   plate_effect_group: !r NULL
+  # plate_effect_group: !r "SERUM"
   outRunSummary: !r TRUE
   outPlateLayout: !r TRUE
   outReadSummary: !r TRUE
@@ -529,7 +531,7 @@ render_table <- function(df, table_name, table_id, highlight = NULL, first_colNa
       column_defs[[col_name]] <- custom_columns[[col_name]]
     }
   }
-
+  
   # Format columns that should display as integers (no decimal places)
   integer_columns <- c("missing", "Total wells", "Total targets")
   for(int_col in integer_columns){
@@ -537,7 +539,7 @@ render_table <- function(df, table_name, table_id, highlight = NULL, first_colNa
       column_defs[[int_col]] <- colDef(format = colFormat(digits = 0))
     }
   }
-
+  
   htmltools::tagList(
     htmltools::tags$p(style="font-size: 1.1em;", table_name),
     reactable(
@@ -615,7 +617,7 @@ if(is.null(params$dataRuns)){
   } else {
     knitr::opts_knit$set(root.dir=params$dataDir)
     # save xml file path
-    xmlFilesPath <- paste0(params$dataDir, "/", params$xmlFiles)
+    xmlFilesPath <- file.path(params$dataDir, params$xmlFiles)
   }
   # define variables to store results
   runs <- vector('list', numFiles)
@@ -1271,7 +1273,7 @@ if(numFiles > 1){
   # Filter out noDetectability targets
   overall_matrix <- overall_matrix[!(rownames(overall_matrix) %in% all_noDetectability_targets), , drop = FALSE]
   detectability_return_targets[["Overall"]] <- overall_matrix
-
+  
   # Create summary statistics from the combined detectability
   detectability_summary_overall <- NULL
   
@@ -1376,7 +1378,7 @@ if(numFiles > 1){
     combined_all_matrix <- combined_all_matrix[!(rownames(combined_all_matrix) %in% all_noDetectability_targets), , drop = FALSE]
     detectability_return_targets[["Combined"]] <- combined_all_matrix
     colnames(detectability_return_targets[["Combined"]]) <- names(all_cols)
-
+    
     combine_detectability <- TRUE
   }
 }
@@ -1448,7 +1450,7 @@ colnames(top_samples_table) <- c('Grand Total', 1:10)
 ```{r make-output-directory, include=FALSE}
 # make directory -- we will put the file in the outputFiles directory
 if(params$reportType != "webApp"){
-  dir.create(paste0(params$outfolder, "outputFiles"), recursive = T)
+  dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
 }
 ```
 
@@ -1475,7 +1477,7 @@ if(multipleFiles){
   batch_effect_noDetectability_targets <- unique(unlist(lapply(runs, function(x) {
     x$targets$targetName[which(x$targets$noDetectability)]
   })))
-
+  
   plate_test_data_list <- lapply(1:numFiles, function(i) {
     targets_to_exclude <- c(runs[[i]]$IC,
                             runs[[i]]$targets$targetName[which(runs[[i]]$targets$hide)],
@@ -1525,8 +1527,8 @@ if(multipleFiles){
   unique_plateEffectID <- levels(sample_metadata$plateEffectID)
   plate_effect_PlateNames <- PlateNames[unique_plateEffectID_old %in% unique_plateEffectID]
   plate_effect_excluded_plates <- PlateNames[!(unique_plateEffectID_old %in% unique_plateEffectID)]
-
-
+  
+  
   # remove any targets with zero variance 
   plate_effect_remove_targets <- names(apply(plate_test_data, 1, sd))[apply(plate_test_data, 1, sd)==0]
   plate_test_data <- plate_test_data[!(rownames(plate_test_data) %in% plate_effect_remove_targets),]
@@ -2056,9 +2058,10 @@ if(!is.null(params$assayRunInfo)){
                             `Assay instrument`=sapply(assayRunInfo, function(x) x[[2]]), 
                             check.names = FALSE, row.names = NULL)
   
-  render_table(run_summary, 
-               table_name = "Run Summary", 
-               table_id = "id=\"run-summary\"")
+  render_table(run_summary,
+               table_name = "Run Summary",
+               table_id = "id=\"run-summary\"",
+               rownames = FALSE)
 }
 ```
 
@@ -2105,7 +2108,7 @@ for(i in 1:numFiles){
     )
     
     cat(html_content,
-        file = paste0(params$outfolder, 'outputFiles/', PlateNames[i], '_layout.html'))
+        file = file.path(params$outfolder, 'outputFiles', paste0(PlateNames[i], '_layout.html')))
   }
 }
 ```
@@ -2115,12 +2118,12 @@ knitr::asis_output("\n\n---\n\n")
 cat("## Read summary\n\n")
 cat("Summary of the number and classification of reads for the assay run\n\n")
 cat(paste0("- ", c("Parseable - Valid next generation sequencing (NGS) read (assay signal or background)",
-              "Parseable Match - Valid NGS read (assay signal)",
-              "Parseable Non-match - Vaild NGS read (assay background)",
-              "Unparseable - Sequencing background",
-              "Total wells - Total number of samples + controls on plate",
-              "Total targets - Total number of assay targets (including internal controls)",
-              "&#35; of zeros (%) - Number and percentage of targets * samples which had zero sequencing reads (no assay signal)"
+                   "Parseable Match - Valid NGS read (assay signal)",
+                   "Parseable Non-match - Valid NGS read (assay background)",
+                   "Unparseable - Sequencing background",
+                   "Total wells - Total number of samples + controls on plate",
+                   "Total targets - Total number of assay targets (including internal controls)",
+                   "&#35; of zeros (%) - Number and percentage of targets * samples which had zero sequencing reads (no assay signal)"
 ), "\n", collapse = ""))
 render_table(read_summary, 
              table_name = " ", 
@@ -2296,7 +2299,7 @@ all_qc_data <- list()
 
 for(i in 1:numFiles){
   runs[[i]]$qcTarget <- QCFlagTarget(runs[[i]]$AQ$Data_AQ_aM, runs[[i]]$Data, runs[[i]]$normed$interNormData[[1]], runs[[i]]$detectability$all$detectability, runs[[i]]$lod$aboveLOD, runs[[i]]$AQ$withinDR, AbsData, runs[[i]]$targets, runs[[i]]$samples, runs[[i]]$AQ$targetAQ_param$SC_conc, advancedQC=params$advancedQC)
-
+  
   # Filter out excluded targets from qcTarget (IC, hidden, noDetectability, user-excluded)
   if(!is.null(runs[[i]]$qcTarget)){
     targets_to_exclude_qc <- c(
@@ -2309,7 +2312,7 @@ for(i in 1:numFiles){
     }
     runs[[i]]$qcTarget <- runs[[i]]$qcTarget %>% filter(!target %in% targets_to_exclude_qc)
   }
-
+  
   qcPlate <- QCFlagPlate(runs[[i]]$Data, normData[[i]], runs[[i]]$lod$aboveLOD, runs[[i]]$targets, runs[[i]]$samples, AQ=AbsData, AQ_QC=runs[[i]]$qcTarget, Sample_QC=runs[[i]]$qcSample)
   qcPlate$status[which(qcPlate$status == FALSE)] <- "Pass"
   qcPlate$status[which(qcPlate$status == TRUE)] <- "Warning"
@@ -2744,7 +2747,12 @@ if(params$outQC){
   }
   colnames(TargetQCSummary) <- c(target_number_label, Tcriteria$properNames)
   
-  cat(tableWarningText(rep(TRUE, numTargetWarnings), textColor = "white", bgColor = "red", warningText="Number of Targets with warnings"), "\n\n")
+  cat("\n\n")
+  cat(tableWarningText(rep(TRUE, numTargetWarnings), 
+                     textColor = "white", 
+                     bgColor = "red", 
+                     warningText = "Number of Targets with warnings"))
+  cat("\n\n")
   
   # Create base table
   render_table(TargetQCSummary, 
@@ -3069,14 +3077,14 @@ if(multipleFiles==TRUE){
 detect_output_table <- detect_output_table[,!(colnames(detect_output_table) %in% colnames(detect_output_table)[grep('combined', tolower(colnames(detect_output_table)))])]
 
 if(params$reportType != "webApp"){
-  write.csv(detect_output_table, paste0(params$outfolder, 'outputFiles/target_detectability_table.csv'))
+  write.csv(detect_output_table, file.path(params$outfolder, 'outputFiles', 'target_detectability_table.csv'))
 }
 ```
 
 ```{r detectability-target-boxplot, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=tryCatch(detect_fig_asp, error = function(e) 0.75)}
 # Target Boxplot
 cat("### Target detectability boxplot\n\n")
-cat(paste0("Plot shows target IC-", CAL_IPC, "-normalized count distributions relative to LOD. For each target, log2(LOD) was subtracted from log2(count) for IC-normalized data. Reverse-curve quantified targets are denoted by a \"*\" and are plotted as forward-curve targets for compatibility"), "\n\n")
+cat(paste0("Plot shows target NPQ distributions relative to LOD. For each target, LOD in NPQ units was subtracted from NPQ. Reverse-curve quantified targets are denoted by a \"*\" and are plotted as forward-curve targets for compatibility."), "\n\n")
 par(mfrow=c(ceiling(numFiles/2), 2), mar=c(4,2,2,1))
 for (i in 1:numFiles){
   # Create vector of targets to exclude: IC + hidden targets + noDetectability targets + user excluded targets
@@ -3087,8 +3095,7 @@ for (i in 1:numFiles){
     boxplot_exclude_targets <- c(boxplot_exclude_targets, params$excludeTargets[[i]])
   }
   boxplot_exclude_targets <- unique(boxplot_exclude_targets)
-
-  targetBoxplot(IC_IPC$interNormData[[i]],
+  targetBoxplot(data_matrix=IC_IPC$interNormData[[i]],
                 title=PlateNames[i],
                 subtractLOD=TRUE,
                 blanks=runs[[i]]$NC,
@@ -3529,8 +3536,8 @@ add_legend('top',
 # SC IPC log2 ratio -- output CSV file
 if(params$reportType != "webApp"){
   # make directory -- we will put the file in the outputFiles directory
-  dir.create(paste0(params$outfolder, "outputFiles"), recursive = T)
-  write.csv(SC_IPC_ratio_table, paste0(params$outfolder, "outputFiles/SC_IPC_log2_ratio_table.csv"))
+  dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
+  write.csv(SC_IPC_ratio_table, file.path(params$outfolder, "outputFiles", "SC_IPC_log2_ratio_table.csv"))
 }
 ```
 
@@ -3589,8 +3596,8 @@ add_legend('top',
 # SC NC log2 ratio -- output CSV file
 if(params$reportType != "webApp"){
   # make directory -- we will put the file in the outputFiles directory
-  dir.create(paste0(params$outfolder, "outputFiles"), recursive = T)
-  write.csv(SC_NC_ratio_table, paste0(params$outfolder, "outputFiles/SC_NC_log2_ratio_table.csv"))
+  dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
+  write.csv(SC_NC_ratio_table, file.path(params$outfolder, "outputFiles", "SC_NC_log2_ratio_table.csv"))
 }
 ```
 
@@ -3598,7 +3605,7 @@ if(params$reportType != "webApp"){
 
 if(params$reportType != "webApp"){
   # make directory -- we will put the file in the outputFiles directory
-  dir.create(paste0(params$outfolder, "outputFiles"), recursive = T)
+  dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
 }
 
 # Coefficient of variation -- output CSV file
@@ -3705,7 +3712,7 @@ if(!indicatorSC & !multipleFiles){
   rownames(CV_output_table) <- CV_output_table_rownames
 }
 if(params$reportType != "webApp"){
-  write.csv(CV_output_table, paste0(params$outfolder, "outputFiles/target_CV_table.csv"))
+  write.csv(CV_output_table, file.path(params$outfolder, "outputFiles", "target_CV_table.csv"))
 }
 ```
 
@@ -3825,7 +3832,7 @@ for(i in 1:numFiles){
                 label_colors=label_colors2)
   
   if(params$outputPlots && params$reportType != "webApp"){
-    pdf(paste0(params$outfolder, "outputFiles/sample_boxplot_", PlateNames[i], '.pdf'), width=4, height=9)
+    pdf(file.path(params$outfolder, "outputFiles", paste0("sample_boxplot_", PlateNames[i], '.pdf')), width=4, height=9)
     par(mfrow=c(1,1), mar=c(4,6,2,0))
     replayPlot(recorded_plot)
     dev.off()
@@ -4145,13 +4152,13 @@ PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scal
   }
   
   # Adjust legend and button y-positions based on number of rows
-
+  
   # When nrows=1, position legend higher and buttons well below the plot
   # When nrows=2, use original positioning (buttons fit between rows)
   legend_y <- if (nrows == 1) 0.9 else 0.75
   button_y_start <- if (nrows == 1) -0.08 else 0.25
   button_y_spacing <- if (nrows == 1) 0.18 else 0.10
-
+  
   plt <- plt %>%
     plotly::config(
       displaylogo = FALSE,
@@ -4202,7 +4209,7 @@ PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scal
       ),
       updatemenus = if (showButtons) {
         menu_list <- list()
-
+        
         # Show/Hide All buttons - positioned well below legend
         menu_list[[1]] <- list(
           type = "buttons",
@@ -4214,17 +4221,17 @@ PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scal
           yanchor = "top",
           buttons = list(button_list[[1]], button_list[[2]])
         )
-
+        
         # Create paired buttons for each sample type
         for (i in seq_along(sample_types_present)) {
           sample_type <- sample_types_present[i]
           symbol_map <- list("IPC" = "★", "SC" = "♦", "Bridge" = "▲")
           symbol <- ifelse(sample_type %in% names(symbol_map), symbol_map[[sample_type]], "●")
-
+          
           # Find the correct button indices for this sample type
           hide_button_index <- 2 + (i-1)*2 + 1  # Skip the first 2 buttons, then pairs
           show_button_index <- 2 + (i-1)*2 + 2
-
+          
           # Add horizontal button pair for this sample type
           menu_list[[length(menu_list) + 1]] <- list(
             type = "buttons",
@@ -4240,7 +4247,7 @@ PCAplot <- function(data, plateID, IPC_samples, SC_samples, Bridge_samples, scal
             )
           )
         }
-
+        
         menu_list
       } else {
         list()  # Empty list when buttons not shown
@@ -4357,7 +4364,7 @@ if(multipleFiles){
                         showlegend = FALSE,
                         nrows = nRowsPCA,
                         showButtons = FALSE)
-
+  
   if(params$reportType == "internal"){
     plots[[4]] <- PCAplot(dataPCA_ICIN, plateID, IPC_samples=IPC_all,
                           SC_samples=SC_all, Bridge_samples=Bridge_all,
@@ -4376,32 +4383,32 @@ plotly::subplot(plots, nrows = nRowsPCA, shareX = FALSE, shareY = FALSE,
 if(multipleFiles){
   cat("\n\n---\n\n")
   cat("## Batch effect assessment\n\n")
-
+  
   # Report excluded noDetectability targets (e.g., rare variant-specific or PTM targets)
   if(length(batch_effect_noDetectability_targets) > 0){
     cat(paste0("Note: Rare variant-specific, PTM, or other special targets were excluded from batch effect assessment: ",
-                    paste(batch_effect_noDetectability_targets, collapse = ", "), "."), "\n\n")
+               paste(batch_effect_noDetectability_targets, collapse = ", "), "."), "\n\n")
   }
-
+  
   if(!is.null(params$sampleGroupCovar)){
     additionalText <- if(params$reportType != "webApp") "Change the plate_effect_group parameter to test for batch effects in other sample subgroups. " else ""
     cat(paste0("Note: Batch effect assessment was performed for samples with the value ", plate_effect_group, " for the sample group variable ", params$sampleGroupCovar, ". All other samples were omitted from batch effect assessment. ", additionalText, "Results assume samples were randomly assigned to each run; non-randomized designs may yield spurious batch effects."), "\n\n")
   }
-
+  
   if(length(plate_effect_excluded_plates) > 0){
     cat(paste0("Note: The following runs were excluded from batch effect assessment because they had no samples after filtering: ",
-                    paste(plate_effect_excluded_plates, collapse = ", "), "."), "\n\n")
+               paste(plate_effect_excluded_plates, collapse = ", "), "."), "\n\n")
   }
-
+  
   cat("### Batch effect summary table\n\n")
-
+  
   plate_effect_column_descriptions <- c(
     paste0("Batch effect QC - A run will have a batch effect QC warning if ", params$plate_effect_sig_pct_threshold, '% or more of targets are significant. Significant targets have a significant global ANOVA F-test (unadjusted p < ', params$plate_effect_pval_ANOVA, ') and significant pairwise tests (Tukey-adjusted p < ', params$plate_effect_pval_pairwise, ') in comparisons with 50% or more of the other runs.'),
     paste0("n % sig targets - Number and percent of targets that show significant pairwise difference in sample mean for that run versus 50% or more of the other runs. Significant targets have a significant ANOVA F-test (unadjusted p < ", params$plate_effect_pval_ANOVA, ") and significant pairwise differences have Tukey-adjusted p < ", params$plate_effect_pval_pairwise, '. Click on values to show/hide target names.'),
     "n % low IPC reads - Number and percent of targets with median IPC raw reads below 200. Click on values to show/hide target names.",
     "n % low sample reads - Number and percent of targets with median sample raw reads below 200. Click on values to show/hide target names."
   )
-
+  
   cat(paste0("- ", plate_effect_column_descriptions, "\n", collapse = ""))
   
   colnames(plate_effect_plate_table)[colnames(plate_effect_plate_table)=='PlateID'] <- 'Run'
@@ -4440,9 +4447,9 @@ if(multipleFiles){
 if(multipleFiles){
   cat("\n\n---\n\n")
   cat("### Batch effect: Target QC summary\n\n")
-
+  
   cat(paste0("A target will have a QC warning if run ICC > ", params$plate_effect_icc_threshold, "%, significant F-test (unadjusted p < ", params$plate_effect_pval_ANOVA, ") and significant pairwise tests (Tukey-adjusted p < ", params$plate_effect_pval_pairwise, ") for at least one run."), "\n\n")
-
+  
   if (is.null(plate_effect_boxplot_targets)){
     cat("**There were no targets with a batch effect QC warning.**\n\n")
   } else if (!is.null(plate_effect_boxplot_targets)){
@@ -4450,7 +4457,7 @@ if(multipleFiles){
       cat("**There were no targets with a batch effect QC warning.**\n\n")
     } else {
       cat(paste0("**", length(plate_effect_boxplot_targets), " targets have a batch effect QC warning.**"), "\n\n")
-
+      
       plate_effect_target_column_descriptions <- c(
         "Fstat - Batch effect ANOVA F-statistic. Targets are sorted in order of F statistic.",
         "Ftest pval - ANOVA F-test p-value. P-values are unadjusted.",
@@ -4459,10 +4466,10 @@ if(multipleFiles){
         "% plates low IPC - Percent of plates that have median IPC reads < 200.",
         "% plates low sample reads - Percent of plates that have median sample reads < 200."
       )
-
+      
       plate_effect_target_table_columns <- c("target", "Fstat", "Ftest pval", "ICC plate",
                                              "% sig pairwise", "% plates low IPC", "% plates low sample reads")
-
+      
       cat(paste0("- ", plate_effect_target_column_descriptions, "\n", collapse = ""))
       df <- plate_effect_target_table[plate_effect_target_table$target %in% plate_effect_boxplot_targets,plate_effect_target_table_columns]
       df[, -1] <- lapply(df[, -1], as.numeric)
@@ -4484,7 +4491,7 @@ if(multipleFiles){
   cat("\n\n---\n\n")
   cat("### Batch effect ICC scatterplot\n\n")
   cat(paste0("A linear mixed effect model was fit for each target with plate ID as random effect. The run-related intra-class correlation is the ratio of the estimated run-related variance to the sum of run and residual variance. This is multiplied by 100 and can be interpreted as the percent of variance attributable to run. Target is highlighted if ICC > ", params$plate_effect_icc_threshold, "%."), "\n\n")
-
+  
   cat(paste0("**", sum(plate_effect_target_table$`ICC plate significant`, na.rm=TRUE), " targets have run ICC > ", params$plate_effect_icc_threshold, "%.**"), "\n\n")
   
   printExcludedTargets(params$excludeTargets, PlateNames)
@@ -4515,7 +4522,7 @@ figure_aspect <- 0.8 * (n_plot_rows / n_plot_cols)
 ```{r plate-effect-test-target-boxplots, eval=(params$outPlateEffect & multipleFiles), results='asis', out.width='100%', fig.align = 'center',  fig.asp = tryCatch(figure_aspect, error = function(e) 0.75), warning=FALSE}
 if(multipleFiles){
   cat("### Target boxplots\n\n")
-
+  
   cat(paste0("Boxplots are shown for targets with batch effect QC warning. A target will have a QC warning if run ICC > ", params$plate_effect_icc_threshold, "%, global ANOVA F-test is significant (unadjusted p < ", params$plate_effect_pval_ANOVA, ") and target has significant pairwise tests for at least one run (Tukey-adjusted p < ", params$plate_effect_pval_pairwise, " with at least 50% of other runs). Red asterisks above boxplots indicate runs showing significant pairwise test with 50% or more runs."), "\n\n")
   
   if (is.null(plate_effect_boxplot_targets)){
@@ -4661,7 +4668,7 @@ if(multipleFiles & params$reportType != "webApp"){
   plot_width <- (nrow(target_means) / 4.5) + 6
   plot_height <- (ncol(target_means) / 10) + 3
   
-  pdf(file = paste0(params$outfolder, "outputFiles/target_means_by_plate_heatmap.pdf"),
+  pdf(file = file.path(params$outfolder, "outputFiles", "target_means_by_plate_heatmap.pdf"),
       width=plot_width, height=plot_height)
   ComplexHeatmap::draw(ht,
                        heatmap_legend_side = "bottom",
@@ -4692,7 +4699,7 @@ if(multipleFiles){
   cat("\n\n---\n\n")
   cat("### Sample PCA\n\n")
   cat("PCA shown below was performed on the samples only, excluding any control samples. Samples are colored according to run.\n\n")
-
+  
   cat("#### Pairs plots\n\n")
   cat("Pairs plots show the first 10 PCs plotted against each other. Any clustering by run in the plots indicates potential batch effect(s).\n\n")
   
@@ -4701,19 +4708,19 @@ if(multipleFiles){
   sample_PCA <- PCAtools::pca(mat=t(scale(t(plate_test_data))), metadata = sample_metadata[,metavars])
   
   PCAtools::pairsplot(sample_PCA,
-                    components = PCAtools::getComponents(sample_PCA, c(1:10)),
-                    triangle = TRUE, trianglelabSize = 12,
-                    hline = 0, vline = 0,
-                    pointSize = 0.4,
-                    gridlines.major = FALSE, gridlines.minor = FALSE,
-                    colby = 'plateEffectID',
-                    title = NULL, plotaxes = FALSE,
-                    margingaps = unit(c(-0.01, -0.01, -0.01, -0.01), 'cm'),
-                    ellipse = TRUE, 
-                    ellipseType = 't',
-                    ellipseAlpha = 0.15,
-                    ellipseFill = TRUE,
-                    ellipseLineSize = 0)
+                      components = PCAtools::getComponents(sample_PCA, c(1:10)),
+                      triangle = TRUE, trianglelabSize = 12,
+                      hline = 0, vline = 0,
+                      pointSize = 0.4,
+                      gridlines.major = FALSE, gridlines.minor = FALSE,
+                      colby = 'plateEffectID',
+                      title = NULL, plotaxes = FALSE,
+                      margingaps = unit(c(-0.01, -0.01, -0.01, -0.01), 'cm'),
+                      ellipse = TRUE, 
+                      ellipseType = 't',
+                      ellipseAlpha = 0.15,
+                      ellipseFill = TRUE,
+                      ellipseLineSize = 0)
 }
 ```
 
@@ -4763,10 +4770,10 @@ if(params$outPlateEffect & multipleFiles){
 ```{r save-plate-effect-test-result, eval=(params$outPlateEffect & multipleFiles & params$outputPlateEffectCSV==TRUE), include=FALSE}
 if(multipleFiles & params$reportType != "webApp"){
   # make directory -- we will put the file in the outputFiles directory
-  dir.create(paste0(params$outfolder, "outputFiles"), recursive = T)
+  dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
   
   # Batch effect test -- output CSV file
-  write.csv(plate_effect_target_table, paste0(params$outfolder, "outputFiles/target_plate_effect_table.csv"))
+  write.csv(plate_effect_target_table, file.path(params$outfolder, "outputFiles", "target_plate_effect_table.csv"))
   # output batch effect qs2 file
   # do sample PCA plate test
   sample_PCA <- PCAtools::pca(mat=t(scale(t(plate_test_data))), metadata = sample_metadata[,unique_plateEffectID])
@@ -4774,7 +4781,7 @@ if(multipleFiles & params$reportType != "webApp"){
   sample_PCA_eigencor_corvals <- environment(sample_PCA_eigencor[["panel"]])$corvals
   sample_PCA_eigencor_pvals <- environment(sample_PCA_eigencor[["panel"]])$pvals
   qs2::qs_savem(sample_PCA, sample_PCA_eigencor_corvals, sample_PCA_eigencor_pvals,
-                file=file.path(paste0(params$outfolder, "outputFiles"), "batch_effect_test.qs2"))
+                file=file.path(params$outfolder, "outputFiles", "batch_effect_test.qs2"))
 }
 ```
 
@@ -4786,21 +4793,21 @@ if(multipleFiles & !is.null(params$assayRunInfo)){
     cat("### Instrument effect ANOVA test\n\n")
     cat("Instrument effect test is based on a linear model with instrument as a categorical variable (equivalent to an ANOVA model). Models are adjusted by the sample group covariate (sampleGroupCovar parameter), if defined. Instrument effect test assumes that all other variation is technical in nature. Significant instrument effect may be due to biological variation if samples were not randomized and / or if biological groups are not balanced across the instruments (after adjusting for covariate, if specified).\n\n")
     cat(paste0("Instrument effect ANOVA test significance threshold was set at p < ", params$plate_effect_pval_ANOVA, "."), "\n\n")
-
+    
     if(!is.null(model_fit_message_inst)){
       cat(model_fit_message_inst, "\n\n")
     }
-
+    
     cat("#### Samples per instrument table\n\n")
-
+    
     render_table(inst_effect_results[[1]]$n_samples_table,
                  table_name = 'Number of samples per instrument',
                  table_id = paste0("id=\"n-samples-per-inst", "\""),
                  rownames = FALSE)
-
+    
     if(nrow(samples_omitted) > 0){
       cat("#### Samples omitted from instrument effect test table\n\n")
-
+      
       cat("The following samples were omitted from instrument effect test due to their sample metadata name not matching a NPQ data matrix column name.\n\n")
       
       render_table(samples_omitted, 
@@ -4816,11 +4823,11 @@ if(multipleFiles & !is.null(params$assayRunInfo)){
 if(multipleFiles){
   if(do_inst_effect_test){
     cat("#### Instrument effect ANOVA volcano plot\n\n")
-
+    
     if(length(inst_effect_results[[1]]$remove_targets) > 0){
       cat(paste0("NOTE: The following targets were removed from instrument effect test due to zero variance: ", paste(inst_effect_results[[1]]$remove_targets, collapse=", ")), "\n\n")
     }
-
+    
     n_significant_Ftest_inst <- sum(inst_effect_results[[1]]$inst_test_lm$Fstats$Ftest_pval[!is.na(inst_effect_results[[1]]$inst_test_lm$Fstats$Ftest_pval)] < params$plate_effect_pval_ANOVA)
     if(n_significant_Ftest_inst == 0){
       cat(paste0("There were no targets with significant (unadjusted p < ", params$plate_effect_pval_ANOVA, ") ANOVA test instrument effects."), "\n\n")
@@ -4836,10 +4843,10 @@ if(multipleFiles){
 if(multipleFiles & params$reportType != "webApp"){
   if(do_inst_effect_test){
     # make directory -- we will put the file in the outputFiles directory
-    dir.create(paste0(params$outfolder, "outputFiles"), recursive = T)
+    dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
     
     # Batch effect test -- output CSV file
-    write.csv(inst_effect_results[[1]]$target_table, paste0(params$outfolder, "outputFiles/target_inst_effect_table.csv"))
+    write.csv(inst_effect_results[[1]]$target_table, file.path(params$outfolder, "outputFiles", "target_inst_effect_table.csv"))
   }
 }
 ```
@@ -4847,7 +4854,7 @@ if(multipleFiles & params$reportType != "webApp"){
 ```{r generate-pdf-plots, include=FALSE, eval=params$outputPlots==TRUE}
 if(params$reportType != "webApp"){
   # create directory for outputFiles
-  dir.create(paste0(params$outfolder, "outputFiles"), recursive = T)
+  dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
 }
 
 ##########################
@@ -4891,7 +4898,7 @@ for(i in 1:numFiles){
   }
   # make plot
   if(params$reportType != "webApp"){
-    pdf(paste0(params$outfolder, "outputFiles/sample_QC_IC_median_", PlateNames[i], '.pdf'), width=12, height=4)
+    pdf(file.path(params$outfolder, "outputFiles", paste0("sample_QC_IC_median_", PlateNames[i], '.pdf')), width=12, height=4)
     par(mfcol=c(1, 1), mar=c(5,4,2,0.5))
     plot(x=1:length(xval),
          y=rev(as.numeric(xval)), 
@@ -4932,7 +4939,7 @@ for(i in 1:numFiles){
 ##########################
 # intra-plate CV 
 if(params$reportType != "webApp"){
-  pdf(paste0(params$outfolder, "outputFiles/intraCV_histogram.pdf"), 
+  pdf(file.path(params$outfolder, "outputFiles", "intraCV_histogram.pdf"), 
       width=5, height=5)
   colors <- alamarColorPalette(2, nReps = 5, palette = 2)
   par(mar=c(4.5, 4.5, 2, 1))
@@ -4959,7 +4966,7 @@ if(params$reportType != "webApp"){
 # inter-plate CV
 if(multipleFiles==TRUE){
   if(params$reportType != "webApp"){
-    pdf(paste0(params$outfolder, "outputFiles/interCV_histogram.pdf"), 
+    pdf(file.path(params$outfolder, "outputFiles", "interCV_histogram.pdf"), 
         width=5, height=5)
     colors <- alamarColorPalette(2, nReps = 5, palette = 2)
     par(mar=c(4.5, 4.5, 2, 1))
@@ -4991,7 +4998,7 @@ if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
   detectability_data_name <- colnames(detect_output_table)
   # make histogram
   if(params$reportType != "webApp"){
-    pdf(paste0(params$outfolder, "outputFiles/target_detectability_histogram.pdf"),
+    pdf(file.path(params$outfolder, "outputFiles", "target_detectability_histogram.pdf"),
         width=5, height=5)
     par(mar=c(4.5, 4.5, 2, 1))
     hist(detectability_data,
@@ -5027,7 +5034,8 @@ if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
   } 
   colnames(detectability_data) <- paste0('Target detectability (%):\n', colnames(detectability_data))
   if(params$reportType != "webApp"){
-    filenames <- paste0(params$outfolder, "outputFiles/target_detectability_histogram_", sample_groups, '.pdf')
+    filenames <- file.path(params$outfolder, "outputFiles", 
+                       paste0("target_detectability_histogram_", sample_groups, '.pdf'))
     # make histogram for each sample type
     for (i in 1:ncol(detectability_data)){
       pdf(filenames[i],
@@ -5057,7 +5065,7 @@ if(multipleFiles==TRUE & is.null(params$sampleGroupCovar)){
   detectability_data_name <- colnames(detect_output_table)[grep('Overall', colnames(detect_output_table))]
   # make histogram
   if(params$reportType != "webApp"){
-    pdf(paste0(params$outfolder, "outputFiles/target_detectability_histogram.pdf"),
+    pdf(file.path(params$outfolder, "outputFiles", "target_detectability_histogram.pdf"),
         width=5, height=5)
     par(mar=c(4.5, 4.5, 2, 1))
     hist(detectability_data,
@@ -5088,7 +5096,8 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
   sample_groups <- gsub(' ', replacement = '_', sample_groups)
   colnames(detectability_data) <- gsub('Overall: ', replacement = 'Target detectability (%):\n', colnames(detectability_data))
   if(params$reportType != "webApp"){ 
-    filenames <- paste0(params$outfolder, "outputFiles/target_detectability_histogram_", sample_groups, '.pdf')
+    filenames <- file.path(params$outfolder, "outputFiles", 
+                       paste0("target_detectability_histogram_", sample_groups, '.pdf'))
     # make histogram for each sample type
     for (i in 1:ncol(detectability_data)){
       pdf(filenames[i],
@@ -5121,7 +5130,7 @@ if(params$reportType != "webApp"){
     pdf_boxplot_exclude_targets <- c(runs[[i]]$IC,
                                      runs[[i]]$targets$targetName[which(runs[[i]]$targets$hide)],
                                      runs[[i]]$targets$targetName[which(runs[[i]]$targets$noDetectability)])
-    pdf(paste0(params$outfolder, 'outputFiles/target_detectability_boxplot_', PlateNames[i], '.pdf'), width=20, height=7)
+    pdf(file.path(params$outfolder, 'outputFiles', paste0('target_detectability_boxplot_', PlateNames[i], '.pdf')), width=20, height=7)
     targetBoxplot(IC_IPC$interNormData[[i]],
                   title=paste0('Target detectability: ', PlateNames[i]),
                   subtractLOD = TRUE,
@@ -5166,7 +5175,7 @@ if(is.null(params$sampleGroupCovar) & numFiles > 1){
     data_minus_LOD[[i]] <- data_minus_LOD[[i]][!rownames(data_minus_LOD[[i]]) %in% combined_exclude_targets,]
   }
   data_minus_LOD <- combineCols(data_minus_LOD)
-
+  
   # sort targets
   target_medians <- apply(data_minus_LOD, 1, median)
   target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
@@ -5181,7 +5190,7 @@ if(is.null(params$sampleGroupCovar) & numFiles > 1){
                         function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
   
   if(params$reportType != "webApp"){
-    pdf(paste0(params$outfolder, "outputFiles/target_detectability_boxplot_all_plates.pdf"), width=20, height=7)
+    pdf(file.path(params$outfolder, "outputFiles", "target_detectability_boxplot_all_plates.pdf"), width=20, height=7)
     # make plot
     par(mar=c(4,3,2,0.5), mgp=c(2,1,0))
     boxplot(t(data_minus_LOD),
@@ -5295,7 +5304,8 @@ if(!is.null(params$sampleGroupCovar)){
                             function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
       
       # define filename and plot title
-      sample_group_filename <- paste0(params$outfolder, 'outputFiles/target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf')
+      sample_group_filename <- file.path(params$outfolder, 'outputFiles', 
+                                         paste0('target_detectability_boxplot_all_plates_', sample_groups[k], '.pdf'))
       sample_group_title <- paste0('Target detectability: All plates, ', sample_groups[k], ' (n = ', ncol(sample_group_data), ')')
       if(params$reportType != "webApp"){
         pdf(sample_group_filename, width=20, height=7)
@@ -5353,7 +5363,7 @@ if(!is.null(params$sampleGroupCovar)){
 
 if(AbsData==TRUE & params$reportType != "webApp"){
   # 1.target QC plot
-  pdf(paste0(params$outfolder, "outputFiles/targetQC.pdf"), width=14, height=4)
+  pdf(file.path(params$outfolder, "outputFiles", "targetQC.pdf"), width=14, height=4)
   targetQCplot(runs)
   dev.off()
   
@@ -5368,7 +5378,7 @@ if(AbsData==TRUE & params$reportType != "webApp"){
     quant_hist_filenames <- paste0('target_quantifiability_histogram_', subgroups, '.pdf') 
     
     for(i in 1:length(subgroups)){
-      pdf(paste0(params$outfolder, 'outputFiles/', quant_hist_filenames[i]), width=5, height=5)
+      pdf(file.path(params$outfolder, 'outputFiles', quant_hist_filenames[i]), width=5, height=5)
       quantHist(quantifiability_data = quant$combined_quantifiability,
                 group_name = subgroups[i])
       dev.off()
@@ -5378,12 +5388,12 @@ if(AbsData==TRUE & params$reportType != "webApp"){
   # 3. intra and inter CV histograms
   AQ_CV <- CV_AQ(runs)
   
-  pdf(paste0(params$outfolder, "outputFiles/AQ_intraCV_histogram.pdf"), width=5, height=5)
+  pdf(file.path(params$outfolder, "outputFiles", "AQ_intraCV_histogram.pdf"), width=5, height=5)
   CV_AQ_Hist(CV_data = AQ_CV$average_intraCV$intraCV$SC, plot_type='intra')
   dev.off()
   
   if(multipleFiles){
-    pdf(paste0(params$outfolder, "outputFiles/AQ_interCV_histogram.pdf"), width=5, height=5)
+    pdf(file.path(params$outfolder, "outputFiles", "AQ_interCV_histogram.pdf"), width=5, height=5)
     CV_AQ_Hist(CV_data = AQ_CV$interCV$interCV$SC, plot_type='inter')
     dev.off()
   }
@@ -5395,10 +5405,10 @@ if(AbsData==TRUE & params$reportType != "webApp"){
 # Save R Data file
 # Rename the param variable to avoid conflict when reading multiple qs2 files
 if(params$reportType != "webApp"){
-  dir.create(paste0(params$outfolder, "outputFiles"), recursive = T)
+  dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
   input_params <- params
   qs2::qs_save(as.list(environment(), all.names = TRUE),
-               file=paste0(params$outfolder, "outputFiles/NULISAseq_QC_report.qs2")
+               file=file.path(params$outfolder, "outputFiles", "NULISAseq_QC_report.qs2")
   )
   rm(params)
 }
@@ -5407,12 +5417,9 @@ if(params$reportType != "webApp"){
 ```{r delete-temp-files, include=FALSE}
 
 if(fs::is_dir(tempDir)){
-  unlink(c(
-    paste0(tempDir, "/outSamples.txt"),
-    paste0(tempDir, "/outTargets.txt"), 
-    paste0(tempDir, "/outRunSummary.txt"), 
-    paste0(tempDir, "/outCounts.txt"), 
-    paste0(tempDir, "/outCounts_ICnormed.txt")))
+  files_to_delete <- c("outSamples.txt", "outTargets.txt", "outRunSummary.txt", 
+                       "outCounts.txt", "outCounts_ICnormed.txt")
+  unlink(file.path(tempDir, files_to_delete))
 }
 if(dir.exists(Sys.getenv("TMPDIR"))){
   unlink(Sys.getenv("TMPDIR"), recursive=TRUE)
