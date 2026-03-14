@@ -1,3 +1,41 @@
+# NULISAseqR 1.5.0 (2026-03-14)
+
+## Changes
+
+### New Features
+* **loadNULISAseq()** - Now accepts a pre-built list structure in addition to file paths, enabling reprocessing of data with sample exclusions without re-parsing XML files
+* **get_reverse_curve_targets()** - New exported helper to identify reverse curve targets (Curve_Quant starting with "R")
+* **get_noDetectability_targets()** - New exported helper to identify targets with the XML `noDetectability` modifier
+
+### Enhancements
+* **Reverse curve & noDetectability target handling** - Reverse curve targets are now fully excluded from detectability and labeled "High Abundance"; rare-case targets with XML `noDetectability` modifier have individual detectability computed but are excluded from summary statistics (mean, sd, median, min, max, # detectable targets)
+* **detectability_summary()** - Added `exclude_targets` parameter; consolidated and centralized detectability formatting logic to avoid duplication; "High Abundance" label now shown only for PLASMA/SERUM matrix types; detectability set to NA for non-plasma/serum sample types; returns numeric columns by default (`format=FALSE`) to preserve downstream computation
+* **writeNULISAseq()** - IC target(s) now placed at the bottom rows of the RQ data sheet when `include_IC_counts = TRUE`
+* **Target name sorting** - Applied case-insensitive sorting (`tolower`) in `quantifiability()` and the QC report skeleton to ensure consistent ordering across platforms
+* **Batch effect QC** - Revised batch effect messaging; non-RC `noDetectability` targets kept in batch effect assessment; guarded against edge cases
+* **DESCRIPTION** - Minimum R version now declared (required for native pipe usage in `lmNULISAseq.R`); removed `LazyData` field; added `withr` to Suggests
+
+### Bug Fixes
+* **Batch effect table** - Fixed crash on pagination and PCA legend truncation in QC report
+* **detectability_summary()** - Fixed `apply()` dimension drop in detectability output table; fixed `rowSums` NA handling and guarded against empty target sets in aggregation
+* **QCFlagTarget** - Fixed incorrect exclusion of non-RC `noDetectability` targets from detectability calculations
+* **Failed_Targets Run QC** - Non-RC `noDetectability` targets now correctly included in Failed_Targets for CV criterion only
+* **Well position** - Corrected zero-padding for well position values
+* **loadNULISAseq()** - Fixed handling of AQ projects with list input; properly recreates `numericCovariates` for list inputs
+* **Namespace fixes** - Added explicit `tibble::` prefix for `column_to_rownames()`
+
+### Testing
+* **test-loadNULISAseq.R** - New tests for list input support, AQ project equivalence, and coverage of all output fields
+* **test-reverse-curve-detectability.R** - New test suite for reverse curve and `noDetectability` target handling
+* **test-writeNULISAseq.R** - Expanded to test entire sheets for both RQ and AQ output; added case-insensitive formatting test; improved robustness to platform differences in string handling and floating point arithmetic
+
+### Infrastructure
+* Removed vignettes folder from build
+* Added Neuro220 XML files for testing
+* Updated CI workflows for hybrid branch pattern
+
+---
+
 # NULISAseqR 1.4.2 (2026-02-15)
 
 ## Changes

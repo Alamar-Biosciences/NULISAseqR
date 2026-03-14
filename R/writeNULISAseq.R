@@ -210,7 +210,7 @@ writeNULISAseq <- function (xml_files,
                               replace_zeros_with_NA = replace_zeros_with_NA,  
                               security = FALSE)
   
-  ############## Process Target ##############
+  ############## Process Targets ##############
   run_targets_cols <- Reduce(intersect, lapply(all_data$runs, function(x) colnames(x$targets)))
   run_targets_cols <- run_targets_cols[run_targets_cols %in% 
                                          c("targetName", "AlamarTargetID", "UniProtID", "ProteinName", "MW")]
@@ -248,7 +248,7 @@ writeNULISAseq <- function (xml_files,
       UniProtID = if (!"UniProtID" %in% colnames(.)) NA else UniProtID,
       ProteinName = if (!"ProteinName" %in% colnames(.)) NA else ProteinName
     )
-  ############## Process Sample ##############
+  ############## Process Samples ##############
   sample_data <- all_data$merged$samples
   
   if (!is.null(sample_info_file)) {
@@ -303,7 +303,7 @@ writeNULISAseq <- function (xml_files,
   
   SampleInfo_all <- all_data$merged$samples %>% 
     dplyr::select("plateID", "wellRow", "wellCol", "sampleName") %>% 
-    dplyr::mutate(WellPosition = paste0(wellRow, "_", sprintf("%02s", wellCol))) %>%
+    dplyr::mutate(WellPosition = paste0(wellRow, "_", sprintf("%02d", as.integer(wellCol)))) %>%
     dplyr::select(-wellRow, -wellCol) %>% 
     dplyr::select(PlateID = plateID, WellPosition, SampleName = sampleName)
   
@@ -348,11 +348,14 @@ writeNULISAseq <- function (xml_files,
             "include_unnorm_counts and include_IC_counts to TRUE.")
   }
   
+  # track IC target names for use in allData (empty if include_IC_counts is FALSE)
+  ic_targets <- character(0)
   if (include_unnorm_counts) {
     target_cols <- c(base_cols, "LOD", "UnnormalizedCount", "NPQ")
     # add IC raw counts to long data if specified
     if (include_IC_counts==TRUE){
       IC_raw_counts <- all_data$merged$Data_raw[all_data$merged$IC,,drop=FALSE]
+      ic_targets <- rownames(IC_raw_counts)
       
       # Get unique sample metadata from SampleInfo
       sample_metadata <- SampleInfo %>%
@@ -393,7 +396,7 @@ writeNULISAseq <- function (xml_files,
   processed_panel_lot <- process_named_param(PanelLotNumber, as.character(unique(SampleInfo$PlateID)))
   
   allData <- SampleInfo %>% 
-    dplyr::filter(Target %in% targets) %>% 
+    dplyr::filter(Target %in% c(targets, ic_targets)) %>% 
     dplyr::left_join(all_targets, by = c("Target" = "TARGETNAME")) %>% 
     dplyr::mutate(
       Panel = Panel,  
@@ -406,12 +409,16 @@ writeNULISAseq <- function (xml_files,
       },
       SampleType = factor(SampleType, 
                           levels = c("Sample", "IPC", "SC", "Bridge", "Calibrator", "NC"))) %>% 
-    dplyr::arrange(tolower(Target), PlateID, SampleType, SampleName) %>%
+    dplyr::arrange(Target %in% ic_targets, # put IC targets last, if include_IC_counts is TRUE
+                   tolower(Target), PlateID, SampleType, SampleName) %>%
     dplyr::select(dplyr::all_of(target_cols))
   
   ############## Detectability ##############
-  detect_table <- all_data$merged$detectability
-  
+  detect_table <- label_detectability_for_display(
+    all_data$merged$detectability,
+    all_data$merged$reverse_curve_targets
+  )
+
   ############## Write RQ Output ##############
   anyMissingAQ <- any(sapply(all_data$runs, function(x) is.null(x$AQ)))
   if (output_TAP_AQ == FALSE | (output_TAP_AQ == TRUE & anyMissingAQ)) {
@@ -511,7 +518,8 @@ writeNULISAseq <- function (xml_files,
           TRUE ~ SampleType),
         SampleType = factor(SampleType, levels = sample_type_levels)
       ) %>%
-      dplyr::arrange(tolower(Target), PlateID, SampleType, SampleName) 
+      dplyr::arrange(Target %in% ic_targets, # put IC targets last, if include_IC_counts is TRUE
+                     tolower(Target), PlateID, SampleType, SampleName) 
     
     ############## Quantifiability ##############
     quant_table <- all_data$merged$quantifiability

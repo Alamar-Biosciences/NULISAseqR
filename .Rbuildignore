@@ -8,7 +8,7 @@
 ^docs$
 ^scripts$
 ^pkgdown$
-^vignettes/book$
+^vignettes$
 ^dev$
 ^Files2RemoveForPublicRelease\.txt$
 

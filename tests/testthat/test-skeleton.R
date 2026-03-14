@@ -1,6 +1,6 @@
 # Define a test for QCSampleCriteria
 test_that("skeleton.Rmd can be rendered into HTML", {
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
+  test_path <- paste0(testthat::test_path(), "/../../inst/rmarkdown/templates/nulisaseq/skeleton/")
   input <- paste0(test_path, "skeleton.Rmd")
   files <- c("Analysis_INF250_Lot4_AQ_LC_R3_20241229.xml", "Analysis_LC_R3_INF250_Lot3_20240727.xml")
   output <- paste0(test_path, "skeleton.html")
@@ -11,7 +11,7 @@ test_that("skeleton.Rmd can be rendered into HTML", {
   })
 })
 test_that("skeleton.Rmd can be rendered into HTML for XMLs with differing targets", {
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
+  test_path <- paste0(testthat::test_path(), "/../../inst/rmarkdown/templates/nulisaseq/skeleton/")
   input <- paste0(test_path, "skeleton.Rmd")
   output <- paste0(test_path, "skeleton.html")
   files <- c("Analysis_INF250_Lot4_AQ_LC_R3_20241229.xml", "Analysis_LC_R3_INF250_Lot3_20240727.xml")
@@ -22,7 +22,7 @@ test_that("skeleton.Rmd can be rendered into HTML for XMLs with differing target
   })
 })
 test_that("skeleton.Rmd can be rendered into HTML with an alternative IC", {
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
+  test_path <- paste0(testthat::test_path(), "/../../inst/rmarkdown/templates/nulisaseq/skeleton/")
   input <- paste0(test_path, "skeleton.Rmd")
   output <- paste0(test_path, "skeleton.html")
   files <- c("detectability_P1_Tr03_typemCherry_CCL7_hide2.xml")
@@ -39,7 +39,7 @@ test_that("skeleton.Rmd can be rendered into HTML with an alternative IC", {
   })
 })
 test_that("skeleton.Rmd can be rendered into HTML, NAS version", { 
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
+  test_path <- paste0(testthat::test_path(), "/../../inst/rmarkdown/templates/nulisaseq/skeleton/")
   input <- paste0(test_path, "skeleton.Rmd")
   files <- c("Analysis_INF250_Lot4_AQ_LC_R3_20241229.xml", "Analysis_LC_R3_INF250_Lot3_20240727.xml")
   output <- paste0(test_path, "skeleton.html")
@@ -50,7 +50,7 @@ test_that("skeleton.Rmd can be rendered into HTML, NAS version", {
   })
 })
 test_that("skeleton.Rmd can be rendered into HTML, NAS version, advancedQC", { 
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
+  test_path <- paste0(testthat::test_path(), "/../../inst/rmarkdown/templates/nulisaseq/skeleton/")
   input <- paste0(test_path, "skeleton.Rmd")
   files <- c("Analysis_INF250_Lot4_AQ_LC_R3_20241229.xml", "Analysis_LC_R3_INF250_Lot3_20240727.xml")
   output <- paste0(test_path, "skeleton.html")
@@ -61,7 +61,7 @@ test_that("skeleton.Rmd can be rendered into HTML, NAS version, advancedQC", {
   })
 })
 test_that("skeleton.Rmd can be rendered into HTML, NAS version, XML_v1.3.0", {
-  test_path <- paste0(testthat::test_path(), "./../inst/rmarkdown/templates/nulisaseq/skeleton/")
+  test_path <- paste0(testthat::test_path(), "/../../inst/rmarkdown/templates/nulisaseq/skeleton/")
   input <- paste0(test_path, "skeleton.Rmd")
   files <- c("XML_v1.3.0.xml")
   output <- paste0(test_path, "skeleton.html")
@@ -75,7 +75,7 @@ test_that("skeleton.Rmd can be rendered into HTML, NAS version, XML_v1.3.0", {
 test_that("skeleton.Rmd with outputPlots=TRUE generates PDF files (WITH NULISAseqAQ)", {
   skip_if_not(requireNamespace("NULISAseqAQ", quietly = TRUE),
               "NULISAseqAQ package not available")
-  
+
   input <- system.file("rmarkdown", "templates", "nulisaseq", "skeleton", "skeleton.Rmd",
                        package = "NULISAseqR")
   files <- c("XML_v1.3.0_with_AQ.xml")

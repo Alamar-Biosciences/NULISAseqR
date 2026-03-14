@@ -54,15 +54,15 @@ process_loadNULISAseq <- function(data) {
   cleanNames <- clean_covariate_names(defaultNames, case = "lower_camel")
   names(defaultNames) <- cleanNames
   processed_data$covariateNames <- defaultNames
-
+  
   # Preserve original sampleName from XML before any transformations
   processed_data$samples <- processed_data$samples %>%
     mutate(sampleName_original = sampleName)
-
+  
   names_df <- processed_data$samples %>%
     filter(sampleType != "Sample") %>%
     select(sampleName, sampleID)
-
+  
   processed_data$samples <- processed_data$samples %>%
     mutate(sampleName = dplyr::if_else(sampleType != "Sample",sampleID, sampleName))
   
@@ -108,7 +108,7 @@ process_loadNULISAseq <- function(data) {
         processed_data$aqParams <- processed_data$AQ$targetAQ_param %>%
           tibble::as_tibble() %>%
           select(!any_of(c("Encrypted", "Decrypted")))
-
+        
         logger::log_info("aqParams found, creating pg/mL matrix")
         processed_data$Data_AQ_pgmL <- processed_data[["Data_AQ"]] %>%
           tibble::as_tibble(rownames = "targetName") %>%
@@ -122,26 +122,26 @@ process_loadNULISAseq <- function(data) {
             names_to = "sampleName") %>%
           mutate(
             raw = dplyr::if_else(is.na(raw),
-                          raw,
-                          NULISAseqAQ::unit_convert_am_conc(raw, MW_kDa))) %>%
+                                 raw,
+                                 NULISAseqAQ::unit_convert_am_conc(raw, MW_kDa))) %>%
           select(-MW_kDa) %>%
           tidyr::pivot_wider(
             id_cols = "targetName",
             names_from = "sampleName",
             values_from = "raw") %>%
-          column_to_rownames("targetName") %>%
+          tibble::column_to_rownames("targetName") %>%
           as.matrix()
-
+        
         logger::log_info("Data_AQlog2_pg/mL matrix created")
-
+        
         processed_data$Data_AQlog2_pgmL <- log2(processed_data$Data_AQ_pgmL)
         processed_data$AQ_unit <- "pg/mL"
       } else{
         logger::log_info("Molecular weights in kDa not available, checking for pre-existing pg/mL data")
         # Still create aqParams from targetAQ_param even without MW_kDa
         processed_data$aqParams <- processed_data$AQ$targetAQ_param %>%
-        tibble::as_tibble()
-
+          tibble::as_tibble()
+        
         # Check if pre-existing Data_AQ (pg/mL) is available from fallback XML
         if(!is.null(processed_data$AQ[["Data_AQ"]])){
           logger::log_info("Using pre-existing pg/mL matrix from input data")
@@ -320,19 +320,19 @@ process_loadNULISAseq <- function(data) {
   
   matrices <-  c("Data_IC","Data_IClog2","Data_raw","Data_rawlog2","aboveLOD", "Data_AQ", "Data_AQlog2", "Data_Reverse", "Data_Reverselog2","Data_AQ_pgmL","Data_AQlog2_pgmL")
   matrices <- matrices[matrices %in% names(processed_data)]
-
+  
   # Track dropped samples for reporting
   dropped_samples_info <- list()
-
+  
   for (i in matrices) {
     logger::log_info("Removing samples with all NaN or NA values -- ", i)
     missing <- apply(processed_data[[i]], 2, function(x) all(is.nan(x)) || all(is.na(x)))
-
+    
     if (sum(missing) > 0) {
       dropped_sample_names <- colnames(processed_data[[i]])[missing]
       dropped_samples_info[[i]] <- dropped_sample_names
     }
-
+    
     if(i %in% c("Data_AQ", "Data_AQlog2", "Data_AQ_pgmL", "Data_AQlog2_pgmL")){
       targets <- processed_data[["aqParams"]] %>%
         pull(targetName)
@@ -340,33 +340,33 @@ process_loadNULISAseq <- function(data) {
       targets <- processed_data[["targets"]] %>%
         pull(targetName)
     }
-
+    
     processed_data[[i]] <- processed_data[[i]][targets, !missing]
   }
-
+  
   # Ensure all AQ matrices have consistent rows and columns, then align withinDR
   aq_matrices <- c("Data_AQ", "Data_AQlog2", "Data_AQ_pgmL", "Data_AQlog2_pgmL")
   aq_matrices <- aq_matrices[aq_matrices %in% names(processed_data)]
-
+  
   if (length(aq_matrices) >= 1) {
     common_rows <- Reduce(union, lapply(aq_matrices, function(m) rownames(processed_data[[m]])))
     common_cols <- Reduce(union, lapply(aq_matrices, function(m) colnames(processed_data[[m]])))
-  
+    
     # Align all AQ matrices to common rows and columns
     common_rows <- sort(common_rows)
     for (m in aq_matrices) {
       processed_data[[m]] <- processed_data[[m]][common_rows, common_cols, drop = FALSE]
     }
-
+    
     logger::log_info("AQ matrices aligned to ", length(common_rows), " targets and ", length(common_cols), " samples")
-
+    
     # Align withinDR to match AQ matrices
     if ("withinDR" %in% names(processed_data)) {
       processed_data$withinDR <- processed_data$withinDR[common_rows, common_cols, drop = FALSE]
       logger::log_info("withinDR aligned to AQ matrices")
     }
   }
-
+  
   # Store dropped samples info for upstream reporting
   processed_data$droppedSamples <- dropped_samples_info
   
@@ -431,7 +431,7 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
     x$plateID
   })
   plateID <- unlist(plateID)
-
+  
   # get Filenames
   fileNames <- do.call("c", fileNameList)
   # Use plateID for naming dataList to ensure unique names
@@ -549,7 +549,7 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
     rename_map <- samples %>%
       filter(sampleName %in% dup_sampleName) %>%
       mutate(sampleID = dplyr::if_else(sampleName %in% dup_sampleName, 
-                                paste(sampleName, plateID, sep = "_"), sampleName)) %>%
+                                       paste(sampleName, plateID, sep = "_"), sampleName)) %>%
       select(plateID, sampleName, sampleID)
     
     samples <- samples %>% 
@@ -567,11 +567,11 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
   for (i in seq_along(dataList)) {
     pID <- dataList[[i]]$plateID
     if(pID %in% rename_map$plateID){
-
+      
       plt_map <- rename_map %>%
         filter(plateID == pID) %>%
         select(-plateID)
-
+      
       # Update samples dataframe with renamed sampleNames
       dataList[[i]]$samples <- dataList[[i]]$samples %>%
         left_join(plt_map, by = "sampleName") %>%
@@ -579,12 +579,12 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
                sampleID.x = sampleName) %>%
         select(-sampleID.y) %>%
         rename(sampleID = sampleID.x)
-
+      
       dataList[[i]]$qcSample <- dataList[[i]]$qcSample %>%
         select(-sampleID)%>%
         left_join(plt_map, by = "sampleName") %>%
         mutate(sampleName = dplyr::if_else(is.na(sampleID), sampleName, sampleID))
-
+      
       # Update control sample name vectors (IPC, SC, NC, Bridge, Calibrator, SampleNames)
       if(!is.null(dataList[[i]]$IPC)) {
         dataList[[i]]$IPC <- sapply(dataList[[i]]$IPC, function(name) {
@@ -616,7 +616,7 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
           ifelse(name %in% plt_map$sampleName, plt_map$sampleID[plt_map$sampleName == name], name)
         }, USE.NAMES = FALSE)
       }
-
+      
       mats <- matrices [matrices %in% names(dataList[[i]])]
       ## TODO the two detectability files fail here
       for (j in mats) {
@@ -625,7 +625,7 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
       }
     }
   }
-
+  
   # merge qcSample
   qcSample <- mapply(add_plateID, dataList, "qcSample", plateID, SIMPLIFY = F)
   qcSample <- do.call(rbind, qcSample)
@@ -690,16 +690,37 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
       as.matrix()
   }
   
-  # Detetability by covariate
-  detect_summary <- detectability_summary(dataList)
-  
+  # Detectability by covariate
+  detect_summary <- detectability_summary(dataList, format = FALSE,
+                                          exclude_noDetect_targets = TRUE)
+
   if ("sample_group" %in% names(detect_summary)) {
-    detect_table <- detect_summary$sample_group$detectability
+    detect_table <- data.frame(Target = names(detect_summary$all$detectability),
+                               stringsAsFactors = FALSE)
+    for (grp in names(detect_summary$sample_group$detectability)) {
+      col_name <- tolower(paste0(grp, " (n = ", detect_summary$sample_group$sampleNumber[[grp]], ")"))
+      detect_table[[col_name]] <- round(detect_summary$sample_group$detectability[[grp]][detect_table$Target], 1)
+    }
   } else {
-    detect_table <- detect_summary$all$detectability
+    col_name <- tolower(paste0("detectability (n = ", detect_summary$all$sampleNumber, ")"))
+    detect_table <- data.frame(Target = names(detect_summary$all$detectability),
+                               stringsAsFactors = FALSE)
+    detect_table[[col_name]] <- round(detect_summary$all$detectability, 1)
   }
-  detect_table[, 2:ncol(detect_table)] <- round(detect_table[,2:ncol(detect_table)], 1)
-  colnames(detect_table) <- ifelse(colnames(detect_table) == "Target", "Target", tolower(colnames(detect_table)))
+
+  # Add reverse curve targets as NA rows (keeps table numeric)
+  rc_targets <- detect_summary$reverse_curve_targets
+  if (length(rc_targets) > 0) {
+    rc_rows <- data.frame(Target = rc_targets, stringsAsFactors = FALSE)
+    for (col in colnames(detect_table)[-1]) {
+      rc_rows[[col]] <- NA_real_
+    }
+    detect_table <- rbind(detect_table, rc_rows)
+  }
+
+  # Sort by target name alphabetically
+  detect_table <- detect_table[order(tolower(detect_table$Target)), ]
+  rownames(detect_table) <- NULL
   
   # Quantifiabiltiy by covariate
   if (any(sapply(dataList, function(x) "quantifiability" %in% names(x)))) {
@@ -751,11 +772,11 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
       }
     }
   }
-
+  
   # Emit warning if any samples were dropped
   if (length(all_dropped_samples) > 0) {
     dropped_samples_df <- do.call(rbind, all_dropped_samples)
-
+    
     # Create summary warning message
     warning_summary <- dropped_samples_df %>%
       dplyr::group_by(plateID, matrix) %>%
@@ -764,31 +785,31 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
         samples = paste(sampleName, collapse = ", "),
         .groups = "drop"
       )
-
+    
     warning_messages <- sapply(seq_len(nrow(warning_summary)), function(i) {
       row <- warning_summary[i, ]
       sprintf("Plate: '%s', Data matrix: '%s': %d sample(s) dropped (%s)",
               row$plateID, row$matrix, row$n, row$samples)
     })
-
+    
     # Identify unique samples dropped from Data_AQ matrices (affects quantifiability)
     aq_dropped <- dropped_samples_df %>%
       dplyr::filter(grepl("^Data_AQ", matrix)) %>%
       dplyr::pull(sampleName) %>%
       unique()
-
+    
     quant_message <- ""
     if (length(aq_dropped) > 0) {
       quant_message <- sprintf("\nSamples not included in quantifiability calculation: %s",
                                paste(aq_dropped, collapse = ", "))
     }
-
+    
     warning(paste0("Samples with all NaN or NA values were removed:\n",
                    paste("  -", warning_messages, collapse = "\n"),
                    quant_message),
             call. = FALSE)
   }
-
+  
   # Extract control sample names and SampleNames from merged samples dataframe
   IPC_samples <- samples$sampleName[samples$sampleType == 'IPC']
   SC_samples <- samples$sampleName[samples$sampleType == 'SC']
@@ -796,7 +817,7 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
   Bridge_samples <- samples$sampleName[samples$sampleType == 'Bridge']
   Calibrator_samples <- samples$sampleName[samples$sampleType == 'Calibrator']
   SampleNames_samples <- samples$sampleName[samples$sampleType == 'Sample']
-
+  
   # Create base return list (always include IPC, SC, NC, SampleNames)
   return_list <- list(
     plateID = plateID,
@@ -813,12 +834,13 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
     aqParams = aqParams,
     inconsistent_targets = excluded,
     detectability = detect_table,
+    reverse_curve_targets = rc_targets,
     IPC = IPC_samples,
     SC = SC_samples,
     NC = NC_samples,
     SampleNames = SampleNames_samples
   )
-
+  
   # Only include Bridge and Calibrator if they have samples (optional sample types)
   if (length(Bridge_samples) > 0) {
     return_list$Bridge <- Bridge_samples
@@ -831,7 +853,7 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
   }
   # Add dataMatrix and unit
   return_list <- c(return_list, dataMatrix, unit = unit)
-
+  
   # return the output
   return(return_list)
 }
@@ -1030,25 +1052,25 @@ importNULISAseq <- function(files,
   # Validate AUTO_PLATE IDs and handle named list parameters
   # Pre-scan all files for their internal AUTO_PLATE IDs
   internal_ids <- sapply(files, get_internal_plate_id, USE.NAMES = FALSE)
-
+  
   # Check for duplicates
   has_duplicates <- any(duplicated(internal_ids[!is.na(internal_ids)]))
-
+  
   # Check if user is trying to use ANY named list parameters
   # All of these parameters support named list format and would be affected by duplicate IDs
   is_named_list <- function(param) {
     is.list(param) && !is.null(names(param))
   }
-
+  
   any_named_params <- is_named_list(IPC) || is_named_list(SC) || is_named_list(NC) ||
     is_named_list(Bridge) || is_named_list(Calibrator) ||
     is_named_list(excludeSamples) || is_named_list(excludeTargets)
-
+  
   if (has_duplicates && any_named_params && !user_provided_plateName) {
     # Find which ID is duplicated for a better error message
     # Exclude NA values to avoid reporting NA as a duplicate ID
     dup_id <- internal_ids[duplicated(internal_ids) & !is.na(internal_ids)]
-
+    
     # Identify which parameters are using named lists
     named_param_list <- c(
       if (is_named_list(IPC)) "IPC",
@@ -1059,7 +1081,7 @@ importNULISAseq <- function(files,
       if (is_named_list(excludeSamples)) "excludeSamples",
       if (is_named_list(excludeTargets)) "excludeTargets"
     )
-
+    
     stop(sprintf(
       "Error: Duplicate AUTO_PLATE ID '%s' found across files.\nNamed list parameter(s) provided: %s\nUser must manually define 'plateName' to correctly map these parameters to the intended files.",
       paste(unique(dup_id), collapse = ", "),
@@ -1135,7 +1157,7 @@ importNULISAseq <- function(files,
     if (any(uuid::UUIDvalidate(runs[[i]]$samples$plateID))) {
       if (!is.null(runs[[i]]$ExecutionDetails) && 
           !is.null(runs[[i]]$ExecutionDetails$ExperimentName)) {
-  
+        
         if (verbose) message(sprintf("UUID plateID found for run %d, replacing with ExecutionDetails$ExperimentName", i))
         runs[[i]]$samples$plateID <- runs[[i]]$ExecutionDetails$ExperimentName
         runs[[i]]$plateID <- runs[[i]]$ExecutionDetails$ExperimentName
@@ -1221,7 +1243,7 @@ importNULISAseq <- function(files,
     merged_data <- mergeNULISAseq(dataList = processed_runs, fileNameList = named_list, sample_group_covar = sample_group_covar)
     merged_data$Data_NPQ_long <- format_wide_to_long(merged_data, AQ = FALSE, include_qc = include_qc)
     merged_data$Data_NPQ <- merged_data$Data_IClog2
-
+    
     if(any(grepl("^Data_AQ", names(merged_data)))) {
       merged_data$Data_AQ_long <- format_wide_to_long(merged_data, AQ = TRUE, include_qc = include_qc)
       
@@ -1701,7 +1723,7 @@ fix_duplicate_plates <- function(new_object, existingSamples){
                              old = sampleName_df$sampleID, 
                              new = sampleName_df$sampleName,
                              skip_absent = T) %>%
-        column_to_rownames("targetName") %>%
+        tibble::column_to_rownames("targetName") %>%
         as.matrix()
     } 
   }
@@ -1740,7 +1762,7 @@ process_samples_df <- function(df, numericCovariates){
                        ptype = dplyr::if_else(ind %in% not_req, "character", ptype)) %>%
                 select(-values), by = "ind") %>%
     mutate(ptype = dplyr::if_else(is.na(ptype) & values == "character", 
-                           "factor", ptype),
+                                  "factor", ptype),
            ptype = dplyr::if_else(ind == "plateID", "factor", ptype),
            ptype = substr(ptype,1,1)) %>%
     pull(ptype) %>%
@@ -1779,8 +1801,8 @@ process_samples_df <- function(df, numericCovariates){
   if(!"sampleID" %in% colnames(df)){
     df <- df %>%
       mutate(sampleID = dplyr::if_else(sampleType != "Sample", 
-                                paste(plateID, sampleName, sep = "_"),
-                                sampleName))
+                                       paste(plateID, sampleName, sep = "_"),
+                                       sampleName))
   }
   
   df
@@ -1927,7 +1949,7 @@ rename_cols <- function(mat, names_df){
     tibble::as_tibble(rownames = 'rn') %>%
     data.table::setnames(., old = names_df$sampleName, new = names_df$sampleID,
                          skip_absent = TRUE) %>%
-    column_to_rownames('rn') %>%
+    tibble::column_to_rownames('rn') %>%
     as.matrix()
 }
 
@@ -1989,7 +2011,7 @@ prepare_sample_qc_for_long <- function(qc_sample) {
     # TRUE values (warning): "TRUE", "1", "FAIL", "FAILED", "FAILURE", or anything not "OK"/"PASS"
     status_upper <- toupper(trimws(qc_sample$status))
     qc_sample$status <- status_upper %in% c("TRUE", "1", "FAIL", "FAILED", "FAILURE") |
-                        (!status_upper %in% c("OK", "PASS", "PASSED", "FALSE", "0", ""))
+      (!status_upper %in% c("OK", "PASS", "PASSED", "FALSE", "0", ""))
   } else if (is.numeric(qc_sample$status)) {
     logger::log_info("Converting numeric status to logical (non-zero = warning, zero = passed)")
     qc_sample$status <- as.logical(qc_sample$status)
@@ -2072,7 +2094,7 @@ prepare_target_qc_for_long <- function(qc_target) {
       # Convert to uppercase for case-insensitive matching
       status_upper <- toupper(trimws(qc_target$status))
       qc_target$status <- status_upper %in% c("TRUE", "1", "FAIL", "FAILED", "FAILURE") |
-                          (!status_upper %in% c("OK", "PASS", "PASSED", "FALSE", "0", ""))
+        (!status_upper %in% c("OK", "PASS", "PASSED", "FALSE", "0", ""))
     } else if (is.numeric(qc_target$status)) {
       logger::log_info("Converting numeric status to logical (non-zero = warning, zero = passed)")
       qc_target$status <- as.logical(qc_target$status)
@@ -2202,11 +2224,11 @@ filter_target_qc_by_mode <- function(data, AQ = FALSE) {
   if (AQ) {
     return(data)
   }
-
+  
   # For RQ mode, identify AQ-specific metrics by calling QCTargetCriteria
   rq_criteria <- QCTargetCriteria(AQ = FALSE, advancedQC = TRUE)
   aq_criteria <- QCTargetCriteria(AQ = TRUE, advancedQC = TRUE)
-
+  
   # Validate QCTargetCriteria returned expected structure
   if (is.null(rq_criteria) || is.null(rq_criteria$thresholds)) {
     logger::log_warn("QCTargetCriteria returned NULL for RQ mode, no filtering applied")
@@ -2216,48 +2238,48 @@ filter_target_qc_by_mode <- function(data, AQ = FALSE) {
     logger::log_warn("QCTargetCriteria returned NULL for AQ mode, no filtering applied")
     return(data)
   }
-
+  
   # Find metrics that exist in AQ but not in RQ (these are AQ-specific)
   rq_metrics <- names(rq_criteria$thresholds)
   aq_metrics <- names(aq_criteria$thresholds)
   aq_specific_metrics <- setdiff(aq_metrics, rq_metrics)
-
+  
   if (length(aq_specific_metrics) == 0) {
     logger::log_debug("No AQ-specific metrics to filter for RQ data")
     return(data)
   }
-
+  
   # Pre-filter to Target QC columns only for better performance
   all_cols <- names(data)
   target_qc_cols <- all_cols[grepl("^Target_QC_", all_cols)]
-
+  
   if (length(target_qc_cols) == 0) {
     return(data)  # Early return if no Target QC columns exist
   }
-
+  
   # Convert metric names to column name patterns
   # Target_Conc_Accuracy -> Target_QC_Conc_Accuracy, Target_QC_Conc_Accuracy_Status
   cols_to_remove <- character(0)
-
+  
   for (metric in aq_specific_metrics) {
     # Remove "Target_" prefix if present to match QC column naming
     metric_suffix <- sub("^Target_", "", metric)
-
+    
     # Defensive check for empty suffix
     if (nchar(metric_suffix) == 0) {
       logger::log_warn("Empty metric suffix after removing Target_ prefix from: {metric}")
       next
     }
-
+    
     # Escape special regex characters to prevent regex injection
     metric_suffix_escaped <- gsub("([.|()\\^{}+$*?\\[\\]])", "\\\\\\1", metric_suffix)
-
+    
     # Match both the value column and _Status column
     pattern <- paste0("^Target_QC_", metric_suffix_escaped, "(_Status)?$")
     matching_cols <- target_qc_cols[grepl(pattern, target_qc_cols)]
     cols_to_remove <- c(cols_to_remove, matching_cols)
   }
-
+  
   # Remove AQ-specific columns if any were found
   if (length(cols_to_remove) > 0) {
     data <- data %>% dplyr::select(-dplyr::any_of(cols_to_remove))
@@ -2265,7 +2287,7 @@ filter_target_qc_by_mode <- function(data, AQ = FALSE) {
       "Filtered out AQ-specific Target QC columns for RQ data: {paste(cols_to_remove, collapse = ', ')}"
     )
   }
-
+  
   return(data)
 }
 
@@ -2344,12 +2366,12 @@ format_wide_to_long <- function(merged, AQ = FALSE, exclude_sample_cols = "plate
     data_AQ_pgmL <- convert_to_long(data_matrix = merged$Data_AQ_pgmL, data_col = "Conc_pgmL")
     data_AQ_aM_log2  <- convert_to_long(data_matrix = merged[[AQ_aM_log2_data_used]], data_col = "log2Conc_aM")
     data_AQ_pgmL_log2 <- convert_to_long(data_matrix = merged$Data_AQlog2_pgmL, data_col = "log2Conc_pgmL")
-
+    
     long_data <- data_AQ_aM %>%
       left_join(data_AQ_pgmL, by = c("Target", "SampleName")) %>%
       left_join(data_AQ_aM_log2, by = c("Target", "SampleName")) %>%
       left_join(data_AQ_pgmL_log2, by = c("Target", "SampleName"))
-
+    
     # Add withinDR column if available
     if ("withinDR" %in% names(merged) && !is.null(merged$withinDR)) {
       data_withinDR <- convert_to_long(data_matrix = merged$withinDR, data_col = "withinDR")
@@ -2487,14 +2509,14 @@ format_wide_to_long <- function(merged, AQ = FALSE, exclude_sample_cols = "plate
       }, error = function(e) {
         logger::log_warn("Failed to add Target QC columns: ", conditionMessage(e))
       })
-
+      
       # Filter Target QC columns based on data mode (removes AQ-specific metrics from RQ data)
       # Done outside tryCatch so filtering errors are visible
       if ("Target_QC_Status" %in% names(final_data)) {
         final_data <- filter_target_qc_by_mode(final_data, AQ = AQ)
       }
     }
-
+    
     # Reorder columns to place QC columns appropriately
     all_cols <- names(final_data)
     
@@ -2573,7 +2595,7 @@ process_named_param <- function(param, plate_names) {
     if (is.null(names(param))) {
       stop(sprintf("'%s' must be a named list. Unnamed lists are not accepted.", param_name))
     }
-
+    
     # Check for invalid names (names that don't exist in plate_names)
     invalid_names <- setdiff(names(param), plate_names)
     if (length(invalid_names) > 0) {
@@ -2582,7 +2604,7 @@ process_named_param <- function(param, plate_names) {
                    paste(invalid_names, collapse = ", "),
                    paste(plate_names, collapse = ", ")))
     }
-
+    
     # Allow partial named lists - fill in NULL for missing plates
     # This is useful for excludeSamples/excludeTargets where users only want to
     # exclude from specific plates
