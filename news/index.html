@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">NULISAseqR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.5.0</span>
       </span>
     </div>
 
@@ -50,6 +50,70 @@
       <small>Source: <a href="https://github.com/Alamar-Biosciences/NULISAseqR/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.5.0" id="nulisaseqr-150-2026-03-14">NULISAseqR 1.5.0 (2026-03-14)<a class="anchor" aria-label="anchor" href="#nulisaseqr-150-2026-03-14"></a></h2>
+<div class="section level3">
+<h3 id="changes-1-5-0">Changes<a class="anchor" aria-label="anchor" href="#changes-1-5-0"></a></h3>
+<div class="section level4">
+<h4 id="new-features-1-5-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-5-0"></a></h4>
+<ul><li>
+<strong>loadNULISAseq()</strong> - Now accepts a pre-built list structure in addition to file paths, enabling reprocessing of data with sample exclusions without re-parsing XML files</li>
+<li>
+<strong>get_reverse_curve_targets()</strong> - New exported helper to identify reverse curve targets (Curve_Quant starting with “R”)</li>
+<li>
+<strong>get_noDetectability_targets()</strong> - New exported helper to identify targets with the XML <code>noDetectability</code> modifier</li>
+</ul></div>
+<div class="section level4">
+<h4 id="enhancements-1-5-0">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-1-5-0"></a></h4>
+<ul><li>
+<strong>Reverse curve &amp; noDetectability target handling</strong> - Reverse curve targets are now fully excluded from detectability and labeled “High Abundance”; rare-case targets with XML <code>noDetectability</code> modifier have individual detectability computed but are excluded from summary statistics (mean, sd, median, min, max, # detectable targets)</li>
+<li>
+<strong>detectability_summary()</strong> - Added <code>exclude_targets</code> parameter; consolidated and centralized detectability formatting logic to avoid duplication; “High Abundance” label now shown only for PLASMA/SERUM matrix types; detectability set to NA for non-plasma/serum sample types; returns numeric columns by default (<code>format=FALSE</code>) to preserve downstream computation</li>
+<li>
+<strong>writeNULISAseq()</strong> - IC target(s) now placed at the bottom rows of the RQ data sheet when <code>include_IC_counts = TRUE</code>
+</li>
+<li>
+<strong>Target name sorting</strong> - Applied case-insensitive sorting (<code>tolower</code>) in <code><a href="../reference/quantifiability.html">quantifiability()</a></code> and the QC report skeleton to ensure consistent ordering across platforms</li>
+<li>
+<strong>Batch effect QC</strong> - Revised batch effect messaging; non-RC <code>noDetectability</code> targets kept in batch effect assessment; guarded against edge cases</li>
+<li>
+<strong>DESCRIPTION</strong> - Minimum R version now declared (required for native pipe usage in <code>lmNULISAseq.R</code>); removed <code>LazyData</code> field; added <code>withr</code> to Suggests</li>
+</ul></div>
+<div class="section level4">
+<h4 id="bug-fixes-1-5-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-5-0"></a></h4>
+<ul><li>
+<strong>Batch effect table</strong> - Fixed crash on pagination and PCA legend truncation in QC report</li>
+<li>
+<strong>detectability_summary()</strong> - Fixed <code><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply()</a></code> dimension drop in detectability output table; fixed <code>rowSums</code> NA handling and guarded against empty target sets in aggregation</li>
+<li>
+<strong>QCFlagTarget</strong> - Fixed incorrect exclusion of non-RC <code>noDetectability</code> targets from detectability calculations</li>
+<li>
+<strong>Failed_Targets Run QC</strong> - Non-RC <code>noDetectability</code> targets now correctly included in Failed_Targets for CV criterion only</li>
+<li>
+<strong>Well position</strong> - Corrected zero-padding for well position values</li>
+<li>
+<strong>loadNULISAseq()</strong> - Fixed handling of AQ projects with list input; properly recreates <code>numericCovariates</code> for list inputs</li>
+<li>
+<strong>Namespace fixes</strong> - Added explicit <code>tibble::</code> prefix for <code>column_to_rownames()</code>
+</li>
+</ul></div>
+<div class="section level4">
+<h4 id="testing-1-5-0">Testing<a class="anchor" aria-label="anchor" href="#testing-1-5-0"></a></h4>
+<ul><li>
+<strong>test-loadNULISAseq.R</strong> - New tests for list input support, AQ project equivalence, and coverage of all output fields</li>
+<li>
+<strong>test-reverse-curve-detectability.R</strong> - New test suite for reverse curve and <code>noDetectability</code> target handling</li>
+<li>
+<strong>test-writeNULISAseq.R</strong> - Expanded to test entire sheets for both RQ and AQ output; added case-insensitive formatting test; improved robustness to platform differences in string handling and floating point arithmetic</li>
+</ul></div>
+<div class="section level4">
+<h4 id="infrastructure-1-5-0">Infrastructure<a class="anchor" aria-label="anchor" href="#infrastructure-1-5-0"></a></h4>
+<ul><li>Removed vignettes folder from build</li>
+<li>Added Neuro220 XML files for testing</li>
+<li>Updated CI workflows for hybrid branch pattern</li>
+</ul><hr></div>
+</div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.4.2" id="nulisaseqr-142-2026-02-15">NULISAseqR 1.4.2 (2026-02-15)<a class="anchor" aria-label="anchor" href="#nulisaseqr-142-2026-02-15"></a></h2>
 <div class="section level3">
