@@ -9,7 +9,9 @@ on:
   push:
     branches:
       - main
-      - '*dev*'
+      - dev
+      - nas-main
+      - nas-stable
 
 env:
   BASE_TAG: nulisaseq_r_internal:test
@@ -23,6 +25,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Determine NULISAseqAQ branch
+        id: aq_branch
+        run: |
+          SOURCE_BRANCH="${{ github.event.pull_request.base.ref || github.ref_name }}"
+          IS_INTERNAL="${{ contains(github.repository, '_internal') }}"
+
+          if [ "$IS_INTERNAL" != "true" ]; then
+            # Public repo: skip NULISAseqAQ
+            echo "branch=" >> $GITHUB_OUTPUT
+          else
+            # Internal repo: map hybrid branches to NULISAseqAQ branches
+            # nas-main -> main (production-aligned)
+            # nas-stable, dev -> dev (development)
+            case "$SOURCE_BRANCH" in
+              nas-main)
+                echo "branch=main" >> $GITHUB_OUTPUT
+                ;;
+              nas-stable|dev|*dev*)
+                echo "branch=dev" >> $GITHUB_OUTPUT
+                ;;
+              main)
+                echo "branch=main" >> $GITHUB_OUTPUT
+                ;;
+              *)
+                # Fallback to dev for any other branch
+                echo "branch=dev" >> $GITHUB_OUTPUT
+                ;;
+            esac
+          fi
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -35,7 +67,7 @@ jobs:
           build-args: |
             GH_PAT=${{ secrets.UTILITY_ACCESS_TOKEN }}
             SOURCE_BRANCH=${{ github.event.pull_request.base.ref || github.ref_name }}
-            NULISASEQAQ_BRANCH=${{ contains(github.repository, '_internal') && (github.event.pull_request.base.ref || github.ref_name) || '' }}
+            NULISASEQAQ_BRANCH=${{ steps.aq_branch.outputs.branch }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

@@ -26,7 +26,10 @@ loadNULISAseq(
 )
 }
 \arguments{
-\item{file}{Character string. Path and name of the file.}
+\item{file}{Either a character string (file path) or a list (pre-built raw structure).
+If a file path, reads the XML file using \code{readNULISAseq}.
+If a list, must contain required fields: Data, samples, targets, IC, IPC, NC, SampleNames.
+Optional fields: SC, Bridge, Calibrator, ExecutionDetails, plateID, attributes.}
 
 \item{IC}{string(s) that represents the names of internal control targets. 
 Default is \code{'mCherry'}.Only used for xml file formats.}
@@ -93,5 +96,8 @@ List of lists, data frames, and matrices.
 Output will differ slightly depending on the input file type.
 }
 \description{
-Reads NULISAseq XML file
+Reads NULISAseq XML file or processes a pre-built raw data structure.
+This function can accept either a file path to an XML file, or a pre-built
+list structure (e.g., reconstructed from a NAS data object for reprocessing
+with sample exclusions).
 }

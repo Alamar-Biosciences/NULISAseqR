@@ -1,7 +1,7 @@
 Type: Package
 Package: NULISAseqR
 Title: Analysis of NULISAseq Data
-Version: 1.4.2
+Version: 1.5.0
 Authors@R: 
     person("Alamar Biosciences Bioinformatics Team", , , "bioinfo@alamarbio.com", role = c("aut", "cre", "cph"),
            comment = "Contributors: Dwight Kuo, Joanne C. Beer, Eliza Chai, Sumedh Sankhe, Kasun Buddika")
@@ -9,6 +9,7 @@ Description: Provides comprehensive analysis tools for NULISAseq proteomic
     data including data import, normalization, quality control,
     statistical analysis, and visualization.
 License: GPL-3
+Depends: R (>= 4.1.0)
 URL: https://nulisaseqr.alamarbio.com,
     https://github.com/Alamar-Biosciences/NULISAseqR
 BugReports: https://github.com/Alamar-Biosciences/NULISAseqR/issues
@@ -68,5 +69,4 @@ VignetteBuilder:
     knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
-LazyData: false
 RoxygenNote: 7.3.3

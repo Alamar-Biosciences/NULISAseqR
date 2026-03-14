@@ -4,24 +4,61 @@
 \alias{detectability_summary}
 \title{Summarize Detectability Across Multiple Runs and Sample Groups}
 \usage{
-detectability_summary(runs)
+detectability_summary(
+  runs,
+  exclude_targets = NULL,
+  exclude_noDetect_targets = TRUE,
+  format = TRUE
+)
 }
 \arguments{
-\item{runs}{A named list of run data output from \code{laodNULISAseq()} function 
+\item{runs}{A named list of run data output from \code{loadNULISAseq()} function
 or a list of these outputs for multiple runs. To make output more interpretable,
 it is recommended to name each run according to the plate ID for that run.}
+
+\item{exclude_targets}{Optional targets to exclude from the aggregation. Either
+a character vector (applied to all plates) or a list of character vectors
+(one per plate, matching the order of \code{runs}).}
+
+\item{exclude_noDetect_targets}{Logical. When \code{TRUE} (default),
+auto-detects reverse curve targets (excluded from computation entirely)
+and non-RC noDetectability targets (excluded from summary statistics only,
+kept in target tables). Emits \code{message()} listing affected targets.}
+
+\item{format}{Logical. When \code{TRUE} (default), returns additional
+\code{run_summary} and \code{run_targets} fields containing formatted
+tables ready for rendering. When \code{FALSE}, returns only the original
+raw fields for backward compatibility.}
 }
 \value{
-A list with items "sample_group", if applicable, "all", and "run_detectability".
-Items sample_group and all each have a data frame with a row for each target 
-and detectability in columns. "all" has only one column summarizing detectability for all 
-samples. "sample_group" has a column summarizing detectability for each 
-sample group. Each of there items also has a sampleNumber vector which gives the 
-sample size for the groups. The run_detectability output is a list of the 
-original individual run detectability objects from loadNULISAseq.
+A list with items "all", optionally "sample_group",
+"run_detectability", and when \code{format = TRUE}, additional formatted
+output fields. The structure matches \code{detectability()} output:
+\item{all}{A list with \code{sampleNumber} (integer), \code{detectability}
+  (named numeric vector of percentages), and \code{detectable} (named
+  logical vector, TRUE when detectability > 50\%).}
+\item{sample_group}{If applicable, a list with \code{sampleNumber} (named
+  list of integers), \code{detectability} (named list of named numeric
+  vectors), and \code{detectable} (named list of named logical vectors).}
+\item{run_detectability}{A list of the original individual run detectability
+  objects from \code{loadNULISAseq()}.}
+\item{reverse_curve_targets}{Character vector of reverse curve target names
+  detected across all runs (when \code{exclude_noDetect_targets = TRUE}).}
+\item{noDetect_nonRC_targets}{Character vector of non-RC noDetectability
+  target names detected across all runs (when
+  \code{exclude_noDetect_targets = TRUE}).}
+\item{run_summary}{Named list of formatted summary matrices per plate (and
+  "Overall" for multi-plate), with columns: type, \# samples, mean, sd,
+  median, min, max, \# of detectable targets (\%). Only when
+  \code{format = TRUE}.}
+\item{run_targets}{Named list of formatted target matrices per plate (and
+  "Overall" for multi-plate), with rows = targets and columns = "all" +
+  sample groups. Only when \code{format = TRUE}.}
 }
 \description{
-Summarizes detectability across multiple runs and if applicable 
+Summarizes detectability across multiple runs and if applicable
 broken down by sample groups based on the sample_group_covar input
-to loadNULISAseq.
+to loadNULISAseq. When \code{format = TRUE}, returns formatted summary
+and target tables ready for rendering, similar to
+\code{quantifiability()$summary_tables}.
 }

@@ -562,11 +562,12 @@ QCFlagTarget <- function(AQdata, raw, IPCnormed, detectability, aboveLOD, within
   # Determine Samples based on sample types if not provided
   Samples <- samples$sampleName[which(tolower(samples$sampleType) == "sample")]
   Targets <- targets$targetName[which(tolower(targets$targetType) == "target")]
-  # For detectability metric only, also exclude noDetectability targets
+  # For detectability metric only, exclude reverse curve targets (no LOD)
+  # Non-RC noDetectability targets (rare case) keep their computed detectability values
   Targets_detect <- Targets
-  if("noDetectability" %in% colnames(targets)){
-    noDetectTargets <- targets$targetName[which(targets$noDetectability == TRUE)]
-    Targets_detect <- Targets[!Targets %in% noDetectTargets]
+  rc_targets <- get_reverse_curve_targets(targets)
+  if (length(rc_targets) > 0) {
+    Targets_detect <- Targets[!Targets %in% rc_targets]
   }
   AQtargets <- rownames(AQdata)
 
@@ -719,18 +720,22 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
 
     ## MAX_SC_Target_CV
     SCnormvals <- normed[, SCs]
-    SCnormvals[is.na(SCvals)] <- 0
-    median_SC_targetCV <- median(apply(SCnormvals, 1, sd) / rowMeans(SCnormvals, na.rm=T), na.rm=T) 
+    median_SC_targetCV <- median(apply(SCnormvals, 1, function(x) sd(x, na.rm=TRUE)) / rowMeans(SCnormvals, na.rm=T), na.rm=T)
     op <- criteria$operators[which(criteria$thresholdNames=="MAX_MEDIAN_SC_TARGET_CV")]
     format <- criteria$format[which(criteria$thresholdNames=="MAX_MEDIAN_SC_TARGET_CV")]
     set <- evalCriterion("SCTarget_CV", median_SC_targetCV, op, MAX_MEDIAN_SC_TARGET_CV)
     QCFlagList[[row_idx]] <- c("SCTarget_CV", "IPC", set, median_SC_targetCV, MAX_MEDIAN_SC_TARGET_CV, op, format)
     row_idx <- row_idx + 1
 
-    ## Failed Assays <10% of total AQ Targets 
+    ## Failed Assays <10% of total AQ Targets
+    # For non-RC noDetectability targets, only count Target_Conc_CV_RQ criterion
+    # (exclude Target_Detectability and Target_Min_Reads)
+    noDetect_nonRC <- setdiff(get_noDetectability_targets(targets), get_reverse_curve_targets(targets))
+    AQ_QC_for_failed <- AQ_QC[!(AQ_QC$target %in% noDetect_nonRC &
+                                 AQ_QC$flagName != "Target_Conc_CV_RQ"), ]
     op <- criteria$operators[which(criteria$thresholdNames == "MAX_FAILED_TARGET_PERC")]
     format <- criteria$format[which(criteria$thresholdNames=="MAX_FAILED_TARGET_PERC")]
-    val <- length(unique(AQ_QC[which(AQ_QC$status == "TRUE"),]$target)) / length(unique(AQ_QC$target))
+    val <- length(unique(AQ_QC_for_failed[which(AQ_QC_for_failed$status == "TRUE"),]$target)) / length(unique(AQ_QC_for_failed$target))
     set <- evalCriterion("Failed_Targets", val, op, MAX_FAILED_TARGET_PERC) 
     QCFlagList[[row_idx]] <- c("Failed_Targets", "IPC", set, val, MAX_FAILED_TARGET_PERC, op, format)
     row_idx <- row_idx + 1
@@ -777,8 +782,7 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
 
   ## MAX_MEDIAN_IPC_TARGET_CV (P)
   IPCnormvals <- normed[, IPCs]
-  IPCnormvals[is.na(IPCvals)] <- 0
-  median_IPC_targetCV <- median(apply(IPCnormvals, 1, function(x) sd(x, na.rm=TRUE)) / rowMeans(IPCnormvals, na.rm=T), na.rm=T) 
+  median_IPC_targetCV <- median(apply(IPCnormvals, 1, function(x) sd(x, na.rm=TRUE)) / rowMeans(IPCnormvals, na.rm=T), na.rm=T)
   op <- criteria$operators[which(criteria$thresholdNames=="MAX_MEDIAN_IPC_TARGET_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_MEDIAN_IPC_TARGET_CV")]
   set <- evalCriterion("IPCTarget_CV", median_IPC_targetCV, op, MAX_MEDIAN_IPC_TARGET_CV)

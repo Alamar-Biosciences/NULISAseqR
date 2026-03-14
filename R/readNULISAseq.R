@@ -1080,11 +1080,17 @@ readNULISAseq <- function(file,
   
 }
 
-#' Read NULISAseq XML, perform normalization, and QC 
+#' Read NULISAseq XML, perform normalization, and QC
 #'
-#' Reads NULISAseq XML file
+#' Reads NULISAseq XML file or processes a pre-built raw data structure.
+#' This function can accept either a file path to an XML file, or a pre-built
+#' list structure (e.g., reconstructed from a NAS data object for reprocessing
+#' with sample exclusions).
 #'
-#' @param file Character string. Path and name of the file.
+#' @param file Either a character string (file path) or a list (pre-built raw structure).
+#'   If a file path, reads the XML file using \code{readNULISAseq}.
+#'   If a list, must contain required fields: Data, samples, targets, IC, IPC, NC, SampleNames.
+#'   Optional fields: SC, Bridge, Calibrator, ExecutionDetails, plateID, attributes.
 #' @param IC string(s) that represents the names of internal control targets. 
 #' Default is \code{'mCherry'}.Only used for xml file formats.
 #' @param IPC string(s) present in the sample names
@@ -1157,14 +1163,61 @@ loadNULISAseq <- function(file,
                           excludeTargets=NULL,
                           advancedQC = FALSE,
                           ...){
-  raw <- readNULISAseq(file, IPC=IPC, IC=IC, SC=SC, NC=NC, 
-                       plateID=plateID, ...)
-  
-  # xml file name without path 
-  raw$xmlFile <- basename(file)
-  
+
+  # Determine input type: file path (character) or pre-built raw structure (list)
+  # NAS can pass a pre-built list structure for reprocessing with sample exclusions
+  if (is.character(file)) {
+    # Traditional file path input - call readNULISAseq
+    raw <- readNULISAseq(file, IPC=IPC, IC=IC, SC=SC, NC=NC,
+                         plateID=plateID, ...)
+    raw$xmlFile <- basename(file)
+  } else if (is.list(file)) {
+    # Pre-built raw structure (e.g., reconstructed from NAS data object)
+    # Validate required fields
+    required_fields <- c("Data", "samples", "targets", "IC", "IPC", "NC", "SampleNames")
+    missing_fields <- setdiff(required_fields, names(file))
+    if (length(missing_fields) > 0) {
+      stop(sprintf("Pre-built input missing required fields: %s",
+                   paste(missing_fields, collapse = ", ")))
+    }
+    raw <- file
+    # Set file to NULL so applyAQ uses params instead of trying to read XML
+    file <- NULL
+    # Validate ExecutionDetails$Abs exists for AQ projects
+    isAbsAssay <- "Abs" %in% names(raw$ExecutionDetails) & !is.null(raw$ExecutionDetails$Abs)
+    if (isAbsAssay && !is.data.frame(raw$ExecutionDetails$Abs)) {
+      stop("Pre-built input for AQ project must include ExecutionDetails$Abs as a data frame")
+    }
+    # Set xmlFile if not present
+    if (is.null(raw$xmlFile)) {
+      raw$xmlFile <- if (!is.null(raw$plateID)) raw$plateID else "reprocessed"
+    }
+    # Recreate numericCovariates if not present (determines which sample columns are numeric)
+    if (is.null(raw$numericCovariates)) {
+      nonControl <- which(toupper(raw$samples$sampleType) != "SAMPLE")
+      if (length(nonControl) > 0 && nrow(raw$samples) > length(nonControl)) {
+        raw$numericCovariates <- sapply(raw$samples[-nonControl,], function(lst) {
+          all(sapply(lst, function(x) is.na(x) || (is.character(x) && x == "NA") || grepl("^\\-?\\d+\\.?\\d*$", x)))
+        })
+      } else {
+        raw$numericCovariates <- sapply(raw$samples, function(lst) {
+          all(sapply(lst, function(x) is.na(x) || (is.character(x) && x == "NA") || grepl("^\\-?\\d+\\.?\\d*$", x)))
+        })
+      }
+      # Force certain columns to be non-numeric
+      always_non_numeric <- c("AUTO_PLATE", "sampleBarcode", "plateID", "sampleName", "sampleID", "sampleType")
+      for (col in always_non_numeric) {
+        if (col %in% names(raw$numericCovariates)) {
+          raw$numericCovariates[col] <- FALSE
+        }
+      }
+    }
+  } else {
+    stop("file must be either a file path (character) or a pre-built raw structure (list)")
+  }
+
   if(is.null(IC)){ # if IC is not specified, get the ICs from the XML
-    IC <- raw$IC 
+    IC <- raw$IC
   } else{ # if the IC is specified, use it instead of wha's in the XML
     raw$IC <- IC
   }
@@ -1202,8 +1255,11 @@ loadNULISAseq <- function(file,
   }
 
   raw$IC_normed <- intraPlateNorm(data_matrix=raw$Data, IC=IC)
-  ind <-  which(substr(raw$targets$Curve_Quant, 1, 1) == "R")
-  reverseCurve <- if (length(ind) > 0) raw$targets$targetName[ind] else NULL
+  reverseCurve <- get_reverse_curve_targets(raw$targets)
+  # Reverse curve targets should not have detectability reported
+  if (length(reverseCurve) > 0) {
+    raw$targets$noDetectability[raw$targets$targetName %in% reverseCurve] <- TRUE
+  }
   raw$normed_untransformedReverse <- interPlateNorm(data_list=list(raw$IC_normed$normData),
                                                     IPC_wells=list(raw$IPC),
                                                     scaleFactor=scaleFactor,
@@ -1228,7 +1284,7 @@ loadNULISAseq <- function(file,
         {
           raw$AQ <- NULISAseqAQ::applyAQ(
             normDataIPC=rawNormed$interNormData[[1]],
-            params=NULL, #raw$ExecutionDetails$Abs,
+            params=if(is.null(file)) raw$ExecutionDetails$Abs else NULL,
             file=file,
             targetDataFrame=raw$targets,
             IPC=raw$IPC,
@@ -1393,7 +1449,7 @@ loadNULISAseq <- function(file,
           rownames(s) <- names(raw$lod$LOD)
           temp <- NULISAseqAQ::applyAQ(
             normDataIPC=s,
-            params=NULL, #raw$ExecutionDetails$Abs, 
+            params=if(is.null(file)) raw$ExecutionDetails$Abs else NULL,
             file=file,
             targetDataFrame=raw$targets, 
             IPC=raw$IPC, 
@@ -1686,16 +1742,19 @@ loadNULISAseq <- function(file,
   raw$qcSample <- QCFlagSample(raw$Data, raw$lod$aboveLOD, raw$samples, raw$targets, QCS=QCS, SN=SN, TAP=TAP)
   raw$qcPlate <- QCFlagPlate(raw$Data, raw$IC_normed$normData, raw$lod$aboveLOD, raw$targets, raw$samples, AQ=AbsAssay, AQ_QC=raw$qcTarget, Sample_QC=raw$qcSample)
   # calculate Detectability
+  # Only exclude reverse curve targets (no LOD), hidden, and controls from detectability computation
+  # Non-RC noDetectability targets (rare case) should still have individual detectability computed
   sample_groups <- NULL
-  forDetectability <- raw$targets$targetName[which(raw$targets$noDetectability == FALSE)]
+  reverse_curve_targets <- get_reverse_curve_targets(raw$targets)
+  forDetectability <- raw$targets$targetName[which(
+    raw$targets$hide == FALSE & raw$targets$targetType != "control" &
+    !(raw$targets$targetName %in% reverse_curve_targets)
+  )]
   if(!is.null(sample_group_covar) & sample_group_covar %in% colnames(raw$samples)) sample_groups <- raw$samples[raw$samples$sampleType == "Sample", sample_group_covar]
-  noDetectability <- raw$targets$targetName[union(union(which(raw$targets$noDetectability == TRUE), 
-                                                        which(raw$targets$hide == TRUE)),
-                                                  which(raw$targets$targetType == "control"))]
   raw$detectability <- detectability(aboveLOD_matrix=lodTemp$aboveLOD[forDetectability, ],
-                                     sample_subset=raw$samples$sampleName[which(raw$samples$sampleType == "Sample")], 
-                                     sample_groups=sample_groups, 
-                                     exclude_targets=noDetectability)
+                                     sample_subset=raw$samples$sampleName[which(raw$samples$sampleType == "Sample")],
+                                     sample_groups=sample_groups,
+                                     exclude_targets=NULL)
   
   # calculate Quantifiability
   if(AbsAssay){

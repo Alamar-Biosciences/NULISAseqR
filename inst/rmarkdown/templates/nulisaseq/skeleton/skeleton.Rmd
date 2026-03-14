@@ -469,7 +469,8 @@ render_table <- function(df, table_name, table_id, highlight = NULL, first_colNa
     }
   }
   
-  # Add tooltip support with click-to-expand
+  # Add tooltip support with click-to-expand using native HTML <details>/<summary>.
+  # This avoids React.useState hooks which crash reactable on pagination/page-size change.
   if(!is.null(tooltips)){
     for (tooltip_col in names(tooltips)){
       tooltip_source_col <- tooltips[[tooltip_col]]
@@ -479,45 +480,23 @@ render_table <- function(df, table_name, table_id, highlight = NULL, first_colNa
       column_defs[[tooltip_col]] <- colDef(
         cell = JS(sprintf("
           function(cellInfo) {
-            const [isExpanded, setIsExpanded] = React.useState(false);
-            const detailText = cellInfo.row['%s'];
-
-            return React.createElement(
-              'div',
-              { style: { cursor: 'pointer' } },
-              React.createElement(
-                'div',
-                {
-                  onClick: function() { setIsExpanded(!isExpanded); },
-                  style: {
-                    color: '#0066cc',
-                    textDecoration: 'underline',
-                    cursor: 'pointer'
-                  },
-                  title: 'Click to show/hide targets'
-                },
-                cellInfo.value
-              ),
-              isExpanded && React.createElement(
-                'div',
-                {
-                  style: {
-                    marginTop: '5px',
-                    padding: '8px',
-                    backgroundColor: '#f5f5f5',
-                    border: '1px solid #ddd',
-                    borderRadius: '3px',
-                    fontSize: '0.9em',
-                    maxHeight: '200px',
-                    overflowY: 'auto',
-                    whiteSpace: 'pre-wrap',
-                    userSelect: 'text',
-                    cursor: 'text'
-                  }
-                },
-                detailText
-              )
-            )
+            var detailText = cellInfo.row['%s'] || '';
+            // HTML-escape helper to prevent XSS
+            function esc(s) {
+              return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                              .replace(/>/g,'&gt;').replace(/\"/g,'&quot;');
+            }
+            if (!detailText) {
+              return cellInfo.value;
+            }
+            var html = '<details>' +
+              '<summary style=\"color:#0066cc;text-decoration:underline;cursor:pointer\"' +
+              ' title=\"Click to show/hide targets\">' + esc(cellInfo.value) + '</summary>' +
+              '<div style=\"margin-top:5px;padding:8px;background-color:#f5f5f5;' +
+              'border:1px solid #ddd;border-radius:3px;font-size:0.9em;' +
+              'max-height:200px;overflow-y:auto;white-space:pre-wrap;' +
+              'user-select:text;cursor:text\">' + esc(detailText) + '</div></details>';
+            return React.createElement('div', { dangerouslySetInnerHTML: { __html: html } });
           }
         ", tooltip_source_col)),
         html = TRUE
@@ -741,6 +720,7 @@ if(length(PlateNames) > 1 ){
 read_summary <- t(read_summary)
 # set multiple file indicator
 multipleFiles <- if(numFiles > 1) TRUE else FALSE
+plate_effect_single_plate <- FALSE
 # set SC indicator
 indicatorSC <- all(sapply(runs, function(x) length(x$SC) > 0))
 
@@ -1130,236 +1110,20 @@ if (params$rendered_by_shiny) shiny::setProgress(0.5, message = "Calculating Det
 # calculate detectability on regular samples only
 # NOTE: we may also want to add detectability_summary for IPCs, SCs, and Bridge samples
 
-# Collect all noDetectability targets across all runs for filtering
-all_noDetectability_targets <- unique(unlist(lapply(runs, function(x) {
-  x$targets$targetName[which(x$targets$noDetectability)]
-})))
+detect_result <- detectability_summary(runs, exclude_targets = params$excludeTargets)
 
-# initialize data stores
-detectability_return_summary <- list()
-detectability_return_targets <- list()
+detectability_return_summary <- detect_result$run_summary
+detectability_return_targets <- detect_result$run_targets
+all_reverseCurve_targets <- detect_result$reverse_curve_targets
+all_noDetect_nonRC_targets <- detect_result$noDetect_nonRC_targets
 
-for (i in 1:numFiles){
-  detectability_summary <- detectability_targets <- NULL
-  
-  # column names of return data
-  col_names_targets <- NULL
-  col_names_summary <- c('type', '# samples', 'mean', 'sd', 'median',
-                         'min', 'max', '# of detectable targets (%)')
-  
-  # retrieve sample type group information accurately
-  if (is.null(params$sampleGroupCovar)){
-    sample_groups <- NULL
-  } else{
-    # get sample group assignment for only the samples, not the controls
-    sample_groups <- runs[[i]]$samples[runs[[i]]$samples$sampleName %in% runs[[i]]$SampleNames, params$sampleGroupCovar]
-  }
-  
-  # run detectability calculation -- note that controls are excluded
-  # Create vector of targets to exclude: IC + hidden targets + no detectability targets + user excluded targets
-  targets_to_exclude <- c(runs[[i]]$IC, runs[[i]]$targets$targetName[which(runs[[i]]$targets$hide)], runs[[i]]$targets$targetName[which(runs[[i]]$targets$noDetectability)])
-  if(!is.null(params$excludeTargets) && !is.null(params$excludeTargets[[i]])) {
-    targets_to_exclude <- c(targets_to_exclude, params$excludeTargets[[i]])
-  }
-  plate_detect <- detectability(aboveLOD_matrix=plate_lod[[i]]$aboveLOD,
-                                sample_subset=runs[[i]]$SampleNames,
-                                sample_groups=sample_groups,
-                                exclude_targets=targets_to_exclude)
-  
-  # add all sample type/identity detectability data
-  raw_detectability <- plate_detect$all$detectability
-  detectability <- cbind('all',
-                         plate_detect$all$sampleNumber,
-                         format(round(mean(raw_detectability, na.rm=TRUE), 1), nsmall=1),
-                         format(round(sd(raw_detectability, na.rm=TRUE), 1), nsmall=1),
-                         formatC(median(raw_detectability, na.rm=TRUE), width=2),
-                         formatC(min(raw_detectability, na.rm=TRUE), width=2),
-                         formatC(max(raw_detectability, na.rm=TRUE), width=2),
-                         paste0(sum(raw_detectability > 50, na.rm=TRUE),
-                                ' / ', sum(!is.na(raw_detectability)),
-                                ' (',
-                                format(round(sum(raw_detectability > 50, na.rm=TRUE)/sum(!is.na(raw_detectability)) * 100, 1), nsmall=1),
-                                '%)'))
-  col_names_targets <- c(col_names_targets, "all")
-  detectability_summary <- rbind(detectability_summary, detectability)
-  detectability_targets <- cbind(detectability_targets,
-                                 format(round(raw_detectability, 1), nsmall=1))
-  
-  # check if both sample and all data present
-  if (length(names(plate_detect)) == 2){
-    for (j in names(plate_detect$sample_group$detectability)){
-      raw_detectability <- plate_detect$sample_group$detectability[[j]]
-      detectability <- cbind(j,
-                             plate_detect$sample_group$sampleNumber[[j]],
-                             format(round(mean(raw_detectability, na.rm=TRUE), 1), nsmall=1),
-                             format(round(sd(raw_detectability, na.rm=TRUE), 1), nsmall=1),
-                             formatC(median(raw_detectability, na.rm=TRUE), width=2),
-                             formatC(min(raw_detectability, na.rm=TRUE), width=2),
-                             formatC(max(raw_detectability, na.rm=TRUE), width=2),
-                             paste0(sum(raw_detectability > 50, na.rm=TRUE),
-                                    ' / ', sum(!is.na(raw_detectability)), 
-                                    ' (',
-                                    format(round(sum(raw_detectability > 50, na.rm=TRUE)/sum(!is.na(raw_detectability)) * 100, 1), nsmall=1),
-                                    '%)'))
-      col_names_targets <- c(col_names_targets, j)
-      detectability_summary <- rbind(detectability_summary, detectability)
-      detectability_targets <- cbind(detectability_targets,
-                                     format(round(raw_detectability, 1), nsmall=1))
-    }
-  }
-  
-  # update column names
-  colnames(detectability_summary) <- col_names_summary
-  colnames(detectability_targets) <- col_names_targets
-  
-  # update return data
-  detectability_return_summary[[PlateNames[i]]] <- detectability_summary
-  detectability_return_targets[[PlateNames[i]]] <- detectability_targets
-}
-
-# if more than one plate, summarize across plates with detectability_summary function:
+# if more than one plate, build Combined view for rendering
 combine_detectability <- FALSE
 if(numFiles > 1){
-  
-  # Call the detectability_summary function
-  combined_detect <- detectability_summary(runs)
-  
-  # Extract detectability data from combined_detect
-  all_detect <- combined_detect$all$detectability
-  
-  # Check if sample groups exist before accessing
-  sample_group_detect <- if(!is.null(combined_detect$sample_group)) {
-    combined_detect$sample_group$detectability
-  } else {
-    NULL
-  }
-  
-  # Merge all and sample_group detectability data
-  # Start with the "all" column
-  overall_matrix <- data.frame(
-    Target = all_detect$Target,
-    all = all_detect[, 2]  # The detectability column
-  )
-  
-  # Add sample group columns if they exist
-  if(!is.null(sample_group_detect)){
-    # Extract just the detectability columns (not the Target column)
-    sample_group_cols <- sample_group_detect[, -1, drop = FALSE]
-    
-    # Get clean column names (remove the " (n = X)" part)
-    clean_names <- gsub(" \\(n = \\d+\\)", "", colnames(sample_group_cols))
-    
-    # Add to overall matrix with clean names
-    for(j in 1:ncol(sample_group_cols)){
-      overall_matrix[[clean_names[j]]] <- sample_group_cols[, j]
-    }
-  }
-  
-  # Convert to matrix and format as character with proper decimal places
-  rownames(overall_matrix) <- overall_matrix$Target
-  overall_matrix <- overall_matrix[, -1, drop = FALSE]  # Remove Target column
-  overall_matrix <- as.matrix(overall_matrix)
-  
-  # Format to match the desired structure: right-aligned with 1 decimal place
-  # Handle NA values properly
-  overall_matrix <- apply(overall_matrix, 2, function(x) {
-    formatted <- ifelse(is.na(x), 
-                        "",  
-                        format(round(x, 1), nsmall = 1, width = 5, justify = "right"))
-    return(formatted)
-  })
-  
-  # Assign to detectability_return_targets
-  # Filter out noDetectability targets
-  overall_matrix <- overall_matrix[!(rownames(overall_matrix) %in% all_noDetectability_targets), , drop = FALSE]
-  detectability_return_targets[["Overall"]] <- overall_matrix
-  
-  # Create summary statistics from the combined detectability
-  detectability_summary_overall <- NULL
-  
-  # For "all" samples - use the actual values from all_detect
-  all_detect_col <- colnames(all_detect)[2]  # Get the actual column name
-  all_detect_values <- all_detect[[all_detect_col]]
-  n_valid <- sum(!is.na(all_detect_values))
-  
-  if(n_valid > 0){
-    n_detectable <- sum(all_detect_values > 50, na.rm=TRUE)
-    detectable_pct <- format(round(n_detectable / n_valid * 100, 1), nsmall=1)
-    mean_val <- format(round(mean(all_detect_values, na.rm=TRUE), 1), nsmall=1)
-    sd_val <- format(round(sd(all_detect_values, na.rm=TRUE), 1), nsmall=1)
-    median_val <- formatC(round(median(all_detect_values, na.rm=TRUE), 1), width=2)
-    min_val <- formatC(round(min(all_detect_values, na.rm=TRUE), 1), width=2)
-    max_val <- formatC(round(max(all_detect_values, na.rm=TRUE), 1), width=2)
-  } else {
-    n_detectable <- 0
-    detectable_pct <- ""
-    mean_val <- sd_val <- median_val <- min_val <- max_val <- ""
-  }
-  
-  detectability_summary_row <- cbind(
-    "all",
-    combined_detect$all$sampleNumber,
-    mean_val,
-    sd_val,
-    median_val,
-    min_val,
-    max_val,
-    paste0(n_detectable, ' / ', n_valid, ' (', detectable_pct, '%)')
-  )
-  detectability_summary_overall <- rbind(detectability_summary_overall, detectability_summary_row)
-  
-  # If sample groups exist, add those too
-  if(!is.null(combined_detect$sample_group)){
-    for(group_name in names(combined_detect$sample_group$sampleNumber)){
-      # Find the column by the group name (accounting for the naming pattern)
-      group_col_pattern <- paste0("^", group_name, " \\(n = \\d+\\)$")
-      group_col_idx <- grep(group_col_pattern, colnames(sample_group_detect))
-      
-      # Check if column was found
-      if(length(group_col_idx) == 0){
-        warning(paste("Column not found for group:", group_name))
-        next
-      }
-      
-      group_detect_values <- sample_group_detect[[group_col_idx]]
-      
-      # Handle edge case where all values are NA (denominator would be 0)
-      n_valid <- sum(!is.na(group_detect_values))
-      
-      if(n_valid > 0){
-        n_detectable <- sum(group_detect_values > 50, na.rm=TRUE)
-        detectable_pct <- format(round(n_detectable / n_valid * 100, 1), nsmall=1)
-        mean_val <- format(round(mean(group_detect_values, na.rm=TRUE), 1), nsmall=1)
-        sd_val <- format(round(sd(group_detect_values, na.rm=TRUE), 1), nsmall=1)
-        median_val <- formatC(round(median(group_detect_values, na.rm=TRUE), 1), width=2)
-        min_val <- formatC(round(min(group_detect_values, na.rm=TRUE), 1), width=2)
-        max_val <- formatC(round(max(group_detect_values, na.rm=TRUE), 1), width=2)
-      } else {
-        n_detectable <- 0
-        detectable_pct <- ""
-        mean_val <- sd_val <- median_val <- min_val <- max_val <- ""
-      }
-      
-      detectability_summary_row <- cbind(
-        group_name,
-        combined_detect$sample_group$sampleNumber[[group_name]],
-        mean_val,
-        sd_val,
-        median_val,
-        min_val,
-        max_val,
-        paste0(n_detectable, ' / ', n_valid, ' (', detectable_pct, '%)')
-      )
-      detectability_summary_overall <- rbind(detectability_summary_overall, detectability_summary_row)
-    }
-  }
-  
-  colnames(detectability_summary_overall) <- col_names_summary
-  detectability_return_summary[["Overall"]] <- detectability_summary_overall
-  
+
   # identify all sample types
   unique_types <- unique(unlist(lapply(detectability_return_summary, function(x) x[, "type"])))
-  
+
   # present data tables better if all plates have the same sample type
   # applicable only if sample group information is provided and/or all samples are
   # of the same group (e.g., plasma)
@@ -1369,16 +1133,28 @@ if(numFiles > 1){
                        function(plate) plate[plate[, "type"] == "all", ])
     combined_all_matrix <- do.call(rbind, all_rows)
     detectability_return_summary[["Combined"]] <- combined_all_matrix
-    
+
     # detectability targets
     all_cols <- lapply(detectability_return_targets,
                        function(plate) plate[, "all"])
     combined_all_matrix <- combineCols(all_cols)
-    # Filter out noDetectability targets
-    combined_all_matrix <- combined_all_matrix[!(rownames(combined_all_matrix) %in% all_noDetectability_targets), , drop = FALSE]
+    # Only filter out reverse curve targets (they get "High Abundance" rows appended below)
+    combined_all_matrix <- combined_all_matrix[!(rownames(combined_all_matrix) %in% all_reverseCurve_targets), , drop = FALSE]
+
+    # Add "High Abundance" for reverse curve targets
+    if (length(all_reverseCurve_targets) > 0) {
+      rc_matrix <- matrix("High Abundance", nrow = length(all_reverseCurve_targets), ncol = ncol(combined_all_matrix))
+      rownames(rc_matrix) <- all_reverseCurve_targets
+      colnames(rc_matrix) <- colnames(combined_all_matrix)
+      combined_all_matrix <- rbind(combined_all_matrix, rc_matrix)
+    }
+
+    # Sort target rows alphabetically by name
+    combined_all_matrix <- combined_all_matrix[order(tolower(rownames(combined_all_matrix))), , drop = FALSE]
+
     detectability_return_targets[["Combined"]] <- combined_all_matrix
     colnames(detectability_return_targets[["Combined"]]) <- names(all_cols)
-    
+
     combine_detectability <- TRUE
   }
 }
@@ -1472,16 +1248,14 @@ if(multipleFiles){
   sample_metadata$full_sampleName <- paste0(sample_metadata$plateEffectID, '_', sample_metadata$sampleName)
   rownames(sample_metadata) <- sample_metadata$full_sampleName
   # combine IC-IPC normalized data into one matrix
-  # Exclude IC controls, hidden targets, and noDetectability targets
-  # Collect noDetectability targets for reporting
-  batch_effect_noDetectability_targets <- unique(unlist(lapply(runs, function(x) {
-    x$targets$targetName[which(x$targets$noDetectability)]
-  })))
-  
+  # Exclude IC controls and hidden targets from batch effect assessment
+  # Non-RC noDetectability targets (rare case) are also excluded; reverse curve targets are kept
+  batch_effect_noDetectability_targets <- all_noDetect_nonRC_targets
+
   plate_test_data_list <- lapply(1:numFiles, function(i) {
     targets_to_exclude <- c(runs[[i]]$IC,
                             runs[[i]]$targets$targetName[which(runs[[i]]$targets$hide)],
-                            runs[[i]]$targets$targetName[which(runs[[i]]$targets$noDetectability)])
+                            all_noDetect_nonRC_targets)
     data <- IC_IPC$log2_interNormData[[i]][!(rownames(IC_IPC$log2_interNormData[[i]]) %in% targets_to_exclude), ]
     colnames(data) <- paste0(unique_plateEffectID[i], '_', colnames(data))
     data
@@ -1527,9 +1301,20 @@ if(multipleFiles){
   unique_plateEffectID <- levels(sample_metadata$plateEffectID)
   plate_effect_PlateNames <- PlateNames[unique_plateEffectID_old %in% unique_plateEffectID]
   plate_effect_excluded_plates <- PlateNames[!(unique_plateEffectID_old %in% unique_plateEffectID)]
-  
-  
-  # remove any targets with zero variance 
+
+  # Guard: batch effect test requires at least 2 plates
+  plate_effect_single_plate <- length(unique_plateEffectID) < 2
+  if (plate_effect_single_plate) {
+    single_plate_msg <- if (exists("plate_effect_group")) {
+      paste0("Batch effect sample group '", plate_effect_group, "' only found on one plate. Batch effect test could not be completed. Change the plate_effect_group parameter to test for batch effects in other sample subgroups.")
+    } else {
+      "Only one plate found after filtering. Batch effect test could not be completed."
+    }
+    message(single_plate_msg)
+  }
+
+  if (!plate_effect_single_plate) {
+  # remove any targets with zero variance
   plate_effect_remove_targets <- names(apply(plate_test_data, 1, sd))[apply(plate_test_data, 1, sd)==0]
   plate_test_data <- plate_test_data[!(rownames(plate_test_data) %in% plate_effect_remove_targets),]
   # plate by samples table
@@ -1919,10 +1704,11 @@ if(multipleFiles){
       x$plate_effect_pct_sig$plate[x$plate_effect_pct_sig$plate_effect]
     })
   }
+  } # end if !plate_effect_single_plate
 } # end if multipleFiles
 ```
 
-```{r instrument-effect-test, include=FALSE, eval=(params$outPlateEffect & multipleFiles)}
+```{r instrument-effect-test, include=FALSE, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate))}
 if(is.null(params$assayRunInfo)){
   instrument_names <- NA
 }
@@ -2300,12 +2086,13 @@ all_qc_data <- list()
 for(i in 1:numFiles){
   runs[[i]]$qcTarget <- QCFlagTarget(runs[[i]]$AQ$Data_AQ_aM, runs[[i]]$Data, runs[[i]]$normed$interNormData[[1]], runs[[i]]$detectability$all$detectability, runs[[i]]$lod$aboveLOD, runs[[i]]$AQ$withinDR, AbsData, runs[[i]]$targets, runs[[i]]$samples, runs[[i]]$AQ$targetAQ_param$SC_conc, advancedQC=params$advancedQC)
   
-  # Filter out excluded targets from qcTarget (IC, hidden, noDetectability, user-excluded)
+  # Filter out excluded targets from qcTarget (IC, hidden, reverse curve, user-excluded)
+  # Non-RC noDetectability targets (rare case) should appear in QC target table
   if(!is.null(runs[[i]]$qcTarget)){
     targets_to_exclude_qc <- c(
       runs[[i]]$IC,
       runs[[i]]$targets$targetName[which(runs[[i]]$targets$hide)],
-      runs[[i]]$targets$targetName[which(runs[[i]]$targets$noDetectability)]
+      NULISAseqR:::get_reverse_curve_targets(runs[[i]]$targets)
     )
     if(!is.null(params$excludeTargets) && !is.null(params$excludeTargets[[i]])) {
       targets_to_exclude_qc <- c(targets_to_exclude_qc, params$excludeTargets[[i]])
@@ -2952,7 +2739,19 @@ detect_fig_asp <- min(2*ceiling(numFiles/2), 20)
 ```{r detectability-summary, results='asis', eval=(params$outDetectability), out.width='100%', fig.asp=tryCatch(detect_fig_asp, error = function(e) 0.75)}
 if (params$rendered_by_shiny) shiny::setProgress(0.9, message = "Writing Document ...")
 cat("## Detectability\n\n")
-cat(paste0("Target detectability is the percentage of samples that are above the limit of detection for that target. A target is considered \"detectable\" if it is above limit of detection in greater than 50% of samples. \"Overall\" detectability is the overall percentage of samples across all plates that are above LOD for a given target. Target detectability reported here excludes ", CAL_IPC, ", ", AQSC_SC, ",", " & NC samples."), "\n\n")
+detect_desc <- paste0(
+  "Target detectability is the percentage of samples that are above the limit of detection for that target. ",
+  "A target is considered \"detectable\" if it is above limit of detection in greater than 50% of samples. ",
+  "\"Overall\" detectability is the overall percentage of samples across all plates that are above LOD for a given target. ",
+  "Target detectability reported here excludes ", CAL_IPC, ", ", AQSC_SC, ",", " & NC samples. ",
+  "High abundance targets (reverse-curve quantified) are expected to be detectable and are excluded from detectability",
+  if (length(all_reverseCurve_targets) > 0) paste0(" (", paste(all_reverseCurve_targets, collapse = ", "), ")") else "",
+  ". ",
+  "Rare case targets have individual detectability reported but are excluded from summary metrics",
+  if (length(all_noDetect_nonRC_targets) > 0) paste0(" (", paste(all_noDetect_nonRC_targets, collapse = ", "), ")") else "",
+  "."
+)
+cat(detect_desc, "\n\n")
 printExcludedTargets(params$excludeTargets, PlateNames)
 cat("### Detectability summary\n\n")
 # Detectability summary
@@ -3000,21 +2799,31 @@ if (combine_detectability){
 if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
   # put overall summary first
   detect_output_table <- detectability_return_targets[[1]]
+  # Remove RC targets before numeric rounding (they have "High Abundance" strings);
+  # they will be re-appended after rounding
+  detect_output_table <- detect_output_table[!(rownames(detect_output_table) %in% all_reverseCurve_targets), , drop = FALSE]
   detect_table_names <- colnames(detect_output_table)
   detect_summary_output_table <- detectability_return_summary[[1]]
   # add n's to column name
   colnames(detect_output_table)[1] <- paste0(PlateNames[1], ' (n = ', detect_summary_output_table[1,2], ')')
-  # save rownames 
+  # save rownames
   detect_output_table_rownames <- rownames(detect_output_table)
   # round to 1 decimal place
   detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
-  # add rownames
-  rownames(detect_output_table) <- detect_output_table_rownames
+  # apply() drops to vector when nrow == 1; restore matrix structure
+  if (!is.matrix(detect_output_table)) {
+    detect_output_table <- matrix(detect_output_table, nrow = 1,
+                                  dimnames = list(detect_output_table_rownames, names(detect_output_table)))
+  } else {
+    rownames(detect_output_table) <- detect_output_table_rownames
+  }
 }
 
 if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
   # put overall summary first
   detect_output_table <- detectability_return_targets[[1]]
+  # Remove RC targets before numeric rounding (they have "High Abundance" strings)
+  detect_output_table <- detect_output_table[!(rownames(detect_output_table) %in% all_reverseCurve_targets), , drop = FALSE]
   detect_table_names <- colnames(detect_output_table)
   detect_summary_output_table <- detectability_return_summary[[1]]
   # add n's to columns
@@ -3035,8 +2844,13 @@ if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
   colnames(detect_output_table) <- detect_output_table_colnames
   # round to 1 decimal place
   detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
-  # add rownames
-  rownames(detect_output_table) <- detect_output_table_rownames
+  # apply() drops to vector when nrow == 1; restore matrix structure
+  if (!is.matrix(detect_output_table)) {
+    detect_output_table <- matrix(detect_output_table, nrow = 1,
+                                  dimnames = list(detect_output_table_rownames, names(detect_output_table)))
+  } else {
+    rownames(detect_output_table) <- detect_output_table_rownames
+  }
 }
 
 if(multipleFiles==TRUE){
@@ -3065,16 +2879,37 @@ if(multipleFiles==TRUE){
     # remove "all" columns
     detect_output_table <- detect_output_table[,-grep(" all ", colnames(detect_output_table))]
   }
-  # save rownames 
+  # Remove RC targets before numeric rounding (they have "High Abundance" strings)
+  detect_output_table <- detect_output_table[!(rownames(detect_output_table) %in% all_reverseCurve_targets), , drop = FALSE]
+  # save rownames
   detect_output_table_rownames <- rownames(detect_output_table)
   # round to 1 decimal place
   detect_output_table <- apply(detect_output_table, 2, function(x) round(as.numeric(x), 1))
-  # add rownames
-  rownames(detect_output_table) <- detect_output_table_rownames
+  # apply() drops to vector when nrow == 1; restore matrix structure
+  if (!is.matrix(detect_output_table)) {
+    detect_output_table <- matrix(detect_output_table, nrow = 1,
+                                  dimnames = list(detect_output_table_rownames, names(detect_output_table)))
+  } else {
+    rownames(detect_output_table) <- detect_output_table_rownames
+  }
 }
 
 # remove any columns with "combined" in the header name -- these were found to duplicate other columns
-detect_output_table <- detect_output_table[,!(colnames(detect_output_table) %in% colnames(detect_output_table)[grep('combined', tolower(colnames(detect_output_table)))])]
+detect_output_table <- detect_output_table[, !(colnames(detect_output_table) %in% colnames(detect_output_table)[grep('combined', tolower(colnames(detect_output_table)))]), drop = FALSE]
+
+# Save numeric-only table for histograms before appending "High Abundance" strings
+detect_hist_table <- detect_output_table
+
+# Add "High Abundance" for reverse curve targets
+if (length(all_reverseCurve_targets) > 0) {
+  rc_targets_in_table <- all_reverseCurve_targets[!all_reverseCurve_targets %in% rownames(detect_output_table)]
+  if (length(rc_targets_in_table) > 0) {
+    rc_matrix <- matrix("High Abundance", nrow = length(rc_targets_in_table), ncol = ncol(detect_output_table))
+    rownames(rc_matrix) <- rc_targets_in_table
+    colnames(rc_matrix) <- colnames(detect_output_table)
+    detect_output_table <- rbind(detect_output_table, rc_matrix)
+  }
+}
 
 if(params$reportType != "webApp"){
   write.csv(detect_output_table, file.path(params$outfolder, 'outputFiles', 'target_detectability_table.csv'))
@@ -3087,10 +2922,11 @@ cat("### Target detectability boxplot\n\n")
 cat(paste0("Plot shows target NPQ distributions relative to LOD. For each target, LOD in NPQ units was subtracted from NPQ. Reverse-curve quantified targets are denoted by a \"*\" and are plotted as forward-curve targets for compatibility."), "\n\n")
 par(mfrow=c(ceiling(numFiles/2), 2), mar=c(4,2,2,1))
 for (i in 1:numFiles){
-  # Create vector of targets to exclude: IC + hidden targets + noDetectability targets + user excluded targets
+  # Create vector of targets to exclude: IC + hidden targets + reverse curve targets + user excluded targets
+  # Non-RC noDetectability targets (rare case) should be plotted (they have LOD and individual detectability)
   boxplot_exclude_targets <- c(runs[[i]]$IC,
                                runs[[i]]$targets$targetName[which(runs[[i]]$targets$hide)],
-                               runs[[i]]$targets$targetName[which(runs[[i]]$targets$noDetectability)])
+                               NULISAseqR:::get_reverse_curve_targets(runs[[i]]$targets))
   if(!is.null(params$excludeTargets) && !is.null(params$excludeTargets[[i]])) {
     boxplot_exclude_targets <- c(boxplot_exclude_targets, params$excludeTargets[[i]])
   }
@@ -4383,10 +4219,13 @@ plotly::subplot(plots, nrows = nRowsPCA, shareX = FALSE, shareY = FALSE,
 if(multipleFiles){
   cat("\n\n---\n\n")
   cat("## Batch effect assessment\n\n")
-  
-  # Report excluded noDetectability targets (e.g., rare variant-specific or PTM targets)
+
+  if (plate_effect_single_plate) {
+    cat(single_plate_msg, "\n\n")
+  } else {
+  # Report excluded non-RC noDetectability targets
   if(length(batch_effect_noDetectability_targets) > 0){
-    cat(paste0("Note: Rare variant-specific, PTM, or other special targets were excluded from batch effect assessment: ",
+    cat(paste0("Note: The following noDetectability targets were excluded from batch effect assessment: ",
                paste(batch_effect_noDetectability_targets, collapse = ", "), "."), "\n\n")
   }
   
@@ -4440,10 +4279,11 @@ if(multipleFiles){
                ),
                rownames = FALSE,
                custom_columns = list(`n samples` = colDef(format = colFormat(digits = 0))))
+  } # end else !plate_effect_single_plate
 }
 ```
 
-```{r plate-effect-targets-table, eval=(params$outPlateEffect & multipleFiles), results='asis', warning=FALSE}
+```{r plate-effect-targets-table, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate)), results='asis', warning=FALSE}
 if(multipleFiles){
   cat("\n\n---\n\n")
   cat("### Batch effect: Target QC summary\n\n")
@@ -4486,7 +4326,7 @@ if(multipleFiles){
 }
 ```
 
-```{r random_plate-effect-icc_scatterplot, eval=(params$outPlateEffect & multipleFiles), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
+```{r random_plate-effect-icc_scatterplot, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate)), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
 if(multipleFiles){
   cat("\n\n---\n\n")
   cat("### Batch effect ICC scatterplot\n\n")
@@ -4500,7 +4340,7 @@ if(multipleFiles){
 }
 ```
 
-```{r set-plate-test-boxplot-params, eval=(params$outPlateEffect & multipleFiles), include=FALSE}
+```{r set-plate-test-boxplot-params, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate)), include=FALSE}
 if(!multipleFiles){
   n_plot_cols <- 1
   n_plot_rows <- 1
@@ -4519,7 +4359,7 @@ if(!multipleFiles){
 figure_aspect <- 0.8 * (n_plot_rows / n_plot_cols)
 ```
 
-```{r plate-effect-test-target-boxplots, eval=(params$outPlateEffect & multipleFiles), results='asis', out.width='100%', fig.align = 'center',  fig.asp = tryCatch(figure_aspect, error = function(e) 0.75), warning=FALSE}
+```{r plate-effect-test-target-boxplots, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate)), results='asis', out.width='100%', fig.align = 'center',  fig.asp = tryCatch(figure_aspect, error = function(e) 0.75), warning=FALSE}
 if(multipleFiles){
   cat("### Target boxplots\n\n")
   
@@ -4585,7 +4425,7 @@ if(multipleFiles){
 }
 ```
 
-```{r target-mean-by-plate-heatmap, eval=(params$outPlateEffect & multipleFiles & params$reportType != "webApp" & numFiles >= 3), results='asis', out.width='100%', fig.asp=3, fig.align = 'center', warning=FALSE}
+```{r target-mean-by-plate-heatmap, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & params$reportType != "webApp" & numFiles >= 3), results='asis', out.width='100%', fig.asp=3, fig.align = 'center', warning=FALSE}
 if(multipleFiles){
   cat("### Target means by run heatmap\n\n")
   cat("Sample mean NPQ for each target is shown run in the heatmap. Target values are centered and scaled. Control samples were excluded from mean calculations.\n\n")
@@ -4662,7 +4502,7 @@ if(multipleFiles){
 
 ```
 
-```{r save-target-mean-by-plate-heatmap, eval=(params$outPlateEffect & multipleFiles & params$reportType=="internal" & numFiles >= 3), warning=FALSE, include=FALSE}
+```{r save-target-mean-by-plate-heatmap, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & params$reportType=="internal" & numFiles >= 3), warning=FALSE, include=FALSE}
 if(multipleFiles & params$reportType != "webApp"){
   # Target means by plate heatmap pdf
   plot_width <- (nrow(target_means) / 4.5) + 6
@@ -4680,7 +4520,7 @@ if(multipleFiles & params$reportType != "webApp"){
 }
 ```
 
-```{r pca-by-plate, eval=(params$outPlateEffect & multipleFiles & numFiles >= 3), results='asis', out.width='70%', fig.asp=1, fig.align = 'center', warning=FALSE}
+```{r pca-by-plate, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & numFiles >= 3), results='asis', out.width='70%', fig.asp=1, fig.align = 'center', warning=FALSE}
 if(multipleFiles & numFiles >= 3){
   cat("### PCA by run\n\n")
   if(params$reportType != "webApp"){
@@ -4694,7 +4534,7 @@ if(multipleFiles & numFiles >= 3){
 }
 ```
 
-```{r plate-effect-sample-PCA, eval=(params$outPlateEffect & multipleFiles & params$reportType != "webApp"), results='asis', out.width='100%', fig.asp=1, fig.align = 'center', warning=FALSE, message=FALSE}
+```{r plate-effect-sample-PCA, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & params$reportType != "webApp"), results='asis', out.width='100%', fig.asp=1, fig.align = 'center', warning=FALSE, message=FALSE}
 if(multipleFiles){
   cat("\n\n---\n\n")
   cat("### Sample PCA\n\n")
@@ -4724,10 +4564,25 @@ if(multipleFiles){
 }
 ```
 
-```{r plate-effect-sample-PCA-legend, eval=(params$outPlateEffect & multipleFiles & params$reportType != "webApp"), results='asis', out.width='100%', fig.asp=eval(ceiling(length(PlateNames) / 5) * 0.1), fig.align = 'center', warning=FALSE, message=FALSE}
+```{r plate-effect-sample-PCA-legend-setup, include=FALSE}
+# Calculate legend aspect ratio based on label length, not just plate count.
+# Long plate names reduce the effective number of columns that fit in the figure width.
+pca_legend_ncol <- 5
+pca_legend_fig_asp <- 0.1
+if (exists("PlateNames") && length(PlateNames) > 0) {
+  max_label_chars <- max(nchar(PlateNames))
+  # Estimate columns that fit: ~80 chars width, each label needs ~(nchar + 4) chars for icon+padding
+  pca_legend_ncol <- max(1, floor(80 / (max_label_chars + 4)))
+  pca_legend_nrow <- ceiling(length(PlateNames) / pca_legend_ncol)
+  pca_legend_fig_asp <- max(0.1, pca_legend_nrow * 0.1)
+}
+```
+
+```{r plate-effect-sample-PCA-legend, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & params$reportType != "webApp"), results='asis', out.width='100%', fig.asp=pca_legend_fig_asp, fig.align = 'center', warning=FALSE, message=FALSE}
 if(multipleFiles){
   # plot PCA legend
   PCA_legend <- PCAtools::biplot(sample_PCA, legendPosition = 'top', legendLabSize = 10, legendTitleSize = 10, legendIconSize = 5, colby='plateEffectID')
+  PCA_legend <- PCA_legend + ggplot2::guides(colour = ggplot2::guide_legend(ncol = pca_legend_ncol))
   PCA_legend <- ggpubr::get_legend(PCA_legend)
   ggpubr::as_ggplot(PCA_legend)
 }
@@ -4737,7 +4592,7 @@ if(multipleFiles){
 fig_height <- 1
 ```
 
-```{r plate-effect-sample-PCA-eigencorplot-fig-setup, eval=(params$outPlateEffect & multipleFiles & params$reportType != "webApp"), results='asis', fig.align = 'center', warning=FALSE, message=FALSE}
+```{r plate-effect-sample-PCA-eigencorplot-fig-setup, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & params$reportType != "webApp"), results='asis', fig.align = 'center', warning=FALSE, message=FALSE}
 fig_height <- 1
 if(params$outPlateEffect & multipleFiles){
   include_sample_matrix <- length(unique(sample_metadata[params$sampleGroupCovar])) > 1
@@ -4755,7 +4610,7 @@ if(params$outPlateEffect & multipleFiles){
 }
 ```
 
-```{r plate-effect-sample-PCA-eigencorplot, eval=(params$outPlateEffect & multipleFiles & params$reportType != "webApp"), results='asis', fig.height=fig_height, out.width='100%', fig.width=10, fig.align = 'center', warning=FALSE, message=FALSE}
+```{r plate-effect-sample-PCA-eigencorplot, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & params$reportType != "webApp"), results='asis', fig.height=fig_height, out.width='100%', fig.width=10, fig.align = 'center', warning=FALSE, message=FALSE}
 if(params$outPlateEffect & multipleFiles){
   cat("#### PC correlations with metadata\n\n")
   cat("Sample metadata variables including run and sample matrix, if provided, were correlated against the principal component scores for the first 10 PCs. P-values are adjusted using the Bonferroni correction. Significance scale for adjusted p-values: * < 0.05, ** < 0.01, *** < 0.001.\n\n")
@@ -4767,7 +4622,7 @@ if(params$outPlateEffect & multipleFiles){
 }
 ```
 
-```{r save-plate-effect-test-result, eval=(params$outPlateEffect & multipleFiles & params$outputPlateEffectCSV==TRUE), include=FALSE}
+```{r save-plate-effect-test-result, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & params$outputPlateEffectCSV==TRUE), include=FALSE}
 if(multipleFiles & params$reportType != "webApp"){
   # make directory -- we will put the file in the outputFiles directory
   dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
@@ -4785,7 +4640,7 @@ if(multipleFiles & params$reportType != "webApp"){
 }
 ```
 
-```{r inst-effect-test-samples-table, eval=(params$outPlateEffect & multipleFiles & !is.null(params$assayRunInfo)), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
+```{r inst-effect-test-samples-table, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & !is.null(params$assayRunInfo)), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
 if(multipleFiles & !is.null(params$assayRunInfo)){
   if(do_inst_effect_test){
     cat("\n\n---\n\n")
@@ -4819,7 +4674,7 @@ if(multipleFiles & !is.null(params$assayRunInfo)){
 }
 ```
 
-```{r inst-effect-test-volcano-plot, eval=(params$outPlateEffect & multipleFiles & !is.null(params$assayRunInfo)), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
+```{r inst-effect-test-volcano-plot, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & !is.null(params$assayRunInfo)), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
 if(multipleFiles){
   if(do_inst_effect_test){
     cat("#### Instrument effect ANOVA volcano plot\n\n")
@@ -4839,7 +4694,7 @@ if(multipleFiles){
 }
 ```
 
-```{r save-inst-effect-test-result, eval=(params$outPlateEffect & multipleFiles & params$outputPlateEffectCSV==TRUE & params$reportType=="internal" & !is.null(params$assayRunInfo)), include=FALSE}
+```{r save-inst-effect-test-result, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & params$outputPlateEffectCSV==TRUE & params$reportType=="internal" & !is.null(params$assayRunInfo)), include=FALSE}
 if(multipleFiles & params$reportType != "webApp"){
   if(do_inst_effect_test){
     # make directory -- we will put the file in the outputFiles directory
@@ -4994,8 +4849,8 @@ if(multipleFiles==TRUE){
 ##########################
 if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
   # get only Overall estimates
-  detectability_data <- detect_output_table
-  detectability_data_name <- colnames(detect_output_table)
+  detectability_data <- detect_hist_table
+  detectability_data_name <- colnames(detect_hist_table)
   # make histogram
   if(params$reportType != "webApp"){
     pdf(file.path(params$outfolder, "outputFiles", "target_detectability_histogram.pdf"),
@@ -5020,7 +4875,7 @@ if(multipleFiles==FALSE & is.null(params$sampleGroupCovar)){
 
 if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
   # get only Overall estimates
-  detectability_data <- detect_output_table
+  detectability_data <- detect_hist_table
   if(nrow(detectability_return_summary[[1]]) > 1){
     sample_groups <- detectability_return_summary[[1]][2:nrow(detectability_return_summary[[1]]),1]
   } else {
@@ -5061,8 +4916,8 @@ if(multipleFiles==FALSE & !is.null(params$sampleGroupCovar)){
 
 if(multipleFiles==TRUE & is.null(params$sampleGroupCovar)){
   # get only Overall estimates
-  detectability_data <- detect_output_table[,grep('Overall', colnames(detect_output_table))]
-  detectability_data_name <- colnames(detect_output_table)[grep('Overall', colnames(detect_output_table))]
+  detectability_data <- detect_hist_table[,grep('Overall', colnames(detect_hist_table))]
+  detectability_data_name <- colnames(detect_hist_table)[grep('Overall', colnames(detect_hist_table))]
   # make histogram
   if(params$reportType != "webApp"){
     pdf(file.path(params$outfolder, "outputFiles", "target_detectability_histogram.pdf"),
@@ -5087,7 +4942,7 @@ if(multipleFiles==TRUE & is.null(params$sampleGroupCovar)){
 
 if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
   # get only Overall estimates
-  detectability_data <- as.matrix(detect_output_table[,grep('Overall', colnames(detect_output_table))])
+  detectability_data <- as.matrix(detect_hist_table[,grep('Overall', colnames(detect_hist_table))])
   if(nrow(detectability_return_summary$Overall) > 1){
     sample_groups <- detectability_return_summary$Overall[2:nrow(detectability_return_summary$Overall),1]
   } else {
@@ -5126,10 +4981,10 @@ if(multipleFiles==TRUE & !is.null(params$sampleGroupCovar)){
 ##########################
 if(params$reportType != "webApp"){
   for(i in 1:numFiles){
-    # Exclude IC + hidden targets + noDetectability targets
+    # Exclude IC + hidden targets + reverse curve targets
     pdf_boxplot_exclude_targets <- c(runs[[i]]$IC,
                                      runs[[i]]$targets$targetName[which(runs[[i]]$targets$hide)],
-                                     runs[[i]]$targets$targetName[which(runs[[i]]$targets$noDetectability)])
+                                     NULISAseqR:::get_reverse_curve_targets(runs[[i]]$targets))
     pdf(file.path(params$outfolder, 'outputFiles', paste0('target_detectability_boxplot_', PlateNames[i], '.pdf')), width=20, height=7)
     targetBoxplot(IC_IPC$interNormData[[i]],
                   title=paste0('Target detectability: ', PlateNames[i]),
@@ -5168,10 +5023,10 @@ if(is.null(params$sampleGroupCovar) & numFiles > 1){
     # add plate ID to colnames in case any names are identical across plates
     colnames(plate_i_sample_data) <- paste0('plate_', i, '_', colnames(plate_i_sample_data))
     data_minus_LOD[[i]] <- sweep(plate_i_sample_data, MARGIN=1, STATS=plate_lod_IPC[[i]]$LOD_log2)
-    # Exclude IC + hidden targets + noDetectability targets
+    # Exclude IC + hidden targets + reverse curve targets
     combined_exclude_targets <- c(runs[[i]]$IC,
                                   runs[[i]]$targets$targetName[which(runs[[i]]$targets$hide)],
-                                  runs[[i]]$targets$targetName[which(runs[[i]]$targets$noDetectability)])
+                                  NULISAseqR:::get_reverse_curve_targets(runs[[i]]$targets))
     data_minus_LOD[[i]] <- data_minus_LOD[[i]][!rownames(data_minus_LOD[[i]]) %in% combined_exclude_targets,]
   }
   data_minus_LOD <- combineCols(data_minus_LOD)
@@ -5262,10 +5117,10 @@ if(!is.null(params$sampleGroupCovar)){
     # add plate ID - sample name to the samples data frame
     runs[[i]]$samples$plate_sampleName <- paste0('plate_', i, '_', runs[[i]]$sample$sampleName)
     data_minus_LOD[[i]] <- sweep(plate_i_sample_data, MARGIN=1, STATS=plate_lod_IPC[[i]]$LOD_log2)
-    # Exclude IC + hidden targets + noDetectability targets
+    # Exclude IC + hidden targets + reverse curve targets
     samplegroup_exclude_targets <- c(runs[[i]]$IC,
                                      runs[[i]]$targets$targetName[which(runs[[i]]$targets$hide)],
-                                     runs[[i]]$targets$targetName[which(runs[[i]]$targets$noDetectability)])
+                                     NULISAseqR:::get_reverse_curve_targets(runs[[i]]$targets))
     data_minus_LOD[[i]] <- data_minus_LOD[[i]][!rownames(data_minus_LOD[[i]]) %in% samplegroup_exclude_targets,]
   }
   data_minus_LOD <- combineCols(data_minus_LOD) 

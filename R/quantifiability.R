@@ -186,6 +186,9 @@ quantifiability <- function(runs,
           rownames(quant_output) <- rownames(AQ_quant)
         }
         
+        # Sort target rows alphabetically by name (matches detectability output order)
+        quant_output <- quant_output[order(tolower(rownames(quant_output))), , drop = FALSE]
+        
         if (nrow(quant_output) == 0) {
           warning("Run ", k, " produced no quantifiability results. Returning NULL.")
           return(NULL)
@@ -244,6 +247,10 @@ quantifiability <- function(runs,
     combined_quant_matrix <- as.data.frame(combined_quant_matrix[,2:ncol(combined_quant_matrix)])
     colnames(combined_quant_matrix)[1] <- 'overall'
     rownames(combined_quant_matrix) <- target_names
+    
+    # Sort target rows alphabetically by name (matches detectability output order)
+    combined_quant_matrix <- combined_quant_matrix[order(tolower(rownames(combined_quant_matrix))), , drop = FALSE]
+    
     combined_quant_n_samples <- sapply(combined_quant, function(x) x$n_samples)
     
     if (nrow(combined_quant_matrix) == 0) {
