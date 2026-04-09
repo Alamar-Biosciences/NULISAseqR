@@ -188,6 +188,11 @@ code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-from-npq"><i class="fa fa-check"></i>Calculating Fold Changes from NPQ</a></li>
 <li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#calculating-fold-changes-in-target-ratios"><i class="fa fa-check"></i>Calculating Fold Changes in Target Ratios</a></li>
 </ul></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#special-target-categories"><i class="fa fa-check"></i>Special Target Categories</a>
+<ul>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#high-abundance-targets"><i class="fa fa-check"></i>High Abundance Targets</a></li>
+<li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#rare-case-targets"><i class="fa fa-check"></i>Rare Case Targets</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#data-analysis-faq"><i class="fa fa-check"></i>Data Analysis FAQ</a>
 <ul>
 <li class="chapter" data-level="" data-path="understanding-nulisaseq-data.html"><a href="understanding-nulisaseq-data.html#how-is-the-limit-of-detection-lod-defined-for-nulisaseq-why-do-some-targets-have-lod-of-0"><i class="fa fa-check"></i>1. How is the limit of detection (LOD) defined for NULISAseq? <br> Why do some targets have LOD of 0?</a></li>
@@ -547,6 +552,7 @@ See <a href="additional-resources.html#technical-documentation">Technical Docume
 <p>Alamar Biosciences offers several curated panels for disease-specific research, including:</p>
 <ul>
 <li><strong>Inflammation Panel</strong>: 250+ immune response markers including 120+ cytokines and chemokines</li>
+<li><strong>Neuro 220 Panel</strong>: 220 key biomarkers providing comprehensive coverage of the hallmarks of neurological disease</li>
 <li><strong>CNS Disease Panel</strong>: 120+ neuro-specific and neuro inflammation-related proteins</li>
 <li><strong>Mouse Panel</strong>: 120+ inflammation, neuro-degeneration and oncogenesis proteins specific to mouse model</li>
 <li><strong>Custom assays</strong>: Develop your own biomarker assays with the NULISAqpcr Custom Assay Development Kit</li>
@@ -600,25 +606,6 @@ See <a href="additional-resources.html#technical-documentation">Technical Docume
 </ol>
 <p><strong>Formula:</strong></p>
 <p><span class="math display">\[ \text{NPQ} = log_2(\text{IPC-normalized count} + 1) \]</span></p>
-<div id="special-normalization-for-high-abundance-targets" class="section level4 unnumbered hasAnchor">
-<h4>Special normalization for high-abundance targets<a href="understanding-nulisaseq-data.html#special-normalization-for-high-abundance-targets" class="anchor-section" aria-label="Anchor link to header"></a></h4>
-<p>Most targets in NULISAseq panels are measured at their lower limit of detection. However, certain targets have exceptionally high endogenous levels that would saturate standard detection:</p>
-<p><strong>High-abundance targets:</strong></p>
-<ul>
-<li><strong>Inflammation Panel:</strong> <strong>CRP</strong> and <strong>KNG1</strong> in human plasma and serum samples</li>
-<li><strong>CNS Panel:</strong> <strong>APOE</strong> and <strong>CRP</strong> in human plasma and serum samples</li>
-<li><strong>Mouse Panel:</strong> <strong>Crp</strong> in mouse plasma and serum samples</li>
-</ul>
-<p><strong>Special tuning strategy:</strong> To accommodate both high-abundance and low-abundance targets in the same panel, these targets use a special algorithm during normalization. This transformation is applied <strong>before</strong> the log2 transformation step.</p>
-<p><strong>Key Note:</strong></p>
-<ul>
-<li>The listed LOD for these targets represents the <strong>upper limit of detection</strong></li>
-<li><strong>NPQ values are valid and comparable for downstream analysis</strong></li>
-<li>NPQ values for these targets are interpreted in the usual way (one unit increase = doubling of abundance)</li>
-<li>Detectability is not a concern given the naturally high levels of these proteins</li>
-<li>For novel sample types beyond validated matrices, the algorithm may not apply if abundance levels differ significantly, and NPQ may not be reported</li>
-</ul>
-</div>
 </div>
 <div id="why-log-transform" class="section level3 unnumbered hasAnchor">
 <h3>Why Log Transform?<a href="understanding-nulisaseq-data.html#why-log-transform" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -762,6 +749,88 @@ See <a href="additional-resources.html#technical-documentation">Technical Docume
 </ul>
 <p><strong>Interpretation:</strong> The Aβ42/Aβ40 ratio in the Alzheimer’s patient is 0.8 times (or 20% lower than) that of the healthy control, which is consistent with clinical observations in plasma. The Aβ42/Aβ40 ratio reflects amyloid pathology, making it a powerful biomarker for Alzheimer’s disease diagnosis and monitoring.</p>
 </div>
+</div>
+</div>
+<div id="special-target-categories" class="section level2 unnumbered hasAnchor">
+<h2>Special Target Categories<a href="understanding-nulisaseq-data.html#special-target-categories" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Some NULISAseq panels include special targets that are handled differently in regards to limit of detection (LOD), detectability, and quality control reporting. Two distinct categories of special targets exist: (1) High abundance and (2) Rare case targets.</p>
+<div id="high-abundance-targets" class="section level3 unnumbered hasAnchor">
+<h3>High Abundance Targets<a href="understanding-nulisaseq-data.html#high-abundance-targets" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Most targets in NULISAseq panels are measured near their lower limit of detection. However, certain targets have exceptionally high endogenous levels in plasma and serum that would saturate standard detection. These <strong>high abundance targets</strong> use a special normalization algorithm applied before the log2 transformation step to bring abundant proteins into a measurable range.</p>
+<p><strong>Examples by panel:</strong></p>
+<ul>
+<li><strong>Inflammation Panel</strong>: <strong>CRP</strong> and <strong>KNG1</strong></li>
+<li><strong>CNS Panel</strong>: <strong>APOE</strong> and <strong>CRP</strong></li>
+<li><strong>Neuro 220 Panel</strong>: <strong>APOA1</strong>, <strong>APOA2</strong>, <strong>APOE</strong>, <strong>APOH</strong>, <strong>C1q</strong>, <strong>CRP</strong>, <strong>PPBP</strong>, <strong>PROS1</strong>, and <strong>SERPINA3</strong></li>
+<li><strong>Mouse Panel</strong>: <strong>Crp</strong></li>
+</ul>
+<p><strong>Key properties:</strong></p>
+<ul>
+<li><strong>Lower limit of detection (LOD) is not reported</strong> — the measurement challenge is an upper limit, not a lower one</li>
+<li><strong>Detectability is not reported</strong> — these targets are naturally present at high levels in validated sample matrices (plasma and serum) and are expected to be detected in all samples</li>
+<li><strong>Excluded from all target detectability summary statistics</strong> (mean, SD, median, min, max, number of detectable targets)</li>
+<li><strong>Excluded from sample detectability QC metrics</strong></li>
+<li><strong>NPQ is not reported for sample matrix types other than plasma or serum</strong> - for sample matrix types beyond validated matrices (plasma and serum), the special normalization algorithm may not apply if abundance levels differ significantly</li>
+<li><strong>NPQ values are valid and interpretable</strong> for downstream analysis in the usual way (one unit increase in NPQ = doubling of abundance)</li>
+</ul>
+</div>
+<div id="rare-case-targets" class="section level3 unnumbered hasAnchor">
+<h3>Rare Case Targets<a href="understanding-nulisaseq-data.html#rare-case-targets" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Rare case targets include rare isoforms, mutations, and phosphorylation sites that are present only in a small fraction of the general population. These are important markers for neurodegenerative and other diseases, but not expected to be detected in most samples by design.</p>
+<p><strong>Examples by panel:</strong></p>
+<ul>
+<li><strong>Neuro 220 Panel:</strong> <strong>APOE4</strong>, <strong>mHTT-exon1</strong>, <strong>pLRRK2-S1292</strong>, <strong>pPRKN-S65</strong>, <strong>pQ-ATXN3</strong>, <strong>pQ-HTT</strong>, <strong>pRAB10-T73</strong>, <strong>pRAB12-S106</strong>, and <strong>pRAB29-T71</strong></li>
+</ul>
+<p><strong>Key properties:</strong></p>
+<ul>
+<li><strong>Lower limit of detection (LOD) is reported</strong> — these targets have a meaningful lower LOD</li>
+<li><strong>Individual target detectability values are computed and reported</strong> — per-target detectability in tables and boxplots reflects true biological signal. Low detectability means few samples carry the relevant variant or modification, not that the assay is failing.</li>
+<li><strong>Excluded from all target detectability summary statistics</strong> (mean, SD, median, min, max, number of detectable targets) — because their expected detectability is low by design, including them would skew aggregate metrics for the panel as a whole</li>
+<li><strong>Excluded from sample detectability QC metrics</strong> - since they are expected to be detectable in only a small fraction of the population, these targets are not a good general indicator of sample quality</li>
+<li><strong>NPQ values are provided for all sample matrix types and interpreted in the usual way</strong></li>
+</ul>
+<p><strong>Summary table:</strong></p>
+<table>
+<colgroup>
+<col width="16%" />
+<col width="13%" />
+<col width="21%" />
+<col width="24%" />
+<col width="24%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Target category</th>
+<th align="center">LOD reported</th>
+<th align="center">Detectability computed</th>
+<th align="center">Included in detectability sample QC metrics</th>
+<th align="center">Included in detectability summary stats</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Standard targets</td>
+<td align="center">Yes</td>
+<td align="center">Yes</td>
+<td align="center">Yes</td>
+<td align="center">Yes</td>
+</tr>
+<tr class="even">
+<td align="left">High abundance</td>
+<td align="center">No</td>
+<td align="center">No</td>
+<td align="center">No</td>
+<td align="center">No</td>
+</tr>
+<tr class="odd">
+<td align="left">Rare case</td>
+<td align="center">Yes</td>
+<td align="center">Yes</td>
+<td align="center">No</td>
+<td align="center">No</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="data-analysis-faq" class="section level2 unnumbered hasAnchor">
