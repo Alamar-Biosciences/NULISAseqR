@@ -1241,11 +1241,18 @@ importNULISAseq <- function(files,
   
   tryCatch({
     merged_data <- mergeNULISAseq(dataList = processed_runs, fileNameList = named_list, sample_group_covar = sample_group_covar)
+
     merged_data$Data_NPQ_long <- format_wide_to_long(merged_data, AQ = FALSE, include_qc = include_qc)
     merged_data$Data_NPQ <- merged_data$Data_IClog2
-    
+
     if(any(grepl("^Data_AQ", names(merged_data)))) {
-      merged_data$Data_AQ_long <- format_wide_to_long(merged_data, AQ = TRUE, include_qc = include_qc)
+      # Suppress only the covariate conflict message on the AQ call — it already fired on the NPQ call above
+      merged_data$Data_AQ_long <- withCallingHandlers(
+        format_wide_to_long(merged_data, AQ = TRUE, include_qc = include_qc),
+        message = function(m) {
+          if (grepl("conflict", conditionMessage(m), fixed = TRUE)) invokeRestart("muffleMessage")
+        }
+      )
       
       names(merged_data)[names(merged_data) == "Data_AQ"] <- "Data_AQ_aM"
       names(merged_data)[names(merged_data) == "Data_AQlog2"] <- "Data_AQlog2_aM" 
@@ -2413,9 +2420,27 @@ format_wide_to_long <- function(merged, AQ = FALSE, exclude_sample_cols = "plate
   }
   
   # Prepare sample metadata
-  sample_metadata <- merged$samples %>%
+  # Rename any user covariate columns that conflict with reserved output column names.
+  # These internal columns are renamed to title-case output names below, so any user
+  # covariate already using those names would cause a collision. Resolve unique names
+  # only for the conflicting columns by appending them to the existing names before
+  # calling make.unique(), then taking only the resolved candidates — leaving all
+  # other column names untouched.
+  reserved_output_cols <- c("PlateID", "SampleName", "SampleType")
+  samples_for_metadata <- merged$samples
+  conflicting <- intersect(reserved_output_cols, colnames(samples_for_metadata))
+  if (length(conflicting) > 0) {
+    conflict_idx <- match(conflicting, colnames(samples_for_metadata))
+    candidates <- paste0(conflicting, "_covar")
+    final_names <- tail(make.unique(c(colnames(samples_for_metadata), candidates), sep = "_"), length(candidates))
+    colnames(samples_for_metadata)[conflict_idx] <- final_names
+    rename_msg <- paste(paste0("'", conflicting, "' -> '", final_names, "'"), collapse = ", ")
+    message("User-defined covariate columns conflict with reserved output column names. ",
+            "They have been renamed in the long-format output: ", rename_msg)
+  }
+  sample_metadata <- samples_for_metadata %>%
     rename(
-      PlateID = plateID, 
+      PlateID = plateID,
       SampleName = sampleName,
       SampleType = sampleType
     ) %>%

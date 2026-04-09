@@ -227,7 +227,7 @@ knitr::include_graphics("figures/QC report/Sample boxplot - Plate02.png")
 
 **Interpreting Sample Boxplots**: After IC normalization, sample boxplots should show similar median values and distributions. Outlier samples with shifted or compressed distributions may indicate quality issues. For example, in Plate_01, sample SMI_G05_Donor65 shows a high IC value before normalization (left), and after normalization this sample shows a lower distribution relative to other samples (right), indicating that IC normalization was too aggressive (Figure \@ref(fig:sample-boxplot-plate1)). 
 
-### Target QC
+### Target QC {#target-qc}
 
 Target-level QC assesses the performance of individual protein markers.
 <img src="figures/QC report/Detectability.png" style="width:100%; max-width:800px;">
@@ -245,19 +245,28 @@ Target-level QC assesses the performance of individual protein markers.
 - **Usage**: 
   - Values below LOD should be excluded from CV calculations
   - Consider filtering targets with high proportion of values below LOD for differential analysis 
-  - Visualized in target detectability boxplots relative to LOD
+  - Visualized in target detectability boxplots where NPQ levels are shown relative to LOD
 
-**LOD of specific targets**: Most LODs for the targets in the panel represent the lower limit of detection. There are some exception:
+**Special target categories**: There are two special target categories to be aware of which are treated differently regarding LOD, detectability, and QC metric reporting:
 
-**High-abundance targets:**
+**High abundance targets:**
 
-- **Inflammation Panel**: **CRP** and **KNG1** in Human plasma and serum samples
-- **CNS Panel**: **APOE** and **CRP** in Human plasma and serum samples
-- **Mouse Panel**: **Crp** in Mouse plasma and serum samples
+Examples of high abundance targets:
 
-These targets have very high endogenous levels in the samples. In order to accommodate these targets into our panel together with other lower abundance targets, we use special tuning strategies and algorithms to perform sample measurements. As a result, the listed LOD values for these targets are the upper limit of detection. 
+- **Inflammation Panel**: **CRP** and **KNG1** 
+- **CNS Panel**: **APOE** and **CRP** 
+- **Neuro 220 Panel**: **APOA1**, **APOA2**, **APOE**, **APOH**, **C1q**, **CRP**, **PPBP**, **PROS1**, and **SERPINA3** 
+- **Mouse Panel**: **Crp** 
 
-Detectability is not a concern given the high level of these targets and the NPQ values can still be used for secondary data analysis. For novel sample types other than listed sample matrices, however, the algorithm may not be applicable depending on the abundance levels of the analyte, and the NPQ will not be reported. 
+These targets have high endogenous levels in plasma and serum samples. To accommodate them in the same panel as lower-abundance targets, special tuning strategies and algorithms are applied. As a result, LOD and detectability are not reported and these targets are excluded from sample QC metrics and detectability summary statistics. For sample types beyond validated matrices (plasma and serum), the algorithm may not be applicable and NPQ is not reported. 
+
+**Rare case targets:**
+
+Examples of rare case targets:
+
+- **Neuro 220 Panel**: **APOE4**, **mHTT-exon1**, **pLRRK2-S1292**, **pPRKN-S65**, **pQ-ATXN3**, **pQ-HTT**, **pRAB10-T73**, **pRAB12-S106**, and **pRAB29-T71**  
+
+These targets include rare isoforms, mutations, and phosphorylation sites present only in a small fraction of the population. Unlike high-abundance targets, they do have a meaningful LOD. Individual detectability values are computed and shown in target detectability tables and boxplots. Low detectability reflects true biology (low abundance of the target in the measured samples) and does not indicate assay failure for these targets. However, these targets are excluded from sample QC metrics and detectability summary statistics (mean, SD, median, min, max, number of detectable targets) to avoid skewing panel-level aggregate metrics.
 
 ### Coefficient of Variation (CV)
 
@@ -377,14 +386,15 @@ about filtering strategies.
 
 ### Check for Missing Data
 
-**Missing data for high-abundance targets**: 
-Certain targets use specialized normalization algorithms optimized for specific sample types. NPQ values for these targets may be missing in non-validated sample matrices:
+**Missing data for high abundance targets**:
+Certain high abundance targets use specialized normalization algorithms optimized for specific sample matrix types. NPQ values for these targets will not be reported for non-validated sample matrices. For example, in the following panels, NPQ values for the listed targets are only reported in plasma and serum samples:
 
-- **Inflammation Panel**: **CRP** and **KNG1** are only reported for human plasma and serum samples
-- **CNS Panel**: **APOE** and **CRP** are only reported for human plasma and serum samples
-- **Mouse Panel**: **Crp** is only reported for mouse plasma and serum samples
+- **Inflammation Panel**: **CRP** and **KNG1** 
+- **CNS Panel**: **APOE** and **CRP** 
+- **Neuro 220 Panel**: **APOA1**, **APOA2**, **APOE**, **APOH**, **C1q**, **CRP**, **PPBP**, **PROS1**, and **SERPINA3** 
+- **Mouse Panel**: **Crp** 
 
-These proteins have exceptionally high endogenous levels that require matrix-specific tuning. If you're analyzing novel sample types (e.g., tissue lysates, saliva, urine), the normalization algorithm may not be applicable, and NPQ values will not be generated for these specific targets.
+These proteins have high endogenous levels in plasma and serum that require matrix-specific tuning. The normalization algorithm may not be applicable to other sample matrix types (e.g., tissue lysates, saliva, urine), and NPQ values will not be generated for these specific targets in sample matrix types other than plasma and serum. Note that LOD and detectability are not reported for these targets — see [Target QC](#target-qc) above for more details.
 
 ```{r check_missing, eval=FALSE}
 # Count missing values

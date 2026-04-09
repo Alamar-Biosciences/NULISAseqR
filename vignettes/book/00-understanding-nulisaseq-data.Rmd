@@ -47,6 +47,7 @@ See [Technical Documentation](#technical-documentation) in the Additional Resour
 Alamar Biosciences offers several curated panels for disease-specific research, including:
 
 - **Inflammation Panel**: 250+ immune response markers including 120+ cytokines and chemokines
+- **Neuro 220 Panel**: 220 key biomarkers providing comprehensive coverage of the hallmarks of neurological disease
 - **CNS Disease Panel**: 120+ neuro-specific and neuro inflammation-related proteins
 - **Mouse Panel**: 120+ inflammation, neuro-degeneration and oncogenesis proteins specific to mouse model
 - **Custom assays**: Develop your own biomarker assays with the NULISAqpcr Custom Assay Development Kit
@@ -106,26 +107,6 @@ $$ \text{IPC-normalized count} = (\text{IC-normalized count} / \text{IPC median}
 
 $$ \text{NPQ} = log_2(\text{IPC-normalized count} + 1) $$
 
-#### Special normalization for high-abundance targets {-}
-
-Most targets in NULISAseq panels are measured at their lower limit of detection. However, certain targets have exceptionally high endogenous levels that would saturate standard detection:
-
-**High-abundance targets:**
-
-- **Inflammation Panel:** **CRP** and **KNG1** in human plasma and serum samples
-- **CNS Panel:** **APOE** and **CRP** in human plasma and serum samples
-- **Mouse Panel:** **Crp** in mouse plasma and serum samples
-
-**Special tuning strategy:** To accommodate both high-abundance and low-abundance targets in the same panel, these targets use a special algorithm during normalization. This transformation is applied **before** the log2 transformation step.
-
-**Key Note:**
-
-- The listed LOD for these targets represents the **upper limit of detection** 
-- **NPQ values are valid and comparable for downstream analysis**
-- NPQ values for these targets are interpreted in the usual way (one unit increase = doubling of abundance)
-- Detectability is not a concern given the naturally high levels of these proteins
-- For novel sample types beyond validated matrices, the algorithm may not apply if abundance levels differ significantly, and NPQ may not be reported
-
 ### Why Log Transform? {-}
 
 Using log2-scale NPQ instead of linear normalized counts has many advantages:
@@ -136,6 +117,7 @@ Using log2-scale NPQ instead of linear normalized counts has many advantages:
 ✅ **Improves interpretability** - Differences = fold changes  
 ✅ **Compresses range** - Large values don't dominate  
 ✅ **Reveals clearer patterns** - Easier to see biological signals  
+
 
 ## NPQ vs Fold Change {-}
 
@@ -196,6 +178,7 @@ p1 + p2
 ```
 
 **Key Point:** In biological systems, protein abundance typically varies over several orders of magnitude and changes multiplicatively. Log2 transformation accounts for this by converting fold changes to linear differences, making the data more suitable for statistical analysis. 
+
 
 ## Working with NPQ Values {-}
 
@@ -267,6 +250,55 @@ For **Sample B (Alzheimer's patient)**:
 - Fold change = $2^{-0.32} = 0.8$
 
 **Interpretation:** The Aβ42/Aβ40 ratio in the Alzheimer's patient is 0.8 times (or 20% lower than) that of the healthy control, which is consistent with clinical observations in plasma. The Aβ42/Aβ40 ratio reflects amyloid pathology, making it a powerful biomarker for Alzheimer's disease diagnosis and monitoring.
+
+
+## Special Target Categories {-}
+
+Some NULISAseq panels include special targets that are handled differently in regards to limit of detection (LOD), detectability, and quality control reporting. Two distinct categories of special targets exist: (1) High abundance and (2) Rare case targets.
+
+### High Abundance Targets {-}
+
+Most targets in NULISAseq panels are measured near their lower limit of detection. However, certain targets have exceptionally high endogenous levels in plasma and serum that would saturate standard detection. These **high abundance targets** use a special normalization algorithm applied before the log2 transformation step to bring abundant proteins into a measurable range.
+
+**Examples by panel:**
+
+- **Inflammation Panel**: **CRP** and **KNG1** 
+- **CNS Panel**: **APOE** and **CRP** 
+- **Neuro 220 Panel**: **APOA1**, **APOA2**, **APOE**, **APOH**, **C1q**, **CRP**, **PPBP**, **PROS1**, and **SERPINA3** 
+- **Mouse Panel**: **Crp** 
+
+**Key properties:**
+
+- **Lower limit of detection (LOD) is not reported** — the measurement challenge is an upper limit, not a lower one
+- **Detectability is not reported** — these targets are naturally present at high levels in validated sample matrices (plasma and serum) and are expected to be detected in all samples
+- **Excluded from all target detectability summary statistics** (mean, SD, median, min, max, number of detectable targets)
+- **Excluded from sample detectability QC metrics** 
+- **NPQ is not reported for sample matrix types other than plasma or serum** - for sample matrix types beyond validated matrices (plasma and serum), the special normalization algorithm may not apply if abundance levels differ significantly
+- **NPQ values are valid and interpretable** for downstream analysis in the usual way (one unit increase in NPQ = doubling of abundance)
+
+### Rare Case Targets {-}
+
+Rare case targets include rare isoforms, mutations, and phosphorylation sites that are present only in a small fraction of the general population. These are important markers for neurodegenerative and other diseases, but not expected to be detected in most samples by design.
+
+**Examples by panel:**
+
+- **Neuro 220 Panel:** **APOE4**, **mHTT-exon1**, **pLRRK2-S1292**, **pPRKN-S65**, **pQ-ATXN3**, **pQ-HTT**, **pRAB10-T73**, **pRAB12-S106**, and **pRAB29-T71**
+
+**Key properties:**
+
+- **Lower limit of detection (LOD) is reported** — these targets have a meaningful lower LOD
+- **Individual target detectability values are computed and reported** — per-target detectability in tables and boxplots reflects true biological signal. Low detectability means few samples carry the relevant variant or modification, not that the assay is failing.
+- **Excluded from all target detectability summary statistics** (mean, SD, median, min, max, number of detectable targets) — because their expected detectability is low by design, including them would skew aggregate metrics for the panel as a whole
+- **Excluded from sample detectability QC metrics** - since they are expected to be detectable in only a small fraction of the population, these targets are not a good general indicator of sample quality
+- **NPQ values are provided for all sample matrix types and interpreted in the usual way**
+
+**Summary table:**
+
+| Target category | LOD reported | Detectability computed | Included in detectability sample QC metrics | Included in detectability summary stats |
+|:----------------|:------------:|:---------------------:|:------------------------:|:------------------------:|
+| Standard targets | Yes | Yes | Yes | Yes |
+| High abundance | No | No | No | No |
+| Rare case | Yes | Yes | No | No |
 
 
 ## Data Analysis FAQ {-}

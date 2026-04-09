@@ -1,3 +1,18 @@
+# NULISAseqR 1.5.1 (2026-04-09)
+
+## Changes
+
+### Bug Fixes
+* **format_wide_to_long()** - Renamed conflicting user covariate columns that share reserved names (e.g. `PlateID`) by appending `_covar` suffix; emits a message when renaming occurs to inform users of the change
+
+### Documentation
+* **User Guide** - Updated high-abundance and rare case target description: added information regarding the new Neuro 220 panel, clarified language for high abundance and `noDetectability` target behavior
+
+### Infrastructure
+* **DESCRIPTION** - Added `XML` and `fields` to Imports, enabling automatic installation of dependencies
+
+---
+
 # NULISAseqR 1.5.0 (2026-03-14)
 
 ## Changes
