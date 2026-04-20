@@ -62,7 +62,7 @@ Visual representation of sample placement on 96-well plates showing:
 The report provides detailed summaries for overall reads and each type of control sample:
  <img src="figures/QC report/Read Summary.png" style="width:100%; max-width:800px;">
 
-#### Interal Controls (IC)
+#### Internal Controls (IC)
 The IC is an exogenous reporter protein added to each well for well-to-well normalization and assessing the uniformity of the assay run.
  <img src="figures/QC report/Read Summary IC.png" style="width:100%; max-width:800px;">
  
