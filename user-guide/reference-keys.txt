@@ -30,7 +30,7 @@ qc-report
 qc-report-structure
 plate-layout
 run-summary
-interal-controls-ic
+internal-controls-ic
 inter-plate-controls-ipc
 sample-controls-sc
 negative-controls-nc
