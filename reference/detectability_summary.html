@@ -130,6 +130,15 @@ output fields. The structure matches <code><a href="detectability.html">detectab
   target names detected across all runs (when
   <code>exclude_noDetect_targets = TRUE</code>).</p></dd>
 
+<dt>plasma_serum_groups</dt>
+<dd><p>Character vector of sample group covariate level
+  names that map to PLASMA or SERUM in <code>SAMPLE_MATRIX</code>. Used by
+  downstream functions to determine "High Abundance" labeling for reverse
+  curve targets. Populated whenever sample groups can be mapped to
+  PLASMA/SERUM, including when grouping is already by <code>SAMPLE_MATRIX</code>.
+  <code>NULL</code> only when <code>SAMPLE_MATRIX</code> is not available or no
+  groups map to PLASMA/SERUM.</p></dd>
+
 <dt>run_summary</dt>
 <dd><p>Named list of formatted summary matrices per plate (and
   "Overall" for multi-plate), with columns: type, \# samples, mean, sd,

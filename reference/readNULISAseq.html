@@ -69,7 +69,8 @@
 <span>  NC <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  Bridge <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  Calibrator <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  replaceNA <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  replaceNA <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  allowMissingCurveQuant <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -171,6 +172,12 @@ Only used for xml file formats.</p></dd>
 <dt id="arg-replacena">replaceNA<a class="anchor" aria-label="anchor" href="#arg-replacena"></a></dt>
 <dd><p>Logical. If TRUE (default), will replace missing counts with
 zeros.</p></dd>
+
+
+<dt id="arg-allowmissingcurvequant">allowMissingCurveQuant<a class="anchor" aria-label="anchor" href="#arg-allowmissingcurvequant"></a></dt>
+<dd><p>Logical. If FALSE (default), an error is raised
+when the XML file contains no Curve_Quant values. Set to TRUE to fall back to
+treating all targets as forward curve with a warning.</p></dd>
 
 </dl></div>
     <div id="value">

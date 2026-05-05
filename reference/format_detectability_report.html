@@ -61,7 +61,8 @@ formatted summary and target tables ready for rendering.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">format_detectability_report</span><span class="op">(</span></span>
 <span>  <span class="va">detect_result</span>,</span>
 <span>  noDetectability_targets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  reverse_curve_targets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span>  reverse_curve_targets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  plasma_serum_groups <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -83,6 +84,14 @@ from summary statistics but keep in the target table. Default
 <dd><p>Character vector of reverse curve target names
 to append as "High Abundance" rows for PLASMA or SERUM matrix types. Other
 matrix types will show as NA. Default <code>character(0)</code>.</p></dd>
+
+
+<dt id="arg-plasma-serum-groups">plasma_serum_groups<a class="anchor" aria-label="anchor" href="#arg-plasma-serum-groups"></a></dt>
+<dd><p>Optional character vector of sample group covariate
+level names that correspond to PLASMA or SERUM samples. When provided, these
+names are matched against column names to determine which columns receive
+"High Abundance" labels. When <code>NULL</code> (default), falls back to regex
+matching on column names.</p></dd>
 
 </dl></div>
     <div id="value">

@@ -51,13 +51,22 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.5.1" id="nulisaseqr-151-2026-04-09">NULISAseqR 1.5.1 (2026-04-09)<a class="anchor" aria-label="anchor" href="#nulisaseqr-151-2026-04-09"></a></h2>
+<h2 class="page-header" data-toc-text="1.5.1" id="nulisaseqr-151-2026-05-04">NULISAseqR 1.5.1 (2026-05-04)<a class="anchor" aria-label="anchor" href="#nulisaseqr-151-2026-05-04"></a></h2>
 <div class="section level3">
 <h3 id="changes-1-5-1">Changes<a class="anchor" aria-label="anchor" href="#changes-1-5-1"></a></h3>
 <div class="section level4">
 <h4 id="bug-fixes-1-5-1">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-5-1"></a></h4>
 <ul><li>
 <strong>format_wide_to_long()</strong> - Renamed conflicting user covariate columns that share reserved names (e.g. <code>PlateID</code>) by appending <code>_covar</code> suffix; emits a message when renaming occurs to inform users of the change</li>
+<li>
+<strong>detectability_summary()</strong> - Replaced <code>do.call(rbind)</code> with <code><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">dplyr::bind_rows()</a></code> when aggregating samples across plates, fixing crashes when importing plates with different XML schemas (e.g. mismatched metadata columns)</li>
+<li>
+<strong>mergeNULISAseq()</strong> - Replaced <code>do.call(rbind)</code> with <code><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">dplyr::bind_rows()</a></code> for <code>RunSummary</code> aggregation; drops <code>NA</code>-named slots from each plate’s <code>RunSummary</code> list to eliminate spurious <code>NA.</code> columns when plates have no balancers in the XML</li>
+<li>
+<strong>QC Report skeleton</strong> - Fixed sample boxplot axis ticks and NPQ axis label; corrected instrument subsetting for plate effect test when some plates are excluded; removed ANOVA instrument effect test section from internal report output</li>
+<li>
+<strong>processXML()</strong> - Used <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code> instead of <code><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null()</a></code> for XML attribute checks, fixing silent failures when attributes return <code>NA</code> rather than <code>NULL</code>
+</li>
 </ul></div>
 <div class="section level4">
 <h4 id="documentation-1-5-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-5-1"></a></h4>
