@@ -13,7 +13,7 @@
 test_that("loadNULISAseq accepts a pre-built list structure from readNULISAseq output", {
   # Load from XML first to get canonical structure
   input_file <- test_path("fixtures", "detectability_P1_Tr03.xml")
-  raw_from_file <- readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  raw_from_file <- suppressWarnings(readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
 
   # Add required fields that readNULISAseq includes
   raw_from_file$xmlFile <- basename(input_file)
@@ -38,10 +38,10 @@ test_that("loadNULISAseq with list input produces equivalent results to file inp
   input_file <- test_path("fixtures", "detectability_P1_Tr03.xml")
 
   # Process via file path (original method)
-  result_from_file <- loadNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  result_from_file <- suppressWarnings(loadNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
 
   # Process via list structure (new method)
-  raw_structure <- readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  raw_structure <- suppressWarnings(readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
   raw_structure$xmlFile <- basename(input_file)
   result_from_list <- loadNULISAseq(raw_structure, IC = 'mCherry')
 
@@ -160,7 +160,7 @@ test_that("loadNULISAseq throws error for invalid input types", {
 
 test_that("loadNULISAseq recreates numericCovariates when missing from list input", {
   input_file <- test_path("fixtures", "detectability_P1_Tr03.xml")
-  raw_structure <- readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  raw_structure <- suppressWarnings(readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
 
   # Remove numericCovariates to test recreation
   raw_structure$numericCovariates <- NULL
@@ -197,7 +197,7 @@ test_that("loadNULISAseq recreates numericCovariates when missing from list inpu
 
 test_that("loadNULISAseq with list input supports excludeSamples parameter", {
   input_file <- test_path("fixtures", "detectability_P1_Tr03.xml")
-  raw_structure <- readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  raw_structure <- suppressWarnings(readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
   raw_structure$xmlFile <- basename(input_file)
 
   # Get IPC samples to exclude one
@@ -225,7 +225,7 @@ test_that("loadNULISAseq with list input supports excludeSamples parameter", {
 test_that("loadNULISAseq validates ExecutionDetails$Abs for AQ projects", {
   # Create structure that looks like an AQ project
   input_file <- test_path("fixtures", "detectability_P1_Tr03.xml")
-  raw_structure <- readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  raw_structure <- suppressWarnings(readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
   raw_structure$xmlFile <- basename(input_file)
 
   # Add ExecutionDetails$Abs as non-dataframe to trigger validation error
@@ -325,7 +325,7 @@ test_that("loadNULISAseq with list input produces equivalent AQ results to file 
 
 test_that("loadNULISAseq sets default xmlFile when not provided in list input", {
   input_file <- test_path("fixtures", "detectability_P1_Tr03.xml")
-  raw_structure <- readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  raw_structure <- suppressWarnings(readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
 
   # Ensure xmlFile is not set
   raw_structure$xmlFile <- NULL
@@ -341,7 +341,7 @@ test_that("loadNULISAseq sets default xmlFile when not provided in list input", 
 
 test_that("loadNULISAseq uses 'reprocessed' as fallback xmlFile", {
   input_file <- test_path("fixtures", "detectability_P1_Tr03.xml")
-  raw_structure <- readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  raw_structure <- suppressWarnings(readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
 
   # Remove both xmlFile and plateID
   raw_structure$xmlFile <- NULL
@@ -363,9 +363,9 @@ test_that("loadNULISAseq with list input returns identical output structure to f
   input_file <- test_path("fixtures", "detectability_P1_Tr03.xml")
 
   # Process via both methods
-  result_from_file <- loadNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  result_from_file <- suppressWarnings(loadNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
 
-  raw_structure <- readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL)
+  raw_structure <- suppressWarnings(readNULISAseq(input_file, IPC = NULL, IC = 'mCherry', SC = NULL, allowMissingCurveQuant=TRUE))
   raw_structure$xmlFile <- basename(input_file)
   result_from_list <- loadNULISAseq(raw_structure, IC = 'mCherry')
 

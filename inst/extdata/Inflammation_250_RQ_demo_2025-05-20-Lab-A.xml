@@ -19,256 +19,256 @@
   <RunSummary>
     <Barcodes>
       <BarcodeA>
-        <Barcode name="1625168_1625168" MW="42803" AlamarTargetID="t5521" UniProtID="Q15109" ProteinName="Advanced glycosylation end product-specific receptor">AGER</Barcode>
-        <Barcode name="1902917_1902917" MW="14440" AlamarTargetID="t5469" UniProtID="O00253" ProteinName="Agouti-related protein">AGRP</Barcode>
-        <Barcode name="14763184_14763184" MW="57513" AlamarTargetID="t5018" UniProtID="Q15389" ProteinName="Angiopoietin-1">ANGPT1</Barcode>
-        <Barcode name="4374849_4374849" MW="56919" AlamarTargetID="t5015" UniProtID="O15123" ProteinName="Angiopoietin-2">ANGPT2</Barcode>
-        <Barcode name="2651532_2651532" MW="38714" AlamarTargetID="t4910" UniProtID="P04083" ProteinName="Annexin A1">ANXA1</Barcode>
-        <Barcode name="1115699_1115699" MW="27895" AlamarTargetID="t4610" UniProtID="P15514" ProteinName="Amphiregulin">AREG</Barcode>
-        <Barcode name="16347233_16347233" MW="27818" AlamarTargetID="t8399" UniProtID="P23560" ProteinName="Brain-derived neurotrophic factor">BDNF</Barcode>
-        <Barcode name="908042_908042" MW="49313" AlamarTargetID="t8269" UniProtID="P18075" ProteinName="Bone morphogenetic protein 7">BMP7</Barcode>
-        <Barcode name="2016283_2016283" MW="19769" AlamarTargetID="t8151" UniProtID="Q10589" ProteinName="Bone marrow stromal antigen 2">BST2</Barcode>
-        <Barcode name="10671319_10671319" MW="26017" AlamarTargetID="t10433" UniProtID="P02745" ProteinName="Complement C1q A chain">C1QA</Barcode>
-        <Barcode name="3453499_3453499" MW="15467" AlamarTargetID="t10412" UniProtID="P01258" ProteinName="Calcitonin [Cleaved into: Calcitonin; Katacalcin">CALCA</Barcode>
-        <Barcode name="11605520_11605520" MW="10992" AlamarTargetID="t8334" UniProtID="P22362" ProteinName="C-C motif chemokine 1">CCL1</Barcode>
-        <Barcode name="9307231_9307231" MW="10732" AlamarTargetID="t8333" UniProtID="P51671" ProteinName="Eotaxin">CCL11</Barcode>
-        <Barcode name="7285840_7285840" MW="10986" AlamarTargetID="t8332" UniProtID="Q99616" ProteinName="C-C motif chemokine 13">CCL13</Barcode>
-        <Barcode name="1315649_1315649" MW="10678" AlamarTargetID="t8331" UniProtID="Q16627" ProteinName="C-C motif chemokine 14">CCL14</Barcode>
-        <Barcode name="3577700_3577700" MW="12236" AlamarTargetID="t8330" UniProtID="Q16663" ProteinName="C-C motif chemokine 15">CCL15</Barcode>
-        <Barcode name="13376624_13376624" MW="13600" AlamarTargetID="t8329" UniProtID="O15467" ProteinName="C-C motif chemokine 16">CCL16</Barcode>
-        <Barcode name="8676556_8676556" MW="10507" AlamarTargetID="t8328" UniProtID="Q92583" ProteinName="C-C motif chemokine 17">CCL17</Barcode>
-        <Barcode name="3688275_3688275" MW="10993" AlamarTargetID="t8326" UniProtID="Q99731" ProteinName="C-C motif chemokine 19">CCL19</Barcode>
-        <Barcode name="8160740_8160740" MW="11025" AlamarTargetID="t8325" UniProtID="P13500" ProteinName="C-C motif chemokine 2">CCL2</Barcode>
-        <Barcode name="3449296_3449296" MW="10762" AlamarTargetID="t8324" UniProtID="P78556" ProteinName="C-C motif chemokine 20">CCL20</Barcode>
-        <Barcode name="5836875_5836875" MW="14646" AlamarTargetID="t8322" UniProtID="O00585" ProteinName="C-C motif chemokine 21">CCL21</Barcode>
-        <Barcode name="15487237_15487237" MW="10625" AlamarTargetID="t8321" UniProtID="O00626" ProteinName="C-C motif chemokine 22">CCL22</Barcode>
-        <Barcode name="7816728_7816728" MW="13443" AlamarTargetID="t8320" UniProtID="P55773" ProteinName="C-C motif chemokine 23">CCL23</Barcode>
-        <Barcode name="12684539_12684539" MW="13134" AlamarTargetID="t8319" UniProtID="O00175" ProteinName="C-C motif chemokine 24">CCL24</Barcode>
-        <Barcode name="6479245_6479245" MW="16609" AlamarTargetID="t8318" UniProtID="O15444" ProteinName="C-C motif chemokine 25">CCL25</Barcode>
-        <Barcode name="16476229_16476229" MW="10648" AlamarTargetID="t8317" UniProtID="Q9Y258" ProteinName="C-C motif chemokine 26">CCL26</Barcode>
-        <Barcode name="12166243_12166243" MW="12618" AlamarTargetID="t8316" UniProtID="Q9Y4X3" ProteinName="C-C motif chemokine 27">CCL27</Barcode>
-        <Barcode name="3485004_3485004" MW="14280" AlamarTargetID="t7024" UniProtID="Q9NRJ3" ProteinName="C-C motif chemokine 28">CCL28</Barcode>
-        <Barcode name="2973766_2973766" MW="10085" AlamarTargetID="t8315" UniProtID="P10147" ProteinName="C-C motif chemokine 3">CCL3</Barcode>
-        <Barcode name="13320628_13320628" MW="10212" AlamarTargetID="t10876" UniProtID="P13236" ProteinName="C-C motif chemokine ligand 4">CCL4</Barcode>
-        <Barcode name="10547568_10547568" MW="9990" AlamarTargetID="t8311" UniProtID="P13501" ProteinName="C-C motif chemokine 5">CCL5</Barcode>
-        <Barcode name="6193865_6193865" MW="11200" AlamarTargetID="t8310" UniProtID="P80098" ProteinName="C-C motif chemokine 7">CCL7</Barcode>
-        <Barcode name="3400923_3400923" MW="11246" AlamarTargetID="t8309" UniProtID="P80075" ProteinName="C-C motif chemokine 8">CCL8</Barcode>
-        <Barcode name="10191216_10191216" MW="31264" AlamarTargetID="t4399" UniProtID="P41217" ProteinName="OX-2 membrane glycoprotein">CD200</Barcode>
-        <Barcode name="421252_421252" MW="39041" AlamarTargetID="t6290" UniProtID="Q8TD46" ProteinName="Cell surface glycoprotein CD200 receptor 1">CD200R1</Barcode>
-        <Barcode name="11896306_11896306" MW="29137" AlamarTargetID="t7942" UniProtID="P26842" ProteinName="CD27 antigen">CD27</Barcode>
-        <Barcode name="5861556_5861556" MW="33275" AlamarTargetID="t7035" UniProtID="Q9NZQ7" ProteinName="Programmed cell death 1 ligand 1, PD-L1">CD274</Barcode>
-        <Barcode name="11394266_11394266" MW="57235" AlamarTargetID="t14662" UniProtID="Q5ZPR3" ProteinName="CD276 molecule">CD276</Barcode>
-        <Barcode name="2969094_2969094" MW="23147" AlamarTargetID="t7235" UniProtID="P07766" ProteinName="T-cell surface glycoprotein CD3 epsilon chain">CD3E</Barcode>
-        <Barcode name="2027592_2027592" MW="51111" AlamarTargetID="t7229" UniProtID="P01730" ProteinName="T-cell surface glycoprotein CD4">CD4</Barcode>
-        <Barcode name="10160903_10160903" MW="30619" AlamarTargetID="t11248" UniProtID="P25942" ProteinName="CD40 molecule">CD40</Barcode>
-        <Barcode name="9537069_9537069" MW="29274" AlamarTargetID="t7931" UniProtID="P29965" ProteinName="CD40 ligand">CD40LG</Barcode>
-        <Barcode name="14779657_14779657" MW="43747" AlamarTargetID="t4459" UniProtID="P15529" ProteinName="Membrane cofactor protein">CD46</Barcode>
-        <Barcode name="4489532_4489532" MW="21118" AlamarTargetID="t7929" UniProtID="P32970" ProteinName="CD70 antigen">CD70</Barcode>
-        <Barcode name="7035921_7035921" MW="33048" AlamarTargetID="t7151" UniProtID="P33681" ProteinName="T-lymphocyte activation antigen CD80">CD80</Barcode>
-        <Barcode name="8870701_8870701" MW="23042" AlamarTargetID="t7143" UniProtID="Q01151" ProteinName="CD83 antigen">CD83</Barcode>
-        <Barcode name="8065470_8065470" MW="68560" AlamarTargetID="t7380" UniProtID="Q9NPY3" ProteinName="Complement component C1q receptor">CD93</Barcode>
-        <Barcode name="5075522_5075522" MW="76796" AlamarTargetID="t10514" UniProtID="P06731" ProteinName="Carcinoembryonic antigen related cell adhesion molecule 5">CEACAM5</Barcode>
-        <Barcode name="12064663_12064663" MW="42625" AlamarTargetID="t6758" UniProtID="P36222" ProteinName="Chitinase-3-like protein 1">CHI3L1</Barcode>
-        <Barcode name="7439380_7439380" MW="27512" AlamarTargetID="t7726" UniProtID="Q9UMR7" ProteinName="C-type lectin domain family 4 member A">CLEC4A</Barcode>
-        <Barcode name="13649476_13649476" MW="22931" AlamarTargetID="t6500" UniProtID="P26441" ProteinName="Ciliary neurotrophic factor">CNTF</Barcode>
-        <Barcode name="3953428_3953428" MW="25039" AlamarTargetID="t6336" UniProtID="P02741" ProteinName="C-reactive protein">CRP</Barcode>
-        <Barcode name="15042539_15042539" MW="60179" AlamarTargetID="t6276" UniProtID="P09603" ProteinName="Macrophage colony-stimulating factor 1">CSF1</Barcode>
-        <Barcode name="3066948_3066948" MW="107984" AlamarTargetID="t6273" UniProtID="P07333" ProteinName="Macrophage colony-stimulating factor 1 receptor">CSF1R</Barcode>
-        <Barcode name="7620164_7620164" MW="16295" AlamarTargetID="t6271" UniProtID="P04141" ProteinName="Granulocyte-macrophage colony-stimulating factor">CSF2</Barcode>
-        <Barcode name="13132060_13132060" MW="97336" AlamarTargetID="t6266" UniProtID="P32927" ProteinName="Cytokine receptor common subunit beta">CSF2RB</Barcode>
-        <Barcode name="3481026_3481026" MW="22293" AlamarTargetID="t6263" UniProtID="P09919" ProteinName="Granulocyte colony-stimulating factor, G-CSF">CSF3</Barcode>
-        <Barcode name="10007963_10007963" MW="92156" AlamarTargetID="t6262" UniProtID="Q99062" ProteinName="Granulocyte colony-stimulating factor receptor">CSF3R</Barcode>
-        <Barcode name="7147851_7147851" MW="16454" AlamarTargetID="t6198" UniProtID="O76096" ProteinName="Cystatin-F">CST7</Barcode>
-        <Barcode name="6021391_6021391" MW="21227" AlamarTargetID="t6166" UniProtID="Q16619" ProteinName="Cardiotrophin-1">CTF1</Barcode>
-        <Barcode name="15402052_15402052" MW="24656" AlamarTargetID="t6154" UniProtID="P16410" ProteinName="Cytotoxic T-lymphocyte protein 4">CTLA4</Barcode>
-        <Barcode name="7771693_7771693" MW="37496" AlamarTargetID="t6100" UniProtID="P25774" ProteinName="Cathepsin S">CTSS</Barcode>
-        <Barcode name="1319222_1319222" MW="42203" AlamarTargetID="t8300" UniProtID="P78423" ProteinName="Fractalkine">CX3CL1</Barcode>
-        <Barcode name="13650882_13650882" MW="40030" AlamarTargetID="t6074" UniProtID="P78310" ProteinName="Coxsackievirus and adenovirus receptor">CXADR</Barcode>
-        <Barcode name="5057700_5057700" MW="11301" AlamarTargetID="t5070" UniProtID="P09341" ProteinName="Growth-regulated alpha protein">CXCL1</Barcode>
-        <Barcode name="8769952_8769952" MW="10881" AlamarTargetID="t8308" UniProtID="P02778" ProteinName="C-X-C motif chemokine 10">CXCL10</Barcode>
-        <Barcode name="10341897_10341897" MW="10365" AlamarTargetID="t8307" UniProtID="O14625" ProteinName="C-X-C motif chemokine 11">CXCL11</Barcode>
-        <Barcode name="5333517_5333517" MW="10666" AlamarTargetID="t8295" UniProtID="P48061" ProteinName="Stromal cell-derived factor 1">CXCL12</Barcode>
-        <Barcode name="14340545_14340545" MW="12664" AlamarTargetID="t8306" UniProtID="O43927" ProteinName="C-X-C motif chemokine 13">CXCL13</Barcode>
-        <Barcode name="7744902_7744902" MW="13078" AlamarTargetID="t8305" UniProtID="O95715" ProteinName="C-X-C motif chemokine 14">CXCL14</Barcode>
-        <Barcode name="6194011_6194011" MW="27579" AlamarTargetID="t7255" UniProtID="Q9H2A7" ProteinName="C-X-C motif chemokine 16">CXCL16</Barcode>
-        <Barcode name="12264280_12264280" MW="11389" AlamarTargetID="t11070" UniProtID="P19875" ProteinName="C-X-C motif chemokine ligand 2">CXCL2</Barcode>
-        <Barcode name="2176632_2176632" MW="11342" AlamarTargetID="t11071" UniProtID="P19876" ProteinName="C-X-C motif chemokine ligand 3">CXCL3</Barcode>
-        <Barcode name="10393404_10393404" MW="11972" AlamarTargetID="t8304" UniProtID="P42830" ProteinName="C-X-C motif chemokine 5">CXCL5</Barcode>
-        <Barcode name="7093040_7093040" MW="11897" AlamarTargetID="t8303" UniProtID="P80162" ProteinName="C-X-C motif chemokine 6">CXCL6</Barcode>
-        <Barcode name="7430472_7430472" MW="11098" AlamarTargetID="t4761" UniProtID="P10145" ProteinName="Interleukin-8, IL8">CXCL8</Barcode>
-        <Barcode name="10065562_10065562" MW="14019" AlamarTargetID="t4426" UniProtID="Q07325" ProteinName="C-X-C motif chemokine 9">CXCL9</Barcode>
-        <Barcode name="7648022_7648022" MW="133994" AlamarTargetID="t5505" UniProtID="P01133" ProteinName="Pro-epidermal growth factor">EGF</Barcode>
-        <Barcode name="3559699_3559699" MW="21307" AlamarTargetID="t5404" UniProtID="P01588" ProteinName="Erythropoietin">EPO</Barcode>
-        <Barcode name="2283281_2283281" MW="31485" AlamarTargetID="t7930" UniProtID="P48023" ProteinName="Tumor necrosis factor ligand superfamily member 6">FASLG</Barcode>
-        <Barcode name="2651408_2651408" MW="24003" AlamarTargetID="t5317" UniProtID="O95750" ProteinName="Fibroblast growth factor 19">FGF19</Barcode>
-        <Barcode name="6234522_6234522" MW="30770" AlamarTargetID="t5316" UniProtID="P09038" ProteinName="Fibroblast growth factor 2">FGF2</Barcode>
-        <Barcode name="10866820_10866820" MW="22300" AlamarTargetID="t21015" UniProtID="Q9NSA1" ProteinName="Fibroblast growth factor 21">FGF21</Barcode>
-        <Barcode name="7576400_7576400" MW="27954" AlamarTargetID="t5313" UniProtID="Q9GZV9" ProteinName="Fibroblast growth factor 23">FGF23</Barcode>
-        <Barcode name="12463812_12463812" MW="150769" AlamarTargetID="t5274" UniProtID="P17948" ProteinName="Vascular endothelial growth factor receptor 1">FLT1</Barcode>
-        <Barcode name="9179949_9179949" MW="26416" AlamarTargetID="t5272" UniProtID="P49771" ProteinName="Fms-related tyrosine kinase 3 ligand">FLT3LG</Barcode>
-        <Barcode name="5359042_5359042" MW="152757" AlamarTargetID="t5271" UniProtID="P35916" ProteinName="Vascular endothelial growth factor receptor 3">FLT4</Barcode>
-        <Barcode name="4703334_4703334" MW="21226" AlamarTargetID="t10438" UniProtID="P02794" ProteinName="Ferritin heavy chain 1">FTH1</Barcode>
-        <Barcode name="4264664_4264664" MW="86678" AlamarTargetID="t4177" UniProtID="P09958" ProteinName="Furin">FURIN</Barcode>
-        <Barcode name="11646676_11646676" MW="34140" AlamarTargetID="t5665" UniProtID="Q99988" ProteinName="Growth/differentiation factor 15">GDF15</Barcode>
-        <Barcode name="13599963_13599963" MW="47320" AlamarTargetID="t5169" UniProtID="Q9UK05" ProteinName="Growth/differentiation factor 2">GDF2</Barcode>
-        <Barcode name="2541623_2541623" MW="49880" AlamarTargetID="t5158" UniProtID="P14136" ProteinName="Glial fibrillary acidic protein">GFAP</Barcode>
-        <Barcode name="4655133_4655133" MW="63544" AlamarTargetID="t5071" UniProtID="P28799" ProteinName="Progranulin">GRN</Barcode>
-        <Barcode name="4262761_4262761" MW="28999" AlamarTargetID="t5046" UniProtID="P12544" ProteinName="Granzyme A">GZMA</Barcode>
-        <Barcode name="416902_416902" MW="27716" AlamarTargetID="t5045" UniProtID="P10144" ProteinName="Granzyme B">GZMB</Barcode>
-        <Barcode name="4328921_4328921" MW="39250" AlamarTargetID="t6994" UniProtID="Q96D42" ProteinName="Hepatitis A virus cellular receptor 1">HAVCR1</Barcode>
-        <Barcode name="12863435_12863435" MW="83134" AlamarTargetID="t5002" UniProtID="P14210" ProteinName="Hepatocyte growth factor">HGF</Barcode>
-        <Barcode name="13124036_13124036" MW="28621" AlamarTargetID="t10417" UniProtID="P01903" ProteinName="Major histocompatibility complex, class II, DR alpha">HLA-DRA</Barcode>
-        <Barcode name="9138452_9138452" MW="57825" AlamarTargetID="t4906" UniProtID="P05362" ProteinName="Intercellular adhesion molecule 1">ICAM1</Barcode>
-        <Barcode name="10073401_10073401" MW="33349" AlamarTargetID="t7130" UniProtID="O75144" ProteinName="ICOS ligand">ICOSLG</Barcode>
-        <Barcode name="5849354_5849354" MW="21725" AlamarTargetID="t22707" UniProtID="P01562; P01562" ProteinName="Interferon alpha-1; Interferon alpha-13">IFNA1; IFNA13</Barcode>
-        <Barcode name="439408_439408" MW="21578" AlamarTargetID="t4877" UniProtID="P01563" ProteinName="Interferon alpha-2">IFNA2</Barcode>
-        <Barcode name="3452996_3452996" MW="22294" AlamarTargetID="t4868" UniProtID="P01574" ProteinName="Interferon beta">IFNB1</Barcode>
-        <Barcode name="15862721_15862721" MW="19348" AlamarTargetID="t4867" UniProtID="P01579" ProteinName="Interferon gamma">IFNG</Barcode>
-        <Barcode name="1593458_1593458" MW="21898" AlamarTargetID="t6899" UniProtID="Q8IU54" ProteinName="Interferon lambda-1">IFNL1</Barcode>
-        <Barcode name="4350450_4350450" MW="21997" AlamarTargetID="t22901" UniProtID="Q8IZJ0; Q8IZI9" ProteinName="Interferon lambda-2; Interferon lambda-3">IFNL2; IFNL3</Barcode>
-        <Barcode name="3428761_3428761" MW="22319" AlamarTargetID="t4863" UniProtID="P05000" ProteinName="Interferon omega-1">IFNW1</Barcode>
-        <Barcode name="6608514_6608514" MW="48198" AlamarTargetID="t22601" UniProtID="Q9Y6K9" ProteinName="Inhibitor of nuclear factor kappa B kinase subunit gamma">IKBKG</Barcode>
-        <Barcode name="6740585_6740585" MW="20517" AlamarTargetID="t4818" UniProtID="P22301" ProteinName="Interleukin-10">IL10</Barcode>
-        <Barcode name="7476761_7476761" MW="36995" AlamarTargetID="t4816" UniProtID="Q08334" ProteinName="Interleukin-10 receptor subunit beta">IL10RB</Barcode>
-        <Barcode name="12332811_12332811" MW="21429" AlamarTargetID="t4815" UniProtID="P20809" ProteinName="Interleukin-11">IL11</Barcode>
-        <Barcode name="10034253_10034253" MW="37169" AlamarTargetID="t4811" UniProtID="P29460" ProteinName="Interleukin-12 subunit beta">IL12B</Barcode>
-        <Barcode name="4593516_4593516" MW="73109" AlamarTargetID="t4810" UniProtID="P42701" ProteinName="Interleukin-12 receptor subunit beta-1">IL12RB1</Barcode>
-        <Barcode name="9680656_10034253" MW="62043" AlamarTargetID="t4813" UniProtID="P29459_P29460" ProteinName="Interleukin-12 subunit beta_Interleukin-12 subunit alpha">IL12p70</Barcode>
-        <Barcode name="14763085_14763085" MW="15788" AlamarTargetID="t4808" UniProtID="P35225" ProteinName="Interleukin-13">IL13</Barcode>
-        <Barcode name="377485_377485" MW="44176" AlamarTargetID="t13217" UniProtID="Q14627" ProteinName="Interleukin 13 receptor subunit alpha 2">IL13RA2</Barcode>
-        <Barcode name="15614224_15614224" MW="18086" AlamarTargetID="t4806" UniProtID="P40933" ProteinName="Interleukin-15">IL15</Barcode>
-        <Barcode name="6620236_6620236" MW="28233" AlamarTargetID="t4805" UniProtID="Q13261" ProteinName="Interleukin-15 receptor subunit alpha">IL15RA</Barcode>
-        <Barcode name="6312029_6312029" MW="141752" AlamarTargetID="t4803" UniProtID="Q14005" ProteinName="Pro-interleukin-16">IL16</Barcode>
-        <Barcode name="10576340_14206183" MW="17504" AlamarTargetID="t4802" UniProtID="Q16552" ProteinName="Interleukin-17A">IL17A</Barcode>
-        <Barcode name="6345794_14206183" MW="35549" AlamarTargetID="t22700" UniProtID="Q16552|Q96PD4" ProteinName="Interleukin-17A|Interleukin-17F">IL17A|IL17F</Barcode>
-        <Barcode name="14426903_14426903" MW="20437" AlamarTargetID="t4801" UniProtID="Q9UHF5" ProteinName="Interleukin-17B">IL17B</Barcode>
-        <Barcode name="14160123_14160123" MW="21765" AlamarTargetID="t4800" UniProtID="Q9P0M4" ProteinName="Interleukin-17C">IL17C</Barcode>
-        <Barcode name="6345794_6345794" MW="18045" AlamarTargetID="t7277" UniProtID="Q96PD4" ProteinName="Interleukin-17F">IL17F</Barcode>
-        <Barcode name="15583297_15583297" MW="96122" AlamarTargetID="t4798" UniProtID="Q96F46" ProteinName="Interleukin-17 receptor A">IL17RA</Barcode>
-        <Barcode name="6910664_6910664" MW="55885" AlamarTargetID="t6962" UniProtID="Q9NRM6" ProteinName="Interleukin-17 receptor B">IL17RB</Barcode>
-        <Barcode name="3346544_3346544" MW="22326" AlamarTargetID="t4797" UniProtID="Q14116" ProteinName="Interleukin-18">IL18</Barcode>
-        <Barcode name="5303622_5303622" MW="21099" AlamarTargetID="t4796" UniProtID="O95998" ProteinName="Interleukin-18-binding protein">IL18BP</Barcode>
-        <Barcode name="9482319_9482319" MW="62304" AlamarTargetID="t4795" UniProtID="Q13478" ProteinName="Interleukin-18 receptor 1">IL18R1</Barcode>
-        <Barcode name="898701_898701" MW="20452" AlamarTargetID="t4793" UniProtID="Q9UHD0" ProteinName="Interleukin-19">IL19</Barcode>
-        <Barcode name="5861648_5861648" MW="30748" AlamarTargetID="t4791" UniProtID="P01584" ProteinName="Interleukin-1 beta">IL1B</Barcode>
-        <Barcode name="3437968_3437968" MW="65402" AlamarTargetID="t4790" UniProtID="P14778" ProteinName="Interleukin-1 receptor type 1">IL1R1</Barcode>
-        <Barcode name="279260_279260" MW="45421" AlamarTargetID="t4789" UniProtID="P27930" ProteinName="Interleukin-1 receptor type 2">IL1R2</Barcode>
-        <Barcode name="12064579_12064579" MW="63358" AlamarTargetID="t4786" UniProtID="Q01638" ProteinName="Interleukin-1 receptor-like 1">IL1RL1</Barcode>
-        <Barcode name="2298302_2298302" MW="20055" AlamarTargetID="t4783" UniProtID="P18510" ProteinName="Interleukin-1 receptor antagonist protein">IL1RN</Barcode>
-        <Barcode name="14485856_14485856" MW="17628" AlamarTargetID="t4782" UniProtID="P60568" ProteinName="Interleukin-2">IL2</Barcode>
-        <Barcode name="1627186_1627186" MW="20072" AlamarTargetID="t4781" UniProtID="Q9NYY1" ProteinName="Interleukin-20">IL20</Barcode>
-        <Barcode name="5817895_5817895" MW="20011" AlamarTargetID="t7506" UniProtID="Q9GZX6" ProteinName="Interleukin-22">IL22</Barcode>
-        <Barcode name="11297616_10034253" MW="57899" AlamarTargetID="t7450" UniProtID="P29460|Q9NPF7" ProteinName="Interleukin-12 subunit beta|Interleukin-23 subunit alpha">IL23</Barcode>
-        <Barcode name="11302310_11302310" MW="23825" AlamarTargetID="t8112" UniProtID="Q13007" ProteinName="Interleukin-24">IL24</Barcode>
-        <Barcode name="6390128_6390128" MW="52889" AlamarTargetID="t22710" UniProtID="Q8NEV9|Q14213" ProteinName="Interleukin 27|Interleukin-27 subunit beta">IL27</Barcode>
-        <Barcode name="15474908_15474908" MW="30819" AlamarTargetID="t4776" UniProtID="P01589" ProteinName="Interleukin-2 receptor subunit alpha">IL2RA</Barcode>
-        <Barcode name="10119543_10119543" MW="61117" AlamarTargetID="t4775" UniProtID="P14784" ProteinName="Interleukin-2 receptor subunit beta">IL2RB</Barcode>
-        <Barcode name="6358776_6358776" MW="26676" AlamarTargetID="t7216" UniProtID="P24001" ProteinName="Interleukin-32">IL32</Barcode>
-        <Barcode name="11342925_11342925" MW="30759" AlamarTargetID="t10319" UniProtID="O95760" ProteinName="Interleukin 33">IL33</Barcode>
-        <Barcode name="4315348_4315348" MW="27482" AlamarTargetID="t5855" UniProtID="Q6ZMJ4" ProteinName="Interleukin-34">IL34</Barcode>
-        <Barcode name="5479273_5479273" MW="17684" AlamarTargetID="t7433" UniProtID="Q9UHA7" ProteinName="Interleukin-36 alpha">IL36A</Barcode>
-        <Barcode name="7587076_7587076" MW="18522" AlamarTargetID="t7431" UniProtID="Q9NZH7" ProteinName="Interleukin-36 beta">IL36B</Barcode>
-        <Barcode name="6606064_6606064" MW="18721" AlamarTargetID="t7408" UniProtID="Q9NZH8" ProteinName="Interleukin-36 gamma">IL36G</Barcode>
-        <Barcode name="14752786_14752786" MW="43330" AlamarTargetID="t4772" UniProtID="P26951" ProteinName="Interleukin-3 receptor subunit alpha">IL3RA</Barcode>
-        <Barcode name="505488_505488" MW="17492" AlamarTargetID="t4771" UniProtID="P05112" ProteinName="Interleukin-4">IL4</Barcode>
-        <Barcode name="2039941_2039941" MW="89658" AlamarTargetID="t4770" UniProtID="P24394" ProteinName="Interleukin-4 receptor subunit alpha">IL4R</Barcode>
-        <Barcode name="2969025_2969025" MW="15238" AlamarTargetID="t4769" UniProtID="P05113" ProteinName="Interleukin-5">IL5</Barcode>
-        <Barcode name="11650520_11650520" MW="47685" AlamarTargetID="t4768" UniProtID="Q01344" ProteinName="Interleukin-5 receptor subunit alpha">IL5RA</Barcode>
-        <Barcode name="7892784_7892784" MW="23718" AlamarTargetID="t4767" UniProtID="P05231" ProteinName="Interleukin-6">IL6</Barcode>
-        <Barcode name="10261451_10261451" MW="51548" AlamarTargetID="t4766" UniProtID="P08887" ProteinName="Interleukin-6 receptor subunit alpha">IL6R</Barcode>
-        <Barcode name="1994084_1994084" MW="103537" AlamarTargetID="t4764" UniProtID="P40189" ProteinName="Interleukin-6 receptor subunit beta">IL6ST</Barcode>
-        <Barcode name="380423_380423" MW="20187" AlamarTargetID="t4763" UniProtID="P13232" ProteinName="Interleukin-7">IL7</Barcode>
-        <Barcode name="2985519_2985519" MW="51579" AlamarTargetID="t4762" UniProtID="P16871" ProteinName="Interleukin-7 receptor subunit alpha">IL7R</Barcode>
-        <Barcode name="14173416_14173416" MW="15909" AlamarTargetID="t4760" UniProtID="P15248" ProteinName="Interleukin-9">IL9</Barcode>
-        <Barcode name="6848884_6848884" MW="51530" AlamarTargetID="t6972" UniProtID="Q9NWZ3" ProteinName="Interleukin-1 receptor-associated kinase 4">IRAK4</Barcode>
-        <Barcode name="15041922_15041922" MW="151527" AlamarTargetID="t4678" UniProtID="P35968" ProteinName="Vascular endothelial growth factor receptor 2">KDR</Barcode>
-        <Barcode name="15930544_15930544" MW="30899" AlamarTargetID="t4661" UniProtID="P21583" ProteinName="Kit ligand">KITLG</Barcode>
-        <Barcode name="7041619_7041619" MW="25304" AlamarTargetID="t6836" UniProtID="P26718" ProteinName="NKG2-D type II integral membrane protein">KLRK1</Barcode>
-        <Barcode name="394739_394739" MW="71957" AlamarTargetID="t4640" UniProtID="P01042" ProteinName="Kininogen-1">KNG1</Barcode>
-        <Barcode name="7489131_7489131" MW="57449" AlamarTargetID="t4620" UniProtID="P18627" ProteinName="Lymphocyte activation gene 3 protein">LAG3</Barcode>
-        <Barcode name="11732836_11732836" MW="44346" AlamarTargetID="t22133" UniProtID="Q9UQV4" ProteinName="Lysosomal associated membrane protein 3">LAMP3</Barcode>
-        <Barcode name="12737799_12737799" MW="22588" AlamarTargetID="t4602" UniProtID="P80188" ProteinName="Neutrophil gelatinase-associated lipocalin">LCN2</Barcode>
-        <Barcode name="13176393_13176393" MW="39518" AlamarTargetID="t4581" UniProtID="O00182" ProteinName="Galectin-9">LGALS9</Barcode>
-        <Barcode name="10934479_10934479" MW="22008" AlamarTargetID="t4576" UniProtID="P15018" ProteinName="Leukemia inhibitory factor">LIF</Barcode>
-        <Barcode name="7971143_7971143" MW="65005" AlamarTargetID="t4571" UniProtID="Q8N423" ProteinName="Leukocyte immunoglobulin-like receptor subfamily B member 2">LILRB2</Barcode>
-        <Barcode name="750768_750768" MW="22297" AlamarTargetID="t4546" UniProtID="P01374" ProteinName="Lymphotoxin-alpha">LTA</Barcode>
-        <Barcode name="12007776_12007776" MW="110249" AlamarTargetID="t12859" UniProtID="Q12866" ProteinName="MER proto-oncogene, tyrosine kinase">MERTK</Barcode>
-        <Barcode name="5261096_5261096" MW="42915" AlamarTargetID="t4430" UniProtID="Q29983" ProteinName="MHC class I polypeptide-related sequence A">MICA</Barcode>
-        <Barcode name="517296_517296" MW="42575" AlamarTargetID="t4429" UniProtID="Q29980" ProteinName="MHC class I polypeptide-related sequence B">MICB</Barcode>
-        <Barcode name="2432396_2432396" MW="12476" AlamarTargetID="t4427" UniProtID="P14174" ProteinName="Macrophage migration inhibitory factor">MIF</Barcode>
-        <Barcode name="7918688_7918688" MW="54007" AlamarTargetID="t4415" UniProtID="P03956" ProteinName="Interstitial collagenase">MMP1</Barcode>
-        <Barcode name="9508956_9508956" MW="54002" AlamarTargetID="t4413" UniProtID="P39900" ProteinName="Macrophage metalloelastase">MMP12</Barcode>
-        <Barcode name="5210631_5210631" MW="53977" AlamarTargetID="t4405" UniProtID="P08254" ProteinName="Stromelysin-1">MMP3</Barcode>
-        <Barcode name="8483875_8483875" MW="53412" AlamarTargetID="t4403" UniProtID="P22894" ProteinName="Neutrophil collagenase">MMP8</Barcode>
-        <Barcode name="12337645_12337645" MW="78458" AlamarTargetID="t4402" UniProtID="P14780" ProteinName="Matrix metalloproteinase-9">MMP9</Barcode>
-        <Barcode name="9258856_9258856" MW="83869" AlamarTargetID="t4395" UniProtID="P05164" ProteinName="Myeloperoxidase">MPO</Barcode>
-        <Barcode name="5344081_5344081" MW="1519175" AlamarTargetID="t7427" UniProtID="Q8WXI7" ProteinName="Mucin-16">MUC16</Barcode>
-        <Barcode name="3347596_3347596" MW="55521" AlamarTargetID="t5671" UniProtID="P43490" ProteinName="Nicotinamide phosphoribosyltransferase">NAMPT</Barcode>
-        <Barcode name="15495348_15495348" MW="34480" AlamarTargetID="t4532" UniProtID="O76036" ProteinName="Natural cytotoxicity triggering receptor 1">NCR1</Barcode>
-        <Barcode name="9520932_9520932" MW="26959" AlamarTargetID="t4292" UniProtID="P01138" ProteinName="Beta-nerve growth factor">NGF</Barcode>
-        <Barcode name="7111920_7111920" MW="29355" AlamarTargetID="t4232" UniProtID="P20783" ProteinName="Neurotrophin-3">NTF3</Barcode>
-        <Barcode name="9520712_9520712" MW="28484" AlamarTargetID="t4191" UniProtID="P13725" ProteinName="Oncostatin-M">OSM</Barcode>
-        <Barcode name="10359014_10359014" MW="110509" AlamarTargetID="t4190" UniProtID="Q99650" ProteinName="Oncostatin-M-specific receptor subunit beta">OSMR</Barcode>
-        <Barcode name="15931096_15931096" MW="31647" AlamarTargetID="t4125" UniProtID="Q15116" ProteinName="Programmed cell death protein 1">PDCD1</Barcode>
-        <Barcode name="10178637_10178637" MW="30957" AlamarTargetID="t6841" UniProtID="Q9BQ51" ProteinName="Programmed cell death 1 ligand 2">PDCD1LG2</Barcode>
-        <Barcode name="11732760_11732760" MW="24043" AlamarTargetID="t4109" UniProtID="P04085" ProteinName="Platelet-derived growth factor subunit A">PDGFA</Barcode>
-        <Barcode name="7095760_7095760" MW="27283" AlamarTargetID="t4107" UniProtID="P01127" ProteinName="Platelet-derived growth factor subunit B">PDGFB</Barcode>
-        <Barcode name="12878323_12878323" MW="24789" AlamarTargetID="t4075" UniProtID="P49763" ProteinName="Placenta growth factor">PGF</Barcode>
-        <Barcode name="6710552_6710552" MW="41976" AlamarTargetID="t3808" UniProtID="P26022" ProteinName="Pentraxin-related protein PTX3">PTX3</Barcode>
-        <Barcode name="2638940_2638940" MW="10575" AlamarTargetID="t8367" UniProtID="P80511" ProteinName="Protein S100-A12">S100A12</Barcode>
-        <Barcode name="14190286_14190286" MW="13242" AlamarTargetID="t8358" UniProtID="P06702" ProteinName="Protein S100-A9">S100A9</Barcode>
-        <Barcode name="9992717_9992717" MW="70941" AlamarTargetID="t10883" UniProtID="P13521" ProteinName="Secretogranin II">SCG2</Barcode>
-        <Barcode name="14791973_14791973" MW="32462" AlamarTargetID="t11041" UniProtID="P18827" ProteinName="Syndecan 1">SDC1</Barcode>
-        <Barcode name="13260876_13260876" MW="66655" AlamarTargetID="t8286" UniProtID="P16581" ProteinName="E-selectin">SELE</Barcode>
-        <Barcode name="14432058_14432058" MW="90820" AlamarTargetID="t8284" UniProtID="P16109" ProteinName="P-selectin">SELP</Barcode>
-        <Barcode name="12677344_12677344" MW="54967" AlamarTargetID="t3817" UniProtID="P78324" ProteinName="Tyrosine-protein phosphatase non-receptor type substrate 1">SIRPA</Barcode>
-        <Barcode name="9840157_9840157" MW="37231" AlamarTargetID="t8209" UniProtID="Q13291" ProteinName="Signaling lymphocytic activation molecule">SLAMF1</Barcode>
-        <Barcode name="1663748_1663748" MW="35423" AlamarTargetID="t8131" UniProtID="P10451" ProteinName="Osteopontin">SPP1</Barcode>
-        <Barcode name="7871636_7871636" MW="14301" AlamarTargetID="t6509" UniProtID="Q7Z5A7" ProteinName="Chemokine-like protein TAFA-5">TAFA5</Barcode>
-        <Barcode name="5282413_5282413" MW="125830" AlamarTargetID="t8018" UniProtID="Q02763" ProteinName="Angiopoietin-1 receptor">TEK</Barcode>
-        <Barcode name="4305601_4305601" MW="44325" AlamarTargetID="t8006" UniProtID="P01137" ProteinName="Transforming growth factor beta-1 proprotein">TGFB1</Barcode>
-        <Barcode name="361743_361743" MW="47328" AlamarTargetID="t8004" UniProtID="P10600" ProteinName="Transforming growth factor beta-3 proprotein">TGFB3</Barcode>
-        <Barcode name="9003732_9003732" MW="129991" AlamarTargetID="t7995" UniProtID="P35442" ProteinName="Thrombospondin-2">THBS2</Barcode>
-        <Barcode name="6690904_6690904" MW="37823" AlamarTargetID="t7992" UniProtID="P40225" ProteinName="Thrombopoietin">THPO</Barcode>
-        <Barcode name="14753094_14753094" MW="23171" AlamarTargetID="t7983" UniProtID="P01033" ProteinName="Metalloproteinase inhibitor 1">TIMP1</Barcode>
-        <Barcode name="1164780_1164780" MW="24399" AlamarTargetID="t7982" UniProtID="P16035" ProteinName="Metalloproteinase inhibitor 2">TIMP2</Barcode>
-        <Barcode name="317004_317004" MW="103829" AlamarTargetID="t7971" UniProtID="O15455" ProteinName="Toll-like receptor 3">TLR3</Barcode>
-        <Barcode name="4900292_4900292" MW="25644" AlamarTargetID="t7958" UniProtID="P01375" ProteinName="Tumor necrosis factor">TNF</Barcode>
-        <Barcode name="5151536_5151536" MW="66034" AlamarTargetID="t22619" UniProtID="Q9Y6Q6" ProteinName="TNF receptor superfamily member 11a">TNFRSF11A</Barcode>
-        <Barcode name="7419666_7419666" MW="46026" AlamarTargetID="t7952" UniProtID="O00300" ProteinName="Tumor necrosis factor receptor superfamily member 11B">TNFRSF11B</Barcode>
-        <Barcode name="5789762_5789762" MW="31816" AlamarTargetID="t6931" UniProtID="O14836" ProteinName="Tumor necrosis factor receptor superfamily member 13B">TNFRSF13B</Barcode>
-        <Barcode name="15964738_15964738" MW="18864" AlamarTargetID="t7018" UniProtID="Q96RJ3" ProteinName="Tumor necrosis factor receptor superfamily member 13C">TNFRSF13C</Barcode>
-        <Barcode name="3215120_3215120" MW="30392" AlamarTargetID="t7951" UniProtID="Q92956" ProteinName="Tumor necrosis factor receptor superfamily member 14">TNFRSF14</Barcode>
-        <Barcode name="1773861_1773861" MW="20165" AlamarTargetID="t7950" UniProtID="Q02223" ProteinName="Tumor necrosis factor receptor superfamily member 17">TNFRSF17</Barcode>
-        <Barcode name="8614811_8614811" MW="26000" AlamarTargetID="t7949" UniProtID="Q9Y5U5" ProteinName="Tumor necrosis factor receptor superfamily member 18">TNFRSF18</Barcode>
-        <Barcode name="2893264_2893264" MW="50495" AlamarTargetID="t7947" UniProtID="P19438" ProteinName="Tumor necrosis factor receptor superfamily member 1A">TNFRSF1A</Barcode>
-        <Barcode name="3438188_3438188" MW="48291" AlamarTargetID="t7946" UniProtID="P20333" ProteinName="Tumor necrosis factor receptor superfamily member 1B">TNFRSF1B</Barcode>
-        <Barcode name="2558837_2558837" MW="71845" AlamarTargetID="t7702" UniProtID="O75509" ProteinName="Tumor necrosis factor receptor superfamily member 21">TNFRSF21</Barcode>
-        <Barcode name="3222725_3222725" MW="29341" AlamarTargetID="t7945" UniProtID="P43489" ProteinName="Tumor necrosis factor receptor superfamily member 4">TNFRSF4</Barcode>
-        <Barcode name="6050186_6050186" MW="63747" AlamarTargetID="t7941" UniProtID="P28908" ProteinName="Tumor necrosis factor receptor superfamily member 8">TNFRSF8</Barcode>
-        <Barcode name="6887233_6887233" MW="27899" AlamarTargetID="t7940" UniProtID="Q07011" ProteinName="Tumor necrosis factor receptor superfamily member 9">TNFRSF9</Barcode>
-        <Barcode name="5064198_5064198" MW="32509" AlamarTargetID="t7939" UniProtID="P50591" ProteinName="Tumor necrosis factor ligand superfamily member 10">TNFSF10</Barcode>
-        <Barcode name="4855569_4855569" MW="35478" AlamarTargetID="t7938" UniProtID="O14788" ProteinName="Tumor necrosis factor ligand superfamily member 11">TNFSF11</Barcode>
-        <Barcode name="6035236_6035236" MW="27216" AlamarTargetID="t7937" UniProtID="O43508" ProteinName="Tumor necrosis factor ligand superfamily member 12">TNFSF12</Barcode>
-        <Barcode name="5082128_5082128" MW="27433" AlamarTargetID="t10034" UniProtID="O75888" ProteinName="TNF superfamily member 13">TNFSF13</Barcode>
-        <Barcode name="6588487_6588487" MW="26350" AlamarTargetID="t7935" UniProtID="O43557" ProteinName="Tumor necrosis factor ligand superfamily member 14">TNFSF14</Barcode>
-        <Barcode name="13658503_13658503" MW="28087" AlamarTargetID="t7934" UniProtID="O95150" ProteinName="Tumor necrosis factor ligand superfamily member 15">TNFSF15</Barcode>
-        <Barcode name="4463379_4463379" MW="20308" AlamarTargetID="t7933" UniProtID="Q9UNG2" ProteinName="Tumor necrosis factor ligand superfamily member 18">TNFSF18</Barcode>
-        <Barcode name="5468272_5468272" MW="21050" AlamarTargetID="t7932" UniProtID="P23510" ProteinName="Tumor necrosis factor ligand superfamily member 4">TNFSF4</Barcode>
-        <Barcode name="10970568_10970568" MW="26017" AlamarTargetID="t7928" UniProtID="P32971" ProteinName="Tumor necrosis factor ligand superfamily member 8">TNFSF8</Barcode>
-        <Barcode name="14994528_14994528" MW="26625" AlamarTargetID="t7927" UniProtID="P41273" ProteinName="Tumor necrosis factor ligand superfamily member 9">TNFSF9</Barcode>
-        <Barcode name="1449256_1449256" MW="26387" AlamarTargetID="t7015" UniProtID="Q9NP99" ProteinName="Triggering receptor expressed on myeloid cells 1">TREM1</Barcode>
-        <Barcode name="6096164_6096164" MW="25447" AlamarTargetID="t7014" UniProtID="Q9NZC2" ProteinName="Triggering receptor expressed on myeloid cells 2">TREM2</Barcode>
-        <Barcode name="323684_323684" MW="18141" AlamarTargetID="t5586" UniProtID="Q969D9" ProteinName="Thymic stromal lymphopoietin">TSLP</Barcode>
-        <Barcode name="5462177_5462177" MW="81276" AlamarTargetID="t7802" UniProtID="P19320" ProteinName="Vascular cell adhesion protein 1">VCAM1</Barcode>
-        <Barcode name="1446593_1446593" MW="43597" AlamarTargetID="t7798" UniProtID="P15692" ProteinName="Vascular endothelial growth factor A">VEGFA</Barcode>
-        <Barcode name="1331952_1331952" MW="46883" AlamarTargetID="t7796" UniProtID="P49767" ProteinName="Vascular endothelial growth factor C">VEGFC</Barcode>
-        <Barcode name="6067138_6067138" MW="40444" AlamarTargetID="t22682" UniProtID="O43915" ProteinName="Vascular endothelial growth factor D">VEGFD</Barcode>
-        <Barcode name="13305492_13305492" MW="22142" AlamarTargetID="t7785" UniProtID="P62760" ProteinName="Visinin-like protein 1">VSNL1</Barcode>
-        <Barcode name="529532_529532" MW="26109" AlamarTargetID="t15215" UniProtID="Q6UX27" ProteinName="V-set and transmembrane domain containing 1">VSTM1</Barcode>
-        <Barcode name="6705376_6705376" MW="40690" AlamarTargetID="t21611" UniProtID="Q9UBV4" ProteinName="Wnt family member 16">WNT16</Barcode>
-        <Barcode name="5791823_5791823" MW="39005" AlamarTargetID="t7772" UniProtID="O00755" ProteinName="Protein Wnt-7a">WNT7A</Barcode>
-        <Barcode name="12867621_12867621" MW="26700" AlamarTargetID="t22695" UniProtID="X5DSL3" ProteinName="MCherry fluorescent protein">mCherry</Barcode>
+        <Barcode name="1625168_1625168" MW="42803" AlamarTargetID="t5521" UniProtID="Q15109" ProteinName="Advanced glycosylation end product-specific receptor" Curve_Quant="F">AGER</Barcode>
+        <Barcode name="1902917_1902917" MW="14440" AlamarTargetID="t5469" UniProtID="O00253" ProteinName="Agouti-related protein" Curve_Quant="F">AGRP</Barcode>
+        <Barcode name="14763184_14763184" MW="57513" AlamarTargetID="t5018" UniProtID="Q15389" ProteinName="Angiopoietin-1" Curve_Quant="F">ANGPT1</Barcode>
+        <Barcode name="4374849_4374849" MW="56919" AlamarTargetID="t5015" UniProtID="O15123" ProteinName="Angiopoietin-2" Curve_Quant="F">ANGPT2</Barcode>
+        <Barcode name="2651532_2651532" MW="38714" AlamarTargetID="t4910" UniProtID="P04083" ProteinName="Annexin A1" Curve_Quant="F">ANXA1</Barcode>
+        <Barcode name="1115699_1115699" MW="27895" AlamarTargetID="t4610" UniProtID="P15514" ProteinName="Amphiregulin" Curve_Quant="F">AREG</Barcode>
+        <Barcode name="16347233_16347233" MW="27818" AlamarTargetID="t8399" UniProtID="P23560" ProteinName="Brain-derived neurotrophic factor" Curve_Quant="F">BDNF</Barcode>
+        <Barcode name="908042_908042" MW="49313" AlamarTargetID="t8269" UniProtID="P18075" ProteinName="Bone morphogenetic protein 7" Curve_Quant="F">BMP7</Barcode>
+        <Barcode name="2016283_2016283" MW="19769" AlamarTargetID="t8151" UniProtID="Q10589" ProteinName="Bone marrow stromal antigen 2" Curve_Quant="F">BST2</Barcode>
+        <Barcode name="10671319_10671319" MW="26017" AlamarTargetID="t10433" UniProtID="P02745" ProteinName="Complement C1q A chain" Curve_Quant="F">C1QA</Barcode>
+        <Barcode name="3453499_3453499" MW="15467" AlamarTargetID="t10412" UniProtID="P01258" ProteinName="Calcitonin [Cleaved into: Calcitonin; Katacalcin" Curve_Quant="F">CALCA</Barcode>
+        <Barcode name="11605520_11605520" MW="10992" AlamarTargetID="t8334" UniProtID="P22362" ProteinName="C-C motif chemokine 1" Curve_Quant="F">CCL1</Barcode>
+        <Barcode name="9307231_9307231" MW="10732" AlamarTargetID="t8333" UniProtID="P51671" ProteinName="Eotaxin" Curve_Quant="F">CCL11</Barcode>
+        <Barcode name="7285840_7285840" MW="10986" AlamarTargetID="t8332" UniProtID="Q99616" ProteinName="C-C motif chemokine 13" Curve_Quant="F">CCL13</Barcode>
+        <Barcode name="1315649_1315649" MW="10678" AlamarTargetID="t8331" UniProtID="Q16627" ProteinName="C-C motif chemokine 14" Curve_Quant="F">CCL14</Barcode>
+        <Barcode name="3577700_3577700" MW="12236" AlamarTargetID="t8330" UniProtID="Q16663" ProteinName="C-C motif chemokine 15" Curve_Quant="F">CCL15</Barcode>
+        <Barcode name="13376624_13376624" MW="13600" AlamarTargetID="t8329" UniProtID="O15467" ProteinName="C-C motif chemokine 16" Curve_Quant="F">CCL16</Barcode>
+        <Barcode name="8676556_8676556" MW="10507" AlamarTargetID="t8328" UniProtID="Q92583" ProteinName="C-C motif chemokine 17" Curve_Quant="F">CCL17</Barcode>
+        <Barcode name="3688275_3688275" MW="10993" AlamarTargetID="t8326" UniProtID="Q99731" ProteinName="C-C motif chemokine 19" Curve_Quant="F">CCL19</Barcode>
+        <Barcode name="8160740_8160740" MW="11025" AlamarTargetID="t8325" UniProtID="P13500" ProteinName="C-C motif chemokine 2" Curve_Quant="F">CCL2</Barcode>
+        <Barcode name="3449296_3449296" MW="10762" AlamarTargetID="t8324" UniProtID="P78556" ProteinName="C-C motif chemokine 20" Curve_Quant="F">CCL20</Barcode>
+        <Barcode name="5836875_5836875" MW="14646" AlamarTargetID="t8322" UniProtID="O00585" ProteinName="C-C motif chemokine 21" Curve_Quant="F">CCL21</Barcode>
+        <Barcode name="15487237_15487237" MW="10625" AlamarTargetID="t8321" UniProtID="O00626" ProteinName="C-C motif chemokine 22" Curve_Quant="F">CCL22</Barcode>
+        <Barcode name="7816728_7816728" MW="13443" AlamarTargetID="t8320" UniProtID="P55773" ProteinName="C-C motif chemokine 23" Curve_Quant="F">CCL23</Barcode>
+        <Barcode name="12684539_12684539" MW="13134" AlamarTargetID="t8319" UniProtID="O00175" ProteinName="C-C motif chemokine 24" Curve_Quant="F">CCL24</Barcode>
+        <Barcode name="6479245_6479245" MW="16609" AlamarTargetID="t8318" UniProtID="O15444" ProteinName="C-C motif chemokine 25" Curve_Quant="F">CCL25</Barcode>
+        <Barcode name="16476229_16476229" MW="10648" AlamarTargetID="t8317" UniProtID="Q9Y258" ProteinName="C-C motif chemokine 26" Curve_Quant="F">CCL26</Barcode>
+        <Barcode name="12166243_12166243" MW="12618" AlamarTargetID="t8316" UniProtID="Q9Y4X3" ProteinName="C-C motif chemokine 27" Curve_Quant="F">CCL27</Barcode>
+        <Barcode name="3485004_3485004" MW="14280" AlamarTargetID="t7024" UniProtID="Q9NRJ3" ProteinName="C-C motif chemokine 28" Curve_Quant="F">CCL28</Barcode>
+        <Barcode name="2973766_2973766" MW="10085" AlamarTargetID="t8315" UniProtID="P10147" ProteinName="C-C motif chemokine 3" Curve_Quant="F">CCL3</Barcode>
+        <Barcode name="13320628_13320628" MW="10212" AlamarTargetID="t10876" UniProtID="P13236" ProteinName="C-C motif chemokine ligand 4" Curve_Quant="F">CCL4</Barcode>
+        <Barcode name="10547568_10547568" MW="9990" AlamarTargetID="t8311" UniProtID="P13501" ProteinName="C-C motif chemokine 5" Curve_Quant="F">CCL5</Barcode>
+        <Barcode name="6193865_6193865" MW="11200" AlamarTargetID="t8310" UniProtID="P80098" ProteinName="C-C motif chemokine 7" Curve_Quant="F">CCL7</Barcode>
+        <Barcode name="3400923_3400923" MW="11246" AlamarTargetID="t8309" UniProtID="P80075" ProteinName="C-C motif chemokine 8" Curve_Quant="F">CCL8</Barcode>
+        <Barcode name="10191216_10191216" MW="31264" AlamarTargetID="t4399" UniProtID="P41217" ProteinName="OX-2 membrane glycoprotein" Curve_Quant="F">CD200</Barcode>
+        <Barcode name="421252_421252" MW="39041" AlamarTargetID="t6290" UniProtID="Q8TD46" ProteinName="Cell surface glycoprotein CD200 receptor 1" Curve_Quant="F">CD200R1</Barcode>
+        <Barcode name="11896306_11896306" MW="29137" AlamarTargetID="t7942" UniProtID="P26842" ProteinName="CD27 antigen" Curve_Quant="F">CD27</Barcode>
+        <Barcode name="5861556_5861556" MW="33275" AlamarTargetID="t7035" UniProtID="Q9NZQ7" ProteinName="Programmed cell death 1 ligand 1, PD-L1" Curve_Quant="F">CD274</Barcode>
+        <Barcode name="11394266_11394266" MW="57235" AlamarTargetID="t14662" UniProtID="Q5ZPR3" ProteinName="CD276 molecule" Curve_Quant="F">CD276</Barcode>
+        <Barcode name="2969094_2969094" MW="23147" AlamarTargetID="t7235" UniProtID="P07766" ProteinName="T-cell surface glycoprotein CD3 epsilon chain" Curve_Quant="F">CD3E</Barcode>
+        <Barcode name="2027592_2027592" MW="51111" AlamarTargetID="t7229" UniProtID="P01730" ProteinName="T-cell surface glycoprotein CD4" Curve_Quant="F">CD4</Barcode>
+        <Barcode name="10160903_10160903" MW="30619" AlamarTargetID="t11248" UniProtID="P25942" ProteinName="CD40 molecule" Curve_Quant="F">CD40</Barcode>
+        <Barcode name="9537069_9537069" MW="29274" AlamarTargetID="t7931" UniProtID="P29965" ProteinName="CD40 ligand" Curve_Quant="F">CD40LG</Barcode>
+        <Barcode name="14779657_14779657" MW="43747" AlamarTargetID="t4459" UniProtID="P15529" ProteinName="Membrane cofactor protein" Curve_Quant="F">CD46</Barcode>
+        <Barcode name="4489532_4489532" MW="21118" AlamarTargetID="t7929" UniProtID="P32970" ProteinName="CD70 antigen" Curve_Quant="F">CD70</Barcode>
+        <Barcode name="7035921_7035921" MW="33048" AlamarTargetID="t7151" UniProtID="P33681" ProteinName="T-lymphocyte activation antigen CD80" Curve_Quant="F">CD80</Barcode>
+        <Barcode name="8870701_8870701" MW="23042" AlamarTargetID="t7143" UniProtID="Q01151" ProteinName="CD83 antigen" Curve_Quant="F">CD83</Barcode>
+        <Barcode name="8065470_8065470" MW="68560" AlamarTargetID="t7380" UniProtID="Q9NPY3" ProteinName="Complement component C1q receptor" Curve_Quant="F">CD93</Barcode>
+        <Barcode name="5075522_5075522" MW="76796" AlamarTargetID="t10514" UniProtID="P06731" ProteinName="Carcinoembryonic antigen related cell adhesion molecule 5" Curve_Quant="F">CEACAM5</Barcode>
+        <Barcode name="12064663_12064663" MW="42625" AlamarTargetID="t6758" UniProtID="P36222" ProteinName="Chitinase-3-like protein 1" Curve_Quant="F">CHI3L1</Barcode>
+        <Barcode name="7439380_7439380" MW="27512" AlamarTargetID="t7726" UniProtID="Q9UMR7" ProteinName="C-type lectin domain family 4 member A" Curve_Quant="F">CLEC4A</Barcode>
+        <Barcode name="13649476_13649476" MW="22931" AlamarTargetID="t6500" UniProtID="P26441" ProteinName="Ciliary neurotrophic factor" Curve_Quant="F">CNTF</Barcode>
+        <Barcode name="3953428_3953428" MW="25039" AlamarTargetID="t6336" UniProtID="P02741" ProteinName="C-reactive protein" Curve_Quant="R">CRP</Barcode>
+        <Barcode name="15042539_15042539" MW="60179" AlamarTargetID="t6276" UniProtID="P09603" ProteinName="Macrophage colony-stimulating factor 1" Curve_Quant="F">CSF1</Barcode>
+        <Barcode name="3066948_3066948" MW="107984" AlamarTargetID="t6273" UniProtID="P07333" ProteinName="Macrophage colony-stimulating factor 1 receptor" Curve_Quant="F">CSF1R</Barcode>
+        <Barcode name="7620164_7620164" MW="16295" AlamarTargetID="t6271" UniProtID="P04141" ProteinName="Granulocyte-macrophage colony-stimulating factor" Curve_Quant="F">CSF2</Barcode>
+        <Barcode name="13132060_13132060" MW="97336" AlamarTargetID="t6266" UniProtID="P32927" ProteinName="Cytokine receptor common subunit beta" Curve_Quant="F">CSF2RB</Barcode>
+        <Barcode name="3481026_3481026" MW="22293" AlamarTargetID="t6263" UniProtID="P09919" ProteinName="Granulocyte colony-stimulating factor, G-CSF" Curve_Quant="F">CSF3</Barcode>
+        <Barcode name="10007963_10007963" MW="92156" AlamarTargetID="t6262" UniProtID="Q99062" ProteinName="Granulocyte colony-stimulating factor receptor" Curve_Quant="F">CSF3R</Barcode>
+        <Barcode name="7147851_7147851" MW="16454" AlamarTargetID="t6198" UniProtID="O76096" ProteinName="Cystatin-F" Curve_Quant="F">CST7</Barcode>
+        <Barcode name="6021391_6021391" MW="21227" AlamarTargetID="t6166" UniProtID="Q16619" ProteinName="Cardiotrophin-1" Curve_Quant="F">CTF1</Barcode>
+        <Barcode name="15402052_15402052" MW="24656" AlamarTargetID="t6154" UniProtID="P16410" ProteinName="Cytotoxic T-lymphocyte protein 4" Curve_Quant="F">CTLA4</Barcode>
+        <Barcode name="7771693_7771693" MW="37496" AlamarTargetID="t6100" UniProtID="P25774" ProteinName="Cathepsin S" Curve_Quant="F">CTSS</Barcode>
+        <Barcode name="1319222_1319222" MW="42203" AlamarTargetID="t8300" UniProtID="P78423" ProteinName="Fractalkine" Curve_Quant="F">CX3CL1</Barcode>
+        <Barcode name="13650882_13650882" MW="40030" AlamarTargetID="t6074" UniProtID="P78310" ProteinName="Coxsackievirus and adenovirus receptor" Curve_Quant="F">CXADR</Barcode>
+        <Barcode name="5057700_5057700" MW="11301" AlamarTargetID="t5070" UniProtID="P09341" ProteinName="Growth-regulated alpha protein" Curve_Quant="F">CXCL1</Barcode>
+        <Barcode name="8769952_8769952" MW="10881" AlamarTargetID="t8308" UniProtID="P02778" ProteinName="C-X-C motif chemokine 10" Curve_Quant="F">CXCL10</Barcode>
+        <Barcode name="10341897_10341897" MW="10365" AlamarTargetID="t8307" UniProtID="O14625" ProteinName="C-X-C motif chemokine 11" Curve_Quant="F">CXCL11</Barcode>
+        <Barcode name="5333517_5333517" MW="10666" AlamarTargetID="t8295" UniProtID="P48061" ProteinName="Stromal cell-derived factor 1" Curve_Quant="F">CXCL12</Barcode>
+        <Barcode name="14340545_14340545" MW="12664" AlamarTargetID="t8306" UniProtID="O43927" ProteinName="C-X-C motif chemokine 13" Curve_Quant="F">CXCL13</Barcode>
+        <Barcode name="7744902_7744902" MW="13078" AlamarTargetID="t8305" UniProtID="O95715" ProteinName="C-X-C motif chemokine 14" Curve_Quant="F">CXCL14</Barcode>
+        <Barcode name="6194011_6194011" MW="27579" AlamarTargetID="t7255" UniProtID="Q9H2A7" ProteinName="C-X-C motif chemokine 16" Curve_Quant="F">CXCL16</Barcode>
+        <Barcode name="12264280_12264280" MW="11389" AlamarTargetID="t11070" UniProtID="P19875" ProteinName="C-X-C motif chemokine ligand 2" Curve_Quant="F">CXCL2</Barcode>
+        <Barcode name="2176632_2176632" MW="11342" AlamarTargetID="t11071" UniProtID="P19876" ProteinName="C-X-C motif chemokine ligand 3" Curve_Quant="F">CXCL3</Barcode>
+        <Barcode name="10393404_10393404" MW="11972" AlamarTargetID="t8304" UniProtID="P42830" ProteinName="C-X-C motif chemokine 5" Curve_Quant="F">CXCL5</Barcode>
+        <Barcode name="7093040_7093040" MW="11897" AlamarTargetID="t8303" UniProtID="P80162" ProteinName="C-X-C motif chemokine 6" Curve_Quant="F">CXCL6</Barcode>
+        <Barcode name="7430472_7430472" MW="11098" AlamarTargetID="t4761" UniProtID="P10145" ProteinName="Interleukin-8, IL8" Curve_Quant="F">CXCL8</Barcode>
+        <Barcode name="10065562_10065562" MW="14019" AlamarTargetID="t4426" UniProtID="Q07325" ProteinName="C-X-C motif chemokine 9" Curve_Quant="F">CXCL9</Barcode>
+        <Barcode name="7648022_7648022" MW="133994" AlamarTargetID="t5505" UniProtID="P01133" ProteinName="Pro-epidermal growth factor" Curve_Quant="F">EGF</Barcode>
+        <Barcode name="3559699_3559699" MW="21307" AlamarTargetID="t5404" UniProtID="P01588" ProteinName="Erythropoietin" Curve_Quant="F">EPO</Barcode>
+        <Barcode name="2283281_2283281" MW="31485" AlamarTargetID="t7930" UniProtID="P48023" ProteinName="Tumor necrosis factor ligand superfamily member 6" Curve_Quant="F">FASLG</Barcode>
+        <Barcode name="2651408_2651408" MW="24003" AlamarTargetID="t5317" UniProtID="O95750" ProteinName="Fibroblast growth factor 19" Curve_Quant="F">FGF19</Barcode>
+        <Barcode name="6234522_6234522" MW="30770" AlamarTargetID="t5316" UniProtID="P09038" ProteinName="Fibroblast growth factor 2" Curve_Quant="F">FGF2</Barcode>
+        <Barcode name="10866820_10866820" MW="22300" AlamarTargetID="t21015" UniProtID="Q9NSA1" ProteinName="Fibroblast growth factor 21" Curve_Quant="F">FGF21</Barcode>
+        <Barcode name="7576400_7576400" MW="27954" AlamarTargetID="t5313" UniProtID="Q9GZV9" ProteinName="Fibroblast growth factor 23" Curve_Quant="F">FGF23</Barcode>
+        <Barcode name="12463812_12463812" MW="150769" AlamarTargetID="t5274" UniProtID="P17948" ProteinName="Vascular endothelial growth factor receptor 1" Curve_Quant="F">FLT1</Barcode>
+        <Barcode name="9179949_9179949" MW="26416" AlamarTargetID="t5272" UniProtID="P49771" ProteinName="Fms-related tyrosine kinase 3 ligand" Curve_Quant="F">FLT3LG</Barcode>
+        <Barcode name="5359042_5359042" MW="152757" AlamarTargetID="t5271" UniProtID="P35916" ProteinName="Vascular endothelial growth factor receptor 3" Curve_Quant="F">FLT4</Barcode>
+        <Barcode name="4703334_4703334" MW="21226" AlamarTargetID="t10438" UniProtID="P02794" ProteinName="Ferritin heavy chain 1" Curve_Quant="F">FTH1</Barcode>
+        <Barcode name="4264664_4264664" MW="86678" AlamarTargetID="t4177" UniProtID="P09958" ProteinName="Furin" Curve_Quant="F">FURIN</Barcode>
+        <Barcode name="11646676_11646676" MW="34140" AlamarTargetID="t5665" UniProtID="Q99988" ProteinName="Growth/differentiation factor 15" Curve_Quant="F">GDF15</Barcode>
+        <Barcode name="13599963_13599963" MW="47320" AlamarTargetID="t5169" UniProtID="Q9UK05" ProteinName="Growth/differentiation factor 2" Curve_Quant="F">GDF2</Barcode>
+        <Barcode name="2541623_2541623" MW="49880" AlamarTargetID="t5158" UniProtID="P14136" ProteinName="Glial fibrillary acidic protein" Curve_Quant="F">GFAP</Barcode>
+        <Barcode name="4655133_4655133" MW="63544" AlamarTargetID="t5071" UniProtID="P28799" ProteinName="Progranulin" Curve_Quant="F">GRN</Barcode>
+        <Barcode name="4262761_4262761" MW="28999" AlamarTargetID="t5046" UniProtID="P12544" ProteinName="Granzyme A" Curve_Quant="F">GZMA</Barcode>
+        <Barcode name="416902_416902" MW="27716" AlamarTargetID="t5045" UniProtID="P10144" ProteinName="Granzyme B" Curve_Quant="F">GZMB</Barcode>
+        <Barcode name="4328921_4328921" MW="39250" AlamarTargetID="t6994" UniProtID="Q96D42" ProteinName="Hepatitis A virus cellular receptor 1" Curve_Quant="F">HAVCR1</Barcode>
+        <Barcode name="12863435_12863435" MW="83134" AlamarTargetID="t5002" UniProtID="P14210" ProteinName="Hepatocyte growth factor" Curve_Quant="F">HGF</Barcode>
+        <Barcode name="13124036_13124036" MW="28621" AlamarTargetID="t10417" UniProtID="P01903" ProteinName="Major histocompatibility complex, class II, DR alpha" Curve_Quant="F">HLA-DRA</Barcode>
+        <Barcode name="9138452_9138452" MW="57825" AlamarTargetID="t4906" UniProtID="P05362" ProteinName="Intercellular adhesion molecule 1" Curve_Quant="F">ICAM1</Barcode>
+        <Barcode name="10073401_10073401" MW="33349" AlamarTargetID="t7130" UniProtID="O75144" ProteinName="ICOS ligand" Curve_Quant="F">ICOSLG</Barcode>
+        <Barcode name="5849354_5849354" MW="21725" AlamarTargetID="t22707" UniProtID="P01562; P01562" ProteinName="Interferon alpha-1; Interferon alpha-13" Curve_Quant="F">IFNA1; IFNA13</Barcode>
+        <Barcode name="439408_439408" MW="21578" AlamarTargetID="t4877" UniProtID="P01563" ProteinName="Interferon alpha-2" Curve_Quant="F">IFNA2</Barcode>
+        <Barcode name="3452996_3452996" MW="22294" AlamarTargetID="t4868" UniProtID="P01574" ProteinName="Interferon beta" Curve_Quant="F">IFNB1</Barcode>
+        <Barcode name="15862721_15862721" MW="19348" AlamarTargetID="t4867" UniProtID="P01579" ProteinName="Interferon gamma" Curve_Quant="F">IFNG</Barcode>
+        <Barcode name="1593458_1593458" MW="21898" AlamarTargetID="t6899" UniProtID="Q8IU54" ProteinName="Interferon lambda-1" Curve_Quant="F">IFNL1</Barcode>
+        <Barcode name="4350450_4350450" MW="21997" AlamarTargetID="t22901" UniProtID="Q8IZJ0; Q8IZI9" ProteinName="Interferon lambda-2; Interferon lambda-3" Curve_Quant="F">IFNL2; IFNL3</Barcode>
+        <Barcode name="3428761_3428761" MW="22319" AlamarTargetID="t4863" UniProtID="P05000" ProteinName="Interferon omega-1" Curve_Quant="F">IFNW1</Barcode>
+        <Barcode name="6608514_6608514" MW="48198" AlamarTargetID="t22601" UniProtID="Q9Y6K9" ProteinName="Inhibitor of nuclear factor kappa B kinase subunit gamma" Curve_Quant="F">IKBKG</Barcode>
+        <Barcode name="6740585_6740585" MW="20517" AlamarTargetID="t4818" UniProtID="P22301" ProteinName="Interleukin-10" Curve_Quant="F">IL10</Barcode>
+        <Barcode name="7476761_7476761" MW="36995" AlamarTargetID="t4816" UniProtID="Q08334" ProteinName="Interleukin-10 receptor subunit beta" Curve_Quant="F">IL10RB</Barcode>
+        <Barcode name="12332811_12332811" MW="21429" AlamarTargetID="t4815" UniProtID="P20809" ProteinName="Interleukin-11" Curve_Quant="F">IL11</Barcode>
+        <Barcode name="10034253_10034253" MW="37169" AlamarTargetID="t4811" UniProtID="P29460" ProteinName="Interleukin-12 subunit beta" Curve_Quant="F">IL12B</Barcode>
+        <Barcode name="4593516_4593516" MW="73109" AlamarTargetID="t4810" UniProtID="P42701" ProteinName="Interleukin-12 receptor subunit beta-1" Curve_Quant="F">IL12RB1</Barcode>
+        <Barcode name="9680656_10034253" MW="62043" AlamarTargetID="t4813" UniProtID="P29459_P29460" ProteinName="Interleukin-12 subunit beta_Interleukin-12 subunit alpha" Curve_Quant="F">IL12p70</Barcode>
+        <Barcode name="14763085_14763085" MW="15788" AlamarTargetID="t4808" UniProtID="P35225" ProteinName="Interleukin-13" Curve_Quant="F">IL13</Barcode>
+        <Barcode name="377485_377485" MW="44176" AlamarTargetID="t13217" UniProtID="Q14627" ProteinName="Interleukin 13 receptor subunit alpha 2" Curve_Quant="F">IL13RA2</Barcode>
+        <Barcode name="15614224_15614224" MW="18086" AlamarTargetID="t4806" UniProtID="P40933" ProteinName="Interleukin-15" Curve_Quant="F">IL15</Barcode>
+        <Barcode name="6620236_6620236" MW="28233" AlamarTargetID="t4805" UniProtID="Q13261" ProteinName="Interleukin-15 receptor subunit alpha" Curve_Quant="F">IL15RA</Barcode>
+        <Barcode name="6312029_6312029" MW="141752" AlamarTargetID="t4803" UniProtID="Q14005" ProteinName="Pro-interleukin-16" Curve_Quant="F">IL16</Barcode>
+        <Barcode name="10576340_14206183" MW="17504" AlamarTargetID="t4802" UniProtID="Q16552" ProteinName="Interleukin-17A" Curve_Quant="F">IL17A</Barcode>
+        <Barcode name="6345794_14206183" MW="35549" AlamarTargetID="t22700" UniProtID="Q16552|Q96PD4" ProteinName="Interleukin-17A|Interleukin-17F" Curve_Quant="F">IL17A|IL17F</Barcode>
+        <Barcode name="14426903_14426903" MW="20437" AlamarTargetID="t4801" UniProtID="Q9UHF5" ProteinName="Interleukin-17B" Curve_Quant="F">IL17B</Barcode>
+        <Barcode name="14160123_14160123" MW="21765" AlamarTargetID="t4800" UniProtID="Q9P0M4" ProteinName="Interleukin-17C" Curve_Quant="F">IL17C</Barcode>
+        <Barcode name="6345794_6345794" MW="18045" AlamarTargetID="t7277" UniProtID="Q96PD4" ProteinName="Interleukin-17F" Curve_Quant="F">IL17F</Barcode>
+        <Barcode name="15583297_15583297" MW="96122" AlamarTargetID="t4798" UniProtID="Q96F46" ProteinName="Interleukin-17 receptor A" Curve_Quant="F">IL17RA</Barcode>
+        <Barcode name="6910664_6910664" MW="55885" AlamarTargetID="t6962" UniProtID="Q9NRM6" ProteinName="Interleukin-17 receptor B" Curve_Quant="F">IL17RB</Barcode>
+        <Barcode name="3346544_3346544" MW="22326" AlamarTargetID="t4797" UniProtID="Q14116" ProteinName="Interleukin-18" Curve_Quant="F">IL18</Barcode>
+        <Barcode name="5303622_5303622" MW="21099" AlamarTargetID="t4796" UniProtID="O95998" ProteinName="Interleukin-18-binding protein" Curve_Quant="F">IL18BP</Barcode>
+        <Barcode name="9482319_9482319" MW="62304" AlamarTargetID="t4795" UniProtID="Q13478" ProteinName="Interleukin-18 receptor 1" Curve_Quant="F">IL18R1</Barcode>
+        <Barcode name="898701_898701" MW="20452" AlamarTargetID="t4793" UniProtID="Q9UHD0" ProteinName="Interleukin-19" Curve_Quant="F">IL19</Barcode>
+        <Barcode name="5861648_5861648" MW="30748" AlamarTargetID="t4791" UniProtID="P01584" ProteinName="Interleukin-1 beta" Curve_Quant="F">IL1B</Barcode>
+        <Barcode name="3437968_3437968" MW="65402" AlamarTargetID="t4790" UniProtID="P14778" ProteinName="Interleukin-1 receptor type 1" Curve_Quant="F">IL1R1</Barcode>
+        <Barcode name="279260_279260" MW="45421" AlamarTargetID="t4789" UniProtID="P27930" ProteinName="Interleukin-1 receptor type 2" Curve_Quant="F">IL1R2</Barcode>
+        <Barcode name="12064579_12064579" MW="63358" AlamarTargetID="t4786" UniProtID="Q01638" ProteinName="Interleukin-1 receptor-like 1" Curve_Quant="F">IL1RL1</Barcode>
+        <Barcode name="2298302_2298302" MW="20055" AlamarTargetID="t4783" UniProtID="P18510" ProteinName="Interleukin-1 receptor antagonist protein" Curve_Quant="F">IL1RN</Barcode>
+        <Barcode name="14485856_14485856" MW="17628" AlamarTargetID="t4782" UniProtID="P60568" ProteinName="Interleukin-2" Curve_Quant="F">IL2</Barcode>
+        <Barcode name="1627186_1627186" MW="20072" AlamarTargetID="t4781" UniProtID="Q9NYY1" ProteinName="Interleukin-20" Curve_Quant="F">IL20</Barcode>
+        <Barcode name="5817895_5817895" MW="20011" AlamarTargetID="t7506" UniProtID="Q9GZX6" ProteinName="Interleukin-22" Curve_Quant="F">IL22</Barcode>
+        <Barcode name="11297616_10034253" MW="57899" AlamarTargetID="t7450" UniProtID="P29460|Q9NPF7" ProteinName="Interleukin-12 subunit beta|Interleukin-23 subunit alpha" Curve_Quant="F">IL23</Barcode>
+        <Barcode name="11302310_11302310" MW="23825" AlamarTargetID="t8112" UniProtID="Q13007" ProteinName="Interleukin-24" Curve_Quant="F">IL24</Barcode>
+        <Barcode name="6390128_6390128" MW="52889" AlamarTargetID="t22710" UniProtID="Q8NEV9|Q14213" ProteinName="Interleukin 27|Interleukin-27 subunit beta" Curve_Quant="F">IL27</Barcode>
+        <Barcode name="15474908_15474908" MW="30819" AlamarTargetID="t4776" UniProtID="P01589" ProteinName="Interleukin-2 receptor subunit alpha" Curve_Quant="F">IL2RA</Barcode>
+        <Barcode name="10119543_10119543" MW="61117" AlamarTargetID="t4775" UniProtID="P14784" ProteinName="Interleukin-2 receptor subunit beta" Curve_Quant="F">IL2RB</Barcode>
+        <Barcode name="6358776_6358776" MW="26676" AlamarTargetID="t7216" UniProtID="P24001" ProteinName="Interleukin-32" Curve_Quant="F">IL32</Barcode>
+        <Barcode name="11342925_11342925" MW="30759" AlamarTargetID="t10319" UniProtID="O95760" ProteinName="Interleukin 33" Curve_Quant="F">IL33</Barcode>
+        <Barcode name="4315348_4315348" MW="27482" AlamarTargetID="t5855" UniProtID="Q6ZMJ4" ProteinName="Interleukin-34" Curve_Quant="F">IL34</Barcode>
+        <Barcode name="5479273_5479273" MW="17684" AlamarTargetID="t7433" UniProtID="Q9UHA7" ProteinName="Interleukin-36 alpha" Curve_Quant="F">IL36A</Barcode>
+        <Barcode name="7587076_7587076" MW="18522" AlamarTargetID="t7431" UniProtID="Q9NZH7" ProteinName="Interleukin-36 beta" Curve_Quant="F">IL36B</Barcode>
+        <Barcode name="6606064_6606064" MW="18721" AlamarTargetID="t7408" UniProtID="Q9NZH8" ProteinName="Interleukin-36 gamma" Curve_Quant="F">IL36G</Barcode>
+        <Barcode name="14752786_14752786" MW="43330" AlamarTargetID="t4772" UniProtID="P26951" ProteinName="Interleukin-3 receptor subunit alpha" Curve_Quant="F">IL3RA</Barcode>
+        <Barcode name="505488_505488" MW="17492" AlamarTargetID="t4771" UniProtID="P05112" ProteinName="Interleukin-4" Curve_Quant="F">IL4</Barcode>
+        <Barcode name="2039941_2039941" MW="89658" AlamarTargetID="t4770" UniProtID="P24394" ProteinName="Interleukin-4 receptor subunit alpha" Curve_Quant="F">IL4R</Barcode>
+        <Barcode name="2969025_2969025" MW="15238" AlamarTargetID="t4769" UniProtID="P05113" ProteinName="Interleukin-5" Curve_Quant="F">IL5</Barcode>
+        <Barcode name="11650520_11650520" MW="47685" AlamarTargetID="t4768" UniProtID="Q01344" ProteinName="Interleukin-5 receptor subunit alpha" Curve_Quant="F">IL5RA</Barcode>
+        <Barcode name="7892784_7892784" MW="23718" AlamarTargetID="t4767" UniProtID="P05231" ProteinName="Interleukin-6" Curve_Quant="F">IL6</Barcode>
+        <Barcode name="10261451_10261451" MW="51548" AlamarTargetID="t4766" UniProtID="P08887" ProteinName="Interleukin-6 receptor subunit alpha" Curve_Quant="F">IL6R</Barcode>
+        <Barcode name="1994084_1994084" MW="103537" AlamarTargetID="t4764" UniProtID="P40189" ProteinName="Interleukin-6 receptor subunit beta" Curve_Quant="F">IL6ST</Barcode>
+        <Barcode name="380423_380423" MW="20187" AlamarTargetID="t4763" UniProtID="P13232" ProteinName="Interleukin-7" Curve_Quant="F">IL7</Barcode>
+        <Barcode name="2985519_2985519" MW="51579" AlamarTargetID="t4762" UniProtID="P16871" ProteinName="Interleukin-7 receptor subunit alpha" Curve_Quant="F">IL7R</Barcode>
+        <Barcode name="14173416_14173416" MW="15909" AlamarTargetID="t4760" UniProtID="P15248" ProteinName="Interleukin-9" Curve_Quant="F">IL9</Barcode>
+        <Barcode name="6848884_6848884" MW="51530" AlamarTargetID="t6972" UniProtID="Q9NWZ3" ProteinName="Interleukin-1 receptor-associated kinase 4" Curve_Quant="F">IRAK4</Barcode>
+        <Barcode name="15041922_15041922" MW="151527" AlamarTargetID="t4678" UniProtID="P35968" ProteinName="Vascular endothelial growth factor receptor 2" Curve_Quant="F">KDR</Barcode>
+        <Barcode name="15930544_15930544" MW="30899" AlamarTargetID="t4661" UniProtID="P21583" ProteinName="Kit ligand" Curve_Quant="F">KITLG</Barcode>
+        <Barcode name="7041619_7041619" MW="25304" AlamarTargetID="t6836" UniProtID="P26718" ProteinName="NKG2-D type II integral membrane protein" Curve_Quant="F">KLRK1</Barcode>
+        <Barcode name="394739_394739" MW="71957" AlamarTargetID="t4640" UniProtID="P01042" ProteinName="Kininogen-1" Curve_Quant="R">KNG1</Barcode>
+        <Barcode name="7489131_7489131" MW="57449" AlamarTargetID="t4620" UniProtID="P18627" ProteinName="Lymphocyte activation gene 3 protein" Curve_Quant="F">LAG3</Barcode>
+        <Barcode name="11732836_11732836" MW="44346" AlamarTargetID="t22133" UniProtID="Q9UQV4" ProteinName="Lysosomal associated membrane protein 3" Curve_Quant="F">LAMP3</Barcode>
+        <Barcode name="12737799_12737799" MW="22588" AlamarTargetID="t4602" UniProtID="P80188" ProteinName="Neutrophil gelatinase-associated lipocalin" Curve_Quant="F">LCN2</Barcode>
+        <Barcode name="13176393_13176393" MW="39518" AlamarTargetID="t4581" UniProtID="O00182" ProteinName="Galectin-9" Curve_Quant="F">LGALS9</Barcode>
+        <Barcode name="10934479_10934479" MW="22008" AlamarTargetID="t4576" UniProtID="P15018" ProteinName="Leukemia inhibitory factor" Curve_Quant="F">LIF</Barcode>
+        <Barcode name="7971143_7971143" MW="65005" AlamarTargetID="t4571" UniProtID="Q8N423" ProteinName="Leukocyte immunoglobulin-like receptor subfamily B member 2" Curve_Quant="F">LILRB2</Barcode>
+        <Barcode name="750768_750768" MW="22297" AlamarTargetID="t4546" UniProtID="P01374" ProteinName="Lymphotoxin-alpha" Curve_Quant="F">LTA</Barcode>
+        <Barcode name="12007776_12007776" MW="110249" AlamarTargetID="t12859" UniProtID="Q12866" ProteinName="MER proto-oncogene, tyrosine kinase" Curve_Quant="F">MERTK</Barcode>
+        <Barcode name="5261096_5261096" MW="42915" AlamarTargetID="t4430" UniProtID="Q29983" ProteinName="MHC class I polypeptide-related sequence A" Curve_Quant="F">MICA</Barcode>
+        <Barcode name="517296_517296" MW="42575" AlamarTargetID="t4429" UniProtID="Q29980" ProteinName="MHC class I polypeptide-related sequence B" Curve_Quant="F">MICB</Barcode>
+        <Barcode name="2432396_2432396" MW="12476" AlamarTargetID="t4427" UniProtID="P14174" ProteinName="Macrophage migration inhibitory factor" Curve_Quant="F">MIF</Barcode>
+        <Barcode name="7918688_7918688" MW="54007" AlamarTargetID="t4415" UniProtID="P03956" ProteinName="Interstitial collagenase" Curve_Quant="F">MMP1</Barcode>
+        <Barcode name="9508956_9508956" MW="54002" AlamarTargetID="t4413" UniProtID="P39900" ProteinName="Macrophage metalloelastase" Curve_Quant="F">MMP12</Barcode>
+        <Barcode name="5210631_5210631" MW="53977" AlamarTargetID="t4405" UniProtID="P08254" ProteinName="Stromelysin-1" Curve_Quant="F">MMP3</Barcode>
+        <Barcode name="8483875_8483875" MW="53412" AlamarTargetID="t4403" UniProtID="P22894" ProteinName="Neutrophil collagenase" Curve_Quant="F">MMP8</Barcode>
+        <Barcode name="12337645_12337645" MW="78458" AlamarTargetID="t4402" UniProtID="P14780" ProteinName="Matrix metalloproteinase-9" Curve_Quant="F">MMP9</Barcode>
+        <Barcode name="9258856_9258856" MW="83869" AlamarTargetID="t4395" UniProtID="P05164" ProteinName="Myeloperoxidase" Curve_Quant="F">MPO</Barcode>
+        <Barcode name="5344081_5344081" MW="1519175" AlamarTargetID="t7427" UniProtID="Q8WXI7" ProteinName="Mucin-16" Curve_Quant="F">MUC16</Barcode>
+        <Barcode name="3347596_3347596" MW="55521" AlamarTargetID="t5671" UniProtID="P43490" ProteinName="Nicotinamide phosphoribosyltransferase" Curve_Quant="F">NAMPT</Barcode>
+        <Barcode name="15495348_15495348" MW="34480" AlamarTargetID="t4532" UniProtID="O76036" ProteinName="Natural cytotoxicity triggering receptor 1" Curve_Quant="F">NCR1</Barcode>
+        <Barcode name="9520932_9520932" MW="26959" AlamarTargetID="t4292" UniProtID="P01138" ProteinName="Beta-nerve growth factor" Curve_Quant="F">NGF</Barcode>
+        <Barcode name="7111920_7111920" MW="29355" AlamarTargetID="t4232" UniProtID="P20783" ProteinName="Neurotrophin-3" Curve_Quant="F">NTF3</Barcode>
+        <Barcode name="9520712_9520712" MW="28484" AlamarTargetID="t4191" UniProtID="P13725" ProteinName="Oncostatin-M" Curve_Quant="F">OSM</Barcode>
+        <Barcode name="10359014_10359014" MW="110509" AlamarTargetID="t4190" UniProtID="Q99650" ProteinName="Oncostatin-M-specific receptor subunit beta" Curve_Quant="F">OSMR</Barcode>
+        <Barcode name="15931096_15931096" MW="31647" AlamarTargetID="t4125" UniProtID="Q15116" ProteinName="Programmed cell death protein 1" Curve_Quant="F">PDCD1</Barcode>
+        <Barcode name="10178637_10178637" MW="30957" AlamarTargetID="t6841" UniProtID="Q9BQ51" ProteinName="Programmed cell death 1 ligand 2" Curve_Quant="F">PDCD1LG2</Barcode>
+        <Barcode name="11732760_11732760" MW="24043" AlamarTargetID="t4109" UniProtID="P04085" ProteinName="Platelet-derived growth factor subunit A" Curve_Quant="F">PDGFA</Barcode>
+        <Barcode name="7095760_7095760" MW="27283" AlamarTargetID="t4107" UniProtID="P01127" ProteinName="Platelet-derived growth factor subunit B" Curve_Quant="F">PDGFB</Barcode>
+        <Barcode name="12878323_12878323" MW="24789" AlamarTargetID="t4075" UniProtID="P49763" ProteinName="Placenta growth factor" Curve_Quant="F">PGF</Barcode>
+        <Barcode name="6710552_6710552" MW="41976" AlamarTargetID="t3808" UniProtID="P26022" ProteinName="Pentraxin-related protein PTX3" Curve_Quant="F">PTX3</Barcode>
+        <Barcode name="2638940_2638940" MW="10575" AlamarTargetID="t8367" UniProtID="P80511" ProteinName="Protein S100-A12" Curve_Quant="F">S100A12</Barcode>
+        <Barcode name="14190286_14190286" MW="13242" AlamarTargetID="t8358" UniProtID="P06702" ProteinName="Protein S100-A9" Curve_Quant="F">S100A9</Barcode>
+        <Barcode name="9992717_9992717" MW="70941" AlamarTargetID="t10883" UniProtID="P13521" ProteinName="Secretogranin II" Curve_Quant="F">SCG2</Barcode>
+        <Barcode name="14791973_14791973" MW="32462" AlamarTargetID="t11041" UniProtID="P18827" ProteinName="Syndecan 1" Curve_Quant="F">SDC1</Barcode>
+        <Barcode name="13260876_13260876" MW="66655" AlamarTargetID="t8286" UniProtID="P16581" ProteinName="E-selectin" Curve_Quant="F">SELE</Barcode>
+        <Barcode name="14432058_14432058" MW="90820" AlamarTargetID="t8284" UniProtID="P16109" ProteinName="P-selectin" Curve_Quant="F">SELP</Barcode>
+        <Barcode name="12677344_12677344" MW="54967" AlamarTargetID="t3817" UniProtID="P78324" ProteinName="Tyrosine-protein phosphatase non-receptor type substrate 1" Curve_Quant="F">SIRPA</Barcode>
+        <Barcode name="9840157_9840157" MW="37231" AlamarTargetID="t8209" UniProtID="Q13291" ProteinName="Signaling lymphocytic activation molecule" Curve_Quant="F">SLAMF1</Barcode>
+        <Barcode name="1663748_1663748" MW="35423" AlamarTargetID="t8131" UniProtID="P10451" ProteinName="Osteopontin" Curve_Quant="F">SPP1</Barcode>
+        <Barcode name="7871636_7871636" MW="14301" AlamarTargetID="t6509" UniProtID="Q7Z5A7" ProteinName="Chemokine-like protein TAFA-5" Curve_Quant="F">TAFA5</Barcode>
+        <Barcode name="5282413_5282413" MW="125830" AlamarTargetID="t8018" UniProtID="Q02763" ProteinName="Angiopoietin-1 receptor" Curve_Quant="F">TEK</Barcode>
+        <Barcode name="4305601_4305601" MW="44325" AlamarTargetID="t8006" UniProtID="P01137" ProteinName="Transforming growth factor beta-1 proprotein" Curve_Quant="F">TGFB1</Barcode>
+        <Barcode name="361743_361743" MW="47328" AlamarTargetID="t8004" UniProtID="P10600" ProteinName="Transforming growth factor beta-3 proprotein" Curve_Quant="F">TGFB3</Barcode>
+        <Barcode name="9003732_9003732" MW="129991" AlamarTargetID="t7995" UniProtID="P35442" ProteinName="Thrombospondin-2" Curve_Quant="F">THBS2</Barcode>
+        <Barcode name="6690904_6690904" MW="37823" AlamarTargetID="t7992" UniProtID="P40225" ProteinName="Thrombopoietin" Curve_Quant="F">THPO</Barcode>
+        <Barcode name="14753094_14753094" MW="23171" AlamarTargetID="t7983" UniProtID="P01033" ProteinName="Metalloproteinase inhibitor 1" Curve_Quant="F">TIMP1</Barcode>
+        <Barcode name="1164780_1164780" MW="24399" AlamarTargetID="t7982" UniProtID="P16035" ProteinName="Metalloproteinase inhibitor 2" Curve_Quant="F">TIMP2</Barcode>
+        <Barcode name="317004_317004" MW="103829" AlamarTargetID="t7971" UniProtID="O15455" ProteinName="Toll-like receptor 3" Curve_Quant="F">TLR3</Barcode>
+        <Barcode name="4900292_4900292" MW="25644" AlamarTargetID="t7958" UniProtID="P01375" ProteinName="Tumor necrosis factor" Curve_Quant="F">TNF</Barcode>
+        <Barcode name="5151536_5151536" MW="66034" AlamarTargetID="t22619" UniProtID="Q9Y6Q6" ProteinName="TNF receptor superfamily member 11a" Curve_Quant="F">TNFRSF11A</Barcode>
+        <Barcode name="7419666_7419666" MW="46026" AlamarTargetID="t7952" UniProtID="O00300" ProteinName="Tumor necrosis factor receptor superfamily member 11B" Curve_Quant="F">TNFRSF11B</Barcode>
+        <Barcode name="5789762_5789762" MW="31816" AlamarTargetID="t6931" UniProtID="O14836" ProteinName="Tumor necrosis factor receptor superfamily member 13B" Curve_Quant="F">TNFRSF13B</Barcode>
+        <Barcode name="15964738_15964738" MW="18864" AlamarTargetID="t7018" UniProtID="Q96RJ3" ProteinName="Tumor necrosis factor receptor superfamily member 13C" Curve_Quant="F">TNFRSF13C</Barcode>
+        <Barcode name="3215120_3215120" MW="30392" AlamarTargetID="t7951" UniProtID="Q92956" ProteinName="Tumor necrosis factor receptor superfamily member 14" Curve_Quant="F">TNFRSF14</Barcode>
+        <Barcode name="1773861_1773861" MW="20165" AlamarTargetID="t7950" UniProtID="Q02223" ProteinName="Tumor necrosis factor receptor superfamily member 17" Curve_Quant="F">TNFRSF17</Barcode>
+        <Barcode name="8614811_8614811" MW="26000" AlamarTargetID="t7949" UniProtID="Q9Y5U5" ProteinName="Tumor necrosis factor receptor superfamily member 18" Curve_Quant="F">TNFRSF18</Barcode>
+        <Barcode name="2893264_2893264" MW="50495" AlamarTargetID="t7947" UniProtID="P19438" ProteinName="Tumor necrosis factor receptor superfamily member 1A" Curve_Quant="F">TNFRSF1A</Barcode>
+        <Barcode name="3438188_3438188" MW="48291" AlamarTargetID="t7946" UniProtID="P20333" ProteinName="Tumor necrosis factor receptor superfamily member 1B" Curve_Quant="F">TNFRSF1B</Barcode>
+        <Barcode name="2558837_2558837" MW="71845" AlamarTargetID="t7702" UniProtID="O75509" ProteinName="Tumor necrosis factor receptor superfamily member 21" Curve_Quant="F">TNFRSF21</Barcode>
+        <Barcode name="3222725_3222725" MW="29341" AlamarTargetID="t7945" UniProtID="P43489" ProteinName="Tumor necrosis factor receptor superfamily member 4" Curve_Quant="F">TNFRSF4</Barcode>
+        <Barcode name="6050186_6050186" MW="63747" AlamarTargetID="t7941" UniProtID="P28908" ProteinName="Tumor necrosis factor receptor superfamily member 8" Curve_Quant="F">TNFRSF8</Barcode>
+        <Barcode name="6887233_6887233" MW="27899" AlamarTargetID="t7940" UniProtID="Q07011" ProteinName="Tumor necrosis factor receptor superfamily member 9" Curve_Quant="F">TNFRSF9</Barcode>
+        <Barcode name="5064198_5064198" MW="32509" AlamarTargetID="t7939" UniProtID="P50591" ProteinName="Tumor necrosis factor ligand superfamily member 10" Curve_Quant="F">TNFSF10</Barcode>
+        <Barcode name="4855569_4855569" MW="35478" AlamarTargetID="t7938" UniProtID="O14788" ProteinName="Tumor necrosis factor ligand superfamily member 11" Curve_Quant="F">TNFSF11</Barcode>
+        <Barcode name="6035236_6035236" MW="27216" AlamarTargetID="t7937" UniProtID="O43508" ProteinName="Tumor necrosis factor ligand superfamily member 12" Curve_Quant="F">TNFSF12</Barcode>
+        <Barcode name="5082128_5082128" MW="27433" AlamarTargetID="t10034" UniProtID="O75888" ProteinName="TNF superfamily member 13" Curve_Quant="F">TNFSF13</Barcode>
+        <Barcode name="6588487_6588487" MW="26350" AlamarTargetID="t7935" UniProtID="O43557" ProteinName="Tumor necrosis factor ligand superfamily member 14" Curve_Quant="F">TNFSF14</Barcode>
+        <Barcode name="13658503_13658503" MW="28087" AlamarTargetID="t7934" UniProtID="O95150" ProteinName="Tumor necrosis factor ligand superfamily member 15" Curve_Quant="F">TNFSF15</Barcode>
+        <Barcode name="4463379_4463379" MW="20308" AlamarTargetID="t7933" UniProtID="Q9UNG2" ProteinName="Tumor necrosis factor ligand superfamily member 18" Curve_Quant="F">TNFSF18</Barcode>
+        <Barcode name="5468272_5468272" MW="21050" AlamarTargetID="t7932" UniProtID="P23510" ProteinName="Tumor necrosis factor ligand superfamily member 4" Curve_Quant="F">TNFSF4</Barcode>
+        <Barcode name="10970568_10970568" MW="26017" AlamarTargetID="t7928" UniProtID="P32971" ProteinName="Tumor necrosis factor ligand superfamily member 8" Curve_Quant="F">TNFSF8</Barcode>
+        <Barcode name="14994528_14994528" MW="26625" AlamarTargetID="t7927" UniProtID="P41273" ProteinName="Tumor necrosis factor ligand superfamily member 9" Curve_Quant="F">TNFSF9</Barcode>
+        <Barcode name="1449256_1449256" MW="26387" AlamarTargetID="t7015" UniProtID="Q9NP99" ProteinName="Triggering receptor expressed on myeloid cells 1" Curve_Quant="F">TREM1</Barcode>
+        <Barcode name="6096164_6096164" MW="25447" AlamarTargetID="t7014" UniProtID="Q9NZC2" ProteinName="Triggering receptor expressed on myeloid cells 2" Curve_Quant="F">TREM2</Barcode>
+        <Barcode name="323684_323684" MW="18141" AlamarTargetID="t5586" UniProtID="Q969D9" ProteinName="Thymic stromal lymphopoietin" Curve_Quant="F">TSLP</Barcode>
+        <Barcode name="5462177_5462177" MW="81276" AlamarTargetID="t7802" UniProtID="P19320" ProteinName="Vascular cell adhesion protein 1" Curve_Quant="F">VCAM1</Barcode>
+        <Barcode name="1446593_1446593" MW="43597" AlamarTargetID="t7798" UniProtID="P15692" ProteinName="Vascular endothelial growth factor A" Curve_Quant="F">VEGFA</Barcode>
+        <Barcode name="1331952_1331952" MW="46883" AlamarTargetID="t7796" UniProtID="P49767" ProteinName="Vascular endothelial growth factor C" Curve_Quant="F">VEGFC</Barcode>
+        <Barcode name="6067138_6067138" MW="40444" AlamarTargetID="t22682" UniProtID="O43915" ProteinName="Vascular endothelial growth factor D" Curve_Quant="F">VEGFD</Barcode>
+        <Barcode name="13305492_13305492" MW="22142" AlamarTargetID="t7785" UniProtID="P62760" ProteinName="Visinin-like protein 1" Curve_Quant="F">VSNL1</Barcode>
+        <Barcode name="529532_529532" MW="26109" AlamarTargetID="t15215" UniProtID="Q6UX27" ProteinName="V-set and transmembrane domain containing 1" Curve_Quant="F">VSTM1</Barcode>
+        <Barcode name="6705376_6705376" MW="40690" AlamarTargetID="t21611" UniProtID="Q9UBV4" ProteinName="Wnt family member 16" Curve_Quant="F">WNT16</Barcode>
+        <Barcode name="5791823_5791823" MW="39005" AlamarTargetID="t7772" UniProtID="O00755" ProteinName="Protein Wnt-7a" Curve_Quant="F">WNT7A</Barcode>
+        <Barcode name="12867621_12867621" MW="26700" AlamarTargetID="t22695" UniProtID="X5DSL3" ProteinName="MCherry fluorescent protein" Curve_Quant="F">mCherry</Barcode>
       </BarcodeA>
       <BarcodeB>
         <Barcode name="805464" type="IPC" AUTO_WELLROW="" AUTO_WELLCOL="" AUTO_WELLPOSITION="F8" SAMPLE_MATRIX="IPC" SMI_ID="NA" AUTO_PLATE="Plate_01" Disease="" Lab="">IPC</Barcode>

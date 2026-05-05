@@ -93,6 +93,51 @@ format_detectability_stats_row <- function(detectability_values, type_label, sam
 }
 
 
+#' Label Detectability Table for Display
+#'
+#' Converts a numeric detectability data frame into a display version where
+#' reverse curve targets show "High Abundance" in plasma/serum columns and
+#' NA elsewhere. Non-RC rows are formatted as character with one decimal place.
+#'
+#' @param detect_table A data frame with a \code{Target} column and numeric
+#'   detectability columns (as returned in \code{merged$detectability}).
+#' @param reverse_curve_targets Character vector of reverse curve target names.
+#' @param plasma_serum_groups Optional character vector of sample group covariate
+#'   level names that correspond to PLASMA or SERUM samples. When provided, these
+#'   names are matched against column names to determine which columns receive
+#'   "High Abundance" labels for reverse curve targets. When \code{NULL} (default),
+#'   falls back to regex matching on column names.
+#'
+#' @return A data frame with character value columns suitable for display.
+#' @keywords internal
+label_detectability_for_display <- function(detect_table, reverse_curve_targets = character(0),
+                                             plasma_serum_groups = NULL) {
+  display <- detect_table
+  for (col in colnames(display)[-1]) {
+    vals <- display[[col]]
+    display[[col]] <- ifelse(is.na(vals), NA_character_,
+                             format(round(vals, 1), nsmall = 1, trim = TRUE))
+  }
+  if (length(reverse_curve_targets) > 0) {
+    is_rc <- display$Target %in% reverse_curve_targets
+    for (col in colnames(display)[-1]) {
+      if (!is.null(plasma_serum_groups)) {
+        # Use explicit mapping from sample_group_covar levels to SAMPLE_MATRIX
+        is_plasma_serum <- any(sapply(plasma_serum_groups, function(g) grepl(tolower(g), tolower(col), fixed = TRUE)))
+      } else {
+        # Strict fallback: only match columns starting with "plasma" or "serum"
+        # (e.g., "plasma (n = 20)"). The plasma_serum_groups path handles
+        # non-SAMPLE_MATRIX covariates like CONDITION_1.
+        is_plasma_serum <- grepl("^(plasma|serum)\\s*\\(", col, ignore.case = TRUE)
+      }
+      if (is_plasma_serum) {
+        display[[col]][is_rc] <- "High Abundance"
+      }
+    }
+  }
+  display
+}
+
 #' Format Detectability Report for a Single Plate
 #'
 #' Takes the output of \code{detectability()} for a single plate and returns
@@ -105,6 +150,11 @@ format_detectability_stats_row <- function(detectability_values, type_label, sam
 #' @param reverse_curve_targets Character vector of reverse curve target names
 #'   to append as "High Abundance" rows for PLASMA or SERUM matrix types. Other
 #'   matrix types will show as NA. Default \code{character(0)}.
+#' @param plasma_serum_groups Optional character vector of sample group covariate
+#'   level names that correspond to PLASMA or SERUM samples. When provided, these
+#'   names are matched against column names to determine which columns receive
+#'   "High Abundance" labels. When \code{NULL} (default), falls back to regex
+#'   matching on column names.
 #'
 #' @return A list with two elements:
 #' \describe{
@@ -116,41 +166,11 @@ format_detectability_stats_row <- function(detectability_values, type_label, sam
 #'     plus "High Abundance" rows for reverse curve targets for PLASMA / SERUM.}
 #' }
 #'
-#' Label Detectability Table for Display
-#'
-#' Converts a numeric detectability data frame into a display version where
-#' reverse curve targets show "High Abundance" in plasma/serum columns and
-#' NA elsewhere. Non-RC rows are formatted as character with one decimal place.
-#'
-#' @param detect_table A data frame with a \code{Target} column and numeric
-#'   detectability columns (as returned in \code{merged$detectability}).
-#' @param reverse_curve_targets Character vector of reverse curve target names.
-#'
-#' @return A data frame with character value columns suitable for display.
-#' @keywords internal
-label_detectability_for_display <- function(detect_table, reverse_curve_targets = character(0)) {
-  display <- detect_table
-  for (col in colnames(display)[-1]) {
-    vals <- display[[col]]
-    display[[col]] <- ifelse(is.na(vals), NA_character_,
-                             format(round(vals, 1), nsmall = 1, trim = TRUE))
-  }
-  if (length(reverse_curve_targets) > 0) {
-    is_rc <- display$Target %in% reverse_curve_targets
-    for (col in colnames(display)[-1]) {
-      is_plasma_serum <- grepl("^(plasma|serum)\\s*\\(", col, ignore.case = TRUE)
-      if (is_plasma_serum) {
-        display[[col]][is_rc] <- "High Abundance"
-      }
-    }
-  }
-  display
-}
-
 #' @keywords internal
 format_detectability_report <- function(detect_result,
                                         noDetectability_targets = character(0),
-                                        reverse_curve_targets = character(0)) {
+                                        reverse_curve_targets = character(0),
+                                        plasma_serum_groups = NULL) {
   summary_matrix <- NULL
   targets_matrix <- NULL
   col_names_targets <- NULL
@@ -186,7 +206,16 @@ format_detectability_report <- function(detect_result,
   # Add "High Abundance" for reverse curve targets for PLASMA or SERUM columns only
   # Otherwise put NA
   if (length(reverse_curve_targets) > 0) {
-    is_plasma_serum <- grepl("^(PLASMA|SERUM)$", colnames(targets_matrix), ignore.case = TRUE)
+    if (!is.null(plasma_serum_groups)) {
+      # Use the explicit mapping from sample_group_covar levels to SAMPLE_MATRIX
+      is_plasma_serum <- sapply(colnames(targets_matrix), function(col) {
+        any(sapply(plasma_serum_groups, function(g) grepl(tolower(g), tolower(col), fixed = TRUE)))
+      })
+    } else {
+      # Strict fallback: only match exact "PLASMA" or "SERUM" column names.
+      # The plasma_serum_groups path handles non-SAMPLE_MATRIX covariates.
+      is_plasma_serum <- grepl("^(PLASMA|SERUM)$", colnames(targets_matrix), ignore.case = TRUE)
+    }
     rc_matrix <- matrix(ifelse(is_plasma_serum, "High Abundance", NA_character_),
                         nrow = length(reverse_curve_targets),
                         ncol = ncol(targets_matrix),
@@ -343,6 +372,13 @@ detectability <- function(aboveLOD_matrix,
 #' \item{noDetect_nonRC_targets}{Character vector of non-RC noDetectability
 #'   target names detected across all runs (when
 #'   \code{exclude_noDetect_targets = TRUE}).}
+#' \item{plasma_serum_groups}{Character vector of sample group covariate level
+#'   names that map to PLASMA or SERUM in \code{SAMPLE_MATRIX}. Used by
+#'   downstream functions to determine "High Abundance" labeling for reverse
+#'   curve targets. Populated whenever sample groups can be mapped to
+#'   PLASMA/SERUM, including when grouping is already by \code{SAMPLE_MATRIX}.
+#'   \code{NULL} only when \code{SAMPLE_MATRIX} is not available or no
+#'   groups map to PLASMA/SERUM.}
 #' \item{run_summary}{Named list of formatted summary matrices per plate (and
 #'   "Overall" for multi-plate), with columns: type, \# samples, mean, sd,
 #'   median, min, max, \# of detectable targets (\%). Only when
@@ -363,6 +399,16 @@ detectability_summary <- function(runs, exclude_targets = NULL,
   if('RunSummary' %in% names(runs)){
     runs <- list(runs)
     names(runs) <- 'Plate 01'
+  }
+
+  # Collect sample_group_covar values once for reuse later in the function
+  all_covars <- unique(sapply(runs, function(x) {
+    if (is.null(x$sample_group_covar)) "SAMPLE_MATRIX" else x$sample_group_covar
+  }))
+  if (length(runs) > 1 && length(all_covars) > 1) {
+    warning("Runs have different sample_group_covar values (", paste(all_covars, collapse = ", "),
+            "). Combined detectability results across runs may be unreliable ",
+            "and High Abundance labeling will fall back to SAMPLE_MATRIX.")
   }
 
   # auto-detect reverse curve and noDetectability targets
@@ -471,6 +517,37 @@ detectability_summary <- function(runs, exclude_targets = NULL,
   output$reverse_curve_targets <- all_reverseCurve
   output$noDetect_nonRC_targets <- all_noDetect_nonRC
 
+  # Determine which sample group covar levels correspond to PLASMA or SERUM
+  # by mapping each group to its SAMPLE_MATRIX values.
+  # This ensures "High Abundance" labels for reverse curve targets are applied
+  # based on SAMPLE_MATRIX regardless of what column is used for sample grouping.
+  plasma_serum_groups <- NULL
+  if (length(group_names) > 0) {
+    all_samples <- dplyr::bind_rows(lapply(runs, function(x) x$samples))
+    # Use sample_group_covar from runs (computed at top of function);
+    # fall back to SAMPLE_MATRIX if runs disagree
+    sample_group_covar <- if (length(all_covars) == 1) all_covars else "SAMPLE_MATRIX"
+    has_sample_matrix <- "SAMPLE_MATRIX" %in% colnames(all_samples)
+    has_covar_col <- sample_group_covar %in% colnames(all_samples)
+    if (has_sample_matrix && has_covar_col) {
+      # Map each sample_group_covar level to its SAMPLE_MATRIX value(s)
+      # Only mark as plasma/serum if all samples in the group have the same SAMPLE_MATRIX
+      covar_to_matrix <- tapply(
+        toupper(all_samples$SAMPLE_MATRIX),
+        toupper(all_samples[[sample_group_covar]]),
+        function(x) {
+          ux <- unique(x)
+          if (length(ux) == 1) ux else NA_character_
+        }
+      )
+      plasma_serum_groups <- names(covar_to_matrix)[
+        covar_to_matrix %in% c("PLASMA", "SERUM") & !is.na(covar_to_matrix)
+      ]
+      if (length(plasma_serum_groups) == 0) plasma_serum_groups <- NULL
+    }
+  }
+  output$plasma_serum_groups <- plasma_serum_groups
+
   # build formatted tables when format = TRUE
   if (format) {
     run_summary <- list()
@@ -495,7 +572,8 @@ detectability_summary <- function(runs, exclude_targets = NULL,
       plate_report <- format_detectability_report(
         detect_result = detect[[i]],
         noDetectability_targets = plate_noDetect_nonRC,
-        reverse_curve_targets = plate_rc
+        reverse_curve_targets = plate_rc,
+        plasma_serum_groups = plasma_serum_groups
       )
       run_summary[[plate_names[i]]] <- plate_report$summary
       run_targets[[plate_names[i]]] <- plate_report$targets
@@ -506,7 +584,8 @@ detectability_summary <- function(runs, exclude_targets = NULL,
       overall_report <- format_detectability_report(
         detect_result = output,
         noDetectability_targets = all_noDetect_nonRC,
-        reverse_curve_targets = all_reverseCurve
+        reverse_curve_targets = all_reverseCurve,
+        plasma_serum_groups = plasma_serum_groups
       )
       run_summary[["Overall"]] <- overall_report$summary
       run_targets[["Overall"]] <- overall_report$targets

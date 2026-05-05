@@ -28,7 +28,7 @@ test_that("skeleton.Rmd can be rendered into HTML with an alternative IC", {
   files <- c("detectability_P1_Tr03_typemCherry_CCL7_hide2.xml")
   fixtures_dir <- normalizePath(testthat::test_path("fixtures"))
   withr::with_tempfile(output, {
-    rmarkdown::render(input, params=list(dataDir=fixtures_dir, xmlFiles=files))  
+    suppressWarnings(rmarkdown::render(input, params=list(dataDir=fixtures_dir, xmlFiles=files, allowMissingCurveQuant=TRUE)))
     expect_true(file.exists(output), output)
     orig_content <- readLines(output, warn=FALSE)
     patterns <- c("-mCherry-summary", files)

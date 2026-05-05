@@ -458,8 +458,11 @@ renameSC <- function(column, label="SC", label2="AQSC", n=3){
 #' type variable from the Barcode B file or 
 #' if there are no calibrator samples (default).
 #' Only used for xml file formats.
-#' @param replaceNA Logical. If TRUE (default), will replace missing counts with 
+#' @param replaceNA Logical. If TRUE (default), will replace missing counts with
 #' zeros.
+#' @param allowMissingCurveQuant Logical. If FALSE (default), an error is raised
+#' when the XML file contains no Curve_Quant values. Set to TRUE to fall back to
+#' treating all targets as forward curve with a warning.
 #'
 #' @return List of lists, data frames, and matrices.
 #' Output will differ slightly depending on the input file type.
@@ -467,15 +470,16 @@ renameSC <- function(column, label="SC", label2="AQSC", n=3){
 #'
 #' @export
 #'
-readNULISAseq <- function(file, 
-                          plateID=NULL, 
+readNULISAseq <- function(file,
+                          plateID=NULL,
                           file_type='xml_no_mismatches',
                           target_column_names=NULL,
                           sample_column_names=NULL,
                           sample_group_covar=NULL,
-                          IC=NULL, 
+                          IC=NULL,
                           IPC=NULL, SC=NULL, NC=NULL, Bridge=NULL, Calibrator=NULL,
-                          replaceNA=TRUE){
+                          replaceNA=TRUE,
+                          allowMissingCurveQuant=FALSE){
   
   if(!file.exists(file)){
     stop(paste0("Error: The file \'", file, "\' does not exist!\n"))
@@ -932,8 +936,21 @@ readNULISAseq <- function(file,
     samples$SAMPLE_MATRIX[which(samples$sampleType != "Sample")] <- "CONTROL"
     samples$SAMPLE_MATRIX[samples$SAMPLE_MATRIX == ""] <- "PLASMA"
     
-    # if no Curve_Quant attribute given, assign "F" for forward curve
+    # if no Curve_Quant attribute given, error by default; only assign "F"
+    # for forward curve targets when allowMissingCurveQuant = TRUE
     if(is.null(targets$Curve_Quant)){
+      if(!allowMissingCurveQuant){
+        stop("Error: No Curve_Quant values found in XML.\n",
+             "All targets would be treated as forward curve targets, which may produce ",
+             "incorrect results for panels with reverse-curve targets.\n",
+             "Please re-export the XML file from ACC or contact Alamar Biosciences.\n",
+             "To override this error, set allowMissingCurveQuant = TRUE.",
+             call. = FALSE)
+      }
+      warning("No Curve_Quant values found in XML. All targets will be treated as ",
+              "forward curve targets, which may produce incorrect results for panels ",
+              "with reverse-curve targets.",
+              call. = FALSE)
       targets$Curve_Quant <- "F"
     }
     
@@ -1141,6 +1158,9 @@ readNULISAseq <- function(file,
 #'
 #' @return List of lists, data frames, and matrices.
 #' Output will differ slightly depending on the input file type.
+#' Includes \code{sample_group_covar} storing the column name used for
+#' sample grouping in detectability, so downstream functions can map
+#' group levels to \code{SAMPLE_MATRIX} for "High Abundance" labeling.
 #'
 #'
 #' @export
@@ -1822,6 +1842,7 @@ loadNULISAseq <- function(file,
   }
   raw$AbsAssay <- AbsAssay
   raw$advancedQC <- advancedQC
+  raw$sample_group_covar <- sample_group_covar
   return(raw)
 }
 

@@ -307,3 +307,130 @@ test_that("exclude_targets removing all targets produces empty output", {
   expect_equal(length(result$all$detectability), 0)
   expect_equal(length(result$all$detectable), 0)
 })
+
+# --- plasma_serum_groups mapping tests ---
+
+# Helper to build a mock run with samples metadata and sample_group_covar
+mock_run_with_samples <- function(detect_all, detect_groups, sample_numbers,
+                                   samples_df, sample_group_covar,
+                                   rc_targets = character(0)) {
+  run <- mock_run(detect_all, detect_groups, sample_numbers, rc_targets = rc_targets)
+  run$samples <- samples_df
+  run$sample_group_covar <- sample_group_covar
+  run
+}
+
+test_that("detectability_summary populates plasma_serum_groups when sample_group_covar differs from SAMPLE_MATRIX", {
+  samples <- data.frame(
+    sampleName = paste0("S", 1:6),
+    sampleType = rep("Sample", 6),
+    SAMPLE_MATRIX = c("PLASMA", "PLASMA", "PLASMA", "OTHER", "OTHER", "OTHER"),
+    CONDITION_1 = c("Human_Plasma", "Human_Plasma", "Human_Plasma",
+                    "Mouse_CSF", "Mouse_CSF", "Mouse_CSF"),
+    stringsAsFactors = FALSE
+  )
+
+  run1 <- mock_run_with_samples(
+    detect_all = c(T1 = 80, T2 = 60),
+    detect_groups = list(HUMAN_PLASMA = c(T1 = 90, T2 = 70),
+                         MOUSE_CSF = c(T1 = 50, T2 = 30)),
+    sample_numbers = list(all = 6L, HUMAN_PLASMA = 3L, MOUSE_CSF = 3L),
+    samples_df = samples,
+    sample_group_covar = "CONDITION_1"
+  )
+
+  result <- detectability_summary(list("P1" = run1), format = FALSE,
+                                  exclude_noDetect_targets = FALSE)
+
+  expect_false(is.null(result$plasma_serum_groups))
+  expect_true("HUMAN_PLASMA" %in% result$plasma_serum_groups)
+  expect_false("MOUSE_CSF" %in% result$plasma_serum_groups)
+})
+
+test_that("detectability_summary returns NULL plasma_serum_groups when no groups map to PLASMA/SERUM", {
+  samples <- data.frame(
+    sampleName = paste0("S", 1:4),
+    sampleType = rep("Sample", 4),
+    SAMPLE_MATRIX = c("CSF", "CSF", "OTHER", "OTHER"),
+    CONDITION_1 = c("Human_CSF", "Human_CSF", "Mouse_Other", "Mouse_Other"),
+    stringsAsFactors = FALSE
+  )
+
+  run1 <- mock_run_with_samples(
+    detect_all = c(T1 = 80),
+    detect_groups = list(HUMAN_CSF = c(T1 = 90), MOUSE_OTHER = c(T1 = 50)),
+    sample_numbers = list(all = 4L, HUMAN_CSF = 2L, MOUSE_OTHER = 2L),
+    samples_df = samples,
+    sample_group_covar = "CONDITION_1"
+  )
+
+  result <- detectability_summary(list("P1" = run1), format = FALSE,
+                                  exclude_noDetect_targets = FALSE)
+
+  expect_null(result$plasma_serum_groups)
+})
+
+test_that("detectability_summary handles ambiguous SAMPLE_MATRIX mapping with NA", {
+  # A group that maps to both PLASMA and CSF should not be marked as plasma/serum
+  samples <- data.frame(
+    sampleName = paste0("S", 1:4),
+    sampleType = rep("Sample", 4),
+    SAMPLE_MATRIX = c("PLASMA", "CSF", "SERUM", "SERUM"),
+    CONDITION_1 = c("Mixed_Group", "Mixed_Group", "Serum_Group", "Serum_Group"),
+    stringsAsFactors = FALSE
+  )
+
+  run1 <- mock_run_with_samples(
+    detect_all = c(T1 = 80),
+    detect_groups = list(MIXED_GROUP = c(T1 = 70), SERUM_GROUP = c(T1 = 90)),
+    sample_numbers = list(all = 4L, MIXED_GROUP = 2L, SERUM_GROUP = 2L),
+    samples_df = samples,
+    sample_group_covar = "CONDITION_1"
+  )
+
+  result <- detectability_summary(list("P1" = run1), format = FALSE,
+                                  exclude_noDetect_targets = FALSE)
+
+  # SERUM_GROUP should be in plasma_serum_groups, MIXED_GROUP should not
+  expect_false(is.null(result$plasma_serum_groups))
+  expect_true("SERUM_GROUP" %in% result$plasma_serum_groups)
+  expect_false("MIXED_GROUP" %in% result$plasma_serum_groups)
+})
+
+test_that("detectability_summary warns and falls back when runs disagree on sample_group_covar", {
+  samples1 <- data.frame(
+    sampleName = c("S1", "S2"),
+    sampleType = c("Sample", "Sample"),
+    SAMPLE_MATRIX = c("PLASMA", "PLASMA"),
+    CONDITION_1 = c("Human_Plasma", "Human_Plasma"),
+    stringsAsFactors = FALSE
+  )
+  samples2 <- data.frame(
+    sampleName = c("S3", "S4"),
+    sampleType = c("Sample", "Sample"),
+    SAMPLE_MATRIX = c("SERUM", "SERUM"),
+    CONDITION_1 = c("Human_Serum", "Human_Serum"),
+    stringsAsFactors = FALSE
+  )
+
+  run1 <- mock_run_with_samples(
+    detect_all = c(T1 = 80),
+    detect_groups = list(HUMAN_PLASMA = c(T1 = 90)),
+    sample_numbers = list(all = 2L, HUMAN_PLASMA = 2L),
+    samples_df = samples1,
+    sample_group_covar = "CONDITION_1"
+  )
+  run2 <- mock_run_with_samples(
+    detect_all = c(T1 = 70),
+    detect_groups = list(SERUM = c(T1 = 70)),
+    sample_numbers = list(all = 2L, SERUM = 2L),
+    samples_df = samples2,
+    sample_group_covar = "SAMPLE_MATRIX"
+  )
+
+  expect_warning(
+    result <- detectability_summary(list("P1" = run1, "P2" = run2),
+                                    format = FALSE, exclude_noDetect_targets = FALSE),
+    "different sample_group_covar"
+  )
+})

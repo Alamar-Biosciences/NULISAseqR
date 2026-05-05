@@ -1,3 +1,22 @@
+# NULISAseqR 1.5.1 (2026-05-04)
+
+## Changes
+
+### Bug Fixes
+* **format_wide_to_long()** - Renamed conflicting user covariate columns that share reserved names (e.g. `PlateID`) by appending `_covar` suffix; emits a message when renaming occurs to inform users of the change
+* **detectability_summary()** - Replaced `do.call(rbind)` with `dplyr::bind_rows()` when aggregating samples across plates, fixing crashes when importing plates with different XML schemas (e.g. mismatched metadata columns)
+* **mergeNULISAseq()** - Replaced `do.call(rbind)` with `dplyr::bind_rows()` for `RunSummary` aggregation; drops `NA`-named slots from each plate's `RunSummary` list to eliminate spurious `NA.` columns when plates have no balancers in the XML
+* **QC Report skeleton** - Fixed sample boxplot axis ticks and NPQ axis label; corrected instrument subsetting for plate effect test when some plates are excluded; removed ANOVA instrument effect test section from internal report output
+* **processXML()** - Used `is.na()` instead of `is.null()` for XML attribute checks, fixing silent failures when attributes return `NA` rather than `NULL`
+
+### Documentation
+* **User Guide** - Updated high-abundance and rare case target description: added information regarding the new Neuro 220 panel, clarified language for high abundance and `noDetectability` target behavior
+
+### Infrastructure
+* **DESCRIPTION** - Added `XML` and `fields` to Imports, enabling automatic installation of dependencies
+
+---
+
 # NULISAseqR 1.5.0 (2026-03-14)
 
 ## Changes

@@ -956,3 +956,160 @@ test_that("format_wide_to_long includes all Target QC columns in AQ mode", {
   expect_equal(nrow(result), 4)
 })
 
+
+# ==============================================================================
+# Tests for reserved column name conflict detection (#596)
+# ==============================================================================
+
+make_mock_merged <- function(extra_sample_cols = list()) {
+  samples <- data.frame(
+    plateID    = c("Plate1", "Plate1"),
+    sampleName = c("Sample_1", "Sample_2"),
+    sampleType = c("Sample", "Sample"),
+    stringsAsFactors = FALSE
+  )
+  for (nm in names(extra_sample_cols)) {
+    samples[[nm]] <- extra_sample_cols[[nm]]
+  }
+  list(
+    targets = data.frame(
+      plateID    = c("Plate1", "Plate1"),
+      targetName = c("Target_1", "Target_2"),
+      logged_LOD = c(5.0, 5.5),
+      stringsAsFactors = FALSE
+    ),
+    samples = samples,
+    Data_NPQ = matrix(
+      c(6.0, 6.5, 7.0, 7.5),
+      nrow = 2,
+      dimnames = list(c("Target_1", "Target_2"), c("Sample_1", "Sample_2"))
+    ),
+    Data_raw = matrix(
+      c(100, 120, 150, 180),
+      nrow = 2,
+      dimnames = list(c("Target_1", "Target_2"), c("Sample_1", "Sample_2"))
+    ),
+    ExecutionDetails = list(Plate1 = list(Assay = "Test Panel")),
+    plateID = "Plate1"
+  )
+}
+
+test_that("format_wide_to_long emits a message when user covariate is named PlateID", {
+  skip_if_not(requireNamespace("NULISAseqR", quietly = TRUE))
+  skip_if_not(rlang::is_function(get0("format_wide_to_long", envir = asNamespace("NULISAseqR"), inherits = FALSE)))
+
+  mock_data <- make_mock_merged(list(PlateID = c("user_val_1", "user_val_2")))
+
+  expect_message(
+    result <- NULISAseqR:::format_wide_to_long(mock_data, AQ = FALSE, include_qc = FALSE),
+    regexp = "PlateID.*PlateID_covar",
+    fixed = FALSE
+  )
+  expect_true("PlateID_covar" %in% names(result))
+  expect_true("PlateID" %in% names(result))
+})
+
+test_that("format_wide_to_long renames all conflicting reserved columns to *_covar and preserves values", {
+  skip_if_not(requireNamespace("NULISAseqR", quietly = TRUE))
+  skip_if_not(rlang::is_function(get0("format_wide_to_long", envir = asNamespace("NULISAseqR"), inherits = FALSE)))
+
+  mock_data <- make_mock_merged(list(
+    PlateID    = c("user_plate_1", "user_plate_2"),
+    SampleName = c("user_name_1", "user_name_2"),
+    SampleType = c("user_type_1", "user_type_2")
+  ))
+
+  result <- suppressMessages(
+    NULISAseqR:::format_wide_to_long(mock_data, AQ = FALSE, include_qc = FALSE)
+  )
+
+  # User covariate columns renamed with _covar suffix
+  expect_true("PlateID_covar"    %in% names(result))
+  expect_true("SampleName_covar" %in% names(result))
+  expect_true("SampleType_covar" %in% names(result))
+
+  # User covariate values are preserved with correct per-sample mappings.
+  # Use a distinct sample-level table to avoid false passes from repeated values
+  # across targets in the long format.
+  expected_covars <- mock_data$samples[, c("sampleName", "PlateID", "SampleName", "SampleType")]
+  names(expected_covars) <- c("SampleName", "PlateID_covar", "SampleName_covar", "SampleType_covar")
+  # format_wide_to_long converts character columns to factors; match that here
+  expected_covars <- as.data.frame(lapply(expected_covars, as.factor))
+  actual_covars <- as.data.frame(unique(result[, c("SampleName", "PlateID_covar", "SampleName_covar", "SampleType_covar")]))
+  expected_covars <- expected_covars[order(expected_covars$SampleName), , drop = FALSE]
+  actual_covars   <- actual_covars[order(actual_covars$SampleName), , drop = FALSE]
+  row.names(expected_covars) <- NULL
+  row.names(actual_covars)   <- NULL
+  expect_equal(actual_covars, expected_covars)
+
+  # Internal join keys still present and correct
+  expect_true("PlateID"    %in% names(result))
+  expect_true("SampleName" %in% names(result))
+  expect_true("SampleType" %in% names(result))
+  expect_true(all(result$PlateID    == "Plate1"))
+  expect_true(all(result$SampleName %in% c("Sample_1", "Sample_2")))
+})
+
+test_that("format_wide_to_long message lists all conflicting columns in one message", {
+  skip_if_not(requireNamespace("NULISAseqR", quietly = TRUE))
+  skip_if_not(rlang::is_function(get0("format_wide_to_long", envir = asNamespace("NULISAseqR"), inherits = FALSE)))
+
+  mock_data <- make_mock_merged(list(
+    PlateID    = c("a", "b"),
+    SampleName = c("c", "d")
+  ))
+
+  messages_caught <- character(0)
+  withCallingHandlers(
+    NULISAseqR:::format_wide_to_long(mock_data, AQ = FALSE, include_qc = FALSE),
+    message = function(m) {
+      messages_caught <<- c(messages_caught, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
+  )
+
+  conflict_messages <- grep("conflict", messages_caught, value = TRUE)
+  expect_length(conflict_messages, 1)
+  expect_match(conflict_messages, "PlateID")
+  expect_match(conflict_messages, "SampleName")
+})
+
+test_that("format_wide_to_long handles PlateID_covar already existing via make.unique", {
+  skip_if_not(requireNamespace("NULISAseqR", quietly = TRUE))
+  skip_if_not(rlang::is_function(get0("format_wide_to_long", envir = asNamespace("NULISAseqR"), inherits = FALSE)))
+
+  mock_data <- make_mock_merged(list(
+    PlateID       = c("user_plate_1", "user_plate_2"),
+    PlateID_covar = c("already_here_1", "already_here_2")
+  ))
+
+  result <- suppressMessages(
+    NULISAseqR:::format_wide_to_long(mock_data, AQ = FALSE, include_qc = FALSE)
+  )
+
+  # No duplicate column names
+  expect_false(any(duplicated(names(result))))
+
+  # Internal PlateID join key is intact
+  expect_true("PlateID" %in% names(result))
+  expect_true(all(result$PlateID == "Plate1"))
+})
+
+test_that("format_wide_to_long produces no conflict message when no reserved column names conflict", {
+  skip_if_not(requireNamespace("NULISAseqR", quietly = TRUE))
+  skip_if_not(rlang::is_function(get0("format_wide_to_long", envir = asNamespace("NULISAseqR"), inherits = FALSE)))
+
+  mock_data <- make_mock_merged(list(custom_covar = c("val1", "val2")))
+
+  messages_caught <- character(0)
+  withCallingHandlers(
+    NULISAseqR:::format_wide_to_long(mock_data, AQ = FALSE, include_qc = FALSE),
+    message = function(m) {
+      messages_caught <<- c(messages_caught, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
+  )
+
+  expect_length(grep("conflict", messages_caught, value = TRUE), 0)
+})
+

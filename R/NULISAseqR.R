@@ -2,6 +2,6 @@
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @import xml2 fields XML future promises
+#' @import xml2 fields XML future
 ## usethis namespace: end
 NULL
