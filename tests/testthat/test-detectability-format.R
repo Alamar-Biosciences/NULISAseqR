@@ -220,3 +220,134 @@ test_that("NULISAseqR:::format_detectability_report sorts targets case-insensiti
   result <- NULISAseqR:::format_detectability_report(detect_result)
   expect_equal(rownames(result$targets), c("AGER", "mHTT", "pTau"))
 })
+
+# --- plasma_serum_groups parameter tests ---
+
+test_that("format_detectability_report uses plasma_serum_groups for High Abundance labeling", {
+  detect_result <- list(
+    all = list(
+      sampleNumber = 10,
+      detectability = c(T1 = 80, T2 = 60),
+      detectable = c(T1 = TRUE, T2 = TRUE)
+    ),
+    sample_group = list(
+      sampleNumber = list(HUMAN_PLASMA = 5, MOUSE_PLASMA = 3, MOUSE_CSF = 2),
+      detectability = list(
+        HUMAN_PLASMA = c(T1 = 90, T2 = 70),
+        MOUSE_PLASMA = c(T1 = 85, T2 = 65),
+        MOUSE_CSF = c(T1 = 50, T2 = 30)
+      ),
+      detectable = list(
+        HUMAN_PLASMA = c(T1 = TRUE, T2 = TRUE),
+        MOUSE_PLASMA = c(T1 = TRUE, T2 = TRUE),
+        MOUSE_CSF = c(T1 = FALSE, T2 = FALSE)
+      )
+    )
+  )
+
+  # With plasma_serum_groups, only HUMAN_PLASMA and MOUSE_PLASMA get High Abundance
+  result <- NULISAseqR:::format_detectability_report(
+    detect_result,
+    reverse_curve_targets = c("CRP"),
+    plasma_serum_groups = c("HUMAN_PLASMA", "MOUSE_PLASMA")
+  )
+
+  expect_equal(unname(result$targets["CRP", "all"]), NA_character_)
+  expect_equal(unname(result$targets["CRP", "HUMAN_PLASMA"]), "High Abundance")
+  expect_equal(unname(result$targets["CRP", "MOUSE_PLASMA"]), "High Abundance")
+  expect_equal(unname(result$targets["CRP", "MOUSE_CSF"]), NA_character_)
+})
+
+test_that("format_detectability_report without plasma_serum_groups uses strict regex", {
+  detect_result <- list(
+    all = list(
+      sampleNumber = 10,
+      detectability = c(T1 = 80),
+      detectable = c(T1 = TRUE)
+    ),
+    sample_group = list(
+      sampleNumber = list(HUMAN_PLASMA = 5, MOUSE_CSF = 5),
+      detectability = list(
+        HUMAN_PLASMA = c(T1 = 90),
+        MOUSE_CSF = c(T1 = 70)
+      ),
+      detectable = list(
+        HUMAN_PLASMA = c(T1 = TRUE),
+        MOUSE_CSF = c(T1 = TRUE)
+      )
+    )
+  )
+
+  # Without plasma_serum_groups, strict regex ^(PLASMA|SERUM)$ should NOT match HUMAN_PLASMA
+  result <- NULISAseqR:::format_detectability_report(
+    detect_result,
+    reverse_curve_targets = c("CRP")
+  )
+
+  expect_equal(unname(result$targets["CRP", "HUMAN_PLASMA"]), NA_character_)
+  expect_equal(unname(result$targets["CRP", "MOUSE_CSF"]), NA_character_)
+})
+
+test_that("format_detectability_report strict regex matches exact PLASMA and SERUM", {
+  detect_result <- list(
+    all = list(
+      sampleNumber = 10,
+      detectability = c(T1 = 80),
+      detectable = c(T1 = TRUE)
+    ),
+    sample_group = list(
+      sampleNumber = list(PLASMA = 6, SERUM = 4),
+      detectability = list(
+        PLASMA = c(T1 = 90),
+        SERUM = c(T1 = 70)
+      ),
+      detectable = list(
+        PLASMA = c(T1 = TRUE),
+        SERUM = c(T1 = TRUE)
+      )
+    )
+  )
+
+  # Without plasma_serum_groups, strict regex should match exact PLASMA and SERUM
+  result <- NULISAseqR:::format_detectability_report(
+    detect_result,
+    reverse_curve_targets = c("CRP")
+  )
+
+  expect_equal(unname(result$targets["CRP", "PLASMA"]), "High Abundance")
+  expect_equal(unname(result$targets["CRP", "SERUM"]), "High Abundance")
+})
+
+# --- label_detectability_for_display plasma_serum_groups tests ---
+
+test_that("label_detectability_for_display uses plasma_serum_groups when provided", {
+  detect_table <- data.frame(
+    Target = c("A", "CRP"),
+    `human_plasma (n = 10)` = c(80.0, NA_real_),
+    `mouse_csf (n = 5)` = c(70.0, NA_real_),
+    check.names = FALSE, stringsAsFactors = FALSE
+  )
+
+  display <- NULISAseqR:::label_detectability_for_display(
+    detect_table, "CRP",
+    plasma_serum_groups = c("HUMAN_PLASMA")
+  )
+
+  expect_equal(display[display$Target == "CRP", "human_plasma (n = 10)"], "High Abundance")
+  expect_true(is.na(display[display$Target == "CRP", "mouse_csf (n = 5)"]))
+})
+
+test_that("label_detectability_for_display strict regex fallback does not match substrings", {
+  detect_table <- data.frame(
+    Target = c("A", "CRP"),
+    `human_plasma (n = 10)` = c(80.0, NA_real_),
+    `csf (n = 5)` = c(70.0, NA_real_),
+    check.names = FALSE, stringsAsFactors = FALSE
+  )
+
+  # Without plasma_serum_groups, strict regex ^(plasma|serum)\s*\( should NOT match "human_plasma (n = 10)"
+  display <- NULISAseqR:::label_detectability_for_display(detect_table, "CRP")
+
+  expect_true(is.na(display[display$Target == "CRP", "human_plasma (n = 10)"]))
+  expect_true(is.na(display[display$Target == "CRP", "csf (n = 5)"]))
+})

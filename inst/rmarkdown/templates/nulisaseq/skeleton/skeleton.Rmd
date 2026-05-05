@@ -1,13 +1,12 @@
 ---
 params:
   study_name: ""
-  outfolder: !r getwd()
   assayName: ""
   ## directory where xml files are located
   # dataDir: '../../../../../tests/testthat/fixtures'
-  dataDir: !r getwd()
-  # xmlFiles: !r NULL
-  xmlFiles: !r c('detectability_P1_Tr03.xml', 'detectability_P2_Tr03.xml')
+  dataDir: !r NULL
+  xmlFiles: !r NULL
+  # xmlFiles: !r c('detectability_P1_Tr03.xml', 'detectability_P2_Tr03.xml')
   dataRuns: !r NULL
   ## manually set plate ID, otherwise plate ID will be 
   ## "Plate 1", "Plate 2", ... according to order of filenames 
@@ -22,6 +21,7 @@ params:
   ## WebApp
   # reportType: "webApp"
   reportType: "internal"
+  allowMissingCurveQuant: !r FALSE
   advancedQC: !r FALSE
   # advancedQC: !r TRUE
   ## internal control name(s) e.g. "mCherry", "NIC_1", "NIC_3" 
@@ -56,7 +56,7 @@ params:
   # to enable MAD outlier detection and removal
   # Defaults to 4
   minBlankNoMAD: !r 4
-  # Un-adjusted p-value cutoff for identifying targets that have overall plate (or instrument) effects in the ANOVA -- pairwise tests are only done for these targets
+  # Un-adjusted p-value cutoff for identifying targets that have overall plate effects in the ANOVA -- pairwise tests are only done for these targets
   plate_effect_pval_ANOVA: 0.01
   # Tukey-adjusted p-value cutoff for identifying targets that have batch effects in the pairwise test
   plate_effect_pval_pairwise: 0.01
@@ -95,6 +95,8 @@ params:
   outPlateEffect: !r TRUE
   ## should heatmaps show % median units?
   heatMapRel: !r TRUE
+  # set output folder where outputFiles below will be written
+  outfolder: "."
   ## outputPlots -- if TRUE will output a set of plots in a nice format for slides
   outputPlots: !r TRUE
   ## outputDetectCSV
@@ -617,7 +619,8 @@ if(is.null(params$dataRuns)){
       Bridge = params$Bridge,
       sample_group_covar = params$sampleGroupCovar,
       excludeSamples = params$excludeSamples[[i]],
-      excludeTargets = params$excludeTargets[[i]]
+      excludeTargets = params$excludeTargets[[i]],
+      allowMissingCurveQuant = params$allowMissingCurveQuant
     )
   })
   for(i in 1:numFiles){
@@ -648,7 +651,13 @@ if(is.null(params$dataRuns)){
       runs[[i]]$SampleNames <- runs[[i]]$SampleNames[!(runs[[i]]$SampleNames %in% runs[[i]]$IC_zero_samples)]
       runs[[i]]$Data <- runs[[i]]$Data[,!(colnames(runs[[i]]$Data) %in% runs[[i]]$IC_zero_samples)]
     }
-    
+
+    # Recompute match_matrix after sample exclusion to keep indices in sync
+    runs[[i]]$match_matrix <- calcSampleTargetNAs(
+      runs[[i]]$targets$Curve_Quant,
+      runs[[i]]$samples$SAMPLE_MATRIX
+    )
+
     # summarize each plate
     runSummaries[[i]] <- plateSummary(runs[[i]], IC=runs[[i]]$IC)
     read_summary <- cbind(read_summary, runSummaries[[i]]$readsTable)
@@ -1116,6 +1125,7 @@ detectability_return_summary <- detect_result$run_summary
 detectability_return_targets <- detect_result$run_targets
 all_reverseCurve_targets <- detect_result$reverse_curve_targets
 all_noDetect_nonRC_targets <- detect_result$noDetect_nonRC_targets
+plasma_serum_groups <- detect_result$plasma_serum_groups
 
 # if more than one plate, build Combined view for rendering
 combine_detectability <- FALSE
@@ -1198,7 +1208,8 @@ if(is.null(params$dataRuns) && (!is.null(params$excludeTargets) || !is.null(para
       SC = params$SC,
       IC = params$IC,
       IPC = params$IPC,
-      Bridge = params$Bridge
+      Bridge = params$Bridge,
+      allowMissingCurveQuant = params$allowMissingCurveQuant
     )$Data
   })
 } else { # if dataRuns is input or if there are no exclusions we use the Data from runs
@@ -1658,7 +1669,11 @@ if(multipleFiles){
   #####################################
   # merge n samples with batch effect test result
   plate_effect_plate_table <- plate_effect_n_samples_table
-  if(!is.null(params$assayRunInfo)) plate_effect_plate_table$instrument <- unlist(sapply(assayRunInfo, function(x) x[2]))
+  if(!is.null(params$assayRunInfo)) {
+    plate_effect_plate_table$instrument <- unlist(
+      sapply(assayRunInfo[PlateNames %in% plate_effect_PlateNames],
+             function(x) x[2]))
+  }
   plate_effect_plate_table <- merge(plate_effect_plate_table,
                                     plate_effect_summary_table, by='PlateID', sort=FALSE)
   
@@ -1708,124 +1723,29 @@ if(multipleFiles){
 } # end if multipleFiles
 ```
 
-```{r instrument-effect-test, include=FALSE, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate))}
+```{r instrument-metadata-setup, include=FALSE, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate))}
 if(is.null(params$assayRunInfo)){
   instrument_names <- NA
 }
 if(multipleFiles & !is.null(params$assayRunInfo)){
-  # perform instrument effect test
-  ## ORGANIZE DATA
-  # extract instrument data
-  instruments <- unlist(sapply(assayRunInfo, function(x) x[2]))
+  # extract instrument data (filtered to plates included in batch effect test)
+  plate_effect_assayRunInfo <- assayRunInfo[PlateNames %in% plate_effect_PlateNames]
+  instruments <- unlist(sapply(plate_effect_assayRunInfo, function(x) x[2]))
   # make an instrument indicator for associating with sample PCA
   instrument_names <- instruments
   instrument_names <- gsub(' ', '_', instrument_names)
   unique_instruments <- unique(instruments)
-  max_plates_per_inst <- max(table(instruments))
-  # only do inst effect test if there are at least 2 inst 
-  # and we have at least one inst with 2 or more plates
-  do_inst_effect_test <- length(unique_instruments) > 1 && max_plates_per_inst > 1
-  if(do_inst_effect_test){
-    # create a instEffectID variable
-    sample_metadata$instEffectID <- NA
-    for(i in 1:numFiles){
-      sample_metadata$instEffectID[sample_metadata$plateEffectID==unique(sample_metadata$plateEffectID)[i]] <- instruments[i]
-    }
-    sample_metadata$instEffectID <- factor(sample_metadata$instEffectID)
-    # create a model fit message variable
-    model_fit_message_inst <- NULL
-    for(i in 1:length(unique_instruments)){
-      sample_metadata[,gsub(' ', '_', unique_instruments[i])] <- sample_metadata$instEffectID == unique_instruments[i]
-    }
-    
-    #####################################
-    ## FIT MODELS INSTRUMENT EFFECT ANOVA
-    #####################################
-    # determine whether to adjust for covariate 
-    use_covariates <- FALSE
-    if(!is.null(params$sampleGroupCovar)){
-      if(!is.null(params$sampleGroupCovar) & params$sampleGroupCovar %in% colnames(sample_metadata)){
-        if(length(unique(sample_metadata[,params$sampleGroupCovar])) > 1){
-          use_covariates <- TRUE
-        }
-      }
-    }
-    # if no sampleGroupCovar indicated or only one unique category, fit model with no covariates
-    if(!use_covariates){
-      inst_effect_results <- vector(mode='list', length = 1)
-      # table n samples per instrument
-      inst_effect_results[[1]]$n_samples_table <- as.data.frame(table(sample_metadata$instEffectID))
-      rownames(inst_effect_results[[1]]$n_samples_table) <- NULL
-      colnames(inst_effect_results[[1]]$n_samples_table) <- c('InstrumentID', 'n samples')
-      # fit model
-      inst_effect_results[[1]]$inst_test_lm <- lmNULISAseq(data=plate_test_data, 
-                                                           sampleInfo = sample_metadata[,c('full_sampleName', 'instEffectID')], 
-                                                           sampleName_var = 'full_sampleName',
-                                                           modelFormula = 'instEffectID', 
-                                                           reduced_modelFormula = '1',
-                                                           return_model_fits = TRUE)
-      inst_effect_results[[1]]$Ftest_volcano <- volcanoPlot(coefs=inst_effect_results[[1]]$inst_test_lm$Fstats$Fstat, 
-                                                            p_vals = inst_effect_results[[1]]$inst_test_lm$Fstats$Ftest_pval, 
-                                                            target_labels = inst_effect_results[[1]]$inst_test_lm$Fstats$target,
-                                                            title = 'Instrument effect ANOVA F-test',
-                                                            xlabel = paste0('F-statistic (df=', inst_effect_results[[1]]$inst_test_lm$Fstats$Df[1], ')'),
-                                                            ylabel = '-log10(unadjusted p-value)',
-                                                            sig_label = paste0('p = ', params$plate_effect_pval_ANOVA), 
-                                                            sig_threshold = params$plate_effect_pval_ANOVA)
-    } else if(use_covariates){
-      # table n samples per plate
-      inst_effect_results <- vector(mode='list', length = 1)
-      inst_effect_results[[1]]$n_samples_table <- as.data.frame.matrix(table(sample_metadata$instEffectID, sample_metadata[,params$sampleGroupCovar]))
-      inst_effect_results[[1]]$n_samples_table <- data.frame(InstrumentID=rownames(inst_effect_results[[1]]$n_samples_table), inst_effect_results[[1]]$n_samples_table)
-      rownames(inst_effect_results[[1]]$n_samples_table) <- NULL
-      colnames(inst_effect_results[[1]]$n_samples_table)[2:ncol(inst_effect_results[[1]]$n_samples_table)] <- paste0(colnames(inst_effect_results[[1]]$n_samples_table)[2:ncol(inst_effect_results[[1]]$n_samples_table)], ' (n)')
-      # check if model matrix is full rank 
-      model_matrix <- model.matrix(as.formula(paste0(' ~ sample_metadata$instEffectID + sample_metadata$', params$sampleGroupCovar)))
-      model_matrix_rank <- qr(model_matrix)$rank
-      # if not full rank, omit the sampleGroupCovar and print a message in the output
-      if(model_matrix_rank < ncol(model_matrix)){
-        model_fit_message_inst <- 'PLEASE NOTE: Instrument and sample group were confounded so sample group was not included in the instrument effect test models. Significant instrument effects cannot be fully separated from sample group effects. Any significant instrument effects noted here could actually be due to biological sample group differences.'   
-        model_formula <- 'instEffectID'
-        reduced_model_formula <- 1
-      } else {
-        # if sampleGroupCovar is specified and there is more than one category, 
-        # fit model with sampleGroupCovar as covariate
-        model_formula <- paste0('instEffectID + ', params$sampleGroupCovar)
-        reduced_model_formula <- params$sampleGroupCovar
-      }
-      # fit model
-      inst_effect_results[[1]]$inst_test_lm <- lmNULISAseq(data=plate_test_data, 
-                                                           sampleInfo = sample_metadata[,c('full_sampleName', 'instEffectID', params$sampleGroupCovar)], 
-                                                           sampleName_var = 'full_sampleName',
-                                                           modelFormula = model_formula, 
-                                                           reduced_modelFormula = reduced_model_formula,
-                                                           return_model_fits = TRUE)
-      inst_effect_results[[1]]$Ftest_volcano <- volcanoPlot(coefs=inst_effect_results[[1]]$inst_test_lm$Fstats$Fstat, 
-                                                            p_vals = inst_effect_results[[1]]$inst_test_lm$Fstats$Ftest_pval, 
-                                                            target_labels = inst_effect_results[[1]]$inst_test_lm$Fstats$target,
-                                                            title = 'Instrument effect ANOVA F-test',
-                                                            xlabel = paste0('F-statistic (df=', inst_effect_results[[1]]$inst_test_lm$Fstats$Df[1], ')'),
-                                                            ylabel = '-log10(unadjusted p-value)',
-                                                            sig_label = paste0('p = ', params$plate_effect_pval_ANOVA), 
-                                                            sig_threshold = params$plate_effect_pval_ANOVA)
-      
-    } # end if use_covariates
-    
-    
-    #####################################
-    # MAKE INSTRUMENT EFFECT TARGET TABLE
-    #####################################
-    inst_effect_results[[1]]$target_table <- inst_effect_results[[1]]$inst_test_lm$Fstats
-    # remove some cols
-    inst_effect_results[[1]]$target_table <- inst_effect_results[[1]]$target_table[,c(1,2,4)]
-    inst_effect_results[[1]]$target_table$inst_Ftest_significant <- inst_effect_results[[1]]$target_table$Ftest_pval < params$plate_effect_pval_ANOVA
-    # merge with the plate target table 
-    plate_effect_target_table <- merge(plate_effect_target_table, 
-                                       inst_effect_results[[1]]$target_table[,c("target","inst_Ftest_significant")], sort=FALSE)
-    
-    colnames(plate_effect_target_table)[colnames(plate_effect_target_table)=="inst_Ftest_significant"] <- "inst Ftest significant"
-  } # end do_inst_effect_test
-} # end if multipleFiles & !is.null(params$assayRunInfo)
+  # create an instEffectID variable for PCA metadata
+  sample_metadata$instEffectID <- NA
+  for(i in 1:length(plate_effect_PlateNames)){
+    sample_metadata$instEffectID[sample_metadata$plateEffectID==unique(sample_metadata$plateEffectID)[i]] <- instruments[i]
+  }
+  sample_metadata$instEffectID <- factor(sample_metadata$instEffectID)
+  # create binary instrument indicator columns for PCA
+  for(i in 1:length(unique_instruments)){
+    sample_metadata[,gsub(' ', '_', unique_instruments[i])] <- sample_metadata$instEffectID == unique_instruments[i]
+  }
+}
 ```
 
 ---
@@ -2050,7 +1970,7 @@ for(i in 1:numFiles){
   par(mfrow=c(1, length(ICs)+1), oma=c(1,1,1,1), mar=c(2,2,2,1))
   digitsIC <- if(params$heatMapRel) 1 else 0
   logVals <- log2(colSums(runs[[i]]$Data, na.rm=TRUE))
-  well_order <- wellorder(runs[[i]]$sample)
+  well_order <- wellorder(runs[[i]]$samples)
   val <- vals
   val[which(!is.na(vals))] <- logVals[well_order]
   plateHeatmap(as.numeric(val), 
@@ -2346,7 +2266,7 @@ cat("#### Sample QC plots\n\n")
 # make sample QC plots
 for( i in 1:numFiles){
   # sort in order: samples, IPC, SC, Bridge, NC
-  sampleType_factor <- factor(runs[[i]]$sample$sampleType,
+  sampleType_factor <- factor(runs[[i]]$samples$sampleType,
                               levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
   well_order <- wellorder(runs[[i]]$samples,
                           sampleTypeFactor=sampleType_factor)
@@ -3613,7 +3533,9 @@ sampleboxplot <- function(data,
     # add internal control line
     lines(cbind(log2(data[IC_name, data_order] + 1), 1:ncol(data)), col='red', las=1)
     # add data axis label
-    mtext(data_axis_label, side=1, line=0.75, cex=0.5)
+    mtext(data_axis_label, side=data_axis_side, line=0.75, cex=0.5)
+    # add data axis ticks and numbers
+    axis(data_axis_side, cex.axis=0.5, tck=-0.01, mgp=c(3, 0.2, 0))
     # legend
     legend('topleft', internal_control_label, col='red', lty=1, cex=0.4, bty='n')
     # grid lines
@@ -3661,16 +3583,20 @@ for(i in 1:numFiles){
                 boxplot_colors=boxplot_colors2,
                 label_colors=label_colors2)
   
-  recorded_plot <- recordPlot()
   sampleboxplot(sample_boxplot_data_norm, data_order=ordering, 
-                title=paste0(PlateNames[i], ": IC + ", CAL_IPC), 
+                title=paste0(PlateNames[i], ": NPQ"), 
                 boxplot_colors=boxplot_colors2,
-                label_colors=label_colors2)
+                label_colors=label_colors2,
+                data_axis_label='NPQ')
   
   if(params$outputPlots && params$reportType != "webApp"){
     pdf(file.path(params$outfolder, "outputFiles", paste0("sample_boxplot_", PlateNames[i], '.pdf')), width=4, height=9)
     par(mfrow=c(1,1), mar=c(4,6,2,0))
-    replayPlot(recorded_plot)
+    sampleboxplot(sample_boxplot_data_norm, data_order=ordering, 
+                title=paste0(PlateNames[i], ": NPQ"), 
+                boxplot_colors=boxplot_colors2,
+                label_colors=label_colors2,
+                data_axis_label='NPQ')
     dev.off()
   }
 }
@@ -4602,10 +4528,9 @@ if(params$outPlateEffect & multipleFiles){
     metavars <- c(params$sampleGroupCovar, unique_plateEffectID)
   }
   if(!is.null(params$assayRunInfo)){
-    if(do_inst_effect_test){
-      metavars <- c(metavars, instrument_names)
-    }
+    metavars <- c(metavars, instrument_names)
   }
+  metavars <- unique(metavars)
   fig_height <- length(metavars) / 3 + 1
 }
 ```
@@ -4640,72 +4565,6 @@ if(multipleFiles & params$reportType != "webApp"){
 }
 ```
 
-```{r inst-effect-test-samples-table, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & !is.null(params$assayRunInfo)), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
-if(multipleFiles & !is.null(params$assayRunInfo)){
-  if(do_inst_effect_test){
-    cat("\n\n---\n\n")
-    cat("## Instrument effect tests\n\n")
-    cat("### Instrument effect ANOVA test\n\n")
-    cat("Instrument effect test is based on a linear model with instrument as a categorical variable (equivalent to an ANOVA model). Models are adjusted by the sample group covariate (sampleGroupCovar parameter), if defined. Instrument effect test assumes that all other variation is technical in nature. Significant instrument effect may be due to biological variation if samples were not randomized and / or if biological groups are not balanced across the instruments (after adjusting for covariate, if specified).\n\n")
-    cat(paste0("Instrument effect ANOVA test significance threshold was set at p < ", params$plate_effect_pval_ANOVA, "."), "\n\n")
-    
-    if(!is.null(model_fit_message_inst)){
-      cat(model_fit_message_inst, "\n\n")
-    }
-    
-    cat("#### Samples per instrument table\n\n")
-    
-    render_table(inst_effect_results[[1]]$n_samples_table,
-                 table_name = 'Number of samples per instrument',
-                 table_id = paste0("id=\"n-samples-per-inst", "\""),
-                 rownames = FALSE)
-    
-    if(nrow(samples_omitted) > 0){
-      cat("#### Samples omitted from instrument effect test table\n\n")
-      
-      cat("The following samples were omitted from instrument effect test due to their sample metadata name not matching a NPQ data matrix column name.\n\n")
-      
-      render_table(samples_omitted, 
-                   table_name = 'Samples omitted from instrument effect test', 
-                   table_id = paste0("id=\"inst-effect-test-samples-omitted", "\""),
-                   rownames = FALSE)
-    }
-  }
-}
-```
-
-```{r inst-effect-test-volcano-plot, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & !is.null(params$assayRunInfo)), results='asis', out.width='75%', fig.asp=1, fig.align = 'center', warning=FALSE}
-if(multipleFiles){
-  if(do_inst_effect_test){
-    cat("#### Instrument effect ANOVA volcano plot\n\n")
-    
-    if(length(inst_effect_results[[1]]$remove_targets) > 0){
-      cat(paste0("NOTE: The following targets were removed from instrument effect test due to zero variance: ", paste(inst_effect_results[[1]]$remove_targets, collapse=", ")), "\n\n")
-    }
-    
-    n_significant_Ftest_inst <- sum(inst_effect_results[[1]]$inst_test_lm$Fstats$Ftest_pval[!is.na(inst_effect_results[[1]]$inst_test_lm$Fstats$Ftest_pval)] < params$plate_effect_pval_ANOVA)
-    if(n_significant_Ftest_inst == 0){
-      cat(paste0("There were no targets with significant (unadjusted p < ", params$plate_effect_pval_ANOVA, ") ANOVA test instrument effects."), "\n\n")
-    } else if(n_significant_Ftest_inst > 0){
-      cat(paste0(n_significant_Ftest_inst, " targets showed significant ANOVA test instrument effects (unadjusted p < ", params$plate_effect_pval_ANOVA, ")."), "\n\n")
-    }
-    suppressWarnings(inst_effect_results[[1]]$Ftest_volcano)
-  }
-}
-```
-
-```{r save-inst-effect-test-result, eval=(params$outPlateEffect & multipleFiles & !isTRUE(plate_effect_single_plate) & params$outputPlateEffectCSV==TRUE & params$reportType=="internal" & !is.null(params$assayRunInfo)), include=FALSE}
-if(multipleFiles & params$reportType != "webApp"){
-  if(do_inst_effect_test){
-    # make directory -- we will put the file in the outputFiles directory
-    dir.create(file.path(params$outfolder, "outputFiles"), recursive = TRUE)
-    
-    # Batch effect test -- output CSV file
-    write.csv(inst_effect_results[[1]]$target_table, file.path(params$outfolder, "outputFiles", "target_inst_effect_table.csv"))
-  }
-}
-```
-
 ```{r generate-pdf-plots, include=FALSE, eval=params$outputPlots==TRUE}
 if(params$reportType != "webApp"){
   # create directory for outputFiles
@@ -4717,7 +4576,7 @@ if(params$reportType != "webApp"){
 ##########################
 for(i in 1:numFiles){
   # sort in order: samples, IPC, SC, Bridge, NC
-  sampleType_factor <- factor(runs[[i]]$sample$sampleType,
+  sampleType_factor <- factor(runs[[i]]$samples$sampleType,
                               levels=c('Sample', 'IPC', 'SC', 'Bridge', 'NC'))
   well_order <- wellorder(runs[[i]]$samples, 
                           sampleTypeFactor=sampleType_factor)
@@ -5115,7 +4974,7 @@ if(!is.null(params$sampleGroupCovar)){
     # add plate ID to colnames in case any names are identical across plates
     colnames(plate_i_sample_data) <- paste0('plate_', i, '_', colnames(plate_i_sample_data))
     # add plate ID - sample name to the samples data frame
-    runs[[i]]$samples$plate_sampleName <- paste0('plate_', i, '_', runs[[i]]$sample$sampleName)
+    runs[[i]]$samples$plate_sampleName <- paste0('plate_', i, '_', runs[[i]]$samples$sampleName)
     data_minus_LOD[[i]] <- sweep(plate_i_sample_data, MARGIN=1, STATS=plate_lod_IPC[[i]]$LOD_log2)
     # Exclude IC + hidden targets + reverse curve targets
     samplegroup_exclude_targets <- c(runs[[i]]$IC,

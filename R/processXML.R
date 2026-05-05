@@ -200,15 +200,18 @@ insertCovariatesXML <- function(input_XML, covariates){
       }
     } else if(length(multi_check) > 1){
       # get wellcol and wellrow info for current element
-      if (!is.null(xml2::xml_attr(element, "AUTO_WELLPOSITION")) && xml2::xml_attr(element, "AUTO_WELLPOSITION") != "" &&
-        (is.null(xml2::xml_attr(element, "AUTO_WELLCOL")) || is.null(xml2::xml_attr(element, "AUTO_WELLROW")) ||
-         xml2::xml_attr(element, "AUTO_WELLCOL") == "" || xml2::xml_attr(element, "AUTO_WELLROW") == "")) {
-        well_pos <- xml2::xml_attr(element, "AUTO_WELLPOSITION")
+      # Note: xml2::xml_attr() returns NA (not NULL) when attribute doesn't exist
+      well_pos_attr <- xml2::xml_attr(element, "AUTO_WELLPOSITION")
+      well_col_attr <- xml2::xml_attr(element, "AUTO_WELLCOL")
+      well_row_attr <- xml2::xml_attr(element, "AUTO_WELLROW")
+      if (!is.na(well_pos_attr) && nzchar(well_pos_attr) &&
+        (is.na(well_col_attr) || is.na(well_row_attr) ||
+         !nzchar(well_col_attr) || !nzchar(well_row_attr))) {
         req_attrs_val <- c(
-          AUTO_WELLROW = substr(well_pos, 1, 1), 
-          AUTO_WELLCOL = substring(well_pos, 2),
-          wellRow = substr(well_pos, 1, 1), 
-          wellCol = substring(well_pos, 2)
+          AUTO_WELLROW = substr(well_pos_attr, 1, 1),
+          AUTO_WELLCOL = substring(well_pos_attr, 2),
+          wellRow = substr(well_pos_attr, 1, 1),
+          wellCol = substring(well_pos_attr, 2)
           )
       } else{
         req_attrs_val <- sapply(c('AUTO_WELLROW', 'AUTO_WELLCOL'), xml2::xml_attr, x = element)
@@ -481,11 +484,14 @@ insertCovariatesXML <- function(input_XML, covariates){
 #' @importFrom xml2 xml_find_all xml_attr xml_set_attr xml_text
 .annotate_readcounts <- function(root, data, rawReadCutoff){
   sampleNameByBarcode <- stats::setNames(data$samples$sampleName, data$samples$sampleBarcode)
+  sampleTypeByBarcode <- stats::setNames(data$samples$sampleType, data$samples$sampleBarcode)
   targetNameByBarcode <- stats::setNames(data$targets$targetName, data$targets$targetBarcode)
   for(sample in xml2::xml_find_all(root, './/Data//Sample')){
     sBarcode <- xml2::xml_attr(sample, "barcode")
     sName <- sampleNameByBarcode[[sBarcode]]
     if(is.null(sName) || is.na(sName)) next
+    sType <- sampleTypeByBarcode[[sBarcode]]
+    isCalOrIPC <- !is.null(sType) && !is.na(sType) && sType %in% c("Calibrator", "IPC")
     for(readcount in xml2::xml_find_all(sample, "ReadCount")){
       tBarcode <- xml2::xml_attr(readcount, "target")
       tName <- targetNameByBarcode[[tBarcode]]
@@ -510,13 +516,13 @@ insertCovariatesXML <- function(input_XML, covariates){
 
       # AQ / aM / dr for absolute assay
       if(isTRUE(data$AbsAssay)){
-        if(!is.null(data$AQ$Data_AQ) && tName %in% rownames(data$AQ$Data_AQ) && sName %in% colnames(data$AQ$Data_AQ)){
+        if(!isCalOrIPC && !is.null(data$AQ$Data_AQ) && tName %in% rownames(data$AQ$Data_AQ) && sName %in% colnames(data$AQ$Data_AQ)){
           xml2::xml_set_attr(readcount, "AQ", as.character(data$AQ$Data_AQ[tName, sName]))
         }
-        if(!is.null(data$AQ$Data_AQ_aM) && tName %in% rownames(data$AQ$Data_AQ_aM) && sName %in% colnames(data$AQ$Data_AQ_aM)){
+        if(!isCalOrIPC && !is.null(data$AQ$Data_AQ_aM) && tName %in% rownames(data$AQ$Data_AQ_aM) && sName %in% colnames(data$AQ$Data_AQ_aM)){
           xml2::xml_set_attr(readcount, "aM", as.character(data$AQ$Data_AQ_aM[tName, sName]))
         }
-        if(!is.null(data$AQ$withinDR) && tName %in% rownames(data$AQ$withinDR) && sName %in% colnames(data$AQ$withinDR)){
+        if(!isCalOrIPC && !is.null(data$AQ$withinDR) && tName %in% rownames(data$AQ$withinDR) && sName %in% colnames(data$AQ$withinDR)){
           xml2::xml_set_attr(readcount, "dr", as.character(as.integer(data$AQ$withinDR[tName, sName])))
         }
       }

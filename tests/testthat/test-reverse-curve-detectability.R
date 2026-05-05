@@ -92,7 +92,7 @@ test_that("label_detectability_for_display adds High Abundance for RC targets", 
 test_that("XML noDetectability modifier targets have detectability computed but flag preserved", {
   # This fixture has noDetectability on AGER (a forward target, rare case)
   input <- test_path("fixtures", "detectability_P1_Tr03_typemCherry_noDetectability_AGER.xml")
-  data <- loadNULISAseq(input, IPC = NULL, IC = NULL, SC = NULL)
+  data <- suppressWarnings(loadNULISAseq(input, IPC = NULL, IC = NULL, SC = NULL, allowMissingCurveQuant=TRUE))
 
   # AGER should have noDetectability flag from XML modifier
   expect_true(data$targets$noDetectability[data$targets$targetName == "AGER"])
@@ -125,7 +125,7 @@ test_that("NULISAseqR:::get_noDetectability_targets returns empty when none flag
 
 test_that("NULISAseqR:::get_noDetectability_targets matches inline pattern from fixture", {
   input <- test_path("fixtures", "detectability_P1_Tr03_typemCherry_noDetectability_AGER.xml")
-  data <- loadNULISAseq(input, IPC = NULL, IC = NULL, SC = NULL)
+  data <- suppressWarnings(loadNULISAseq(input, IPC = NULL, IC = NULL, SC = NULL, allowMissingCurveQuant=TRUE))
 
   # Helper should produce same result as inline pattern it replaces
   helper_result <- NULISAseqR:::get_noDetectability_targets(data$targets)

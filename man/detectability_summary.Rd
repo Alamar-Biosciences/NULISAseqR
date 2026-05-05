@@ -47,6 +47,13 @@ output fields. The structure matches \code{detectability()} output:
 \item{noDetect_nonRC_targets}{Character vector of non-RC noDetectability
   target names detected across all runs (when
   \code{exclude_noDetect_targets = TRUE}).}
+\item{plasma_serum_groups}{Character vector of sample group covariate level
+  names that map to PLASMA or SERUM in \code{SAMPLE_MATRIX}. Used by
+  downstream functions to determine "High Abundance" labeling for reverse
+  curve targets. Populated whenever sample groups can be mapped to
+  PLASMA/SERUM, including when grouping is already by \code{SAMPLE_MATRIX}.
+  \code{NULL} only when \code{SAMPLE_MATRIX} is not available or no
+  groups map to PLASMA/SERUM.}
 \item{run_summary}{Named list of formatted summary matrices per plate (and
   "Overall" for multi-plate), with columns: type, \# samples, mean, sd,
   median, min, max, \# of detectable targets (\%). Only when

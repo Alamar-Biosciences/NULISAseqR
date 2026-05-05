@@ -2,13 +2,31 @@
 test_that("loadNULISAseq reads in an XML file and adds lists of appropriate size", {
 
   input1 <- test_path("fixtures", "detectability_P1_Tr03.xml")
-  data <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
+  data <- suppressWarnings(loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL, allowMissingCurveQuant=TRUE))
   expect_true(nrow(data$qcPlate) >= 5)
   expect_true(nrow(data$qcSample) > ncol(data$Data))
   expect_true(all(dim(data$IC_normed$normData) == dim(data$normed$interNormData)))
   expect_true(all(dim(data$IC_normed$normData) == dim(data$normed$log2_interNormData)))
   expect_true(all(dim(data$normed$normData) == dim(data$normed$interNormData)))
 
+})
+
+test_that("loadNULISAseq errors by default when XML has no Curve_Quant values", {
+  input1 <- test_path("fixtures", "detectability_P1_Tr03.xml")
+  expect_error(
+    loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL),
+    "No Curve_Quant values found in XML"
+  )
+})
+
+test_that("loadNULISAseq warns and loads when allowMissingCurveQuant = TRUE", {
+  input1 <- test_path("fixtures", "detectability_P1_Tr03.xml")
+  expect_warning(
+    data <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL, allowMissingCurveQuant=TRUE),
+    "No Curve_Quant values found in XML"
+  )
+  expect_false(is.null(data$Data))
+  expect_true(all(data$targets$Curve_Quant == "F"))
 })
 
 test_that("loadNULISAseq can handle v1.3.x version of the XML which incorporates QC and NPQ /AQ values",{

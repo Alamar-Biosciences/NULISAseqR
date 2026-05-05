@@ -7,7 +7,8 @@
 format_detectability_report(
   detect_result,
   noDetectability_targets = character(0),
-  reverse_curve_targets = character(0)
+  reverse_curve_targets = character(0),
+  plasma_serum_groups = NULL
 )
 }
 \arguments{
@@ -20,6 +21,12 @@ from summary statistics but keep in the target table. Default
 \item{reverse_curve_targets}{Character vector of reverse curve target names
 to append as "High Abundance" rows for PLASMA or SERUM matrix types. Other
 matrix types will show as NA. Default \code{character(0)}.}
+
+\item{plasma_serum_groups}{Optional character vector of sample group covariate
+level names that correspond to PLASMA or SERUM samples. When provided, these
+names are matched against column names to determine which columns receive
+"High Abundance" labels. When \code{NULL} (default), falls back to regex
+matching on column names.}
 }
 \value{
 A list with two elements:

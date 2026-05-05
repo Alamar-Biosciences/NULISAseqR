@@ -416,7 +416,8 @@ writeNULISAseq <- function (xml_files,
   ############## Detectability ##############
   detect_table <- label_detectability_for_display(
     all_data$merged$detectability,
-    all_data$merged$reverse_curve_targets
+    all_data$merged$reverse_curve_targets,
+    plasma_serum_groups = all_data$merged$plasma_serum_groups
   )
 
   ############## Write RQ Output ##############

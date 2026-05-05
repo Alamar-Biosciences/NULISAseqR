@@ -17,7 +17,8 @@ readNULISAseq(
   NC = NULL,
   Bridge = NULL,
   Calibrator = NULL,
-  replaceNA = TRUE
+  replaceNA = TRUE,
+  allowMissingCurveQuant = FALSE
 )
 }
 \arguments{
@@ -88,8 +89,12 @@ type variable from the Barcode B file or
 if there are no calibrator samples (default).
 Only used for xml file formats.}
 
-\item{replaceNA}{Logical. If TRUE (default), will replace missing counts with 
+\item{replaceNA}{Logical. If TRUE (default), will replace missing counts with
 zeros.}
+
+\item{allowMissingCurveQuant}{Logical. If FALSE (default), an error is raised
+when the XML file contains no Curve_Quant values. Set to TRUE to fall back to
+treating all targets as forward curve with a warning.}
 }
 \value{
 List of lists, data frames, and matrices.

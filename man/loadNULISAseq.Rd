@@ -94,6 +94,9 @@ before generating AQ data.}
 \value{
 List of lists, data frames, and matrices.
 Output will differ slightly depending on the input file type.
+Includes \code{sample_group_covar} storing the column name used for
+sample grouping in detectability, so downstream functions can map
+group levels to \code{SAMPLE_MATRIX} for "High Abundance" labeling.
 }
 \description{
 Reads NULISAseq XML file or processes a pre-built raw data structure.
