@@ -431,19 +431,33 @@ formatZeroSamples <- function(zero_samples_list, message_prefix) {
 
 render_table <- function(df, table_name, table_id, highlight = NULL, first_colName="Target", rownames=TRUE, validPageSizes=c(10,25,50,100), defaultPageSize=10, searchLimit=10, HTML=FALSE, custom_columns=NULL, tooltips=NULL) {
   df2 <- df
-  if (!is.data.frame(df2)){
-    df2 <- as.data.frame(df)
-    # Convert columns that can be safely coerced to numeric
-    for (colname in names(df2)) {
-      # Try coercing the column to numeric
-      suppressWarnings(num_col <- as.numeric(df2[[colname]]))
-      
-      # If no NA is introduced (other than original NA), convert the column
-      if (sum(is.na(num_col)) <= sum(is.na(df2[[colname]]))) {
-        df2[[colname]] <- num_col
-      }
-      
+  if (!is.data.frame(df2)) df2 <- as.data.frame(df2)
+  # Coerce numeric-looking columns to numeric so reactable sorts them numerically
+  # rather than as character. Runs for data.frame inputs too, not only matrices.
+  # Columns that mix numeric values with text labels (e.g. reverse-curve
+  # "High Abundance") are made numeric for sorting, with the labels preserved for
+  # display via a hidden companion column + cell renderer.
+  label_cols <- character(0)
+  for (colname in names(df2)) {
+    # already-numeric columns sort numerically and keep their formatting; leave them
+    if (is.numeric(df2[[colname]])) next
+    orig <- as.character(df2[[colname]])
+    suppressWarnings(num_col <- as.numeric(orig))
+    # non-numeric, non-blank entries that failed to coerce (i.e. text labels)
+    failed <- is.na(num_col) & !is.na(orig) & trimws(orig) != ""
+    if (!any(failed)) {
+      # entirely numeric (ignoring pre-existing NA / blanks), unless coercion would
+      # drop a leading zero (e.g. a zero-padded sample ID "007" becoming 7)
+      nonblank <- orig[!is.na(orig) & trimws(orig) != ""]
+      zero_padded <- grepl("^0[0-9]", trimws(nonblank))
+      if (!any(zero_padded)) df2[[colname]] <- num_col
+    } else if (any(!is.na(num_col))) {
+      # mixed numeric values and text labels: sort numerically, keep labels
+      df2[[paste0(colname, "__label")]] <- ifelse(failed, orig, "")
+      df2[[colname]] <- num_col
+      label_cols <- c(label_cols, colname)
     }
+    # else: entirely non-numeric column (e.g. names, "x (y%)") -> leave as character
   }
   if(rownames){
     if(!is.null(rownames(df))){
@@ -470,7 +484,31 @@ render_table <- function(df, table_name, table_id, highlight = NULL, first_colNa
       column_defs[[col]] <- colDef(show=FALSE)
     }
   }
-  
+
+  # For columns that mix numeric values with text labels: hide the
+  # companion label column and render the parent column so numeric values display
+  # (and sort) numerically while text labels (e.g. "High Abundance") still show.
+  # Set before the custom_columns merge below, so an explicit custom_columns entry
+  # for the same column still takes precedence (it would drop label rendering).
+  if (length(label_cols) > 0) {
+    for (lc in label_cols) {
+      label_source <- paste0(lc, "__label")
+      column_defs[[label_source]] <- colDef(show = FALSE)
+      column_defs[[lc]] <- colDef(
+        sortNALast = TRUE,  # keep labeled (non-numeric) rows at the bottom when sorting
+        html = FALSE,       # labels/numbers are plain text; render as text so markup in a label can't inject HTML
+        cell = JS(sprintf("
+          function(cellInfo) {
+            var lbl = cellInfo.row['%s'];
+            if (lbl !== null && lbl !== undefined && lbl !== '') { return lbl; }
+            if (cellInfo.value === null || cellInfo.value === undefined) { return ''; }
+            return cellInfo.value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          }
+        ", label_source))
+      )
+    }
+  }
+
   # Add tooltip support with click-to-expand using native HTML <details>/<summary>.
   # This avoids React.useState hooks which crash reactable on pagination/page-size change.
   if(!is.null(tooltips)){
@@ -513,11 +551,19 @@ render_table <- function(df, table_name, table_id, highlight = NULL, first_colNa
     }
   }
   
-  # Format columns that should display as integers (no decimal places)
+  # Count columns display integer values with no decimals, but a non-integer
+  # value (e.g. an averaged count) keeps one decimal so precision isn't lost.
   integer_columns <- c("missing", "Total wells", "Total targets")
   for(int_col in integer_columns){
     if(int_col %in% colnames(df2)){
-      column_defs[[int_col]] <- colDef(format = colFormat(digits = 0))
+      column_defs[[int_col]] <- colDef(cell = JS("
+        function(cellInfo) {
+          var v = cellInfo.value;
+          if (v === null || v === undefined || v === '' || typeof v !== 'number') { return v; }
+          return Number.isInteger(v)
+            ? v.toLocaleString('en-US')
+            : v.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+        }"))
     }
   }
   
@@ -642,14 +688,29 @@ if(is.null(params$dataRuns)){
       runs[[i]]$samples <- runs[[i]]$samples[!(runs[[i]]$samples$sampleName %in% runs[[i]]$zero_samples),]
       runs[[i]]$SampleNames <- runs[[i]]$SampleNames[!(runs[[i]]$SampleNames %in% runs[[i]]$zero_samples)]
       runs[[i]]$Data <- runs[[i]]$Data[,!(colnames(runs[[i]]$Data) %in% runs[[i]]$zero_samples)]
+      # keep IC_normed columns aligned with Data so plateSummary()'s index-based
+      # control CV (IC-normalized) is computed on the right wells (issue #655)
+      if(!is.null(runs[[i]]$IC_normed$normData)) runs[[i]]$IC_normed$normData <- runs[[i]]$IC_normed$normData[,!(colnames(runs[[i]]$IC_normed$normData) %in% runs[[i]]$zero_samples), drop=FALSE]
+      # drop excluded wells from the special-well name lists too, else a removed
+      # IPC/NC/SC/Bridge well name lingers and interPlateNorm() indexes a
+      # column that no longer exists in Data (issue #697)
+      for(well_type in c("IPC", "NC", "SC", "Bridge", "Calibrator")){
+        runs[[i]][[well_type]] <- runs[[i]][[well_type]][!(runs[[i]][[well_type]] %in% runs[[i]]$zero_samples)]
+      }
     }
-    
+
     # check and exclude samples with 0 IC reads
     runs[[i]]$IC_zero_samples <- colnames(runs[[i]]$Data)[runs[[i]]$Data[runs[[i]]$IC, ] == 0]
     if(length(runs[[i]]$IC_zero_samples) != 0){
       runs[[i]]$samples <- runs[[i]]$samples[!(runs[[i]]$samples$sampleName %in% runs[[i]]$IC_zero_samples),]
       runs[[i]]$SampleNames <- runs[[i]]$SampleNames[!(runs[[i]]$SampleNames %in% runs[[i]]$IC_zero_samples)]
       runs[[i]]$Data <- runs[[i]]$Data[,!(colnames(runs[[i]]$Data) %in% runs[[i]]$IC_zero_samples)]
+      # keep IC_normed columns aligned with Data (issue #655; see above)
+      if(!is.null(runs[[i]]$IC_normed$normData)) runs[[i]]$IC_normed$normData <- runs[[i]]$IC_normed$normData[,!(colnames(runs[[i]]$IC_normed$normData) %in% runs[[i]]$IC_zero_samples), drop=FALSE]
+      # drop excluded wells from the special-well name lists too (issue #697; see above)
+      for(well_type in c("IPC", "NC", "SC", "Bridge", "Calibrator")){
+        runs[[i]][[well_type]] <- runs[[i]][[well_type]][!(runs[[i]][[well_type]] %in% runs[[i]]$IC_zero_samples)]
+      }
     }
 
     # Recompute match_matrix after sample exclusion to keep indices in sync
@@ -783,7 +844,7 @@ if(indicatorBridge==TRUE){
 ```{r calculate-LOD, include=FALSE}
 # calculate LOD on the IPC normalized data
 targetNoOutlierDetection <- lapply(seq_len(numFiles), function(i) {
-  names(which(apply(runs[[i]]$Data[, runs[[i]]$NC] < 100, 1, all)))
+  names(which(apply(runs[[i]]$Data[, runs[[i]]$NC, drop=FALSE] < 100, 1, all)))
 })
 
 plate_lod <- lapply(seq_len(numFiles), function(i) {
@@ -874,12 +935,33 @@ if(multipleFiles==TRUE){
   }
 }
 
+# Build the intra-plate %CV summary table. Per-plate statistics are computed from
+# the plate columns only, and the "Average" row aggregates those per-plate
+# statistics (column means). Summarizing the pre-averaged per-target "Average"
+# column instead would make the Average row's min/max/sd inconsistent with the
+# plate rows it summarizes.
+intra_cv_summary <- function(cv_matrix){
+  plate_cols <- setdiff(colnames(cv_matrix), "Average")
+  tbl <- column_summary_stats(cv_matrix[, plate_cols, drop=FALSE], n_digits=NULL)
+  if("Average" %in% colnames(cv_matrix) && nrow(tbl) > 1){
+    num_cols <- c("mean", "sd", "median", "min", "max")
+    avg_row <- tbl[1, , drop=FALSE]
+    avg_row[num_cols] <- as.list(colMeans(sapply(tbl[num_cols], as.numeric), na.rm=TRUE))
+    # missing is the mean of the per-plate missing counts; kept as a decimal
+    # since the mean of integer counts better describes average missingness
+    avg_row[["missing"]] <- format(round(mean(as.integer(tbl[["missing"]]), na.rm=TRUE), 1), nsmall=1)
+    rownames(avg_row) <- "Average"
+    tbl <- rbind(tbl, avg_row)
+  }
+  tbl
+}
+
 # create CV summary tables
-IPC_intraCV_unnorm_summary_table <- column_summary_stats(IPC_intraCV_unnorm, n_digits=NULL)
-IPC_intraCV_IC_summary_table <- column_summary_stats(IPC_intraCV_IC, n_digits=NULL)
+IPC_intraCV_unnorm_summary_table <- intra_cv_summary(IPC_intraCV_unnorm)
+IPC_intraCV_IC_summary_table <- intra_cv_summary(IPC_intraCV_IC)
 if(indicatorSC==TRUE){
-  SC_intraCV_unnorm_summary_table <- column_summary_stats(SC_intraCV_unnorm, n_digits=NULL)
-  SC_intraCV_IC_summary_table <- column_summary_stats(SC_intraCV_IC, n_digits=NULL)
+  SC_intraCV_unnorm_summary_table <- intra_cv_summary(SC_intraCV_unnorm)
+  SC_intraCV_IC_summary_table <- intra_cv_summary(SC_intraCV_IC)
 }
 ```
 
@@ -1016,8 +1098,8 @@ IC_name <- Reduce(intersect, lapply(runs, function(x) x$IC))
 if(indicatorSC){
   # calculate SC / IPC ratios for plots
   SC_IPC_ratios <- lapply(runs, function(x){
-    SC_means <- apply(x$IC_normed$normData[,x$SC], 1, mean, na.rm=TRUE)
-    IPC_means <- apply(x$IC_normed$normData[,x$IPC], 1, mean, na.rm=TRUE)
+    SC_means <- apply(x$IC_normed$normData[,x$SC, drop=FALSE], 1, mean, na.rm=TRUE)
+    IPC_means <- apply(x$IC_normed$normData[,x$IPC, drop=FALSE], 1, mean, na.rm=TRUE)
     SC_IPC_ratios <- log2(SC_means / IPC_means)
     SC_IPC_ratios[is.infinite(SC_IPC_ratios)] <- NA
     return(SC_IPC_ratios)
@@ -1061,8 +1143,8 @@ IC_name <- Reduce(intersect, lapply(runs, function(x) x$IC))
 if(indicatorSC){
   # calculate SC / NC ratios for plots
   SC_NC_ratios <- lapply(runs, function(x){
-    SC_means <- apply(x$IC_normed$normData[,x$SC], 1, mean, na.rm=TRUE)
-    NC_means <- apply(x$IC_normed$normData[,x$NC], 1, mean, na.rm=TRUE)
+    SC_means <- apply(x$IC_normed$normData[,x$SC, drop=FALSE], 1, mean, na.rm=TRUE)
+    NC_means <- apply(x$IC_normed$normData[,x$NC, drop=FALSE], 1, mean, na.rm=TRUE)
     SC_NC_ratios <- log2(SC_means / NC_means)
     SC_NC_ratios[is.infinite(SC_NC_ratios)] <- NA
     return(SC_NC_ratios)
@@ -1070,7 +1152,7 @@ if(indicatorSC){
   
   # identify targets with NC mean = 0
   NC_mean_zero <- lapply(runs, function(x){
-    NC_means <- apply(x$IC_normed$normData[,x$NC], 1, mean, na.rm=TRUE)
+    NC_means <- apply(x$IC_normed$normData[,x$NC, drop=FALSE], 1, mean, na.rm=TRUE)
     NC_mean_zero <- NC_means == 0
     return(NC_mean_zero)
   })
@@ -1359,19 +1441,25 @@ if(multipleFiles){
   #####################################
   plate_effect_sig_F_targets <- plate_effect_ftest$Fstats$target[plate_effect_ftest$Fstats$Ftest_pval < params$plate_effect_pval_ANOVA]
   n_significant_Ftest <- length(plate_effect_sig_F_targets)
+  if(n_significant_Ftest > 0 && all(is.na(plate_effect_sig_F_targets))){
+    stop("The calculated Batch effects were all NA (check for identical XML input files)")
+  }
+  # drop NA/NULL-model targets before emmeans() (issue #655): a target whose
+  # mixed model failed to fit (NULL) otherwise aborts the whole report
+  plate_effect_sig_F_targets <- plate_effect_sig_F_targets[!is.na(plate_effect_sig_F_targets)]
+  plate_effect_sig_F_targets <- plate_effect_sig_F_targets[!vapply(plate_effect_ftest$modelFits[plate_effect_sig_F_targets], is.null, logical(1))]
+  n_significant_Ftest <- length(plate_effect_sig_F_targets)
   if(n_significant_Ftest > 0){
-    
-    if(all(is.na(plate_effect_sig_F_targets))){
-      stop("The calculated Batch effects were all NA (check for identical XML input files)")
-    }
-    
     pairwise_tests <- lapply(plate_effect_ftest$modelFits[plate_effect_sig_F_targets], function(x){
       emm <- emmeans::emmeans(x, ~ plateEffectID)
       contrasts <- as.data.frame(pairs(emm))
       contrasts$sig_pval <- contrasts$p.value < params$plate_effect_pval_pairwise
       plate_effect_pct_sig <- data.frame(plate=unique_plateEffectID, pct_sig_pval=NA)
       for(p in 1:nrow(plate_effect_pct_sig)){
-        plate_contrasts_pval <- contrasts$sig_pval[grep(plate_effect_pct_sig$plate[p], contrasts$contrast)]
+        # bounded match, not grep(plate, ...) which matched "Plate_1" in "Plate_10";
+        # allow "(" / ")" since emmeans parenthesizes levels with special chars (issue #655)
+        plate_pattern <- paste0("(^|[\\s(])", gsub("([.+*?^${}()|\\[\\]\\\\])", "\\\\\\1", plate_effect_pct_sig$plate[p]), "([\\s)]|$)")
+        plate_contrasts_pval <- contrasts$sig_pval[grepl(plate_pattern, contrasts$contrast, perl=TRUE)]
         plate_effect_pct_sig$pct_sig_pval[p] <- sum(plate_contrasts_pval) / length(plate_contrasts_pval) * 100
       }
       plate_effect_pct_sig$plate_effect <- plate_effect_pct_sig$pct_sig_pval >= 50
@@ -1380,22 +1468,36 @@ if(multipleFiles){
     })
     
   } else {
-    # if no significant targets, create a dummy pairwise test table using first target
-    pairwise_tests <- lapply(plate_effect_ftest$modelFits[1], function(x){
+    # if no significant targets, create a dummy pairwise test table using the
+    # first non-NULL model fit (emmeans can't take NULL) (issue #655)
+    first_valid_fit <- Filter(Negate(is.null), plate_effect_ftest$modelFits)
+    if(length(first_valid_fit) == 0){
+      # every model fit is NULL: emit an empty structure directly so the report
+      # still renders instead of aborting in emmeans() (issue #655)
+      pairwise_tests <- list(list(
+        plate_effect_pct_sig = data.frame(plate=unique_plateEffectID,
+                                          pct_sig_pval=NA, plate_effect=FALSE),
+        contrasts = data.frame()))
+    } else {
+    pairwise_tests <- lapply(first_valid_fit[1], function(x){
       emm <- emmeans::emmeans(x, ~ plateEffectID)
       contrasts <- as.data.frame(pairs(emm))
       contrasts$sig_pval <- contrasts$p.value < params$plate_effect_pval_pairwise
       plate_effect_pct_sig <- data.frame(plate=unique_plateEffectID, pct_sig_pval=NA)
       for(p in 1:nrow(plate_effect_pct_sig)){
-        plate_contrasts_pval <- contrasts$sig_pval[grep(plate_effect_pct_sig$plate[p], contrasts$contrast)]
+        # bounded match, not grep(plate, ...) which matched "Plate_1" in "Plate_10";
+        # allow "(" / ")" since emmeans parenthesizes levels with special chars (issue #655)
+        plate_pattern <- paste0("(^|[\\s(])", gsub("([.+*?^${}()|\\[\\]\\\\])", "\\\\\\1", plate_effect_pct_sig$plate[p]), "([\\s)]|$)")
+        plate_contrasts_pval <- contrasts$sig_pval[grepl(plate_pattern, contrasts$contrast, perl=TRUE)]
         plate_effect_pct_sig$pct_sig_pval[p] <- sum(plate_contrasts_pval) / length(plate_contrasts_pval) * 100
       }
       plate_effect_pct_sig$plate_effect <- plate_effect_pct_sig$pct_sig_pval >= 50
       return(list(plate_effect_pct_sig=plate_effect_pct_sig,
                   contrasts=contrasts))
     })
+    }
   }
-  
+
   #####################################
   ## PLATE EFFECT SUMMARY TABLE
   #####################################
@@ -1587,7 +1689,9 @@ if(multipleFiles){
   plate_effect_target_table$pct_sig_pairwise <- NA
   for(i in 1:nrow(plate_effect_target_table)){
     target <- plate_effect_target_table$target[i]
-    n_sig <- sum(grepl(target, plate_effect_summary_table$sig_targets), na.rm=TRUE)
+    # exact membership, not grepl(target, ...) which matched substrings ("CCL1"
+    # in "CCL14") and regex metacharacters ("LTA|LTB") (issue #655)
+    n_sig <- sum(vapply(strsplit(as.character(plate_effect_summary_table$sig_targets), ", "), function(x) target %in% x, logical(1)))
     pct_sig <- n_sig / nrow(plate_effect_summary_table) * 100
     plate_effect_target_table$n_sig_pairwise[i] <- n_sig
     plate_effect_target_table$pct_sig_pairwise[i] <- round(pct_sig, 1)
@@ -1614,7 +1718,7 @@ if(multipleFiles){
   
   # median raw IPC reads by target and plate
   raw_IPC_reads <- lapply(runs[plate_effect_PlateNames], function(x){
-    apply(x$Data[!rownames(x$Data) %in% x$IC, x$IPC], 1, median, na.rm=TRUE)
+    apply(x$Data[!rownames(x$Data) %in% x$IC, x$IPC, drop=FALSE], 1, median, na.rm=TRUE)
   })
   raw_IPC_reads <- combineCols(raw_IPC_reads)
   # number of plates with median IPC reads < 200
@@ -2272,15 +2376,19 @@ for( i in 1:numFiles){
                           sampleTypeFactor=sampleType_factor)
   # do sample QC
   qcSample <- QCFlagSample(runs[[i]]$Data, runs[[i]]$lod$aboveLOD, runs[[i]]$samples, runs[[i]]$targets, well_order, TAP=params$reportType=="internal", QCS=runs[[i]]$QCS, SN=runs[[i]]$SN)
+  # default label set for the empty dotchart scaffold below; overwritten by
+  # whichever of SC/Bridge relabeling actually runs (issue #697 review: `inds`
+  # was otherwise only conditionally defined and could be undefined here)
+  inds <- seq_len(nrow(qcSample))
   if(indicatorSC){
     inds <- which(grepl(paste(runs[[i]]$SC, collapse="|"), qcSample$sampleName))
     qcSample[inds, ]$sampleType <- "SC"
   }
-  if(indicatorBridge){
+  if(indicatorBridge && length(runs[[i]]$Bridge) > 0){
     inds <- which(grepl(paste(runs[[i]]$Bridge, collapse="|"), qcSample$sampleName))
     qcSample[inds, ]$sampleType <- "Bridge"
   }
-  
+
   # make plots
   par(mfcol=c(1, length(criteria$thresholdNames)+1), mar=c(3.5,0.05,3.5,0.05), mgp=c(2,1,0))
   # empty plot
@@ -4587,7 +4695,7 @@ for(i in 1:numFiles){
     inds <- which(grepl(paste(runs[[i]]$SC, collapse="|"), qcSample$sampleName))
     qcSample[inds, ]$sampleType <- "SC"
   }
-  if(indicatorBridge){
+  if(indicatorBridge && length(runs[[i]]$Bridge) > 0){
     inds <- which(grepl(paste(runs[[i]]$Bridge, collapse="|"), qcSample$sampleName))
     qcSample[inds, ]$sampleType <- "Bridge"
   }

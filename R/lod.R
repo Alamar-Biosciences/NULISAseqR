@@ -73,7 +73,10 @@ lod <- function(data_matrix,
     blanks <- which(colnames(data_matrix) %in% blanks)
   }
 
-  blank_data <- data_matrix[, blanks]
+  if (length(blanks) < 2) {
+    stop(sprintf('At least 2 NC/blank wells are required to calculate LOD (found %d).', length(blanks)))
+  }
+  blank_data <- data_matrix[, blanks, drop = FALSE]
 
   # Exclude negative controls/blanks by targets
   # This helps handling NC spike outs in a target specific manner

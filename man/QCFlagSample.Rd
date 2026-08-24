@@ -16,7 +16,9 @@ QCFlagSample(
   IPCs = NULL,
   NCs = NULL,
   SCs = NULL,
-  TAP = TRUE
+  TAP = TRUE,
+  xmlThresh = NULL,
+  forceDefaults = FALSE
 )
 }
 \arguments{
@@ -41,6 +43,10 @@ QCFlagSample(
 \item{SCs}{names of SC samples}
 
 \item{TAP}{whether this is a TAP run}
+
+\item{xmlThresh}{Parsed XML QC thresholds (from readQCThresholdXMLNode) to override defaults, or NULL}
+
+\item{forceDefaults}{If TRUE, ignore xmlThresh and use hardcoded defaults only}
 }
 \value{
 QC table

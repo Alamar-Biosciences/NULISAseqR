@@ -18,10 +18,15 @@ loadNULISAseq(
   transformReverse_scaleFactor = 10^4,
   replace_cal_blank_zeros = FALSE,
   replace_zeros_with_NA = TRUE,
+  AQ_NC_outlier_removal = FALSE,
+  AQ_IPC_outlier_removal = FALSE,
+  AQ_IPC_outlier_threshold = 3,
+  AQ_IPC_mad_floor = 0.3,
   security = TRUE,
   excludeSamples = NULL,
   excludeTargets = NULL,
   advancedQC = FALSE,
+  forceDefaultQC = FALSE,
   ...
 )
 }
@@ -77,12 +82,32 @@ IF TRUE, the "a" parameter for targets with a zero blank calibrator mean
 is set using the nonzero master curve "a" parameter 
 estimate instead.}
 
-\item{replace_zeros_with_NA}{Logical TRUE / FALSE. 
+\item{replace_zeros_with_NA}{Logical TRUE / FALSE.
 This parameter is passed to the applyAQ function.
-When TRUE (default), any zero values 
+When TRUE (default), any zero values
 in the AQ data output will be replaced with NA. When FALSE, these values remain as zero.}
 
-\item{security}{Logical. Default is TRUE. Should security checks be performed 
+\item{AQ_NC_outlier_removal}{Logical TRUE / FALSE. Default is FALSE.
+When TRUE, a maximum of one NC outlier is removed per-target for AQ.
+Note: this and the other \code{AQ_*_outlier_*} options below only take
+effect when AQ is computed via \code{NULISAseqAQ::applyAQ}. When
+NULISAseqAQ is not installed and the function falls back to AQ values
+embedded in the XML, these options are ignored.}
+
+\item{AQ_IPC_outlier_removal}{Logical TRUE / FALSE. Default is FALSE.
+This parameter is passed to the applyAQ function. When TRUE, a maximum of
+one IPC / CAL outlier will be removed per-target if the NPQ mad-based
+z-score exceeds \code{AQ_IPC_outlier_threshold}.}
+
+\item{AQ_IPC_outlier_threshold}{z-score cutoff for identifying IPC / CAL
+outliers. This parameter is passed to the applyAQ function. Default is 3.}
+
+\item{AQ_IPC_mad_floor}{If the mad value is below \code{AQ_IPC_mad_floor} it
+will be replaced by this value, preventing low-variance targets from having
+unnecessary outlier removal. This parameter is passed to the applyAQ
+function. Default is 0.3.}
+
+\item{security}{Logical. Default is TRUE. Should security checks be performed
 before generating AQ data.}
 
 \item{excludeSamples}{A vector of sample names that will be excluded from all outputs.}
@@ -90,6 +115,11 @@ before generating AQ data.}
 \item{excludeTargets}{A vector of target names that will be excluded from all outputs.}
 
 \item{advancedQC}{Whether to use advancedQC metrics}
+
+\item{forceDefaultQC}{If TRUE, ignore any QC thresholds/criteria defined in
+the panel XML (\code{<QCThresholds>}) and use the hardcoded defaults only.
+Default FALSE: XML-defined thresholds override the defaults per-flag, and
+any flag absent from the XML falls back to its hardcoded default.}
 }
 \value{
 List of lists, data frames, and matrices.

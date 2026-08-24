@@ -217,6 +217,32 @@ test_that("loadNULISAseq with list input supports excludeSamples parameter", {
                label = "Excluded sample should not be in IPC list")
 })
 
+test_that("loadNULISAseq resolves a numeric IC to its target name for exclusion tracking, instead of spuriously flagging it as dropped", {
+  # Regression (Copilot review on PR #718): the IC-exclusion-tracking added
+  # there compared IC against rownames(raw$Data) by name -- a numeric IC
+  # (row index; only reachable via this pre-built-list path, since the
+  # file-path path validates IC is a name) never matches any rowname, so it
+  # was always misdetected as "dropped" even when nothing was excluded.
+  input_file <- test_path("fixtures", "detectability_P1_Tr03_typemCherry_CCL7.xml")
+  raw_structure <- suppressWarnings(readNULISAseq(input_file, IPC = NULL, IC = NULL, SC = NULL, allowMissingCurveQuant=TRUE))
+  raw_structure$xmlFile <- basename(input_file)
+
+  ic_idx <- match(c("mCherry", "CCL7"), rownames(raw_structure$Data))
+  expect_false(any(is.na(ic_idx)))
+
+  # Numeric IC, nothing excluded -- must resolve and normalize normally.
+  result <- loadNULISAseq(raw_structure, IC = ic_idx)
+  expect_identical(result$IC, c("mCherry", "CCL7"))
+
+  # Numeric IC where one entry's target is excluded by name -- must detect
+  # the drop by the resolved name and warn, not silently misfire on both.
+  expect_warning(
+    result2 <- loadNULISAseq(raw_structure, IC = ic_idx, excludeTargets = "CCL7"),
+    "CCL7"
+  )
+  expect_identical(result2$IC, "mCherry")
+})
+
 
 # =============================================================================
 # Test 7: AQ project handling with list input

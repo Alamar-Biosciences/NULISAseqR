@@ -49,9 +49,10 @@
 #' hierarchical clustering, passed to \code{hclust}; defaults to \code{"ward.D2"}.
 #' @param row_split Integer specifying the number of slices that the rows are split into
 #' via unsupervised clustering; defaults to \code{NULL}. Ignored if \code{row_split_by} is specified.
-#' When \code{NULL} and \code{targetInfo} is not provided, no row splitting is performed.
-#' @param cluster_rows Logical indicating whether to cluster rows (targets). If \code{NULL} (default),
-#' clustering is enabled when \code{targetInfo} is provided, and disabled when \code{targetInfo} is \code{NULL}.
+#' When \code{NULL}, rows are split into 2 slices only if \code{targetInfo} is provided and
+#' \code{cluster_rows = TRUE} (a numeric split requires a row dendrogram to cut); otherwise no
+#' row splitting is performed.
+#' @param cluster_rows Logical indicating whether to cluster rows (targets); defaults to \code{TRUE}.
 #' @param cluster_column_slices Logical indicating whether to perform clustering on column slices 
 #' if columns are split; defaults to \code{FALSE}.
 #' @param cluster_row_slices Logical indicating whether to perform clustering on row slices
@@ -250,8 +251,11 @@ generate_heatmap <- function(data,
     scaled_data <- t(scaled_data)
   }
   
-  # Set row_split based on targetInfo if not specified
-  if (is.null(row_split) && !is.null(targetInfo)) {
+  # Set row_split based on targetInfo if not specified.
+  # A numeric row_split requires a row dendrogram to cut; only default it when
+  # rows are actually clustered, otherwise ComplexHeatmap treats the value as a
+  # per-row grouping vector and aborts (see issue #669).
+  if (is.null(row_split) && !is.null(targetInfo) && isTRUE(cluster_rows)) {
     row_split <- 2  # Default to 2 splits when targetInfo is provided
   }
   

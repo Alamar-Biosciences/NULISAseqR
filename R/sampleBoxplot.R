@@ -392,18 +392,32 @@ sampleboxplot <- function(data,
     }
     axis(side=data_axis_side, labels=FALSE, tck=-0.01)
     axis(side=data_axis_side, labels=TRUE, cex.axis=axis_label_cex, line=-1, tick=FALSE)
-    # add internal control line
-    if (horiz==TRUE) {
-      lines(cbind(log2(data[IC_name, data_order] + 1), 1:ncol(data)), 
-            col='red', las=1, lwd=IC_line_width)  
-    } else {
-      lines(cbind(1:ncol(data), log2(data[IC_name, data_order] + 1)), 
-            col = "red", las=1, lwd=IC_line_width) 
+    # add internal control line -- guard against the IC target being absent from
+    # this matrix. Some panels drop the IC target row during NPQ normalization
+    # (e.g. mCherry-normalized panels; also seen on importNULISAseq-merged data),
+    # so `data[IC_name, ]` would be an out-of-bounds row subscript and crash the
+    # whole plot. Draw the reference line only when the IC row is present.
+    ic_rows <- intersect(IC_name, rownames(data))
+    ic_drawn <- length(ic_rows) > 0
+    if (ic_drawn) {
+      ic_vals <- if (length(ic_rows) == 1L) {
+        data[ic_rows, data_order]
+      } else {
+        colMeans(data[ic_rows, data_order, drop = FALSE], na.rm = TRUE)
+      }
+      ic_line <- log2(ic_vals + 1)
+      if (horiz==TRUE) {
+        lines(cbind(ic_line, 1:ncol(data)), col='red', las=1, lwd=IC_line_width)
+      } else {
+        lines(cbind(1:ncol(data), ic_line), col='red', las=1, lwd=IC_line_width)
+      }
     }
     # add data axis label
     mtext(data_axis_label, side = if (horiz==TRUE) 1 else 2, line=0.75, cex=axis_label_cex)
-    # legend
-    legend('topleft', internal_control_label, col='red', lty=1, cex=0.4, bty='n')
+    # legend (only when the IC reference line was actually drawn)
+    if (ic_drawn) {
+      legend('topleft', internal_control_label, col='red', lty=1, cex=0.4, bty='n')
+    }
     # add grid lines
     if(horiz==TRUE){
       abline(v = seq(-50, 50, by = 5), col = 'grey', lty = 3)

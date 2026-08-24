@@ -119,19 +119,40 @@ lmerNULISAseq <- function(data,
   names(modelFits) <- targets
   stats_list <- vector(mode='list', length=length(targets))
   names(stats_list) <- targets
+  # Sample alignment and covariate completeness are the same for every
+  # target, so compute them once instead of inside the loop.
+  model_formula <- as.formula(paste0('target_data ~ ',
+                                     modelFormula_fixed, ' + ',
+                                     modelFormula_random))
+  cov_vars <- setdiff(all.vars(model_formula), 'target_data')
+  missing_cov <- setdiff(cov_vars, names(sampleInfo))
+  if (length(missing_cov) > 0) {
+    stop(sprintf(
+      "Model covariate(s) not found in sampleInfo: %s. Available columns: %s",
+      paste(missing_cov, collapse = ", "), paste(names(sampleInfo), collapse = ", ")),
+      call. = FALSE)
+  }
+  if (anyDuplicated(colnames(data))) {
+    dups <- unique(colnames(data)[duplicated(colnames(data))])
+    warning(sprintf("Duplicate sample name(s) in data columns (%s); using the first occurrence of each.",
+                    paste(head(dups, 5), collapse = ", ")), call. = FALSE)
+    data <- data[, !duplicated(colnames(data)), drop = FALSE]
+  }
+  col_for_row <- match(sampleInfo[[sampleName_var]], colnames(data))
+  cov_complete <- if (length(cov_vars) > 0) {
+    complete.cases(sampleInfo[, cov_vars, drop = FALSE])
+  } else {
+    rep(TRUE, nrow(sampleInfo))
+  }
+  cov_complete <- cov_complete & !is.na(col_for_row)
   # loop over targets and fit model
   for(i in 1:length(targets)){
     tryCatch({
       target <- targets[i]
-      target_data <- data.frame(sampleName=colnames(data),
-                                target_data=unlist(data[target,]))
-      model_data <- merge(sampleInfo, target_data,
-                          all.x=TRUE, all.y=FALSE,
-                          by.x=sampleName_var, by.y='sampleName')
-      model_formula <- as.formula(paste0('target_data ~ ', 
-                                         modelFormula_fixed, ' + ', 
-                                         modelFormula_random))
-      model_data <- model_data[complete.cases(model_data[,all.vars(model_formula)]),]
+      target_vals <- unlist(data[target, ])[col_for_row]
+      keep <- cov_complete & !is.na(target_vals)
+      model_data <- sampleInfo[keep, , drop = FALSE]
+      model_data$target_data <- target_vals[keep]
       model_fit <- lmerTest::lmer(model_formula, data=model_data)
       
       #convert coef table to a tibble/dataframe with metric column having all relevant rownames
@@ -190,16 +211,16 @@ lmerNULISAseq <- function(data,
     for(i in 1:length(targets)){
       target <- targets[i]
       tryCatch({
-        target_data <- data.frame(sampleName=colnames(data),
-                                  target_data=unlist(data[target,]))
-        model_data <- merge(sampleInfo, target_data,
-                            all.x=TRUE, all.y=FALSE,
-                            by.x=sampleName_var, by.y='sampleName')
-        model_formula <- as.formula(paste0('target_data ~ ', 
-                                           reduced_modelFormula_fixed, ' + ', 
-                                           modelFormula_random))
-        model_data <- model_data[complete.cases(model_data[,all.vars(formula(modelFits[[i]]))]),]
-        model_fit <- lmerTest::lmer(model_formula, data=model_data)
+        # cov_complete used the full model's covariates, so the reduced fit
+        # lands on the same rows as the full fit -- required for a valid anova().
+        target_vals <- unlist(data[target, ])[col_for_row]
+        keep <- cov_complete & !is.na(target_vals)
+        model_data <- sampleInfo[keep, , drop = FALSE]
+        model_data$target_data <- target_vals[keep]
+        reduced_formula <- as.formula(paste0('target_data ~ ',
+                                             reduced_modelFormula_fixed, ' + ',
+                                             modelFormula_random))
+        model_fit <- lmerTest::lmer(reduced_formula, data=model_data)
         anova_test <- suppressMessages(anova(model_fit, modelFits[[i]]))
         LRTstats_list[[i]] <- c(Chisq_stat=anova_test$Chisq[2], 
                                 Df=anova_test$Df[2],

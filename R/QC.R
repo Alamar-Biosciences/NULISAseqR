@@ -1,6 +1,6 @@
 # Sample QC criteria
-MIN_FRAC_DETECTABILITY_TAP <- c(plasma=0.9, serum=0.9, csf=0.7, urine=0.65, cell_culture=0.3, nhp_plasma=0.55, nhp_serum=0.55, nhp_csf=0.35, dried_blood_spot=0.75, control=0.9, other=0.0 )  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
-MIN_FRAC_DETECTABILITY <- c(plasma=0.9, serum=0.9, csf=0.7, other=0.0 )  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
+MIN_FRAC_DETECTABILITY_TAP <- c(plasma=0, serum=0, csf=0, urine=0, cell_culture=0, nhp_plasma=0, nhp_serum=0, nhp_csf=0, dried_blood_spot=0, control=0, other=0 )  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
+MIN_FRAC_DETECTABILITY <- c(plasma=0, serum=0, csf=0, other=0 )  # Minimim fraction (Target_Detectability): # Targets with reads above LOD
 MIN_IC_READS_PER_SAMPLE <- 1000    # Minimum number (ICReads) of IC reads within a sample
 MIN_NUM_READS_PER_SAMPLE <- 500000 # Minimum number (NumReads) of reads within a sample
 #MAX_QCS <- 3
@@ -25,8 +25,8 @@ QCSampleCriteria <- function(TAP=TRUE){
                         IC_Median=MIN_IC_MEDIAN)#,
 #                        QCS=MAX_QCS,
 #                        SN=MIN_SN)
-  retVal$operators <-c(Detectability="<",
-                       ICReads="<", 
+  retVal$operators <-c(Detectability="none",
+                       ICReads="<",
                        NumReads="<", 
                        IC_Median="<,>")#,
 #                       QCS=">",
@@ -48,13 +48,13 @@ QCSampleCriteria <- function(TAP=TRUE){
                           NumReads="Reads",
                           IC_Median="IC Median"
                          )
-  retVal$explanations <- c(Detectability=paste0("Percentage of targets with reads above the Limit of Detection (LOD) (Minimum threshold = plasma-", 100*MIN_FRAC_DETECTABILITY[["plasma"]], "%, serum-", 100*MIN_FRAC_DETECTABILITY[["serum"]], "%, csf-", 100*MIN_FRAC_DETECTABILITY[["csf"]], "%, other-", 100*MIN_FRAC_DETECTABILITY[["other"]], "%)"),
+  retVal$explanations <- c(Detectability="Percentage of targets with reads above the Limit of Detection (LOD) (informational only, does not affect pass/warning)",
                           ICReads=paste0("Number of Internal Control (IC) reads within a sample (Minimum threshold = ", format(MIN_IC_READS_PER_SAMPLE, big.mark = ",", scientific = FALSE), ")"),
                           NumReads=paste0("Number of reads within a sample (Minimum threshold = ", format(MIN_NUM_READS_PER_SAMPLE, big.mark = ",", scientific = FALSE), ")"),
                           IC_Median=paste0("Sample IC reads relative to the median (Within +/-", 100*as.numeric(strsplit(MIN_IC_MEDIAN, ",")[[1]][2]), "% of the plate median)")
                          )
   if(TAP){
-  retVal$explanations <- c(retVal$explanations, Detectability=paste0("Percentage of targets with reads above the Limit of Detection (LOD) (Minimum threshold = plasma-", 100*MIN_FRAC_DETECTABILITY_TAP[["plasma"]], "%, serum-", 100*MIN_FRAC_DETECTABILITY_TAP[["serum"]], "%, csf-", 100*MIN_FRAC_DETECTABILITY_TAP[["csf"]], "%, urine-", 100*MIN_FRAC_DETECTABILITY_TAP[["urine"]], "%, cell_culture-", 100*MIN_FRAC_DETECTABILITY_TAP[["cell_culture"]], "%, nhp_plasma-", 100*MIN_FRAC_DETECTABILITY_TAP[["nhp_plasma"]], "%, nhp_csf-", 100*MIN_FRAC_DETECTABILITY_TAP[["nhp_csf"]], "%, dried_blood_spot-", 100*MIN_FRAC_DETECTABILITY_TAP[["dried_blood_spot"]], "%, control-", 100*MIN_FRAC_DETECTABILITY_TAP[["control"]], "%, other-", 100*MIN_FRAC_DETECTABILITY[["other"]],"%)"))
+  retVal$explanations <- c(retVal$explanations, Detectability="Percentage of targets with reads above the Limit of Detection (LOD) (informational only, does not affect pass/warning)")
   }
   return(retVal)
 }
@@ -65,7 +65,7 @@ MAX_MEDIAN_SC_TARGET_CV <- 0.10  # (SCTarget_CV) CV of total read count for each
 MAX_IC_CV <- 0.25                # (ICRead_CV) CV of IC reads across all samples
 MAX_IPC_CV <- 0.25               # (IPCRead_CV) CV of total read count for each IPC sample
 MAX_MEDIAN_IPC_TARGET_CV <- 0.1  # (IPCTarget_CV) Median of CVs of all IPC targets (Performed on normalized data) 
-DETECTABILITY_FRAC <- 0.90       # (Detectability) Target-wise Detectability fraction (target is detected if >50% of samples > LOD)
+DETECTABILITY_FRAC <- 0          # (Detectability) Target-wise Detectability fraction (target is detected if >50% of samples > LOD); never-flag by default, see evalCriterion operator="none" below
 MIN_READS <- 1e8                 # (MinReads) Minimum number of reads
 MAX_FAILED_TARGET_PERC <- 0.1    # (Failed_Targets)
 MAX_FAILED_SC <- 0               # (Failed_SC)
@@ -88,7 +88,7 @@ QCPlateCriteria <- function(AQ=FALSE){
                          IPCTarget_CV=as.numeric(MAX_MEDIAN_IPC_TARGET_CV), 
                          Detectability=as.numeric(DETECTABILITY_FRAC), 
                          MinReads=as.numeric(MIN_READS))
-  retVal$operators <- c(ICRead_CV=">", IPCRead_CV=">", IPCTarget_CV=">", Detectability="<", MinReads="<")
+  retVal$operators <- c(ICRead_CV=">", IPCRead_CV=">", IPCTarget_CV=">", Detectability="none", MinReads="<")
   retVal$format <- c(ICRead_CV="percentage", IPCRead_CV="percentage", IPCTarget_CV="percentage", Detectability="percentage", MinReads="integer")
   retVal$thresholdNames<-c(ICRead_CV="MAX_IC_CV",
                          IPCRead_CV="MAX_IPC_CV", 
@@ -105,7 +105,7 @@ QCPlateCriteria <- function(AQ=FALSE){
   retVal$explanations <- c(ICRead_CV=paste0("Coefficient of variation of internal control Parseable Matching reads across all wells (Maximum threshold = ", 100*as.numeric(MAX_IC_CV), "%)"),
                           IPCRead_CV=paste0("Coefficient of variation of Parseable Matching reads across all IPCs (Maximum threshold = ", 100*as.numeric(MAX_IPC_CV), "%)"),
                           IPCTarget_CV=paste0("Median coefficient of variation of all IPC targets (Maximum threshold = ", 100*as.numeric(MAX_MEDIAN_IPC_TARGET_CV), "%)"),
-                          Detectability=paste0("Percentage of targets that are detectable (target is considered detectable if > 50% of samples are above LOD) (Minimum threshold = ",100*as.numeric(DETECTABILITY_FRAC), "%)"),
+                          Detectability="Percentage of targets that are detectable (target is considered detectable if > 50% of samples are above LOD) (informational only, does not affect pass/warning)",
                           MinReads=paste0("Minimum number of Parseable Matching reads for the run (Minimum threshold = ", format(MIN_READS, big.mark = ",", scientific = FALSE), ")"))
   if(AQ){
     retVal$thresholds <- c(retVal$thresholds, 
@@ -135,9 +135,9 @@ QCPlateCriteria <- function(AQ=FALSE){
                             Failed_IPC="CAL Sample Warning"
                             )
     retVal$explanations <- c(ICRead_CV=paste0("Coefficient of variation of internal control Parseable Matching reads across all wells (Maximum threshold = ", 100*as.numeric(MAX_IC_CV), "%)"),
-                            IPCRead_CV=paste0("Coefficient of variation of Parseable Matching reads across all IPCs (Maximum threshold = ", 100*as.numeric(MAX_IPC_CV), "%)"),
-                            IPCTarget_CV=paste0("Median coefficient of variation of all IPC targets (Maximum threshold = ", 100*as.numeric(MAX_MEDIAN_IPC_TARGET_CV), "%)"),
-                            Detectability=paste0("Percentage of targets that are detectable (target is considered detectable if > 50% of samples are above LOD) (Minimum threshold = ",100*as.numeric(DETECTABILITY_FRAC), "%)"),
+                            IPCRead_CV=paste0("Coefficient of variation of Parseable Matching reads across all CALs (Maximum threshold = ", 100*as.numeric(MAX_IPC_CV), "%)"),
+                            IPCTarget_CV=paste0("Median coefficient of variation of all CAL targets (Maximum threshold = ", 100*as.numeric(MAX_MEDIAN_IPC_TARGET_CV), "%)"),
+                            Detectability="Percentage of targets that are detectable (target is considered detectable if > 50% of samples are above LOD) (informational only, does not affect pass/warning)",
                             MinReads=paste0("Minimum number of Parseable Matching reads for the run (Minimum threshold = ", format(MIN_READS, big.mark = ",", scientific = FALSE), ")"),
                             SCRead_CV=paste0("Coefficient of variation of Parseable Matching reads across all AQSCs (Maximum threshold = ", 100*MAX_SC_CV, "%)"),
                             SCTarget_CV=paste0("Median of coefficient of variation of normalized reads of all AQSC targets (Maximum threshold = ", 100*MAX_MEDIAN_SC_TARGET_CV, "%)"),
@@ -154,7 +154,7 @@ TARGET_CONC_ACCURACY <- "-0.3,0.3"
 TARGET_CONC_CV <- 0.3
 MIN_TARGET_READS <- 200 # Minimum number of reads for a Target
 PERC_MIN_TARGET_READS <- 0.5
-TARGET_DETECTABILITY <- 0.5
+TARGET_DETECTABILITY <- 0  # never-flag by default, see evalCriterion operator="none" below
 TARGET_CONC_CV_RQ <- 0.3
 TARGET_IPC_MIN_READS <- 200
 #' QCTargetCriteria
@@ -176,7 +176,7 @@ QCTargetCriteria <- function(AQ=FALSE, advancedQC=FALSE){
                            )
     retVal$operators <- c(Target_Min_Reads="<",
                           Target_Conc_CV_RQ=">",
-                          Target_Detectability="<"#,
+                          Target_Detectability="none"#,
   #                        Target_IPC_Min_Reads="<"
                           )
     retVal$format <- c(Target_Min_Reads="percentage",
@@ -196,7 +196,7 @@ QCTargetCriteria <- function(AQ=FALSE, advancedQC=FALSE){
                             )
     retVal$explanations <- c(Target_Min_Reads=paste0("Percentage of samples with raw reads of at least ", MIN_TARGET_READS, " (Minimum threshold = ", PERC_MIN_TARGET_READS*100, "%)"),
                              Target_Conc_CV_RQ=paste0("Target-specific ", AQSCname, " intra-plate coefficient of variation of normalized reads (Maximum threshold = ", TARGET_CONC_CV_RQ*100, "%)"),
-                             Target_Detectability=paste0("Percentage of samples with signal above the limit of detection (Minimum threshold = ", TARGET_DETECTABILITY*100, "%)")#,
+                             Target_Detectability="Percentage of samples with signal above the limit of detection (informational only, does not affect pass/warning)"#,
   #                           Target_IPC_Min_Reads=paste0("Median of IPC raw reads (Minimum threshold = ", TARGET_IPC_MIN_READS, ")")
                              )
   }
@@ -220,6 +220,137 @@ QCTargetCriteria <- function(AQ=FALSE, advancedQC=FALSE){
                              Target_Conc_CV=paste0("Target-specific AQSC coefficient of variation (Maximum threshold = ", TARGET_CONC_CV*100, "%, calculated on AQ targets)"))
   }
   return(retVal)
+}
+
+#' Merge XML-defined QC thresholds over hardcoded defaults
+#'
+#' Overlays QC thresholds/criteria parsed from the panel XML (`<QCThresholds>`)
+#' on top of the hardcoded defaults produced by \code{QCSampleCriteria},
+#' \code{QCPlateCriteria}, or \code{QCTargetCriteria}. Only the value-like fields
+#' (\code{thresholds}, \code{operators}, \code{format}, \code{properNames},
+#' \code{explanations}) are overridden. \code{thresholdNames} (which link a flag
+#' to its computed metric) always come from the defaults, so the XML retunes an
+#' existing criterion's value/metadata but cannot re-map its computation. A flag
+#' whose metric the R code does not compute cannot be evaluated; such XML entries
+#' are ignored with a warning rather than silently dropped.
+#'
+#' Rows carrying \code{appliesWhen="TAP"} are applied only when \code{TAP} is
+#' \code{TRUE} (matching the existing TAP vs non-TAP default split).
+#'
+#' Some criteria have parameters that are not exposed as thresholds and so
+#' cannot be retuned from the XML: the target-level \code{Target_Min_Reads}
+#' percentage is overridable but its underlying raw-read cutoff
+#' (\code{MIN_TARGET_READS}) is fixed in code.
+#'
+#' Detectability (sample-level per-matrix, keyed as \code{Detectability_PLASMA},
+#' \code{Detectability_SERUM}, ... in the XML and normalized to the internal
+#' \code{Detectability.plasma} form; plate-level \code{Detectability}; and
+#' target-level \code{Target_Detectability}) is informational-only by design
+#' (never flags pass/warning) and is deliberately \strong{not} overridable
+#' from the XML, in any field, for any existing or new per-matrix key: many
+#' panel XML files carry a \code{<QCThresholds>} entry for Detectability that
+#' mirrors what used to be the hardcoded default (e.g. a real numeric
+#' threshold with operator \code{"<"}), which would otherwise silently
+#' re-enable flagging for every such panel. Any XML entry for these keys is
+#' ignored (with its own distinct warning, not just silently dropped) so
+#' Detectability stays informational regardless of what a panel's XML
+#' specifies.
+#'
+#' @param defaults A criteria list from one of the \code{QC*Criteria} builders,
+#'   or \code{NULL} (e.g. \code{QCTargetCriteria(advancedQC=FALSE)} on a plain
+#'   RQ run) -- there is nothing to override, so \code{NULL} is returned as-is
+#'   rather than warning that every \code{xmlThresh} key is unmatched.
+#' @param xmlThresh Parsed XML thresholds (from \code{readQCThresholdXMLNode}),
+#'   or \code{NULL}.
+#' @param forceDefaults Logical. If \code{TRUE}, ignore \code{xmlThresh} entirely
+#'   and return \code{defaults} unchanged.
+#' @param TAP Logical. Whether the run is a TAP experiment; gates
+#'   \code{appliesWhen="TAP"} rows.
+#' @return A criteria list with the same shape as \code{defaults}.
+#' @export
+mergeQCCriteria <- function(defaults, xmlThresh, forceDefaults=FALSE, TAP=TRUE){
+  fields <- c("thresholds", "operators", "format", "properNames", "explanations")
+  if(is.null(defaults) || forceDefaults || is.null(xmlThresh) || sum(lengths(xmlThresh[fields])) == 0){
+    return(defaults)
+  }
+
+  # Gate appliesWhen="TAP" rows: drop them when not a TAP run.
+  if(!is.null(xmlThresh$appliesWhen) && !TAP){
+    drop <- names(xmlThresh$appliesWhen)[which(xmlThresh$appliesWhen == "TAP")]
+    if(length(drop) > 0){
+      xmlThresh <- lapply(xmlThresh, function(v) v[!(names(v) %in% drop)])
+    }
+  }
+
+  # Normalize per-matrix sample Detectability keys:
+  #   Detectability_PLASMA -> Detectability.plasma
+  normalizeName <- function(nm){
+    ifelse(grepl("^Detectability_", nm),
+           paste0("Detectability.", tolower(sub("^Detectability_", "", nm))),
+           nm)
+  }
+
+  # Detectability (sample-level per-matrix, plate-level, target-level) is
+  # permanently informational-only: many panel XML files carry a
+  # <QCThresholds> entry for it that mirrors the old hardcoded default (a
+  # real operator/threshold), which would otherwise silently re-enable
+  # flagging. Lock these keys out of the override entirely -- for any
+  # existing key AND for a per-matrix key the defaults don't already list --
+  # regardless of what the XML specifies.
+  isDetectabilityMatrix <- function(nm) grepl("^Detectability\\.", nm)
+  isLockedDetectabilityKey <- function(nm) {
+    nm %in% c("Detectability", "Target_Detectability") | isDetectabilityMatrix(nm)
+  }
+
+  for(field in fields){
+    xmlVec <- xmlThresh[[field]]
+    if(is.null(xmlVec) || is.null(defaults[[field]])) next
+    names(xmlVec) <- normalizeName(names(xmlVec))
+    for(k in names(xmlVec)){
+      if(isLockedDetectabilityKey(k)) next
+      if(k %in% names(defaults[[field]])){
+        defaults[[field]][k] <- xmlVec[[k]]   # override existing
+      }
+    }
+  }
+
+  # Normalize the "<,>" +/- range convention: the XML expresses these as a
+  # single positive value (a +/- range on |value|, e.g. IC_Median="0.4"), while
+  # evalCriterion needs one threshold per operator. Expand a single value V
+  # against a "<,>" operator into the symmetric "-V,V" form the defaults use.
+  for(nm in intersect(names(defaults$thresholds), names(defaults$operators))){
+    ops <- strsplit(as.character(defaults$operators[[nm]]), ",", fixed=TRUE)[[1]]
+    ths <- strsplit(as.character(defaults$thresholds[[nm]]), ",", fixed=TRUE)[[1]]
+    if(identical(ops, c("<", ">")) && length(ths) == 1){
+      v <- abs(as.numeric(ths))
+      defaults$thresholds[[nm]] <- paste0(-v, ",", v)
+    }
+  }
+
+  # Warn (don't silently drop) about XML thresholds that map to no known
+  # computation and were therefore ignored. Locked Detectability keys DO map
+  # to a computation (they're just permanently non-overridable, see below),
+  # so they're excluded here to avoid a misleading "no matching computation"
+  # warning on top of the distinct one below.
+  applied <- names(defaults$thresholds)
+  xmlNames <- normalizeName(names(xmlThresh$thresholds))
+  ignored <- setdiff(xmlNames, applied)
+  ignored <- ignored[!isLockedDetectabilityKey(ignored)]
+  if(length(ignored) > 0){
+    warning("mergeQCCriteria: ignoring XML QC threshold(s) with no matching ",
+            "computation: ", paste(ignored, collapse=", "))
+  }
+
+  # Also flag (distinctly) any locked Detectability keys the XML tried to
+  # override -- these DO map to a computation, they're just permanently
+  # informational-only by design; the XML value is intentionally ignored.
+  locked <- xmlNames[isLockedDetectabilityKey(xmlNames)]
+  if(length(locked) > 0){
+    warning("mergeQCCriteria: Detectability is informational-only and not ",
+            "overridable from panel XML; ignoring XML threshold(s) for: ",
+            paste(locked, collapse=", "))
+  }
+  return(defaults)
 }
 
 #' Write Processed XML from QC table
@@ -288,18 +419,25 @@ QC2XML <- function(input, QCNode, type="plate", combined=F){
 #' @param IPCs names of IPC samples
 #' @param SCs names of SC samples
 #' @param TAP whether this is a TAP run
+#' @param xmlThresh Parsed XML QC thresholds (from readQCThresholdXMLNode) to override defaults, or NULL
+#' @param forceDefaults If TRUE, ignore xmlThresh and use hardcoded defaults only
 #' @return QC table
 #' @examples
 #' # QCFlagSample(inputtable)
 #'
 #' @export
 
-QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL, 
-                         well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, TAP=TRUE){
-  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text", 
+QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
+                         well_order=NULL, ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, TAP=TRUE,
+                         xmlThresh=NULL, forceDefaults=FALSE){
+  columns <- c("sampleName", "flagName", "normMethod", "status", "val", "text",
                "sampleBarcode", "sampleType", "QCthreshold", "QCoperator", "QCformat")
 
-  criteria <- QCSampleCriteria(TAP)
+  criteria <- mergeQCCriteria(QCSampleCriteria(TAP), xmlThresh, forceDefaults, TAP=TAP)
+  # Threshold values pulled from the (possibly XML-overridden) criteria list.
+  ic_median_thresh <- criteria$thresholds[["IC_Median"]]
+  ic_reads_thresh  <- criteria$thresholds[["ICReads"]]
+  num_reads_thresh <- criteria$thresholds[["NumReads"]]
 
   QCFlagList <- vector("list", length(columns))
   if(is.null(well_order)){
@@ -383,7 +521,7 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
 
   # Median IC between -40% and 40% of median  
   mCherry_median <- median(raw[ICs[1],], na.rm=T)
-  min_ic_median <- unname(unlist(strsplit(MIN_IC_MEDIAN, ",")))
+  min_ic_median <- unname(unlist(strsplit(ic_median_thresh, ",")))
 #  medianMin30 <- mCherry_median - mCherry_median * abs(as.numeric(min_ic_median[0]))
 #  medianMax30 <- mCherry_median + mCherry_median * abs(as.numeric(min_ic_median[1]))
   medVals <- (raw[ICs[1], ] - mCherry_median ) / mCherry_median 
@@ -391,14 +529,14 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
   format <- criteria$format[which(criteria$thresholdNames=="MIN_IC_MEDIAN")]
   for(j in 1:length(medVals)){
     i <- well_order[j]
-    set <- if(is.na(medVals[i])) "T" else evalCriterion("IC_Median", medVals[i], op, MIN_IC_MEDIAN)
+    set <- if(is.na(medVals[i])) "T" else evalCriterion("IC_Median", medVals[i], op, ic_median_thresh)
     type <- "Sample"
     type <- if(i %in% NCs) "NC" 
            else if(i %in% IPCs) "IPC"
            else if(i %in% SCs) "SC"
            else type
     QCFlagList[[j]] <- c(i, "IC_Median", "raw", set, medVals[i], "", samples$sampleBarcode[which(samples$sampleName==i)], type, 
-                                          as.character(paste(MIN_IC_MEDIAN, collapse=',')), as.character(op), format)
+                                          as.character(paste(ic_median_thresh, collapse=',')), as.character(op), format)
   }
   curIndex <- length(medVals)
   # Minimim fraction (Target_Detectability): # Targets with reads above LOD
@@ -443,7 +581,7 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
   format <- criteria$format[which(criteria$thresholdNames=="MIN_IC_READS_PER_SAMPLE")]
   for (j in 1:length(ICvals)){
     i <- well_order[j]
-    set <- evalCriterion("ICReads", ICvals[i], op, MIN_IC_READS_PER_SAMPLE)
+    set <- evalCriterion("ICReads", ICvals[i], op, ic_reads_thresh)
     type <-"Sample"
     if(i %in% NCs){
       type <- "NC"
@@ -453,7 +591,7 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
       type <- "SC"
     }
     QCFlagList[[curIndex + j]] <- c(i, "ICReads", "raw", set, ICvals[i], "", samples$sampleBarcode[which(samples$sampleName==i)], type, 
-                                          as.character(MIN_IC_READS_PER_SAMPLE), as.character(op), format)
+                                          as.character(ic_reads_thresh), as.character(op), format)
   }
 
   # Minimum number (NumReads) of reads within a sample
@@ -470,7 +608,7 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
       set <- NA  
       val[i] <- NA
     }else{
-      set <- evalCriterion("NumReads", val[i], op, MIN_NUM_READS_PER_SAMPLE)
+      set <- evalCriterion("NumReads", val[i], op, num_reads_thresh)
     }
     type <- "Sample"
     if(i %in% NCs){
@@ -481,7 +619,7 @@ QCFlagSample <- function(raw, aboveLOD, samples, targets, QCS=NULL, SN=NULL,
       type <- "SC"
     }
     QCFlagList[[curIndex + j]] <- c(i, "NumReads", "raw", set, val[i], "", samples$sampleBarcode[which(samples$sampleName ==i)], type, 
-                                          as.character(MIN_NUM_READS_PER_SAMPLE), as.character(op), format)
+                                          as.character(num_reads_thresh), as.character(op), format)
   }
   # Convert to matrix/data.frame at the end
   QCFlagReturn <- data.frame(do.call(rbind, QCFlagList), stringsAsFactors=FALSE)
@@ -496,6 +634,11 @@ evalCriterion <- function(name, value, operator, threshold){
   # Convert to character only once
   op_char <- as.character(operator)
   th_char <- as.character(threshold)
+
+  # Informational-only criteria (operator='none') never flag.
+  if(length(op_char) == 1 && op_char == "none"){
+    return(FALSE)
+  }
 
   # Split strings
   operators <- strsplit(op_char, ",", fixed = TRUE)[[1]]
@@ -544,15 +687,19 @@ evalCriterion <- function(name, value, operator, threshold){
 #' @param NCs names of NC samples
 #' @param IPCs names of IPC samples
 #' @param SCs names of SC samples
+#' @param xmlThresh Parsed XML QC thresholds (from readQCThresholdXMLNode) to override defaults, or NULL
+#' @param forceDefaults If TRUE, ignore xmlThresh and use hardcoded defaults only
+#' @param TAP Whether this is a TAP run; gates XML thresholds marked appliesWhen="TAP"
 #' @return QC table
 #' @examples
 #' # QCFlagTarget(inputtable)
 #'
 #' @export
 QCFlagTarget <- function(AQdata, raw, IPCnormed, detectability, aboveLOD, withinDR, absRun, targets, samples, SCparams,
-                        ICs = NULL, IPCs = NULL, NCs = NULL, SCs = NULL, advancedQC=FALSE) {
-  # Load QC criteria
-  criteria <- QCTargetCriteria(absRun, advancedQC)
+                        ICs = NULL, IPCs = NULL, NCs = NULL, SCs = NULL, advancedQC=FALSE,
+                        xmlThresh=NULL, forceDefaults=FALSE, TAP=TRUE) {
+  # Load QC criteria (defaults, optionally overridden by XML thresholds)
+  criteria <- mergeQCCriteria(QCTargetCriteria(absRun, advancedQC), xmlThresh, forceDefaults, TAP=TAP)
   if(length(criteria) == 0){
     return(NULL)
   }
@@ -577,8 +724,8 @@ QCFlagTarget <- function(AQdata, raw, IPCnormed, detectability, aboveLOD, within
   # Create copy of IPCnormed and set values to NA where aboveLOD is FALSE
   IPCnormed_filtered <- IPCnormed
   IPCnormed_filtered[!aboveLOD] <- NA
-  meanSC_RQ <- apply(IPCnormed_filtered[Targets, SCs], 1, mean, na.rm = TRUE)
-  sdevSC_RQ <- apply(IPCnormed_filtered[Targets, SCs], 1, sd, na.rm = TRUE)
+  meanSC_RQ <- apply(IPCnormed_filtered[Targets, SCs, drop = FALSE], 1, mean, na.rm = TRUE)
+  sdevSC_RQ <- apply(IPCnormed_filtered[Targets, SCs, drop = FALSE], 1, sd, na.rm = TRUE)
 
   # Define evaluation items with their respective calculations
   eval_info <- list(
@@ -597,8 +744,8 @@ QCFlagTarget <- function(AQdata, raw, IPCnormed, detectability, aboveLOD, within
     if(!is.null(withinDR)){
       AQdata_filtered[!withinDR] <- NA
     }
-    meanSC <- apply(AQdata_filtered[, SCs], 1, mean, na.rm = TRUE)
-    sdevSC <- apply(AQdata_filtered[, SCs], 1, sd, na.rm = TRUE)
+    meanSC <- apply(AQdata_filtered[, SCs, drop = FALSE], 1, mean, na.rm = TRUE)
+    sdevSC <- apply(AQdata_filtered[, SCs, drop = FALSE], 1, sd, na.rm = TRUE)
     SCparamsNull <- rep(NA, length(meanSC))
     names(SCparamsNull) <- names(meanSC)
     eval_info <- append(eval_info, list(
@@ -688,14 +835,19 @@ QCFlagTarget <- function(AQdata, raw, IPCnormed, detectability, aboveLOD, within
 #' @param AQ Whether this assay is AQ
 #' @param AQ_QC AQ QC metrics, these are necessary to calculate a plate QC metric for AQ
 #' @param Sample_QC Sample QC metrics, one of these is necessary to calculate a plate QC metric for AQ
+#' @param xmlThresh Parsed XML QC thresholds (from readQCThresholdXMLNode) to override defaults, or NULL
+#' @param forceDefaults If TRUE, ignore xmlThresh and use hardcoded defaults only
+#' @param TAP Whether this is a TAP run; gates XML thresholds marked appliesWhen="TAP"
 #' @return QC table
 #' @examples
 #' # QCFlagPlate(inputtable)
 #'
 #' @export
-QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples, 
-                        ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, AQ=TRUE, AQ_QC=NULL, Sample_QC=NULL){
-  criteria <- QCPlateCriteria(AQ)
+QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
+                        ICs=NULL, IPCs=NULL, NCs=NULL, SCs=NULL, AQ=TRUE, AQ_QC=NULL, Sample_QC=NULL,
+                        xmlThresh=NULL, forceDefaults=FALSE, TAP=TRUE){
+  criteria <- mergeQCCriteria(QCPlateCriteria(AQ), xmlThresh, forceDefaults, TAP=TAP)
+  th <- criteria$thresholds  # (possibly XML-overridden) threshold values, keyed by flag name
   ICs  <- if(!is.null(ICs))   ICs else targets$targetName[which(tolower(targets$targetType) == "control")]
   IPCs <- if(!is.null(IPCs)) IPCs else samples$sampleName[which(samples$sampleType == "IPC")]
   NCs  <- if(!is.null(NCs))   NCs else samples$sampleName[which(samples$sampleType == "NC")]
@@ -708,23 +860,23 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
   # Calculate Plate-wide QC vals
   if(AQ){
     ## MAX_SC_CV
-    SCvals <- raw[, SCs]
+    SCvals <- raw[, SCs, drop = FALSE]
     SCvals[is.na(SCvals)] <- 0
     SCvals2 <- colSums(SCvals, na.rm=T)
     SC_CV <- sd(SCvals2, na.rm=T) / mean(SCvals2, na.rm=T)
     op <- criteria$operators[which(criteria$thresholdNames=="MAX_SC_CV")]
     format <- criteria$format[which(criteria$thresholdNames=="MAX_SC_CV")]
-    set <- evalCriterion("SCRead_CV", SC_CV, op, MAX_SC_CV)
-    QCFlagList[[row_idx]] <- c("SCRead_CV", "raw", set, SC_CV, MAX_SC_CV, op, format)
+    set <- evalCriterion("SCRead_CV", SC_CV, op, th[["SCRead_CV"]])
+    QCFlagList[[row_idx]] <- c("SCRead_CV", "raw", set, SC_CV, th[["SCRead_CV"]], op, format)
     row_idx <- row_idx + 1
 
     ## MAX_SC_Target_CV
-    SCnormvals <- normed[, SCs]
+    SCnormvals <- normed[, SCs, drop = FALSE]
     median_SC_targetCV <- median(apply(SCnormvals, 1, function(x) sd(x, na.rm=TRUE)) / rowMeans(SCnormvals, na.rm=T), na.rm=T)
     op <- criteria$operators[which(criteria$thresholdNames=="MAX_MEDIAN_SC_TARGET_CV")]
     format <- criteria$format[which(criteria$thresholdNames=="MAX_MEDIAN_SC_TARGET_CV")]
-    set <- evalCriterion("SCTarget_CV", median_SC_targetCV, op, MAX_MEDIAN_SC_TARGET_CV)
-    QCFlagList[[row_idx]] <- c("SCTarget_CV", "IPC", set, median_SC_targetCV, MAX_MEDIAN_SC_TARGET_CV, op, format)
+    set <- evalCriterion("SCTarget_CV", median_SC_targetCV, op, th[["SCTarget_CV"]])
+    QCFlagList[[row_idx]] <- c("SCTarget_CV", "IPC", set, median_SC_targetCV, th[["SCTarget_CV"]], op, format)
     row_idx <- row_idx + 1
 
     ## Failed Assays <10% of total AQ Targets
@@ -736,8 +888,8 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
     op <- criteria$operators[which(criteria$thresholdNames == "MAX_FAILED_TARGET_PERC")]
     format <- criteria$format[which(criteria$thresholdNames=="MAX_FAILED_TARGET_PERC")]
     val <- length(unique(AQ_QC_for_failed[which(AQ_QC_for_failed$status == "TRUE"),]$target)) / length(unique(AQ_QC_for_failed$target))
-    set <- evalCriterion("Failed_Targets", val, op, MAX_FAILED_TARGET_PERC) 
-    QCFlagList[[row_idx]] <- c("Failed_Targets", "IPC", set, val, MAX_FAILED_TARGET_PERC, op, format)
+    set <- evalCriterion("Failed_Targets", val, op, th[["Failed_Targets"]])
+    QCFlagList[[row_idx]] <- c("Failed_Targets", "IPC", set, val, th[["Failed_Targets"]], op, format)
     row_idx <- row_idx + 1
 
     ## Flagged sample control from sample QC
@@ -745,8 +897,8 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
     format <- criteria$format[which(criteria$thresholdNames=="MAX_FAILED_SC")]
     inds <- (which(Sample_QC$sampleName %in% SCs & Sample_QC$status == TRUE))
     val = length(unique(Sample_QC[inds,]$sampleName))
-    set <- evalCriterion("Failed_SC", val, op, MAX_FAILED_SC) 
-    QCFlagList[[row_idx]] <- c("Failed_SC", "IPC", set, val, MAX_FAILED_SC, op, format)
+    set <- evalCriterion("Failed_SC", val, op, th[["Failed_SC"]])
+    QCFlagList[[row_idx]] <- c("Failed_SC", "IPC", set, val, th[["Failed_SC"]], op, format)
     row_idx <- row_idx + 1
     
     ## Flagged IPC from sample QC
@@ -754,8 +906,8 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
     format <- criteria$format[which(criteria$thresholdNames=="MAX_FAILED_IPC")]
     inds <- (which(Sample_QC$sampleName %in% IPCs & Sample_QC$status == TRUE))
     val = length(unique(Sample_QC[inds,]$sampleName))
-    set <- evalCriterion("Failed_IPC", val, op, MAX_FAILED_IPC) 
-    QCFlagList[[row_idx]] <- c("Failed_IPC", "IPC", set, val, MAX_FAILED_IPC, op, format)
+    set <- evalCriterion("Failed_IPC", val, op, th[["Failed_IPC"]])
+    QCFlagList[[row_idx]] <- c("Failed_IPC", "IPC", set, val, th[["Failed_IPC"]], op, format)
     row_idx <- row_idx + 1
   }
 
@@ -765,28 +917,28 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
   IC_CV <- sd(ICvals, na.rm=T) / mean(ICvals, na.rm=T)
   op <- criteria$operators[which(criteria$thresholdNames=="MAX_IC_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_IC_CV")]
-  set <- evalCriterion("ICRead_CV", IC_CV, op, MAX_IC_CV)
-  QCFlagList[[row_idx]] <- c("ICRead_CV", "raw", set, IC_CV, MAX_IC_CV, op, format)
+  set <- evalCriterion("ICRead_CV", IC_CV, op, th[["ICRead_CV"]])
+  QCFlagList[[row_idx]] <- c("ICRead_CV", "raw", set, IC_CV, th[["ICRead_CV"]], op, format)
   row_idx <- row_idx + 1
 
   ## MAX_IPC_CV (I)
-  IPCvals <- raw[, IPCs]
+  IPCvals <- raw[, IPCs, drop = FALSE]
   IPCvals[is.na(IPCvals)] <- 0
   IPCvals2 <- colSums(IPCvals, na.rm=T)
   IPC_CV <- sd(IPCvals2, na.rm=T) / mean(IPCvals2, na.rm=T)
   op <- criteria$operators[which(criteria$thresholdNames=="MAX_IPC_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_IPC_CV")]
-  set <- evalCriterion("IPCRead_CV", IPC_CV, op, MAX_IPC_CV)
-  QCFlagList[[row_idx]] <- c("IPCRead_CV", "raw", set, IPC_CV, MAX_IPC_CV, op, format)
+  set <- evalCriterion("IPCRead_CV", IPC_CV, op, th[["IPCRead_CV"]])
+  QCFlagList[[row_idx]] <- c("IPCRead_CV", "raw", set, IPC_CV, th[["IPCRead_CV"]], op, format)
   row_idx <- row_idx + 1
 
   ## MAX_MEDIAN_IPC_TARGET_CV (P)
-  IPCnormvals <- normed[, IPCs]
+  IPCnormvals <- normed[, IPCs, drop = FALSE]
   median_IPC_targetCV <- median(apply(IPCnormvals, 1, function(x) sd(x, na.rm=TRUE)) / rowMeans(IPCnormvals, na.rm=T), na.rm=T)
   op <- criteria$operators[which(criteria$thresholdNames=="MAX_MEDIAN_IPC_TARGET_CV")]
   format <- criteria$format[which(criteria$thresholdNames=="MAX_MEDIAN_IPC_TARGET_CV")]
-  set <- evalCriterion("IPCTarget_CV", median_IPC_targetCV, op, MAX_MEDIAN_IPC_TARGET_CV)
-  QCFlagList[[row_idx]] <- c("IPCTarget_CV", "IPC", set, median_IPC_targetCV, MAX_MEDIAN_IPC_TARGET_CV, op, format)
+  set <- evalCriterion("IPCTarget_CV", median_IPC_targetCV, op, th[["IPCTarget_CV"]])
+  QCFlagList[[row_idx]] <- c("IPCTarget_CV", "IPC", set, median_IPC_targetCV, th[["IPCTarget_CV"]], op, format)
   row_idx <- row_idx + 1
 
   ## Detectability fraction (D)
@@ -801,16 +953,16 @@ QCFlagPlate <- function(raw, normed, aboveLOD, targets, samples,
   }
   op <- criteria$operators[which(criteria$thresholdNames=="DETECTABILITY_FRAC")]
   format <- criteria$format[which(criteria$thresholdNames=="DETECTABILITY_FRAC")]
-  set <- evalCriterion("Detectability", perc_all, op, DETECTABILITY_FRAC)
-  QCFlagList[[row_idx]] <- c("Detectability", "IPC", set, perc_all, DETECTABILITY_FRAC, op, format)
+  set <- evalCriterion("Detectability", perc_all, op, th[["Detectability"]])
+  QCFlagList[[row_idx]] <- c("Detectability", "IPC", set, perc_all, th[["Detectability"]], op, format)
   row_idx <- row_idx + 1
 
   ## Min number of reads (R)
   nReads <- sum(raw, na.rm=T)
   op <- criteria$operators[which(criteria$thresholdNames=="MIN_READS")]
   format <- criteria$format[which(criteria$thresholdNames=="MIN_READS")]
-  set <- evalCriterion("MinReads", nReads, op, MIN_READS)
-  QCFlagList[[row_idx]] <- c("MinReads", "raw", set, nReads, MIN_READS, op, format)
+  set <- evalCriterion("MinReads", nReads, op, th[["MinReads"]])
+  QCFlagList[[row_idx]] <- c("MinReads", "raw", set, nReads, th[["MinReads"]], op, format)
 
   # Trim list if needed (e.g. when AQ=FALSE)
   if(row_idx <= max_rows){

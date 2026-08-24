@@ -98,11 +98,22 @@ interPlateNorm <- function(data_list,
     data_list_IPC <- list()
     normFactors <- list()
     for (i in 1:length(data_list)){
-      IPC_cols <- data_list[[i]][,IPC_wells[[i]]]
+      if (length(IPC_wells[[i]]) == 0){
+        stop(sprintf('No IPC wells remain for data_list[[%d]]; cannot perform IPC normalization.', i))
+      }
+      missing_wells <- if (is.numeric(IPC_wells[[i]])){
+        IPC_wells[[i]][!(IPC_wells[[i]] %in% seq_len(ncol(data_list[[i]])))]
+      } else {
+        setdiff(IPC_wells[[i]], colnames(data_list[[i]]))
+      }
+      if (length(missing_wells) > 0){
+        stop(sprintf('IPC_wells for data_list[[%d]] not found in the data: %s', i, paste(missing_wells, collapse=', ')))
+      }
+      IPC_cols <- data_list[[i]][,IPC_wells[[i]], drop=FALSE]
       if (IPC_method=='median'){
         IPC_factors_i <- apply(IPC_cols, 1, median, na.rm=TRUE)
       } else if (IPC_method=='mean'){
-        IPC_factors_i <- rowMeans(IPC_cols, median, na.rm=TRUE)
+        IPC_factors_i <- rowMeans(IPC_cols, na.rm=TRUE)
       } else if (IPC_method=='geom_mean'){
         IPC_factors_i <- apply(IPC_cols, 1, function(x){
           # replace zeros or NA with 1s
@@ -167,7 +178,13 @@ interPlateNorm <- function(data_list,
         }
       }
     } # end defining IN_samples
-    
+
+    for (i in 1:length(data_list)){
+      if (length(IN_samples[[i]]) == 0){
+        stop(sprintf('No samples remain for intensity normalization for data_list[[%d]].', i))
+      }
+    }
+
     # Initialize matrices to store medians for each target and plate
     IN_medians <- matrix(NA, nrow=length(all_targets), ncol=length(data_list))
     rownames(IN_medians) <- all_targets
@@ -178,7 +195,7 @@ interPlateNorm <- function(data_list,
       # Get the targets present in this plate
       plate_targets <- rownames(data_list[[i]])
       # Extract sample data
-      data_list_IN_samples[[i]] <- data_list[[i]][,IN_samples[[i]]]
+      data_list_IN_samples[[i]] <- data_list[[i]][,IN_samples[[i]], drop=FALSE]
       # Calculate medians for present targets
       plate_medians <- apply(data_list_IN_samples[[i]], 1, median, na.rm=TRUE)
       # Store in the correct rows of IN_medians

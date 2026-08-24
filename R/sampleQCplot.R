@@ -594,9 +594,12 @@ filter_run_data <- function(run, sample_subset = NULL, sample_exclude = NULL,
     targets_to_keep <- setdiff(targets_to_keep, target_exclude)
   }
   
-  # Apply the filters
-  run$samples <- run$samples[run$samples$sampleName %in% samples_to_keep, ]
-  run$targets <- run$targets[run$targets$targetName %in% targets_to_keep, ]
+  # Apply the filters. drop = FALSE keeps these as data.frames even if the
+  # table has a single column — otherwise a 1-column targets/samples table
+  # collapses to a vector and downstream nrow() checks (e.g. sampleBoxplot.R)
+  # see NULL and error.
+  run$samples <- run$samples[run$samples$sampleName %in% samples_to_keep, , drop = FALSE]
+  run$targets <- run$targets[run$targets$targetName %in% targets_to_keep, , drop = FALSE]
   
   # Only subset data if we actually filtered
   if (!is.null(sample_subset) || !is.null(sample_exclude)) {

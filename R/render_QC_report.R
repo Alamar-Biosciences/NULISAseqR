@@ -176,7 +176,34 @@ render_QC_report <- function(xml_files,
     ),
     list(...)
   )
-  
+
+  # Guard against an empty/missing report template path. When the NULISAseqR
+  # skeleton cannot be resolved, `Rmd_input_file` defaults to system.file(...)
+  # returning "", and rmarkdown::render() then aborts deep in xfun::abs_path()
+  # with the opaque "The file '' does not exist." Fail early instead. (#691)
+  # file_test("-f") is used rather than file.exists() so a directory path
+  # (which file.exists() accepts) is also rejected before render. is.character()
+  # is checked first so a non-character input (e.g. a factor) short-circuits
+  # here instead of making nzchar()/file_test() throw their own opaque errors.
+  is_usable_template <- is.character(Rmd_input_file) &&
+    length(Rmd_input_file) == 1L &&
+    !is.na(Rmd_input_file) && nzchar(Rmd_input_file) &&
+    utils::file_test("-f", Rmd_input_file) &&
+    file.access(Rmd_input_file, mode = 4) == 0
+  if (!is_usable_template) {
+    label <- if (is.character(Rmd_input_file) && length(Rmd_input_file) >= 1L) {
+      paste(shQuote(Rmd_input_file), collapse = ", ")
+    } else {
+      "''"
+    }
+    stop(sprintf(
+      paste0("QC report template not found (Rmd_input_file=%s). Ensure the ",
+             "NULISAseqR skeleton template is installed and the path is a ",
+             "single, non-empty, readable file."),
+      label
+    ))
+  }
+
   rmarkdown::render(
     input = Rmd_input_file,
     output_format = 'html_document',

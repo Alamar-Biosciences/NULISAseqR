@@ -404,7 +404,7 @@ process_loadNULISAseq <- function(data) {
 #'   \item{qcTarget}{Data frame of target-level QC metrics (if present)}
 #'   \item{qcPlate}{Data frame of plate-level QC metrics}
 #'   \item{aqParams}{Data frame of AQ target parameters (if present)}
-#'   \item{excluded}{Vector of excluded targets (if any)}
+#'   \item{inconsistent_targets}{Character vector of targets not present on all plates (retained in the merged data with NA values), or NULL if none}
 #'   \item{Data_IC, Data_IClog2, Data_raw, Data_rawlog2, aboveLOD, Data_AQ, Data_AQlog2, Data_Reverse, Data_Reverselog2, Data_AQ_pgmL, Data_AQlog2_pgmL}{Matrices of merged data (if present)}
 #'   \item{unit}{Character, AQ unit (if present)}
 #'   \item{detectability}{Data frame of target detectability by sample group/matrix of combined runs.}
@@ -414,7 +414,7 @@ process_loadNULISAseq <- function(data) {
 #' - Checks for consistent internal control (IC) across plates.
 #' - Handles duplicate sample names by appending plate IDs.
 #' - Cleans covariate names and merges all available data matrices.
-#' - Excludes targets not present in all plates.
+#' - Retains targets not present on all plates, with NA values for the plates that lack them.
 #' - Data_IC: IC-normalized data
 #' - Data_raw: un-normalized data
 #' - Data_AQ: AQ data in aM
@@ -445,8 +445,9 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
   names(ExecutionDetails) <- plateID
   
   check_assay_type(ExecutionDetails = ExecutionDetails, fileNames = fileNames)
-  
-  # merge Run Summary 
+  assay <- assay_identity(ExecutionDetails)
+
+  # merge Run Summary
   process_RunSummary <- function(x, plateID) {
     x$RunSummary <- x$RunSummary[!is.na(names(x$RunSummary))]
     x$RunSummary <- lapply(x$RunSummary, replace_empty_numeric)
@@ -827,6 +828,8 @@ mergeNULISAseq <- function(dataList, fileNameList, sample_group_covar = "SAMPLE_
     plateID = plateID,
     fileNames = fileNames,
     covariateNames = default_names,
+    assayLabel = assay$label,
+    assayVariants = assay$variants,
     ExecutionDetails = ExecutionDetails,
     RunSummary = RunSummary,
     IC = IC,
@@ -1344,14 +1347,14 @@ importNULISAseq <- function(files,
 #'   \item{qcTarget}{Data frame of target-level QC metrics (if present)}
 #'   \item{qcPlate}{Data frame of plate-level QC metrics}
 #'   \item{aqParams}{Data frame of AQ target parameters (if present)}
-#'   \item{excluded}{Vector of excluded targets (if any)}
+#'   \item{excluded}{Character vector of targets not present in all input objects (retained in the merged data with NA values), or NULL if none}
 #'   \item{Data_IC, Data_IClog2, Data_raw, Data_rawlog2, aboveLOD, Data_AQ, Data_AQlog2, Data_Reverse, Data_Reverselog2, Data_AQ_pgmL, Data_AQlog2_pgmL}{Matrices of merged data (if present)}
 #'   \item{unit}{Character, AQ unit (if present)}
 #'
 #' @details
 #' - Checks for duplicate plate IDs, file names, and sample names, and renames as needed.
 #' - Ensures consistent internal control (IC) and AQ units across datasets.
-#' - Combines all available data matrices, keeping only common targets.
+#' - Combines all available data matrices; targets not present in all objects are retained with NA values.
 #' - Handles missing or NULL QC and AQ parameter data frames gracefully.
 #'
 #' @examples
@@ -1393,7 +1396,8 @@ mergeProcessedNULISAseq <- function(existing_data, new_data){
   # Combine Execution Details and check for compatibility
   ExecutionDetails <- c(existing_data[["ExecutionDetails"]], new_data[["ExecutionDetails"]])
   check_assay_type(ExecutionDetails)
-  
+  assay <- assay_identity(ExecutionDetails)
+
   #Combine Run Summary object
   RunSummary <- dataList %>%
     purrr::map(., ~.x[["RunSummary"]]) %>%
@@ -1488,7 +1492,7 @@ mergeProcessedNULISAseq <- function(existing_data, new_data){
         x[[i]] %>%
           tibble::as_tibble(rownames = "targetName")
       })
-      # merge the list objects together and keep only the common targets and preserve the matrix format
+      # merge the list objects together (full join: non-shared targets get NA) and preserve the matrix format
       dataMatrix[[i]] <- dataObj %>%
         purrr::reduce(dplyr::full_join, by = "targetName") %>%
         filter(targetName %in% targets$targetName) %>%
@@ -1511,6 +1515,8 @@ mergeProcessedNULISAseq <- function(existing_data, new_data){
     list(
       plateID=plateID,
       fileNames=fileNames,
+      assayLabel = assay$label,
+      assayVariants = assay$variants,
       ExecutionDetails=ExecutionDetails,
       RunSummary=RunSummary,
       IC = IC,
@@ -1556,7 +1562,7 @@ replace_empty_numeric <- function(x) {
 
 ##' Combine target information across multiple NULISAseq data objects
 #'
-#' This helper function merges the target data frames from a list of processed NULISAseq data objects, returning a unified targets data frame and a vector of any excluded targets (those not present in all objects). Optionally, it adds a plateID column to each target data frame before merging.
+#' This helper function merges the target data frames from a list of processed NULISAseq data objects, returning a unified targets data frame and a vector of any targets not present in all objects (these targets are still retained in the merged frame). Optionally, it adds a plateID column to each target data frame before merging.
 #'
 #' @param dataList A list of processed NULISAseq data objects (as returned by mergeNULISAseq), each containing a `targets` data frame.
 #' @param plateID A character or factor vector of plate IDs for the data objects. Only required if `addPlateID = TRUE`.
@@ -1564,10 +1570,10 @@ replace_empty_numeric <- function(x) {
 #'
 #' @return A list with two elements:
 #'   \item{targets}{A unified data frame of all targets present in the input objects, with columns from the original targets data frames.}
-#'   \item{excluded}{A character vector of target names that were excluded because they were not present in all input objects, or NULL if none.}
+#'   \item{excluded}{A character vector of target names not present in all input objects (still retained in `targets`), or NULL if none.}
 #'
 #' @details
-#' - All targets present in all input objects are retained in the merged targets data frame.
+#' - All targets from all input objects are retained in the merged targets data frame.
 #' - If some targets are missing from one or more objects, their names are returned in the `excluded` vector and a WARN is logged.
 #' - Used internally for merging and aligning data matrices across plates.
 #'
@@ -1585,7 +1591,7 @@ combine_targets <- function(dataList, plateID, addPlateID = TRUE){
   # MODIFY TO INCLUDE NUMBER OF EXCLUDED TARGETS IN WARNING
   excluded <- NULL
   if (sum(n_targets > length(target_intersect)) > 0){
-    logger::log_warn("Some plates have targets that do not match those on other plates. These targets will be excluded.")
+    logger::log_warn("Some plates have targets that do not match those on other plates. These targets are retained with NA values for the runs that lack them.")
     target_ids <- unique(unname(do.call("c", target_ids)))
     excluded <- target_ids[!target_ids %in% target_intersect]
   }
@@ -1608,14 +1614,220 @@ combine_targets <- function(dataList, plateID, addPlateID = TRUE){
   )
 }
 
+##' Assay-name qualifiers that do not affect mergeability
+#'
+#' Panel version and protocol suffixes describe the same underlying panel and must not block a
+#' merge (issue #3263). Two version-labelling schemes are both live in customer data:
+#' a parenthesised major version, `CNS Disease Panel 120 (V2)`, and a bare dotted version,
+#' `CNS Disease Panel v1.9` (XMLVersion 1.3.0 onward). Both are stripped in full - a major
+#' bump is treated no differently from a minor one.
+#'
+#' Panel identity that is NOT stripped: family name, plex count where the name carries one
+#' (`Immune 340 Panel`, `Inflammation Panel 250`) and AQ/RQ markers. A panel name is unique per
+#' plex, so a version difference never hides a plex difference.
+#'
+#' Order matters: the parenthesised patterns must run before the bare one, otherwise `(V2)`
+#' would have its version consumed and leave stray brackets behind.
+#'
+#' @keywords internal
+MERGEABLE_ASSAY_QUALIFIERS <- c(
+  "\\(\\s*v\\d+(?:\\.\\d+)*\\s*\\)",   # (V2), (V3), (v1.9)
+  "\\(\\s*DBS\\s*Compatible\\s*\\)",   # (DBS Compatible)
+  "\\bv\\d+(?:\\.\\d+)*\\b"            # v1.9, v1.8, v2 - bare, no brackets
+)
+
+##' Tokens that identify the platform rather than the panel
+#'
+#' "NULISAseq" is the assay platform every run comes from, so it cannot distinguish two
+#' panels: `NULISAseq Inflammation Panel 250` and `Inflammation Panel 250` are one panel.
+#'
+#' @keywords internal
+NON_IDENTIFYING_ASSAY_TOKENS <- c("nulisaseq")
+
+##' Plex counts that are redundant because the family has only ever shipped one plex
+#'
+#' CNS Disease Panel has always been 120-plex and Inflammation Panel always 250-plex, so the
+#' number distinguishes nothing - its presence is a naming-era artefact. Runs off customer
+#' instruments emit `CNS Disease Panel 120 (V2)`; internal and TAP runs emit
+#' `CNS Disease Panel v1.9`. Both are the same panel and must merge.
+#'
+#' Only the KNOWN plex for the family is dropped. If a family's plex ever changed, the new count
+#' would still block against the old one rather than silently merging - adding a family here is a
+#' claim that it has exactly one plex.
+#'
+#' This entry does not affect any other family. CNS Disease Panel and Neuro220 Panel are a
+#' separate family pair, blocked here by the family name itself regardless of plex - allowing them
+#' to merge is a possible future change and is out of scope here.
+#'
+#' @keywords internal
+REDUNDANT_ASSAY_PLEX <- c(
+  "cns disease panel"  = "120",
+  "inflammation panel" = "250"
+)
+
+##' Remove version and protocol qualifiers from an assay name, preserving case
+#'
+#' Shared by `assay_merge_key()` (which then normalises further) and `canonical_assay_label()`
+#' (which needs a human-readable name with the version taken off).
+#'
+#' @param assayName Character vector of assay names.
+#'
+#' @return Character vector with qualifiers removed and whitespace collapsed.
+#'
+#' @keywords internal
+strip_assay_qualifiers <- function(assayName){
+  x <- as.character(assayName)
+  for(pattern in MERGEABLE_ASSAY_QUALIFIERS){
+    x <- gsub(pattern, " ", x, ignore.case = TRUE, perl = TRUE)
+  }
+  trimws(gsub("\\s+", " ", x))
+}
+
+##' Reduce an assay name to a key used for merge-compatibility comparison
+#'
+#' Drops, in order: the qualifiers in `MERGEABLE_ASSAY_QUALIFIERS` (version, DBS protocol), all
+#' punctuation, the platform tokens in `NON_IDENTIFYING_ASSAY_TOKENS`, and the redundant plex
+#' counts in `REDUNDANT_ASSAY_PLEX`. Qualifier stripping must run first, while the dots in
+#' `v1.9` are still intact.
+#'
+#' Punctuation is never a panel discriminator, so `Inflammation Panel 250 - AQ` and
+#' `Inflammation Panel AQ` reduce to the same key.
+#'
+#' What survives is panel family, any plex count NOT declared redundant, and the AQ/RQ marker.
+#' Key equality is the whole compatibility test: it is what keeps CNS from merging with
+#' Inflammation, Immune 340 from merging with Immune 250, and AQ from merging with RQ.
+#'
+#' @param assayName Character vector of assay names.
+#'
+#' @return Character vector of normalised keys.
+#'
+#' @keywords internal
+assay_merge_key <- function(assayName){
+  x <- strip_assay_qualifiers(assayName)
+  x <- gsub("[^a-z0-9]+", " ", tolower(x))
+  for(token in NON_IDENTIFYING_ASSAY_TOKENS){
+    x <- gsub(paste0("\\b", token, "\\b"), " ", x, perl = TRUE)
+  }
+  x <- trimws(gsub("\\s+", " ", x))
+
+  for(family in names(REDUNDANT_ASSAY_PLEX)){
+    hit <- grepl(family, x, fixed = TRUE)
+    if(!any(hit)) next
+    x[hit] <- gsub(paste0("\\b", REDUNDANT_ASSAY_PLEX[[family]], "\\b"), " ",
+                   x[hit], perl = TRUE)
+  }
+  trimws(gsub("\\s+", " ", x))
+}
+
+##' Canonical display label for a set of assay names
+#'
+#' For a single run the name is returned untouched. For a merge, `check_assay_type()` has
+#' already established the names share a merge key, so every one of them denotes the same panel
+#' and any is a valid representative. We pick the LONGEST after removing version qualifiers and
+#' the platform token: `CNS Disease Panel 120 (V2)` + `CNS Disease Panel v1.9` ->
+#' `CNS Disease Panel 120`, and `NULISAseq Inflammation Panel 250` + `Inflammation Panel v1.8` ->
+#' `Inflammation Panel 250`.
+#'
+#' Longest rather than shortest because the plex count is how a panel is recognised, and the
+#' bare-family form appears only because the newer naming scheme dropped the number.
+#'
+#' The platform token goes because it is not panel identity, and leaving it in would make the
+#' label flip between `Inflammation Panel 250` and `NULISAseq Inflammation Panel 250` depending
+#' on which files happened to be selected.
+#'
+#' A token-wise common prefix was the obvious rule and is wrong twice over. It drops a marker
+#' that shares a token position with a difference - `Inflammation Panel AQ` +
+#' `Inflammation Panel 250 - AQ` yields `Inflammation Panel`, mislabelling an AQ analysis as RQ.
+#' And it returns nothing at all when names disagree on the first token, which the optional
+#' `NULISAseq ` vendor prefix causes.
+#'
+#' @param assays Character vector of assay names (NA entries ignored).
+#'
+#' @return A single label, or NULL only when there are no usable names at all.
+#'
+#' @keywords internal
+canonical_assay_label <- function(assays){
+  a <- unique(trimws(as.character(assays[!is.na(assays)])))
+  a <- a[nzchar(a)]
+  if(length(a) == 0) return(NULL)
+  if(length(a) == 1) return(a)
+
+  cand <- strip_assay_qualifiers(a)
+  for(token in NON_IDENTIFYING_ASSAY_TOKENS){
+    cand <- gsub(paste0("\\b", token, "\\b"), " ", cand,
+                 ignore.case = TRUE, perl = TRUE)
+  }
+  cand <- unique(trimws(gsub("\\s+", " ", cand)))
+  cand <- cand[nzchar(cand)]
+  if(length(cand) == 0) return(NULL)
+  cand[which.max(nchar(cand))]
+}
+
+##' Extract raw assay names from ExecutionDetails, defaulting no report to "NULISAseq"
+#'
+#' `readNULISAseq.R` defaults an RQ run's `ExecutionDetails$Assay` to `"NULISAseq"` when its XML
+#' has no `<Assay>` node, gated to RQ only (`!AbsAssay`) - an AQ run with no `<Assay>` node arrives
+#' here as a true `NULL`. This function applies the same default uniformly at the merge boundary,
+#' regardless of AQ/RQ or of *why* the value is absent (`NULL`, zero-length, `NA`, or blank -
+#' `readNULISAseq()` trims `<Assay>` but only converts zero-length values to `NULL`, so a
+#' whitespace-only node arrives here as `""`).
+#' `"NULISAseq"` is a real, comparable assay name after this point - never a distinct "unknown"
+#' bucket. Shared by `check_assay_type()` and `assay_identity()` so the two cannot drift on what
+#' counts as "nothing reported".
+#'
+#' @param ExecutionDetails Named list of per-plate execution details.
+#'
+#' @return Character vector of raw assay names, one per plate; never `NA` - absence in any form
+#'   becomes the literal string `"NULISAseq"`.
+#'
+#' @keywords internal
+extract_assay_names <- function(ExecutionDetails){
+  unname(do.call('c', lapply(ExecutionDetails, function(x){
+    # as.character(NULL)[1] and as.character(character(0))[1] are both NA,
+    # so one branch covers NULL, zero-length, NA, and blank/whitespace-only
+    val <- trimws(as.character(x$Assay)[1])
+    if(is.na(val) || !nzchar(val)) "NULISAseq" else val
+  })))
+}
+
+##' Collect the assay identity of a merged object
+#'
+#' Normalises assay identity once, at the merge boundary, so downstream consumers read a single
+#' canonical label instead of each re-deriving one from `ExecutionDetails`.
+#'
+#' @param ExecutionDetails Named list of per-plate execution details.
+#'
+#' @return A list with `label` (canonical display name; NULL only when `ExecutionDetails` is
+#'   empty) and `variants` (the distinct raw names when more than one was merged, otherwise NULL).
+#'
+#' @keywords internal
+assay_identity <- function(ExecutionDetails){
+  known <- unique(trimws(extract_assay_names(ExecutionDetails)))
+
+  list(
+    label    = canonical_assay_label(known),
+    variants = if(length(known) > 1) known else NULL
+  )
+}
+
 ##' Check compatibility of assay types across NULISAseq data objects
 #'
 #' This helper function checks that all provided NULISAseq data objects have the same assay type, using the `Assay` field in their ExecutionDetails. If multiple assay types are found, an error is raised.
 #'
+#' Assays are compatible when their names are identical, or when they differ only by a qualifier
+#' in `MERGEABLE_ASSAY_QUALIFIERS` (panel version, DBS protocol) - that is, when they share a
+#' normalised merge key (issue #3263). Key equality is the whole test, and it is what still
+#' separates panel families, plex counts and AQ from RQ: an AQ run never merges with a non-AQ
+#' run, because the `AQ` marker is part of the key.
+#'
+#' A plate with no reported `Assay` (in any form - `NULL`, empty, `NA`, or the RQ `"NULISAseq"`
+#' default) is normalised by `extract_assay_names()` to the literal name `"NULISAseq"` and compared
+#' like any other assay name - there is no separate "unknown" bucket here.
+#'
 #' @param ExecutionDetails A list of ExecutionDetails objects (one per plate), each containing an `Assay` field.
 #' @param fileNames Optional character vector of file names for each assay, used for error reporting.
 #'
-#' @return Logical TRUE if all assay types are compatible (identical). Raises an error if not.
+#' @return Logical TRUE if all assay types are compatible (identical, or same merge key). Raises an error if not.
 #'
 #' @details
 #' - Used internally to ensure only compatible NULISAseq data objects are merged.
@@ -1623,30 +1835,35 @@ combine_targets <- function(dataList, plateID, addPlateID = TRUE){
 #'
 #' @keywords internal
 check_assay_type <- function(ExecutionDetails, fileNames = NA){
-  
-  assays <- unname(do.call("c",lapply(ExecutionDetails, function(x){
-    val <- x$Assay
-    ifelse(is.null(val), NA, val)
-  })))
-  
-  assay <- unique(assays)
-  
-  if(length(assay) > 1){
-    if(any(is.na(fileNames))){
-      fileNames <- names(ExecutionDetails)
-    }
-    
-    msg <- paste("Found multiple assay types ", 
-                 paste(
-                   sprintf("%s - %s", fileNames, assays),
-                   collapse = ", "
-                 ))
-    FALSE
-    stop(msg)
-  } else {
-    message(format(Sys.time()),": INFO Assays Compatible")
-    TRUE
+
+  assays <- extract_assay_names(ExecutionDetails)
+
+  if(any(is.na(fileNames))){
+    fileNames <- names(ExecutionDetails)
   }
+
+  known <- trimws(assays)
+
+  if(length(unique(known)) <= 1){
+    message(format(Sys.time()),": INFO Assays Compatible")
+    return(TRUE)
+  }
+
+  keys <- unique(assay_merge_key(known))
+
+  if(length(keys) == 1){
+    logger::log_info('Compatible panel variants merged under key "', keys, '" -- ',
+                     paste(sprintf("%s - %s", fileNames, assays), collapse = ', '))
+    message(format(Sys.time()),": INFO Assays Compatible (panel variants)")
+    return(TRUE)
+  }
+
+  msg <- paste("Found multiple assay types ",
+               paste(
+                 sprintf("%s - %s", fileNames, assays),
+                 collapse = ", "
+               ))
+  stop(msg)
 }
 
 ##' Check for duplicate plate IDs, file names, or sample names between two NULISAseq data objects
