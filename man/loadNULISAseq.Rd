@@ -117,7 +117,7 @@ before generating AQ data.}
 \item{advancedQC}{Whether to use advancedQC metrics}
 
 \item{forceDefaultQC}{If TRUE, ignore any QC thresholds/criteria defined in
-the panel XML (\code{<QCThresholds>}) and use the hardcoded defaults only.
+the panel XML (`<QCThresholds>`) and use the hardcoded defaults only.
 Default FALSE: XML-defined thresholds override the defaults per-flag, and
 any flag absent from the XML falls back to its hardcoded default.}
 }

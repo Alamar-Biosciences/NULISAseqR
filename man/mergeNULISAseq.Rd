@@ -29,7 +29,7 @@ A named list containing:
   \item{qcTarget}{Data frame of target-level QC metrics (if present)}
   \item{qcPlate}{Data frame of plate-level QC metrics}
   \item{aqParams}{Data frame of AQ target parameters (if present)}
-  \item{excluded}{Vector of excluded targets (if any)}
+  \item{inconsistent_targets}{Character vector of targets not present on all plates (retained in the merged data with NA values), or NULL if none}
   \item{Data_IC, Data_IClog2, Data_raw, Data_rawlog2, aboveLOD, Data_AQ, Data_AQlog2, Data_Reverse, Data_Reverselog2, Data_AQ_pgmL, Data_AQlog2_pgmL}{Matrices of merged data (if present)}
   \item{unit}{Character, AQ unit (if present)}
   \item{detectability}{Data frame of target detectability by sample group/matrix of combined runs.}
@@ -42,7 +42,7 @@ This function merges the outputs from multiple NULISAseq plate runs (as produced
 - Checks for consistent internal control (IC) across plates.
 - Handles duplicate sample names by appending plate IDs.
 - Cleans covariate names and merges all available data matrices.
-- Excludes targets not present in all plates.
+- Retains targets not present on all plates, with NA values for the plates that lack them.
 - Data_IC: IC-normalized data
 - Data_raw: un-normalized data
 - Data_AQ: AQ data in aM

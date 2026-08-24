@@ -16,13 +16,13 @@ combine_targets(dataList, plateID, addPlateID = TRUE)
 \value{
 A list with two elements:
   \item{targets}{A unified data frame of all targets present in the input objects, with columns from the original targets data frames.}
-  \item{excluded}{A character vector of target names that were excluded because they were not present in all input objects, or NULL if none.}
+  \item{excluded}{A character vector of target names not present in all input objects (still retained in `targets`), or NULL if none.}
 }
 \description{
-This helper function merges the target data frames from a list of processed NULISAseq data objects, returning a unified targets data frame and a vector of any excluded targets (those not present in all objects). Optionally, it adds a plateID column to each target data frame before merging.
+This helper function merges the target data frames from a list of processed NULISAseq data objects, returning a unified targets data frame and a vector of any targets not present in all objects (these targets are still retained in the merged frame). Optionally, it adds a plateID column to each target data frame before merging.
 }
 \details{
-- All targets present in all input objects are retained in the merged targets data frame.
+- All targets from all input objects are retained in the merged targets data frame.
 - If some targets are missing from one or more objects, their names are returned in the `excluded` vector and a WARN is logged.
 - Used internally for merging and aligning data matrices across plates.
 }

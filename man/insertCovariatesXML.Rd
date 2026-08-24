@@ -4,13 +4,22 @@
 \alias{insertCovariatesXML}
 \title{Inserts Covariates into XML}
 \usage{
-insertCovariatesXML(input_XML, covariates)
+insertCovariatesXML(input_XML, covariates, sanitize_names = FALSE)
 }
 \arguments{
 \item{input_XML}{Path to the input XML file.}
 
-\item{covariates}{A data frame containing covariate information, including 'sampleName' 
+\item{covariates}{A data frame containing covariate information, including 'sampleName'
 and other covariate columns.}
+
+\item{sanitize_names}{Logical (default FALSE). When TRUE, covariate column names
+are passed through `clean_covariate_names(case = "lower_camel")`
+before being written as XML attributes. Use this when interoperating
+with NAS, which applies the same sanitation on covariate upload —
+identical sanitation on both sides keeps the attribute name stable
+across NAS export → NULISAseqR import → NAS re-import (issue #3199).
+Default FALSE preserves the historical write-verbatim contract for
+direct callers.}
 }
 \value{
 The modified XML document.

@@ -25,7 +25,7 @@ and return \code{defaults} unchanged.}
 A criteria list with the same shape as \code{defaults}.
 }
 \description{
-Overlays QC thresholds/criteria parsed from the panel XML (\code{<QCThresholds>})
+Overlays QC thresholds/criteria parsed from the panel XML (`<QCThresholds>`)
 on top of the hardcoded defaults produced by \code{QCSampleCriteria},
 \code{QCPlateCriteria}, or \code{QCTargetCriteria}. Only the value-like fields
 (\code{thresholds}, \code{operators}, \code{format}, \code{properNames},
