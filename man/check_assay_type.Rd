@@ -12,12 +12,23 @@ check_assay_type(ExecutionDetails, fileNames = NA)
 \item{fileNames}{Optional character vector of file names for each assay, used for error reporting.}
 }
 \value{
-Logical TRUE if all assay types are compatible (identical). Raises an error if not.
+Logical TRUE if all assay types are compatible (identical, or same merge key). Raises an error if not.
 }
 \description{
 This helper function checks that all provided NULISAseq data objects have the same assay type, using the `Assay` field in their ExecutionDetails. If multiple assay types are found, an error is raised.
 }
 \details{
+Assays are compatible when their names are identical, or when they differ only by a qualifier
+in `MERGEABLE_ASSAY_QUALIFIERS` (panel version, DBS protocol) - that is, when they share a
+normalised merge key (issue #3263). Key equality is the whole test, and it is what still
+separates panel families, plex counts and AQ from RQ: an AQ run never merges with a non-AQ
+run, because the `AQ` marker is part of the key.
+
+A plate with no reported `Assay` (in any form - `NULL`, empty, `NA`, or the RQ `"NULISAseq"`
+default) is normalised by `extract_assay_names()` to the literal name `"NULISAseq"` and compared
+like any other assay name - there is no separate "unknown" bucket here.
+
+
 - Used internally to ensure only compatible NULISAseq data objects are merged.
 - If incompatible, an informative error message is generated listing the file names and assay types.
 }

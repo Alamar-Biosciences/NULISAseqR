@@ -19,7 +19,10 @@ QCFlagTarget(
   IPCs = NULL,
   NCs = NULL,
   SCs = NULL,
-  advancedQC = FALSE
+  advancedQC = FALSE,
+  xmlThresh = NULL,
+  forceDefaults = FALSE,
+  TAP = TRUE
 )
 }
 \arguments{
@@ -50,6 +53,12 @@ QCFlagTarget(
 \item{NCs}{names of NC samples}
 
 \item{SCs}{names of SC samples}
+
+\item{xmlThresh}{Parsed XML QC thresholds (from readQCThresholdXMLNode) to override defaults, or NULL}
+
+\item{forceDefaults}{If TRUE, ignore xmlThresh and use hardcoded defaults only}
+
+\item{TAP}{Whether this is a TAP run; gates XML thresholds marked appliesWhen="TAP"}
 }
 \value{
 QC table

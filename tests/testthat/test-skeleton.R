@@ -253,8 +253,14 @@ test_that("XML_v1.3.0.xml AQ data consistency between NULISAseqAQ and fallback m
     data_without_aq <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
   })
 
-  # Both should have the same basic structure (same named elements)
-  expect_setequal(names(data_with_aq$AQ), names(data_without_aq$AQ))
+  # Both paths must provide the core AQ elements. The NULISAseqAQ path may add
+  # extras it alone computes (e.g. blank_outlier_table, IPC_outlier_table), so
+  # require the core set in each rather than strict set-equality.
+  core_aq <- c("Data_AQ", "Data_AQ_aM", "targetAQ_param", "withinDR")
+  expect_true(all(core_aq %in% names(data_without_aq$AQ)))
+  expect_true(all(core_aq %in% names(data_with_aq$AQ)))
+  # And the fallback introduces no AQ elements the NULISAseqAQ path lacks.
+  expect_true(all(names(data_without_aq$AQ) %in% names(data_with_aq$AQ)))
 
   # Both should have Data_AQ_aM with identical dimensions
   if (!is.null(data_with_aq$AQ$Data_AQ_aM) && !is.null(data_without_aq$AQ$Data_AQ_aM)) {
@@ -385,8 +391,14 @@ test_that("XML_v1.3.0_with_AQ.xml AQ data consistency between NULISAseqAQ and fa
     data_without_aq <- loadNULISAseq(input1, IPC=NULL, IC='mCherry', SC=NULL)
   })
 
-  # Both should have the same basic structure (same named elements)
-  expect_setequal(names(data_with_aq$AQ), names(data_without_aq$AQ))
+  # Both paths must provide the core AQ elements. The NULISAseqAQ path may add
+  # extras it alone computes (e.g. blank_outlier_table, IPC_outlier_table), so
+  # require the core set in each rather than strict set-equality.
+  core_aq <- c("Data_AQ", "Data_AQ_aM", "targetAQ_param", "withinDR")
+  expect_true(all(core_aq %in% names(data_without_aq$AQ)))
+  expect_true(all(core_aq %in% names(data_with_aq$AQ)))
+  # And the fallback introduces no AQ elements the NULISAseqAQ path lacks.
+  expect_true(all(names(data_without_aq$AQ) %in% names(data_with_aq$AQ)))
 
   # Both should have Data_AQ_aM with identical dimensions
   expect_equal(ncol(data_with_aq$AQ$Data_AQ_aM), ncol(data_without_aq$AQ$Data_AQ_aM))

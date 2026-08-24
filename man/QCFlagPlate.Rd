@@ -16,7 +16,10 @@ QCFlagPlate(
   SCs = NULL,
   AQ = TRUE,
   AQ_QC = NULL,
-  Sample_QC = NULL
+  Sample_QC = NULL,
+  xmlThresh = NULL,
+  forceDefaults = FALSE,
+  TAP = TRUE
 )
 }
 \arguments{
@@ -39,6 +42,12 @@ QCFlagPlate(
 \item{AQ_QC}{AQ QC metrics, these are necessary to calculate a plate QC metric for AQ}
 
 \item{Sample_QC}{Sample QC metrics, one of these is necessary to calculate a plate QC metric for AQ}
+
+\item{xmlThresh}{Parsed XML QC thresholds (from readQCThresholdXMLNode) to override defaults, or NULL}
+
+\item{forceDefaults}{If TRUE, ignore xmlThresh and use hardcoded defaults only}
+
+\item{TAP}{Whether this is a TAP run; gates XML thresholds marked appliesWhen="TAP"}
 }
 \value{
 QC table

@@ -683,7 +683,9 @@ readNULISAseq <- function(file,
     qcXML$PlateThresh  <- readQCThresholdXMLNode(xml2::xml_find_all(xml, './/QCThresholds/Plate/Threshold'))
     qcXML$TargetThresh <- readQCThresholdXMLNode(xml2::xml_find_all(xml, './/QCThresholds/Target/Threshold'))
     qcXML$SampleThresh <- readQCThresholdXMLNode(xml2::xml_find_all(xml, './/QCThresholds/Sample/Threshold'))
-    
+    # Processing parameters (not QC thresholds); parsed for downstream consumers.
+    qcXML$Parameters <- readQCThresholdXMLNode(xml2::xml_find_all(xml, './/Parameters/Parameter'), rename=FALSE)
+
     qcXML$qcPlate  <- readQCXMLNode(xml2::xml_find_all(xml, './/PlateQC/QCFlag'), tag="QCFlag")
     qcXML$qcTarget <- readQCXMLNode(xml2::xml_find_all(xml, './/TargetQC/Target'), tag="QCFlag")
     qcXML$qcSample <- readQCXMLNode(xml2::xml_find_all(xml, './/SampleQC/Sample'), tag="QCFlag")
@@ -1061,9 +1063,34 @@ readNULISAseq <- function(file,
     }
     targets <- unique(Data[,target_column_names])
     samples <- unique(Data[,sample_column_names])
+    # LOD is only assigned in the xlsx+AQ branch above, so for csv_long (and
+    # non-AQ xlsx) it is undefined here -> "object 'LOD' not found". Initialize
+    # it without clobbering an LOD already built for xlsx+AQ.
+    if(!exists('LOD', inherits=FALSE) || is.null(LOD)) LOD <- list()
     # make an LOD data frame
     LODnames <- intersect(c('PlateId', 'PlateID', 'Target', 'LOD', 'LoD'), colnames(Data))
     LOD$info <- unique(Data[, LODnames])
+    # Compute the aboveLOD matrix (targets x samples). The XML path builds
+    # lod$aboveLOD, which the detectability / QC tools require; csv_long never
+    # did, so Counts-Report data reported "detectability not available".
+    # Compute per row (before the wide reshape) so per-plate LOD is honored --
+    # each long-format row carries its own plate's LOD.
+    lod_value_col <- intersect(c('LoD', 'LOD'), colnames(Data))
+    aboveLOD_mat <- NULL
+    if(length(lod_value_col) > 0 && 'NPQ' %in% colnames(Data)){
+      aboveLOD_long <- data.frame(SampleName = Data$SampleName,
+                                  Target     = Data$Target,
+                                  aboveLOD   = Data$NPQ > Data[[lod_value_col[1]]])
+      aboveLOD_mat <- reshape(aboveLOD_long, direction='wide',
+                              idvar='Target', timevar='SampleName')
+      rownames(aboveLOD_mat) <- aboveLOD_mat$Target
+      aboveLOD_mat <- aboveLOD_mat[, 2:ncol(aboveLOD_mat), drop=FALSE]
+      colnames(aboveLOD_mat) <- substr(colnames(aboveLOD_mat),
+                                       start = nchar('aboveLOD') + 2L,
+                                       stop  = nchar(colnames(aboveLOD_mat)))
+      aboveLOD_mat <- as.matrix(aboveLOD_mat)
+      storage.mode(aboveLOD_mat) <- 'logical'
+    }
     # reformat the NPQ data
     # reformat into wide, targets in columns
     Data <- reshape(Data[,c('SampleName', 'Target', 'NPQ')],
@@ -1080,17 +1107,29 @@ readNULISAseq <- function(file,
     Data <- Data[,2:ncol(Data)]
     colnames(Data) <- substr(colnames(Data), start=5, stop=nchar(colnames(Data)))
     Data <- as.matrix(Data)
-    # set rownames 
+    # Align aboveLOD to the final Data orientation and store under lod, matching
+    # the XML path (raw$lod$aboveLOD). Derive detectability from it so the
+    # detectability/QC tools have the same authoritative structure they get for
+    # XML input.
+    detectability_result <- NULL
+    if(!is.null(aboveLOD_mat)){
+      LOD$aboveLOD <- aboveLOD_mat[rownames(Data), colnames(Data), drop=FALSE]
+      detectability_result <- tryCatch(
+        detectability(aboveLOD_matrix = LOD$aboveLOD),
+        error = function(e) NULL)
+    }
+    # set rownames
     rownames(targets) <- NULL
     rownames(samples) <- NULL
     #    rownames(LOD) <- NULL
-    
+
     # return output
     return(list(
       targets=targets,
       samples=samples,
       lod=LOD,
       Data=Data,
+      detectability=detectability_result,
       AQ=AQdata
     ))
   } # end file type csv_long
@@ -1146,15 +1185,35 @@ readNULISAseq <- function(file,
 #' IF TRUE, the "a" parameter for targets with a zero blank calibrator mean 
 #' is set using the nonzero master curve "a" parameter 
 #' estimate instead. 
-#' @param replace_zeros_with_NA Logical TRUE / FALSE. 
+#' @param replace_zeros_with_NA Logical TRUE / FALSE.
 #' This parameter is passed to the applyAQ function.
-#' When TRUE (default), any zero values 
+#' When TRUE (default), any zero values
 #' in the AQ data output will be replaced with NA. When FALSE, these values remain as zero.
-#' @param security Logical. Default is TRUE. Should security checks be performed 
+#' @param AQ_NC_outlier_removal Logical TRUE / FALSE. Default is FALSE.
+#' When TRUE, a maximum of one NC outlier is removed per-target for AQ.
+#' Note: this and the other \code{AQ_*_outlier_*} options below only take
+#' effect when AQ is computed via \code{NULISAseqAQ::applyAQ}. When
+#' NULISAseqAQ is not installed and the function falls back to AQ values
+#' embedded in the XML, these options are ignored.
+#' @param AQ_IPC_outlier_removal Logical TRUE / FALSE. Default is FALSE.
+#' This parameter is passed to the applyAQ function. When TRUE, a maximum of
+#' one IPC / CAL outlier will be removed per-target if the NPQ mad-based
+#' z-score exceeds \code{AQ_IPC_outlier_threshold}.
+#' @param AQ_IPC_outlier_threshold z-score cutoff for identifying IPC / CAL
+#' outliers. This parameter is passed to the applyAQ function. Default is 3.
+#' @param AQ_IPC_mad_floor If the mad value is below \code{AQ_IPC_mad_floor} it
+#' will be replaced by this value, preventing low-variance targets from having
+#' unnecessary outlier removal. This parameter is passed to the applyAQ
+#' function. Default is 0.3.
+#' @param security Logical. Default is TRUE. Should security checks be performed
 #' before generating AQ data.
 #' @param excludeSamples A vector of sample names that will be excluded from all outputs.
 #' @param excludeTargets A vector of target names that will be excluded from all outputs.
 #' @param advancedQC Whether to use advancedQC metrics
+#' @param forceDefaultQC If TRUE, ignore any QC thresholds/criteria defined in
+#'   the panel XML (`<QCThresholds>`) and use the hardcoded defaults only.
+#'   Default FALSE: XML-defined thresholds override the defaults per-flag, and
+#'   any flag absent from the XML falls back to its hardcoded default.
 #'
 #' @return List of lists, data frames, and matrices.
 #' Output will differ slightly depending on the input file type.
@@ -1178,10 +1237,15 @@ loadNULISAseq <- function(file,
                           transformReverse_scaleFactor=10^4,
                           replace_cal_blank_zeros = FALSE,
                           replace_zeros_with_NA = TRUE,
+                          AQ_NC_outlier_removal = FALSE,
+                          AQ_IPC_outlier_removal = FALSE,
+                          AQ_IPC_outlier_threshold = 3,
+                          AQ_IPC_mad_floor = 0.3,
                           security=TRUE,
                           excludeSamples=NULL,
                           excludeTargets=NULL,
                           advancedQC = FALSE,
+                          forceDefaultQC = FALSE,
                           ...){
 
   # Determine input type: file path (character) or pre-built raw structure (list)
@@ -1241,7 +1305,16 @@ loadNULISAseq <- function(file,
   } else{ # if the IC is specified, use it instead of wha's in the XML
     raw$IC <- IC
   }
-  
+
+  # intraPlateNorm() accepts IC as either row names or row indices; resolve a
+  # numeric IC to names now, against raw$Data's still-unfiltered rownames, so
+  # the exclusion tracking below (which compares against target *names*) also
+  # covers a numeric IC -- and so it stays valid once excludeTargets/hide
+  # remove rows and shift what a raw index would otherwise mean.
+  if(is.numeric(IC) && !is.null(rownames(raw$Data))){
+    IC <- raw$IC <- rownames(raw$Data)[IC]
+  }
+
   if(length(raw$IPC) == 0 || length(raw$NC) == 0){
     stop("The input file does not contain IPC or NC sample types!\n")
   }
@@ -1250,7 +1323,7 @@ loadNULISAseq <- function(file,
   }
   if(!is.null(excludeSamples)){
     raw$samples <- raw$samples[!(raw$samples$sampleName %in% excludeSamples),]
-    raw$Data <- raw$Data[,!(colnames(raw$Data) %in% excludeSamples)]
+    raw$Data <- raw$Data[, !(colnames(raw$Data) %in% excludeSamples), drop = FALSE]
     raw$IPC <- raw$IPC[!(raw$IPC %in% excludeSamples)]
     raw$SC <- raw$SC[!(raw$SC %in% excludeSamples)]
     raw$NC <- raw$NC[!(raw$NC %in% excludeSamples)]
@@ -1261,19 +1334,58 @@ loadNULISAseq <- function(file,
   
   if(!is.null(excludeTargets)){
     raw$targets <- raw$targets[!(raw$targets$targetName %in% excludeTargets),]
-    raw$Data <- raw$Data[!(rownames(raw$Data) %in% excludeTargets),]
+    raw$Data <- raw$Data[!(rownames(raw$Data) %in% excludeTargets), , drop = FALSE]
   }
 
   # Filter hidden targets from data (hide=TRUE targets are excluded from all analyses)
   if("hide" %in% colnames(raw$targets)){
     hiddenTargets <- raw$targets$targetName[which(raw$targets$hide == TRUE)]
     if(length(hiddenTargets) > 0){
+      # Per-sample reads contributed by hidden targets (Data columns are keyed by sampleName).
+      # Captured BEFORE the rows are dropped so the matching column can stay consistent with Data.
+      hiddenReads <- colSums(raw$Data[rownames(raw$Data) %in% hiddenTargets, , drop = FALSE], na.rm = TRUE)
       raw$targets <- raw$targets[!raw$targets$targetName %in% hiddenTargets,]
-      raw$Data <- raw$Data[!rownames(raw$Data) %in% hiddenTargets,]
+      raw$Data <- raw$Data[!rownames(raw$Data) %in% hiddenTargets, , drop = FALSE]
       raw$IC <- raw$IC[!(raw$IC %in% hiddenTargets)]
+      # matching (parseable-matching reads per sample) must exclude hidden targets too, otherwise
+      # matching no longer equals colSums(raw$Data) and diverges from the sample QC NumReads value.
+      if(!is.null(raw$samples) && "matching" %in% colnames(raw$samples)){
+        idx <- match(raw$samples$sampleName, names(hiddenReads))
+        raw$samples$matching <- raw$samples$matching - ifelse(is.na(hiddenReads[idx]), 0, hiddenReads[idx])
+      }
+      # The run-level ParseableMatch total must exclude hidden targets for the same reason,
+      # otherwise plateSummary() reports a total that no longer equals sum(raw$Data).
+      # Parseable and TotalReads stay untouched: they are raw sequencing-throughput stats,
+      # so hidden-target reads implicitly move into the Parseable Non-match bucket.
+      if(!is.null(raw$RunSummary$ParseableMatch)){
+        raw$RunSummary$ParseableMatch <- raw$RunSummary$ParseableMatch - sum(hiddenReads, na.rm = TRUE)
+      }
     }
   }
 
+  # excludeTargets and hide=TRUE (both above) can each remove the IC
+  # target's own row from raw$Data without updating the local `IC` variable,
+  # leaving it pointing at a row that no longer exists -- intraPlateNorm()
+  # then errors with a bare "subscript out of bounds" on data_matrix[IC,].
+  # Name what was lost instead of failing silently or with a generic
+  # "Must specify ICs" that doesn't say a caller-specified IC was removed.
+  # Only meaningful for a character IC (target names) -- a numeric IC that
+  # reached here is indexing an unnamed raw$Data (no rownames to resolve or
+  # compare against above), so it's left exactly as intraPlateNorm() always
+  # received it.
+  if(is.character(IC)){
+    droppedIC <- setdiff(IC, rownames(raw$Data))
+    if(length(droppedIC) > 0){
+      IC <- raw$IC <- setdiff(IC, droppedIC)
+      if(length(IC) == 0){
+        stop("IC target(s) not present in the data after target exclusion: ",
+             paste(droppedIC, collapse=", "), ". Cannot perform intra-plate normalization.")
+      }
+      warning("IC target(s) removed by target exclusion (excludeTargets or hide=TRUE): ",
+              paste(droppedIC, collapse=", "), ". Normalizing using the remaining IC(s) only: ",
+              paste(IC, collapse=", "))
+    }
+  }
   raw$IC_normed <- intraPlateNorm(data_matrix=raw$Data, IC=IC)
   reverseCurve <- get_reverse_curve_targets(raw$targets)
   # Reverse curve targets should not have detectability reported
@@ -1284,12 +1396,48 @@ loadNULISAseq <- function(file,
                                                     IPC_wells=list(raw$IPC),
                                                     scaleFactor=scaleFactor,
                                                     transformReverse_scaleFactor=transformReverse_scaleFactor)
-  raw$normed <- interPlateNorm(list(raw$IC_normed$normData), 
-                               transformReverse=reverseCurve, 
+  raw$normed <- interPlateNorm(list(raw$IC_normed$normData),
+                               transformReverse=reverseCurve,
                                IPC_wells=list(raw$IPC),
                                scaleFactor=scaleFactor,
                                transformReverse_scaleFactor=transformReverse_scaleFactor)
-  
+
+  # calculate NPQ from IPC-normalized data
+  raw$NPQ <- log2(raw$normed$interNormData[[1]] + 1)
+
+  # Determine which targets should NOT have outlier detection performed
+  # Currently we require that at least one NC sample have at least 100
+  # raw reads for that target for outlier detection to be applied
+  # Therefore, if all NC samples have < 100 raw reads, no outlier detection
+  # should be performed
+  targetNoOutlierDetection = names(which(apply(raw$Data[, raw$NC, drop = FALSE] < 100, 1, all)))
+
+  # Get indices where sample_matrix is mentioned in curve_quant and has suffix -NA
+  raw$match_matrix <- calcSampleTargetNAs(raw$targets$Curve_Quant, raw$samples$SAMPLE_MATRIX)
+
+  # calculate LODs on IPC-normalized data
+  # Note that the reverse-curve is already applied since this went through interPlateNorm
+  # This means that aboveLOD is wrong, so we need to recalculate this using normed_untransformedReverse$interNormData[[1]]
+  raw$lod <- lod(data_matrix=raw$normed$interNormData[[1]], blanks=raw$NC, min_count=0, targetNoOutlierDetection=targetNoOutlierDetection, match_matrix=raw$match_matrix)
+
+  # Recalculate lod without performing the reverse curve calculation we did in interPlateNorm so we can get the aboveLOD correct
+  lodTemp <- lod(data_matrix=raw$normed_untransformedReverse$interNormData[[1]], blanks=raw$NC, min_count=0, targetNoOutlierDetection=targetNoOutlierDetection, match_matrix=raw$match_matrix)
+
+  # Create LOD values on NPQ data. Need to perform IPC normalization on IC-normalized
+  # LOD vals so that we can report these to users
+  raw$lod$LODNPQ <- log2(raw$lod$LOD + 1)
+  raw$lod$untransformedReverse_LODNPQ <- log2(lodTemp$LOD + 1)
+
+  ## manually apply reverse curve correction since we didn't go through the interPlateNorm
+  if(length(reverseCurve) > 0){
+
+    #raw$lod$LODNPQ[reverseCurve] <- log2((transformReverse_scaleFactor * scaleFactor) / (lodTemp$LOD[reverseCurve] + 1) + 1) # transformReverse_scaleFactor * scaleFactor
+    raw$lod$LODNPQ[reverseCurve] <- NA
+    raw$lod$LOD[reverseCurve] <- NA
+    ## replace the reverse curve aboveLOD values with ones calculated from untransformed Reverse
+    raw$lod$aboveLOD[reverseCurve, ] <- lodTemp$aboveLOD[reverseCurve, ]
+  }
+
   # if Execution Details has an Abs (Absolute quantification) section, add AQ results
   AbsAssay <- "Abs" %in% names(raw$ExecutionDetails) & !is.null(raw$ExecutionDetails$Abs)
   if (AbsAssay){
@@ -1298,21 +1446,41 @@ loadNULISAseq <- function(file,
                                 IPC_wells=list(raw$IPC),
                                 scaleFactor=scaleFactor,
                                 transformReverse_scaleFactor=transformReverse_scaleFactor)
-    
+
+    # Build the optional AQ outlier-removal arguments, but only keep those the
+    # installed NULISAseqAQ::applyAQ actually accepts. NULISAseqAQ is an
+    # internal package; an internal user may have an older version that predates
+    # these arguments, and passing them unconditionally would raise an
+    # "unused arguments" error and abort AQ processing.
+    aq_outlier_args <- list()
+    if(requireNamespace("NULISAseqAQ", quietly=T)){
+      aq_supported_args <- names(formals(NULISAseqAQ::applyAQ))
+      aq_optional_args <- list(
+        blank_outlier_table = if(AQ_NC_outlier_removal) raw$lod$blank_outlier_table else NULL,
+        IPC_outlier_removal = AQ_IPC_outlier_removal,
+        IPC_outlier_threshold = AQ_IPC_outlier_threshold,
+        IPC_mad_floor = AQ_IPC_mad_floor
+      )
+      aq_outlier_args <- aq_optional_args[names(aq_optional_args) %in% aq_supported_args]
+    }
+
     if(requireNamespace("NULISAseqAQ", quietly=T)){
       tryCatch(
         {
-          raw$AQ <- NULISAseqAQ::applyAQ(
-            normDataIPC=rawNormed$interNormData[[1]],
-            params=if(is.null(file)) raw$ExecutionDetails$Abs else NULL,
-            file=file,
-            targetDataFrame=raw$targets,
-            IPC=raw$IPC,
-            NC=raw$NC,
-            replace_cal_blank_zeros = replace_cal_blank_zeros,
-            replace_zeros_with_NA = replace_zeros_with_NA,
-            security=security
-          )
+          raw$AQ <- do.call(NULISAseqAQ::applyAQ, c(
+            list(
+              normDataIPC=rawNormed$interNormData[[1]],
+              params=if(is.null(file)) raw$ExecutionDetails$Abs else NULL,
+              file=file,
+              targetDataFrame=raw$targets,
+              IPC=raw$IPC,
+              NC=raw$NC,
+              replace_cal_blank_zeros = replace_cal_blank_zeros,
+              replace_zeros_with_NA = replace_zeros_with_NA,
+              security=security
+            ),
+            aq_outlier_args
+          ))
         },
         error = function(cond){
           message("Could not perform absolute quantification\n")
@@ -1419,41 +1587,6 @@ loadNULISAseq <- function(file,
   }
   
   
-  # calculate NPQ from IPC-normalized data
-  raw$NPQ <- log2(raw$normed$interNormData[[1]] + 1)
-  
-  # Determine which targets should NOT have outlier detection performed
-  # Currently we require that at least one NC sample have at least 100 
-  # raw reads for that target for outlier detection to be applied 
-  # Therefore, if all NC samples have < 100 raw reads, no outlier detection
-  # should be performed
-  targetNoOutlierDetection = names(which(apply(raw$Data[, raw$NC] < 100, 1, all)))
-  
-  # Get indices where sample_matrix is mentioned in curve_quant and has suffix -NA
-  raw$match_matrix <- calcSampleTargetNAs(raw$targets$Curve_Quant, raw$samples$SAMPLE_MATRIX)
-  
-  # calculate LODs on IPC-normalized data
-  # Note that the reverse-curve is already applied since this went through interPlateNorm
-  # This means that aboveLOD is wrong, so we need to recalculate this using normed_unstranformedReverse$interNormData[[1]]
-  raw$lod <- lod(data_matrix=raw$normed$interNormData[[1]], blanks=raw$NC, min_count=0, targetNoOutlierDetection=targetNoOutlierDetection, match_matrix=raw$match_matrix)
-  
-  # Recalculate lod without performing the reverse curve calculation we did in interPlateNorm so we can get the aboveLOD correct
-  lodTemp <- lod(data_matrix=raw$normed_untransformedReverse$interNormData[[1]], blanks=raw$NC, min_count=0, targetNoOutlierDetection=targetNoOutlierDetection, match_matrix=raw$match_matrix)
-  
-  # Create LOD values on NPQ data. Need to perform IPC normalization on IC-normalized 
-  # LOD vals so that we can report these to users
-  raw$lod$LODNPQ <- log2(raw$lod$LOD + 1)
-  raw$lod$untransformedReverse_LODNPQ <- log2(lodTemp$LOD + 1)
-  
-  ## manually apply reverse curve correction since we didn't go through the interPlateNorm
-  if(length(reverseCurve) > 0){
-    
-    #raw$lod$LODNPQ[reverseCurve] <- log2((transformReverse_scaleFactor * scaleFactor) / (lodTemp$LOD[reverseCurve] + 1) + 1) # transformReverse_scaleFactor * scaleFactor 
-    raw$lod$LODNPQ[reverseCurve] <- NA 
-    raw$lod$LOD[reverseCurve] <- NA
-    ## replace the reverse curve aboveLOD values with ones calculated from untransformed Reverse
-    raw$lod$aboveLOD[reverseCurve, ] <- lodTemp$aboveLOD[reverseCurve, ]
-  }
   # calculate Detectability
   sample_groups <- NULL
   if(!is.null(sample_group_covar) & sample_group_covar %in% colnames(raw$samples)) sample_groups <- raw$samples[raw$samples$sampleType == "Sample", sample_group_covar]
@@ -1465,19 +1598,22 @@ loadNULISAseq <- function(file,
     if(requireNamespace("NULISAseqAQ", quietly=T)){ 
       tryCatch(
         {
-          s <- cbind(raw$lod$LOD, rawNormed$interNormData[[1]][, raw$IPC], rawNormed$interNormData[[1]][, raw$NC])
+          s <- cbind(raw$lod$LOD, rawNormed$interNormData[[1]][, raw$IPC, drop=FALSE], rawNormed$interNormData[[1]][, raw$NC, drop=FALSE])
           rownames(s) <- names(raw$lod$LOD)
-          temp <- NULISAseqAQ::applyAQ(
-            normDataIPC=s,
-            params=if(is.null(file)) raw$ExecutionDetails$Abs else NULL,
-            file=file,
-            targetDataFrame=raw$targets, 
-            IPC=raw$IPC, 
-            NC=raw$NC,
-            replace_cal_blank_zeros = replace_cal_blank_zeros,
-            replace_zeros_with_NA = replace_zeros_with_NA,
-            security=security
-          )
+          temp <- do.call(NULISAseqAQ::applyAQ, c(
+            list(
+              normDataIPC=s,
+              params=if(is.null(file)) raw$ExecutionDetails$Abs else NULL,
+              file=file,
+              targetDataFrame=raw$targets,
+              IPC=raw$IPC,
+              NC=raw$NC,
+              replace_cal_blank_zeros = replace_cal_blank_zeros,
+              replace_zeros_with_NA = replace_zeros_with_NA,
+              security=security
+            ),
+            aq_outlier_args
+          ))
           raw$lod$LOD_pgmL <- temp$Data_AQ[, 1]
           raw$lod$LOD_aM <- temp$Data_AQ_aM[, 1]
           # set zero normCount LODs to NA in the AQ LOD, they are likely already NA but maybe there are exceptions
@@ -1522,11 +1658,18 @@ loadNULISAseq <- function(file,
     } else{ # Use AQ values embedded in XML if available
       if("attributes" %in% names(raw)){
         if("dr" %in% names(raw$attributes)){
-          raw$AQ$withinDR <- matrix(as.logical(raw$attributes$dr), 
+          raw$AQ$withinDR <- matrix(as.logical(raw$attributes$dr),
                                     nrow=nrow(raw$attributes$dr),
                                     ncol=ncol(raw$attributes$dr),
                                     dimnames=dimnames(raw$attributes$dr))
         }
+      }
+      # Fallback mode does not perform NC/IPC outlier detection, but include the
+      # same named (NULL) elements that NULISAseqAQ::applyAQ() returns so the AQ
+      # structure is consistent between modes.
+      if(!is.null(raw$AQ)){
+        if(!"blank_outlier_table" %in% names(raw$AQ)) raw$AQ["blank_outlier_table"] <- list(NULL)
+        if(!"IPC_outlier_table" %in% names(raw$AQ)) raw$AQ["IPC_outlier_table"] <- list(NULL)
       }
     }
   }
@@ -1754,13 +1897,16 @@ loadNULISAseq <- function(file,
                                absRun=AbsAssay,
                                targets=raw$targets,
                                samples=raw$samples,
-                               SCparams=raw$AQ$targetAQ_param$SC_conc, advancedQC=advancedQC)
+                               SCparams=raw$AQ$targetAQ_param$SC_conc, advancedQC=advancedQC,
+                               xmlThresh=raw$qcXML$TargetThresh, forceDefaults=forceDefaultQC, TAP=TAP)
 
   # QCS and SN are stored in raw$attributes if present in XML (will be NULL if not available)
   QCS <- raw$attributes$QCS
   SN <- raw$attributes$SN
-  raw$qcSample <- QCFlagSample(raw$Data, raw$lod$aboveLOD, raw$samples, raw$targets, QCS=QCS, SN=SN, TAP=TAP)
-  raw$qcPlate <- QCFlagPlate(raw$Data, raw$IC_normed$normData, raw$lod$aboveLOD, raw$targets, raw$samples, AQ=AbsAssay, AQ_QC=raw$qcTarget, Sample_QC=raw$qcSample)
+  raw$qcSample <- QCFlagSample(raw$Data, raw$lod$aboveLOD, raw$samples, raw$targets, QCS=QCS, SN=SN, TAP=TAP,
+                               xmlThresh=raw$qcXML$SampleThresh, forceDefaults=forceDefaultQC)
+  raw$qcPlate <- QCFlagPlate(raw$Data, raw$IC_normed$normData, raw$lod$aboveLOD, raw$targets, raw$samples, AQ=AbsAssay, AQ_QC=raw$qcTarget, Sample_QC=raw$qcSample,
+                             xmlThresh=raw$qcXML$PlateThresh, forceDefaults=forceDefaultQC, TAP=TAP)
   # calculate Detectability
   # Only exclude reverse curve targets (no LOD), hidden, and controls from detectability computation
   # Non-RC noDetectability targets (rare case) should still have individual detectability computed

@@ -24,7 +24,7 @@ A named list containing:
   \item{qcTarget}{Data frame of target-level QC metrics (if present)}
   \item{qcPlate}{Data frame of plate-level QC metrics}
   \item{aqParams}{Data frame of AQ target parameters (if present)}
-  \item{excluded}{Vector of excluded targets (if any)}
+  \item{excluded}{Character vector of targets not present in all input objects (retained in the merged data with NA values), or NULL if none}
   \item{Data_IC, Data_IClog2, Data_raw, Data_rawlog2, aboveLOD, Data_AQ, Data_AQlog2, Data_Reverse, Data_Reverselog2, Data_AQ_pgmL, Data_AQlog2_pgmL}{Matrices of merged data (if present)}
   \item{unit}{Character, AQ unit (if present)}
 }
@@ -34,7 +34,7 @@ This function merges two NULISAseq data objects that have already been processed
 \details{
 - Checks for duplicate plate IDs, file names, and sample names, and renames as needed.
 - Ensures consistent internal control (IC) and AQ units across datasets.
-- Combines all available data matrices, keeping only common targets.
+- Combines all available data matrices; targets not present in all objects are retained with NA values.
 - Handles missing or NULL QC and AQ parameter data frames gracefully.
 }
 \examples{

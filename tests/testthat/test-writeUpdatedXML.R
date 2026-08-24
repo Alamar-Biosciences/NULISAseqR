@@ -64,6 +64,13 @@ test_that("CAL/IPC samples do not get AQ, aM, or dr attributes on ReadCount node
   expect_true(has_aq, info = "At least one regular sample should have AQ attribute")
 })
 
+test_that("writeUpdatedXML does not error when the XML has ReadCount nodes for a hidden target", {
+  input1 <- test_path("fixtures", "detectability_P1_Tr03_typemCherry_CCL7_hide.xml")
+  data <- suppressWarnings(loadNULISAseq(input1, allowMissingCurveQuant = TRUE))
+
+  expect_no_error(writeUpdatedXML(input1, data = data))
+})
+
 test_that("Pre-1.3.0 AQ XML warns and loads as RQ when NULISAseqAQ is not available", {
   # Mock NULISAseqAQ as unavailable
   local_mocked_bindings(

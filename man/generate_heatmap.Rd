@@ -99,10 +99,11 @@ hierarchical clustering, passed to \code{hclust}; defaults to \code{"ward.D2"}.}
 
 \item{row_split}{Integer specifying the number of slices that the rows are split into
 via unsupervised clustering; defaults to \code{NULL}. Ignored if \code{row_split_by} is specified.
-When \code{NULL} and \code{targetInfo} is not provided, no row splitting is performed.}
+When \code{NULL}, rows are split into 2 slices only if \code{targetInfo} is provided and
+\code{cluster_rows = TRUE} (a numeric split requires a row dendrogram to cut); otherwise no
+row splitting is performed.}
 
-\item{cluster_rows}{Logical indicating whether to cluster rows (targets). If \code{NULL} (default),
-clustering is enabled when \code{targetInfo} is provided, and disabled when \code{targetInfo} is \code{NULL}.}
+\item{cluster_rows}{Logical indicating whether to cluster rows (targets); defaults to \code{TRUE}.}
 
 \item{cluster_column_slices}{Logical indicating whether to perform clustering on column slices 
 if columns are split; defaults to \code{FALSE}.}

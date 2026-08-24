@@ -139,8 +139,16 @@ removeBarcodeAndSamples <- function(doc, attribute_name, attribute_value) {
 #' under <BarcodeB>, and inserts corresponding covariate values from a provided data frame.
 #'
 #' @param input_XML Path to the input XML file.
-#' @param covariates A data frame containing covariate information, including 'sampleName' 
+#' @param covariates A data frame containing covariate information, including 'sampleName'
 #'                   and other covariate columns.
+#' @param sanitize_names Logical (default FALSE). When TRUE, covariate column names
+#'                   are passed through `clean_covariate_names(case = "lower_camel")`
+#'                   before being written as XML attributes. Use this when interoperating
+#'                   with NAS, which applies the same sanitation on covariate upload —
+#'                   identical sanitation on both sides keeps the attribute name stable
+#'                   across NAS export → NULISAseqR import → NAS re-import (issue #3199).
+#'                   Default FALSE preserves the historical write-verbatim contract for
+#'                   direct callers.
 #'
 #' @return The modified XML document.
 #'
@@ -151,7 +159,7 @@ removeBarcodeAndSamples <- function(doc, attribute_name, attribute_value) {
 #' # insertCovariatesXML("input.xml", data$samples)
 #'
 #' @export
-insertCovariatesXML <- function(input_XML, covariates){
+insertCovariatesXML <- function(input_XML, covariates, sanitize_names = FALSE){
 
   # Read the XML file
   doc <- xml2::read_xml(input_XML)
@@ -171,30 +179,55 @@ insertCovariatesXML <- function(input_XML, covariates){
   skip <- c("type", "TYPE", "name", "AUTO_PLATE", "AUTO_WELLCOL", "AUTO_WELLROW",
             "AUTO_WELLPOSITION", 'OPERATOR', 'SEQ_INSTRUMENT_ID', 'SEQ_RUN_DATE',
             'wellRow', 'wellCol')
-  
+
+  # Map covariate column name -> XML attribute name. When sanitize_names = TRUE,
+  # apply NAS's lower_camel sanitation so attribute names match across NAS
+  # export/import; otherwise write verbatim.
+  attr_name <- if (isTRUE(sanitize_names)) {
+    setNames(clean_covariate_names(colnames(covariates), case = "lower_camel"),
+             colnames(covariates))
+  } else {
+    setNames(colnames(covariates), colnames(covariates))
+  }
+
+  # Reject collisions like `sampleName` (protected, kept verbatim) and
+  # `"Sample Name"` (sanitized to `sampleName`) — both would target the
+  # same XML attribute and the later iteration would silently overwrite
+  # the earlier one.
+  if (isTRUE(sanitize_names) && anyDuplicated(attr_name) > 0L) {
+    dupes <- attr_name[duplicated(attr_name) | duplicated(attr_name, fromLast = TRUE)]
+    stop("sanitize_names = TRUE produced colliding XML attribute names: ",
+         paste(sprintf("'%s' -> '%s'", names(dupes), dupes), collapse = ", "),
+         ". Each covariate column must sanitize to a unique attribute name.",
+         call. = FALSE)
+  }
+
   # Find all <Barcode> elements under <BarcodeB>
   barcode_b_elements <- xml2::xml_find_all(doc, "//BarcodeB/Barcode")
 
   # Loop through each <Barcode> element
   for (element in barcode_b_elements){
-    
-    # check for similar sampleNames by regex
-    multi_check <- grep(xml2::xml_text(element), covariates$sampleName, fixed = TRUE)
-    
+
+    elem_text <- xml2::xml_text(element)
+    # Empty/blank text would let the "<elem>_" prefix match any row whose
+    # sampleName starts with "_". Skip rather than risk a wrong-row write.
+    if (is.na(elem_text) || !nzchar(trimws(elem_text))) next
+
+    # Match sampleName exactly or with NAS's "_<plate>.xml" suffix.
+    # See #3199 for why neither pure equality nor unanchored grep works.
+    multi_check <- which(covariates$sampleName == elem_text |
+                         startsWith(covariates$sampleName, paste0(elem_text, "_")))
+
     if(length(multi_check) == 1){
-      
-      # Find the index where the sampleName matches
-      ind <- which(xml2::xml_text(element) == covariates$sampleName)
-      if (length(ind) == 0){
-        next;
-      }
+
+      ind <- multi_check
       # Loop through each covariate column
       # Set attribute with corresponding covariate value
       for (cov in colnames(covariates)){
         if (!(cov %in% skip)){
           value <- covariates[[cov]][ind]
-          if (!is.null(value) && !is.na(value) && length(value) > 0) {
-            xml2::xml_set_attr(element, cov, as.character(value))
+          if (length(value) == 1L && !is.na(value)) {
+            xml2::xml_set_attr(element, attr_name[[cov]], as.character(value))
           }
         }
       }
@@ -221,11 +254,14 @@ insertCovariatesXML <- function(input_XML, covariates){
                                wellRow == req_attrs_val[1] & wellCol == sub('^0+', '', req_attrs_val[2]))
       
       # loop and apply to xml
+      # well-position filter can yield 0 rows (no well match) or >1 rows
+      # (duplicate well coords). Require exactly one row before writing —
+      # length() == 1 guard also keeps `&&` operands scalar in R >= 4.3.
       for (cov in colnames(covariates)) {
         if (!(cov %in% skip)) {
           value <- sub_covariates[[cov]]
-          if (!is.null(value) && !is.na(value) && length(value) > 0) {
-            xml2::xml_set_attr(element, cov, as.character(value))
+          if (length(value) == 1L && !is.na(value)) {
+            xml2::xml_set_attr(element, attr_name[[cov]], as.character(value))
           }
         }
       }
@@ -488,14 +524,16 @@ insertCovariatesXML <- function(input_XML, covariates){
   targetNameByBarcode <- stats::setNames(data$targets$targetName, data$targets$targetBarcode)
   for(sample in xml2::xml_find_all(root, './/Data//Sample')){
     sBarcode <- xml2::xml_attr(sample, "barcode")
-    sName <- sampleNameByBarcode[[sBarcode]]
-    if(is.null(sName) || is.na(sName)) next
-    sType <- sampleTypeByBarcode[[sBarcode]]
-    isCalOrIPC <- !is.null(sType) && !is.na(sType) && sType %in% c("Calibrator", "IPC")
+    # single-bracket: unmatched barcodes (e.g. samples/targets filtered out of data$samples
+    # or data$targets during load) yield NA, not an error, unlike `[[` on an atomic named vector
+    sName <- unname(sampleNameByBarcode[sBarcode])
+    if(is.na(sName)) next
+    sType <- unname(sampleTypeByBarcode[sBarcode])
+    isCalOrIPC <- !is.na(sType) && sType %in% c("Calibrator", "IPC")
     for(readcount in xml2::xml_find_all(sample, "ReadCount")){
       tBarcode <- xml2::xml_attr(readcount, "target")
-      tName <- targetNameByBarcode[[tBarcode]]
-      if(is.null(tName) || is.na(tName)) next
+      tName <- unname(targetNameByBarcode[tBarcode])
+      if(is.na(tName)) next
 
       # NPQ
       if(!is.null(rownames(data$NPQ)) && !is.null(colnames(data$NPQ)) &&

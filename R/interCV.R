@@ -79,13 +79,13 @@ interCV <- function(data_list,
     # make sure rows are sorted in the same order
     data_list[[i]] <- data_list[[i]][match(matching_targets, rownames(data_list[[i]])),]
   }
-  # loop through the unique replicate sets to get CVs
+  # loop through the unique replicate sets to get CVs.
   unique_samples <- unique(na.exclude(unlist(samples)))
   cv_matrix <- matrix(nrow=length(matching_targets), ncol=length(unique_samples))
   rownames(cv_matrix) <- matching_targets
   colnames(cv_matrix) <- unique_samples
   if(method=='count'){
-    for (i in 1:length(unique_samples)){
+    for (i in seq_along(unique_samples)){
       sample_data <- list()
       for (j in 1:length(data_list)){
         sample_data[[j]] <- data_list[[j]][,samples[[j]]==unique_samples[i] & !is.na(samples[[j]])]
@@ -105,7 +105,7 @@ interCV <- function(data_list,
       sigma <- apply(x, 1, function(x) sd(x, na.rm=TRUE)*log(2))
       100*sqrt(exp(sigma^2)-1)
     }
-    for (i in 1:length(unique_samples)){
+    for (i in seq_along(unique_samples)){
       sample_data <- list()
       for (j in 1:length(data_list)){
         sample_data[[j]] <- data_list[[j]][,samples[[j]]==unique_samples[i] & !is.na(samples[[j]])]
