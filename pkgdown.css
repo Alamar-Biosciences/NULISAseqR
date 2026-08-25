@@ -1,0 +1,99 @@
+/* Custom NULISAseqR styling - Add logo to sidebar with link */
+#pkgdown-sidebar {
+  position: relative;
+}
+
+#pkgdown-sidebar .logo-link {
+  display: block;
+  height: 60px;
+  margin-bottom: 16px;
+  background-image: url(favicon.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: left center;
+  text-decoration: none;
+}
+
+/* Match ggplot2 font styling */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1.6 !important;
+  padding-top: 60px !important;
+}
+
+html {
+  scroll-padding-top: 70px;
+}
+
+.contents p,
+.contents li {
+  font-size: 18px !important;
+}
+
+h1.title {
+  font-size: 2.5em !important;
+  font-weight: 300 !important;
+}
+
+.contents h1 {
+  font-size: 2.5em !important;
+  font-weight: 300 !important;
+}
+
+.contents h2 {
+  font-size: 2em !important;
+  font-weight: 300 !important;
+  margin-top: 1.5em;
+}
+
+.contents h3 {
+  font-size: 1.5em !important;
+  font-weight: 400 !important;
+}
+
+/* Sidebar styling */
+.col-md-3.hidden-xs.hidden-sm {
+  font-size: 16px;
+}
+
+/* Sidebar section headers (like "Links") */
+#pkgdown-sidebar h2 {
+  font-size: 17px !important;
+  font-weight: 600 !important;
+}
+
+/* Sidebar navigation links */
+#pkgdown-sidebar .nav > li > a {
+  font-size: 16px;
+}
+
+/* Add more space after the page title/header */
+.contents h1 {
+  margin-top: 10px !important;
+  margin-bottom: 20px !important;
+  border-bottom: none !important;
+}
+
+/* Remove border from page-header div */
+.page-header {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin: 0 !important;
+}
+
+/* Make footer text smaller */
+footer .copyright,
+footer .pkgdown {
+  font-size: 14px !important;
+}
+
+footer .copyright p,
+footer .pkgdown p {
+  font-size: 14px !important;
+}
+
+/* Increase navbar font size */
+.navbar-nav > li > a {
+  font-size: 19px !important;
+}
