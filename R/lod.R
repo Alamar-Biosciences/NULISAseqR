@@ -151,12 +151,11 @@ lod <- function(data_matrix,
     LOD[LOD < min_count] <- min_count
   }
   names(LOD) <- rownames(data_matrix)
-  aboveLOD <- data_matrix
-  aboveLOD <- apply(aboveLOD, 2, function(x){
-    result <- x > LOD
-    result[is.na(result)] <- FALSE
-    return(result)
-  })
+  # Vectorised rather than apply(, 2, ): apply() collapses a one-target
+  # matrix to a vector, and callers index aboveLOD as a matrix.
+  # LOD recycles down each column, so element [i, j] is compared to LOD[i].
+  aboveLOD <- as.matrix(data_matrix) > LOD
+  aboveLOD[is.na(aboveLOD)] <- FALSE
 
   # Do not report values for a specific target / sample_matrix combination if specified in barcodeA
   if(!is.null(match_matrix) && nrow(match_matrix) > 0 ) {

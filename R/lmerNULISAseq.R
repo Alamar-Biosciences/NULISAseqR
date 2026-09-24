@@ -194,15 +194,15 @@ lmerNULISAseq <- function(data,
   t_val <- safe_extract_matrix(stats_list, "t_vals", all_predictors)
   p_val <- safe_extract_matrix(stats_list, "p_vals", all_predictors)
 
-  p_val_FDR <- apply(p_val, 2, p.adjust, method='BH')
-  p_val_bonf <- apply(p_val, 2, p.adjust, method='bonferroni')
+  p_val_FDR <- p_adjust_columns(p_val, 'BH')
+  p_val_bonf <- p_adjust_columns(p_val, 'bonferroni')
   colnames(coef) <- paste0(colnames(coef), '_coef')
   colnames(t_val) <- paste0(colnames(t_val), '_tstat')
   colnames(p_val) <- paste0(colnames(p_val), '_pval_unadj')
   colnames(p_val_FDR) <- paste0(colnames(p_val_FDR), '_pval_FDR')
   colnames(p_val_bonf) <- paste0(colnames(p_val_bonf), '_pval_bonf')
   column_order <- c(rbind(colnames(coef), colnames(t_val), colnames(p_val), colnames(p_val_FDR), colnames(p_val_bonf)))
-  modelStats <- cbind(coef, t_val, p_val, p_val_FDR, p_val_bonf)[,column_order]
+  modelStats <- cbind(coef, t_val, p_val, p_val_FDR, p_val_bonf)[, column_order, drop = FALSE]
   modelStats <- data.frame(target=rownames(modelStats), modelStats)
   # do likelihood ratio test (LRT) if specified
   if(!is.null(reduced_modelFormula_fixed)){
