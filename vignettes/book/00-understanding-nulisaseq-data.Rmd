@@ -50,6 +50,7 @@ Alamar Biosciences offers several curated panels for disease-specific research, 
 - **Neuro 220 Panel**: 220 key biomarkers providing comprehensive coverage of the hallmarks of neurological disease
 - **CNS Disease Panel**: 120+ neuro-specific and neuro inflammation-related proteins
 - **Mouse Panel**: 120+ inflammation, neuro-degeneration and oncogenesis proteins specific to mouse model
+- **Immune 340 Panel**: 340+ immune-related proteins spanning innate and adaptive immunity, including cytokines, chemokines, immune checkpoints, complement, and cell-death pathways
 - **Custom assays**: Develop your own biomarker assays with the NULISAqpcr Custom Assay Development Kit
 
 **Explore Current Panels:** For detailed panel specifications, target lists, and custom assay options, visit the [Alamar Biosciences website.](https://alamarbio.com/){target="_blank"} 
@@ -258,14 +259,15 @@ Some NULISAseq panels include special targets that are handled differently in re
 
 ### High Abundance Targets {-}
 
-Most targets in NULISAseq panels are measured near their lower limit of detection. However, certain targets have exceptionally high endogenous levels in plasma and serum that would saturate standard detection. These **high abundance targets** use a special normalization algorithm applied before the log2 transformation step to bring abundant proteins into a measurable range.
+Most targets in NULISAseq panels are measured near their lower limit of detection. However, certain targets have exceptionally high endogenous levels in plasma and serum that would saturate standard detection. These **high abundance targets** use a special normalization algorithm applied before the log2 transformation step to bring abundant proteins into a measurable range. In the XML data file, high abundance targets are marked as reverse curve targets: their `Curve_Quant` attribute begins with `R` (e.g., `Curve_Quant="R"`), while standard targets have `Curve_Quant="F"`.
 
 **Examples by panel:**
 
 - **Inflammation Panel**: **CRP** and **KNG1** 
 - **CNS Panel**: **APOE** and **CRP** 
-- **Neuro 220 Panel**: **APOA1**, **APOA2**, **APOE**, **APOH**, **C1q**, **CRP**, **PPBP**, **PROS1**, and **SERPINA3** 
-- **Mouse Panel**: **Crp** 
+- **Neuro 220 Panel**: **APOA1**, **APOA2**, **APOE**, **APOH**, **C1q**, **CRP**, **PPBP**, **PROS1**, and **SERPINA3**
+- **Mouse Panel**: **Crp**
+- **Immune 340 Panel**: **CRP**, **KNG1**, **PROS1**, **C1Q**, **C3**, and **C3A**
 
 **Key properties:**
 
@@ -278,7 +280,7 @@ Most targets in NULISAseq panels are measured near their lower limit of detectio
 
 ### Rare Case Targets {-}
 
-Rare case targets include rare isoforms, mutations, and phosphorylation sites that are present only in a small fraction of the general population. These are important markers for neurodegenerative and other diseases, but not expected to be detected in most samples by design.
+Rare case targets include rare isoforms, mutations, and phosphorylation sites that are present only in a small fraction of the general population. These are important markers for neurodegenerative and other diseases, but not expected to be detected in most samples by design. Across all panels, rare case targets are marked in the XML data file by `noDetectability` in the `modifiers` attribute, together with a forward (`F`) `Curve_Quant`. Reverse curve targets are also treated as `noDetectability` automatically, but they are handled as high abundance targets.
 
 **Examples by panel:**
 

@@ -255,8 +255,9 @@ Examples of high abundance targets:
 
 - **Inflammation Panel**: **CRP** and **KNG1** 
 - **CNS Panel**: **APOE** and **CRP** 
-- **Neuro 220 Panel**: **APOA1**, **APOA2**, **APOE**, **APOH**, **C1q**, **CRP**, **PPBP**, **PROS1**, and **SERPINA3** 
-- **Mouse Panel**: **Crp** 
+- **Neuro 220 Panel**: **APOA1**, **APOA2**, **APOE**, **APOH**, **C1q**, **CRP**, **PPBP**, **PROS1**, and **SERPINA3**
+- **Mouse Panel**: **Crp**
+- **Immune 340 Panel**: **CRP**, **KNG1**, **PROS1**, **C1Q**, **C3**, and **C3A**
 
 These targets have high endogenous levels in plasma and serum samples. To accommodate them in the same panel as lower-abundance targets, special tuning strategies and algorithms are applied. As a result, LOD and detectability are not reported and these targets are excluded from sample QC metrics and detectability summary statistics. For sample types beyond validated matrices (plasma and serum), the algorithm may not be applicable and NPQ is not reported. 
 
@@ -391,8 +392,9 @@ Certain high abundance targets use specialized normalization algorithms optimize
 
 - **Inflammation Panel**: **CRP** and **KNG1** 
 - **CNS Panel**: **APOE** and **CRP** 
-- **Neuro 220 Panel**: **APOA1**, **APOA2**, **APOE**, **APOH**, **C1q**, **CRP**, **PPBP**, **PROS1**, and **SERPINA3** 
-- **Mouse Panel**: **Crp** 
+- **Neuro 220 Panel**: **APOA1**, **APOA2**, **APOE**, **APOH**, **C1q**, **CRP**, **PPBP**, **PROS1**, and **SERPINA3**
+- **Mouse Panel**: **Crp**
+- **Immune 340 Panel**: **CRP**, **KNG1**, **PROS1**, **C1Q**, **C3**, and **C3A**
 
 These proteins have high endogenous levels in plasma and serum that require matrix-specific tuning. The normalization algorithm may not be applicable to other sample matrix types (e.g., tissue lysates, saliva, urine), and NPQ values will not be generated for these specific targets in sample matrix types other than plasma and serum. Note that LOD and detectability are not reported for these targets — see [Target QC](#target-qc) above for more details.
 
