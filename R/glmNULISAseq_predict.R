@@ -271,8 +271,8 @@ glmNULISAseq_predict <- function(data,
   p_mat <- safe_extract_matrix(stats_list, "pvals", all_predictors)
   
   # Calculate adjusted p-values
-  p_fdr_mat <- apply(p_mat, 2, p.adjust, method = "BH")
-  p_bonf_mat <- apply(p_mat, 2, p.adjust, method = "bonferroni")
+  p_fdr_mat <- p_adjust_columns(p_mat, "BH")
+  p_bonf_mat <- p_adjust_columns(p_mat, "bonferroni")
   
   # Create appropriate column names
   effect_suffix <- get_effect_suffix(family)
@@ -297,7 +297,7 @@ glmNULISAseq_predict <- function(data,
     colnames(p_bonf_mat)
   ))
   
-  modelStats <- cbind(coef_mat, effect_mat, se_mat, stat_mat, p_mat, p_fdr_mat, p_bonf_mat)[, column_order]
+  modelStats <- cbind(coef_mat, effect_mat, se_mat, stat_mat, p_mat, p_fdr_mat, p_bonf_mat)[, column_order, drop = FALSE]
   modelStats <- data.frame(target = rownames(modelStats), modelStats, stringsAsFactors = FALSE)
   
   ##############################

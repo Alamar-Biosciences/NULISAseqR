@@ -79,9 +79,11 @@ targetBoxplot <- function(data_matrix,
                           axis_limits=NULL,
                           match_matrix=NULL,
                           targets=NULL){
+  # Every subset below keeps drop=FALSE: with one target (or one sample) left,
+  # a dropped dimension turns boxplot(t(x)) into one box per sample.
   # exclude targets
   if(!is.null(excludeTargets)){
-    data_matrix <- data_matrix[!(rownames(data_matrix) %in% excludeTargets),]
+    data_matrix <- data_matrix[!(rownames(data_matrix) %in% excludeTargets), , drop=FALSE]
   }
   
   # Function to get display names for targets
@@ -110,7 +112,7 @@ targetBoxplot <- function(data_matrix,
     
     # exclude samples
     if(!is.null(excludeSamples)){
-      data_matrix <- data_matrix[,!(colnames(data_matrix) %in% excludeSamples)]
+      data_matrix <- data_matrix[,!(colnames(data_matrix) %in% excludeSamples), drop=FALSE]
     }
     
     # log2 transform
@@ -126,7 +128,7 @@ targetBoxplot <- function(data_matrix,
     # sort targets
     target_medians <- apply(data_matrix, 1, median)
     target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
-    data_matrix <- data_matrix[names(target_medians),]
+    data_matrix <- data_matrix[names(target_medians), , drop=FALSE]
     
     # use grey if colors not provided
     if(is.null(colors)){
@@ -160,7 +162,7 @@ targetBoxplot <- function(data_matrix,
       original_rownames <- rownames(data_matrix)
       reversed_rownames <- rev(original_rownames)
       display_rownames <- get_display_names(reversed_rownames, targets)
-      boxplot(t(apply(data_matrix, 2, rev)), 
+      boxplot(t(data_matrix[rev(seq_len(nrow(data_matrix))), , drop=FALSE]), 
               horizontal=TRUE,
               xlab=axis_label,
               ylab='',
@@ -196,11 +198,11 @@ targetBoxplot <- function(data_matrix,
     
     # exclude samples
     if(!is.null(excludeSamples)){
-      data_matrix <- data_matrix[,!(colnames(data_matrix) %in% excludeSamples)]
+      data_matrix <- data_matrix[,!(colnames(data_matrix) %in% excludeSamples), drop=FALSE]
     }
     
     # calculate detectability
-    detect <- detectability(aboveLOD_matrix = LOD$aboveLOD[,!(colnames(LOD$aboveLOD) %in% excludeSamples)])$all$detectability
+    detect <- detectability(aboveLOD_matrix = LOD$aboveLOD[,!(colnames(LOD$aboveLOD) %in% excludeSamples), drop=FALSE])$all$detectability
     # log2 transform
     if(log2transform==TRUE){
       data_matrix <- log2(data_matrix + 1)
@@ -230,10 +232,10 @@ targetBoxplot <- function(data_matrix,
       target_medians <- apply(as.matrix(data_matrix), 1, median)
       target_medians <- target_medians[order(target_medians, decreasing=TRUE)]
       detect <- detect[names(target_medians)]
-      data_matrix <- data_matrix[names(detect),]
+      data_matrix <- data_matrix[names(detect), , drop=FALSE]
     } else if(sortBy=='detect'){
       detect <- detect[order(detect, decreasing=TRUE)]
-      data_matrix <- data_matrix[names(detect),]
+      data_matrix <- data_matrix[names(detect), , drop=FALSE]
     }
     
     # create colors to indicate detectability
@@ -307,7 +309,7 @@ targetBoxplot <- function(data_matrix,
       original_rownames <- rownames(data_matrix)
       reversed_rownames <- rev(original_rownames)
       display_rownames <- get_display_names(reversed_rownames, targets)
-      boxplot(t(apply(as.matrix(data_matrix), 2, rev)), 
+      boxplot(t(as.matrix(data_matrix)[rev(seq_len(nrow(data_matrix))), , drop=FALSE]), 
               horizontal=TRUE,
               xlab=axis_label,
               ylab='',

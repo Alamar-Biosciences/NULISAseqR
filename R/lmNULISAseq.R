@@ -127,6 +127,7 @@ lmNULISAseq <- function(data,
   }
   cov_complete <- cov_complete & !is.na(col_for_row)
   # loop over targets and fit model
+  first_error <- NULL
   for(i in 1:length(targets)){
     tryCatch({
       target <- targets[i]
@@ -158,22 +159,14 @@ lmNULISAseq <- function(data,
       warning(sprintf("%s Index: %d Target: %s - %s",
                       format(Sys.time()), i, targets[i], conditionMessage(e)),
               call. = FALSE)
+      if (is.null(first_error)) {
+        first_error <<- sprintf("%s: %s", targets[i], conditionMessage(e))
+      }
     })
   }
 
-  # Check if all models failed
-  if (all(sapply(stats_list, is.null))) {
-    context_msg <- if (!is.null(analysis_context)) {
-      paste0(analysis_context, ": ")
-    } else {
-      ""
-    }
-    stop(context_msg,
-         "All targets failed model fitting. Common causes:\n",
-         "  - A covariate has only one level after removing samples with missing data\n",
-         "  - Insufficient samples remain after filtering.\n",
-         "Check the error messages above for details.",
-         call. = FALSE)
+  if (all(vapply(stats_list, is.null, logical(1)))) {
+    stop_all_fits_failed(first_error, analysis_context)
   }
 
   all_predictors <- unique(unlist(lapply(stats_list, function(x) names(x$coefs))))
@@ -182,15 +175,15 @@ lmNULISAseq <- function(data,
   t_val <- safe_extract_matrix(stats_list, "t_vals", all_predictors)
   p_val <- safe_extract_matrix(stats_list, "p_vals", all_predictors)
   
-  p_val_FDR <- apply(p_val, 2, p.adjust, method='BH')
-  p_val_bonf <- apply(p_val, 2, p.adjust, method='bonferroni')
+  p_val_FDR <- p_adjust_columns(p_val, 'BH')
+  p_val_bonf <- p_adjust_columns(p_val, 'bonferroni')
   colnames(coef) <- paste0(colnames(coef), '_coef')
   colnames(t_val) <- paste0(colnames(t_val), '_tstat')
   colnames(p_val) <- paste0(colnames(p_val), '_pval_unadj')
   colnames(p_val_FDR) <- paste0(colnames(p_val_FDR), '_pval_FDR')
   colnames(p_val_bonf) <- paste0(colnames(p_val_bonf), '_pval_bonf')
   column_order <- c(rbind(colnames(coef), colnames(t_val), colnames(p_val), colnames(p_val_FDR), colnames(p_val_bonf)))
-  modelStats <- cbind(coef, t_val, p_val, p_val_FDR, p_val_bonf)[,column_order]
+  modelStats <- cbind(coef, t_val, p_val, p_val_FDR, p_val_bonf)[, column_order, drop = FALSE]
   modelStats <- data.frame(target=rownames(modelStats), modelStats)
   # do Ftest if specified
   if(!is.null(reduced_modelFormula)){
@@ -293,7 +286,13 @@ safe_extract_matrix <- function(stats_list, field_name, all_predictors) {
     colnames(result) <- all_predictors
     return(result)
   }
-  
+  # With no predictors every row is a zero-length vector, so bind_rows()
+  # returns a tibble without the .id column and column_to_rownames() fails.
+  if (length(all_predictors) == 0) {
+    return(matrix(numeric(0), nrow = length(stats_list), ncol = 0,
+                  dimnames = list(names(stats_list), NULL)))
+  }
+
   # Choose .id name that doesn't conflict with predictor names
   id_col_name <- if ("target" %in% all_predictors) ".target_id" else "target"
   
@@ -310,4 +309,48 @@ safe_extract_matrix <- function(stats_list, field_name, all_predictors) {
     as.matrix()
   # Reorder columns to match all_predictors
   result[, all_predictors, drop = FALSE]
+}
+#' Column-wise p-value adjustment that keeps matrix shape
+#'
+#' \code{apply(p, 2, p.adjust)} returns a bare vector when \code{p} has one
+#' row (a single target), and callers then fail setting its column names.
+#'
+#' @param p A numeric matrix of p-values, targets in rows.
+#' @param method Passed to \code{p.adjust()}.
+#'
+#' @return A matrix with the same dimensions and dimnames as \code{p}.
+#'
+#' @noRd
+p_adjust_columns <- function(p, method) {
+  out <- p
+  if (length(p) > 0) {
+    out[] <- apply(p, 2, p.adjust, method = method)
+  }
+  out
+}
+
+#' Stop when no per-target model could be fitted
+#'
+#' Per-target fitting errors are caught so one bad target does not end the
+#' run; when every target fails, the first caught error is the most useful
+#' clue, because the causes are usually shared (e.g. a one-level covariate).
+#'
+#' @param first_error First caught per-target error, as "target: message",
+#'   or NULL when there were no targets to fit.
+#' @param analysis_context Optional prefix for the error message.
+#'
+#' @noRd
+stop_all_fits_failed <- function(first_error, analysis_context = NULL) {
+  context_msg <- if (!is.null(analysis_context)) paste0(analysis_context, ": ") else ""
+  detail <- if (is.null(first_error)) {
+    "No targets were available to fit."
+  } else {
+    paste0("First error (target ", first_error, ")")
+  }
+  stop(context_msg,
+       "All targets failed model fitting. ", detail, "\n",
+       "Common causes:\n",
+       "  - A covariate has only one level after removing samples with missing data\n",
+       "  - Insufficient samples remain after filtering.",
+       call. = FALSE)
 }

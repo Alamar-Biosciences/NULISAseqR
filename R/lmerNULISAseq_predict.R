@@ -169,6 +169,7 @@ lmerNULISAseq_predict <- function(data,
   # Main Analysis 
   ##############################
   
+  first_error <- NULL
   for (i in seq_along(targets)) {
     target <- targets[i]
     
@@ -239,7 +240,16 @@ lmerNULISAseq_predict <- function(data,
     }, error = function(e){
       cat(format(Sys.time()), "Index:",i," Target:", targets[i],"\n")
       cat(format(Sys.time()), "Error:", conditionMessage(e),"\n")
+      if (is.null(first_error)) {
+        first_error <<- sprintf("%s: %s", targets[i], conditionMessage(e))
+      }
     })
+  }
+
+  # Without this, an all-NULL stats_list reaches safe_extract_matrix() and
+  # fails with an unrelated dplyr error that hides the real cause.
+  if (all(vapply(stats_list, is.null, logical(1)))) {
+    stop_all_fits_failed(first_error)
   }
   
   ##############################
@@ -252,15 +262,15 @@ lmerNULISAseq_predict <- function(data,
   t_val <- safe_extract_matrix(stats_list, "t_vals", all_predictors)
   p_val <- safe_extract_matrix(stats_list, "p_vals", all_predictors)
   
-  p_val_FDR <- apply(p_val, 2, p.adjust, method='BH')
-  p_val_bonf <- apply(p_val, 2, p.adjust, method='bonferroni')
+  p_val_FDR <- p_adjust_columns(p_val, 'BH')
+  p_val_bonf <- p_adjust_columns(p_val, 'bonferroni')
   colnames(coef) <- paste0(colnames(coef), '_coef')
   colnames(t_val) <- paste0(colnames(t_val), '_tstat')
   colnames(p_val) <- paste0(colnames(p_val), '_pval_unadj')
   colnames(p_val_FDR) <- paste0(colnames(p_val_FDR), '_pval_FDR')
   colnames(p_val_bonf) <- paste0(colnames(p_val_bonf), '_pval_bonf')
   column_order <- c(rbind(colnames(coef), colnames(t_val), colnames(p_val), colnames(p_val_FDR), colnames(p_val_bonf)))
-  modelStats <- cbind(coef, t_val, p_val, p_val_FDR, p_val_bonf)[,column_order]
+  modelStats <- cbind(coef, t_val, p_val, p_val_FDR, p_val_bonf)[, column_order, drop = FALSE]
   modelStats <- data.frame(target=rownames(modelStats), modelStats)
   
   ##############################
