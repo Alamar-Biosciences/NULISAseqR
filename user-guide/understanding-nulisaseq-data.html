@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Understanding NULISAseq Data | NULISAseqR User Guide</title>
   <meta name="description" content="A comprehensive guide to analyzing NULISAseq proteomic data with the NULISAseqR R package" />
-  <meta name="generator" content="bookdown 0.47 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.48 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Understanding NULISAseq Data | NULISAseqR User Guide" />
   <meta property="og:type" content="book" />
@@ -555,6 +555,7 @@ See <a href="additional-resources.html#technical-documentation">Technical Docume
 <li><strong>Neuro 220 Panel</strong>: 220 key biomarkers providing comprehensive coverage of the hallmarks of neurological disease</li>
 <li><strong>CNS Disease Panel</strong>: 120+ neuro-specific and neuro inflammation-related proteins</li>
 <li><strong>Mouse Panel</strong>: 120+ inflammation, neuro-degeneration and oncogenesis proteins specific to mouse model</li>
+<li><strong>Immune 340 Panel</strong>: 340+ immune-related proteins spanning innate and adaptive immunity, including cytokines, chemokines, immune checkpoints, complement, and cell-death pathways</li>
 <li><strong>Custom assays</strong>: Develop your own biomarker assays with the NULISAqpcr Custom Assay Development Kit</li>
 </ul>
 <p><strong>Explore Current Panels:</strong> For detailed panel specifications, target lists, and custom assay options, visit the <a href="https://alamarbio.com/" target="_blank">Alamar Biosciences website.</a></p>
@@ -756,13 +757,14 @@ See <a href="additional-resources.html#technical-documentation">Technical Docume
 <p>Some NULISAseq panels include special targets that are handled differently in regards to limit of detection (LOD), detectability, and quality control reporting. Two distinct categories of special targets exist: (1) High abundance and (2) Rare case targets.</p>
 <div id="high-abundance-targets" class="section level3 unnumbered hasAnchor">
 <h3>High Abundance Targets<a href="understanding-nulisaseq-data.html#high-abundance-targets" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>Most targets in NULISAseq panels are measured near their lower limit of detection. However, certain targets have exceptionally high endogenous levels in plasma and serum that would saturate standard detection. These <strong>high abundance targets</strong> use a special normalization algorithm applied before the log2 transformation step to bring abundant proteins into a measurable range.</p>
+<p>Most targets in NULISAseq panels are measured near their lower limit of detection. However, certain targets have exceptionally high endogenous levels in plasma and serum that would saturate standard detection. These <strong>high abundance targets</strong> use a special normalization algorithm applied before the log2 transformation step to bring abundant proteins into a measurable range. In the XML data file, high abundance targets are marked as reverse curve targets: their <code>Curve_Quant</code> attribute begins with <code>R</code> (e.g., <code>Curve_Quant="R"</code>), while standard targets have <code>Curve_Quant="F"</code>.</p>
 <p><strong>Examples by panel:</strong></p>
 <ul>
 <li><strong>Inflammation Panel</strong>: <strong>CRP</strong> and <strong>KNG1</strong></li>
 <li><strong>CNS Panel</strong>: <strong>APOE</strong> and <strong>CRP</strong></li>
 <li><strong>Neuro 220 Panel</strong>: <strong>APOA1</strong>, <strong>APOA2</strong>, <strong>APOE</strong>, <strong>APOH</strong>, <strong>C1q</strong>, <strong>CRP</strong>, <strong>PPBP</strong>, <strong>PROS1</strong>, and <strong>SERPINA3</strong></li>
 <li><strong>Mouse Panel</strong>: <strong>Crp</strong></li>
+<li><strong>Immune 340 Panel</strong>: <strong>CRP</strong>, <strong>KNG1</strong>, <strong>PROS1</strong>, <strong>C1Q</strong>, <strong>C3</strong>, and <strong>C3A</strong></li>
 </ul>
 <p><strong>Key properties:</strong></p>
 <ul>
@@ -776,7 +778,7 @@ See <a href="additional-resources.html#technical-documentation">Technical Docume
 </div>
 <div id="rare-case-targets" class="section level3 unnumbered hasAnchor">
 <h3>Rare Case Targets<a href="understanding-nulisaseq-data.html#rare-case-targets" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>Rare case targets include rare isoforms, mutations, and phosphorylation sites that are present only in a small fraction of the general population. These are important markers for neurodegenerative and other diseases, but not expected to be detected in most samples by design.</p>
+<p>Rare case targets include rare isoforms, mutations, and phosphorylation sites that are present only in a small fraction of the general population. These are important markers for neurodegenerative and other diseases, but not expected to be detected in most samples by design. Across all panels, rare case targets are marked in the XML data file by <code>noDetectability</code> in the <code>modifiers</code> attribute, together with a forward (<code>F</code>) <code>Curve_Quant</code>. Reverse curve targets are also treated as <code>noDetectability</code> automatically, but they are handled as high abundance targets.</p>
 <p><strong>Examples by panel:</strong></p>
 <ul>
 <li><strong>Neuro 220 Panel:</strong> <strong>APOE4</strong>, <strong>mHTT-exon1</strong>, <strong>pLRRK2-S1292</strong>, <strong>pPRKN-S65</strong>, <strong>pQ-ATXN3</strong>, <strong>pQ-HTT</strong>, <strong>pRAB10-T73</strong>, <strong>pRAB12-S106</strong>, and <strong>pRAB29-T71</strong></li>
