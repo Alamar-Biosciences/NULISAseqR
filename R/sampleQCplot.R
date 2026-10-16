@@ -239,8 +239,8 @@ sampleQCplot <- function(runs,
       
       # Set up plot layout
       par(mfcol = c(1, length(criteria$thresholdNames) + 1), 
-          mar = c(5, 0.05, 2, 0.08))
-      
+          mar = c(5, 0.05, 2, 0.08), oma = c(0, 0, 1.5, 0))
+
       # Get all sample names for the first column (sample names)
       all_sample_names <- qcSample$sampleName
       if (AbsData) {
@@ -260,7 +260,8 @@ sampleQCplot <- function(runs,
                frame.plot = FALSE,
                offset = -1,
                cex = 0.45)
-      title(main = filtered_run$plateID)
+      # The label panel is too narrow for a long plateID; an outer-margin title spans the full figure instead of spilling into the next panel.
+      mtext(filtered_run$plateID, side = 3, outer = TRUE, adj = 0, font = 2, line = 0)
       
       # Create plots for each QC metric
       for(j in 1:length(names(criteria$thresholdNames))) {
